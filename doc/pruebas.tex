@@ -1,0 +1,20 @@
+% PRUEBAS BORRADOR
+
+\chapter{Pruebas, \textbf{BORRADOR}}
+\section{Casos de prueba por función}
+\begin{itemize}
+  \item divMP(vector, vector)
+    \begin{itemize}
+      \item[-] Ejemplo: Un entero igual a
+        $79228162514264337593543950336 = 2^{32+64}$ y otro igual a 
+        $4294967296 = 2^{32}$. Su división provoca a fecha 21 de Enero 
+        que falle la división debido a que el tamaño del dividendo 
+        disminuye más rápido que de uno en uno, mientras que la guarda
+        del bucle ``principal'' disminuye de uno en uno.\\
+        \textbf{Solución}: La guarda del bucle debe actualizarse en
+        función de la variación de tamaño del dividendo.
+    \end{itemize}
+\end{itemize}
+
+        
+        

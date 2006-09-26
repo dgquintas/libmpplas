@@ -1,0 +1,35 @@
+PROGRAM = Texto
+
+SHELL = /bin/bash
+CC = g++
+STDCFLAGS = -g3 -c -Wall -O0 
+INCLUDES = -I. -Ilibnumth
+LIBS = -L. -lnumth
+
+${PROGRAM}: calculadora.o mlex.o gram_lex.o gram_loader.o Texto.o
+	$(CC) -o ${PROGRAM} calculadora.o mlex.o gram_lex.o gram_loader.o Texto.o	$(LIBS)
+
+Texto.o: Texto.cpp
+	$(CC) $(STDCFLAGS) $(INCLUDES) Texto.cpp
+
+calculadora.o: calculadora.cc mlex.h
+	$(CC) $(STDCFLAGS) $(INCLUDES) calculadora.cc
+
+mlex.o: mlex.h mlex.cc
+	$(CC)  $(STDCFLAGS) $(INCLUDES) mlex.cc
+
+gram_loader.o: gram_loader.h gram_loader.cc
+	$(CC)  $(STDCFLAGS) $(INCLUDES) gram_loader.cc
+
+gram_lex.o: gram_lex.h gram_lex.cc
+	$(CC) $(STDCFLAGS) $(INCLUDES) gram_lex.cc
+
+clean:
+	rm -f ${PROGRAM} *.o *~ 
+	
+
+
+	
+	
+
+

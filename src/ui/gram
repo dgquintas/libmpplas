@@ -1,0 +1,28 @@
+
+$start=  $lsent             &copia;
+$lsent=  $lsent $sent ';'   &lsent;
+$lsent=  $sent  ';'         &copia;
+$lsent=  $lsent $sents ';'  &lsent;
+$lsent=  $sents  ';'        &copia;
+$sent =  $exp               &sent;
+$sents = $exp    ':'        &sents;
+
+$exp  =  T_IDE '='  $exp  &asign; '+' '-' '*' '/' '^' SHIFT
+$exp  =  $exp  '+'  $exp  &suma ; '*' '/' '^' SHIFT
+$exp  =  $exp  '-'  $exp  &resta; '*' '/' '^' SHIFT
+$exp  =  $exp  '*'  $exp  &mul  ; '^' SHIFT
+$exp  =  $exp  '/'  $exp  &div  ; '^' SHIFT
+$exp  =  $exp  '%'  $exp  &mod  ; '^' SHIFT
+$exp  =  $exp  '^'  $exp  &exp  ; '^' SHIFT
+$exp  =  '-'        $exp  &neg  ; ALL REDUCE
+$exp  =  '('        $exp  ')' &par  ;
+$exp  =  $num             &copia;
+
+$la   =  $exp              &empty;
+$la   =  $la   ','  $exp   &append;
+$exp  =  T_IDE '(' $la ')' &func;
+
+$num  =  T_INT            &int  ;
+$num  =  T_IDE            &ide  ;	
+$num  =  T_FLO            &flo  ;
+

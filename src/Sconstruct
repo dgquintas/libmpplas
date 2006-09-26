@@ -1,0 +1,24 @@
+env = Environment(CPPPATH=['#/nucleo','#/.'],
+                  CCFLAGS=['-O3', '-g'] )
+files = Split("""
+    CRT.cpp
+    Factor.cpp
+    Funciones.cpp
+    GCD.cpp
+    Hash.cpp
+    LCM.cpp
+    mp.cpp
+    Perfil.cpp
+    Potencia.cpp
+    Primos.cpp
+    Random.cpp
+    R.cpp
+    RedModular.cpp
+    Semillero.cpp
+    SimbolosLegendre.cpp
+    Trascendentes.cpp
+    utils.cpp
+    Z.cpp
+    Z_n.cpp
+    """)
+env.SharedLibrary('numth', files)

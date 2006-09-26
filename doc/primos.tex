@@ -1,0 +1,849 @@
+% CAPITULO SOBRE LOS NÚMEROS PRIMOS
+
+\chapter{Números primos}\label{cap:primos}\index{números!primos}
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+        \ldots there is no apparent reason why one number is prime and another not.
+        To the contrary, upon looking at these numbers one has the feeling of
+        being in the presence of one of the inexplicable secrets of creation.
+        }
+        \begin{flushright}
+          \textbf{\textemdash D. Zagier}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+\bigskip
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+        So if you could be the Devil and offer a mathematician to sell his soul
+        for the proof of one theorem - what theorem would most mathematicians
+        ask for? I think it would be the Riemann Hypothesis.
+        }
+        \begin{flushright}
+          \textbf{\textemdash H. Montgomery}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+\bigskip
+
+\begin{center}{\line(1,0){325}}\end{center}
+
+%--------------------------------------------------------%
+
+\section{Introducción}
+Los números primos juegan un papel importantísimo en criptografía.
+Por ejemplo, véase el papel que juegan en el problema FACTORING
+(sección \ref{factoring}) y por ende en muchos de los demás problemas
+de la sección \ref{problemasFundamentales} que se reducen a éste. No
+es menos importante su presencia en la Teoría de Números.
+
+En esta sección se presentan los mecanismos que la librería ofrece
+para el trabajo con primos.
+
+
+\section{Resultados importantes}
+Se recogen aquí algunos resultados que serán citados a lo largo de
+este capítulo.
+
+\subsection{El teorema de los números primos}
+Uno de los grandes hallazgos de la Teoría de Números del siglo XIX,
+demostrado de forma independiente por Hadamard y Poussin en 1896
+(\cite{countingPrimes}). Su formulación original es:
+
+  \begin{teorema}[Teorema de los números primos]\label{teoremaPrimos}
+      El número de primos menores o iguales que $x$ es asintóticamente igual a
+      $\frac{x}{\ln{x}}$.
+  \end{teorema}
+
+  El concepto de ``número de primos menores o iguales que $x$'' cuenta con su
+  propia función, y nada menos que representada por la letra griega
+  posiblemente más famosa: $\pi$. Suele denominarse a esta función
+  como de \index{primos!recuento}{\emph{recuento de primos}}\label{funcionPi}.
+  Mucho se ha escrito acerca de esta función, por ejemplo véase
+  \cite{riesel}\footnote{pág. 44 y siguientes}. 
+
+  Una formulación más rigurosa de $\pi(x)$ sería:
+  \[
+    \pi(x) = \textrm{Li} + O(x \cdot e^{-a\sqrt{\log(x)})}
+  \] 
+  con $a$ una constante positiva y
+  \[
+    \textrm{Li} = \int_{2}^{x} \frac{dt}{\log(t)}
+  \]
+  denominada la \emph{integral logarítmica}.
+
+  La Hipótesis de Riemann citada al comienzo del capítulo hace su
+  aparición aquí, por tanto que el error de la $\pi(x)$ anterior puede
+  reducirse a $O(\sqrt{x} \log(x))$ si ésta es cierta, resultando por
+  tanto $\textrm{Li}$ una muy buena aproximación a $\pi(x)$.
+
+  \subsection{Teorema de Mertens}
+  Importante resultado a la hora de realizar estimaciones en las
+  cribas.
+
+  \begin{teorema}[Teorema de Mertens]\label{mertens}
+  Siendo $\gamma$ la constante de Euler-Mascheroni\footnote{
+  $\gamma = \lim_{n \rightarrow \infty} \left(\sum_{k=1}^n \frac{1}{k}
+  - \ln n \right) \approx 0.57721566490153286060\cdots$},
+  \[
+   \prod_{2\leq p \leq x} \left( 1 - \frac{1}{p} \right) \sim
+   \frac{e^{-\gamma}}{\ln x} = \frac{0.5615}{\ln x}, \qquad
+   x\rightarrow \infty
+  \]
+  \end{teorema}
+  
+  
+
+\section{Tests de composición}\label{testsDeComposicion}
+  Los así denominados son los tests que, cuando se les presenta un 
+  número, determinan con un cierto grado de probabilidad la primalidad
+    del mismo. Si el número es primo, siempre responden 
+    correctamente. Si por contra es compuesto, se
+    devuelve la respuesta correcta con probabilidad
+    $p$, valor que puede hacerse tan cercano a $1$ como se
+    desee, pero sin llegar a serlo. 
+    
+\subsection{Test de Fermat}
+  El test de composición más simple se basa en el siguiente conocido
+  teorema debido a Pierre de Fermat, quien en el siglo XVII fue hombre
+  de leyes, dedicándose a las matemáticas a modo de ``afición'' (y
+  tal y como a Gauss se le llamó el ``principe de los matemáticos'', a
+  Fermat se le ha llegado a llamar el ``principe de los
+  aficionados''). Parece que también tenía afición a plantear
+  conjeturas de una considerable longevidad cuyas ``maravillosas
+  pruebas'' no cabían en los márgenes.
+  \begin{teorema}[Pequeño teorema de Fermat]
+  Dado $p$ un primo y $a \in \mathbb{N}$, 
+  \[
+    a^p \equiv a \pmod{p}
+  \]
+  Si además $p$ y $a$ son coprimos, entonces 
+  \begin{eqnarray*}
+    a^p - a & \equiv & 0 \pmod{p} \\
+    a(a^{p-1} - 1) & \equiv & 0 \pmod{p} \\
+    a^{p-1} & \equiv & 1 \pmod{p} 
+  \end{eqnarray*}
+  \end{teorema}
+  
+  Así que dándole la vuelta, se tiene que si $a^{n-1} \not\equiv 1 \pmod{n}$
+  para $a$ y $n$ coprimos, $n$ \emph{no} puede ser primo, siendo por
+  tanto compuesto. Es a esto a lo que se denomina el
+  \index{test!Fermat}{\emph{test de Fermat}}.
+  
+    \subsubsection{Pseudoprimos}
+    Por desgracia, esto es una condición necesaria pero \emph{no
+    suficiente} para demostrar la primalidad de $n$. El número
+    \emph{compuesto} que para un determinado $a$ satisface la
+    congruencia del test de Fermat se dice
+    \index{pseudoprimo}{\emph{pseudoprimo}} para la base $a$.
+    Existen incluso pseudoprimos para \emph{todas} las posibles bases $a$, 
+    denominándose estos \index{números!de Carmichael}{\emph{números de
+    Carmichael}} (por ejemplo, el $561$). Estos números presentan
+    propiedades muy interesantes, siendo muy extensa la bibliografía al
+    respecto. Consultar por ejemplo \cite{riesel}\footnote{pág. 95}.
+    Importante reseñar que en 1994 Alford, Granville, y Pomerance demuestran la existencia
+    de infinitos de estos números de Carmichael.
+
+    La conclusión que se saca es que aunque el test de Fermat pueda ser
+    útil en algunas ocasiones, no es viable su utilización en general.
+    
+
+  \subsection{El criterio de Euler}\label{criterioEuler}
+  Con el siguiente teorema debido a Leonhard Euler\footnote{Marquis de
+  Condorcet diría de él a su muerte: ``Euler cesó de vivir y de
+  calcular'', ya que solía decirse que ``Euler calculaba en apariencia
+  sin ningún esfuerzo, igual que los hombres respiran o que las
+  águilas se sostienen en el aire''}
+  se presenta un panorama mejor:
+  \begin{teorema}[Criterio de Euler]\label{tma:criterioEuler}
+  Sean $a \in \mathbb{N}$ y $p > 2$ primo coprimos. Entonces
+  \[ 
+    \left( \frac{a}{p} \right) \equiv a^{(p-1)/2} \pmod{p}
+  \]
+  ($\left( \frac{a}{p} \right)$ representa el símbolo de Legendre, véase 
+  \ref{simboloLegendre})
+  \end{teorema}
+  Entonces, para $a$ y $n > 2$ coprimos siendo $n$ primo, se cumple
+  $a^{(n-1)/2} \equiv \pm{1} \pmod{n}$.
+  Como para el caso anterior, si a esto se le da la vuelta, se tiene
+  que si $a^{(n-1)/2} \not\equiv \pm{1} \pmod{n}$, $n$ \emph{no} puede 
+  ser primo y será por tanto compuesto. Y aún así, aunque la
+  equivalencia se cumpliera, restaría comparar el valor de $a^{(n-1)/2}$ 
+  con el del símbolo de Jacobi $\left(
+  \frac{a}{n} \right)$. Si ambos difieren módulo $n$, $n$ será
+  compuesto. Si coinciden, no es posible concluir nada, ya que esto
+  precisamente es el \index{QRP}{QRP} (véase \ref{qrp}).
+
+  Hasta ahora, tenemos fundamentalmente lo mismo que se tenía con el
+  test de Fermat: una condición necesaria pero \emph{no} suficiente. Y aquí
+  también hay mentirosos.
+  \subsubsection{Pseudoprimos de Euler}\label{pseudoprimosDeEuler}
+  \begin{definicion}[Pseudoprimo de
+      Euler]\label{def:pseudoprimoDeEuler}
+    Si un número compuesto $n$ satisface 
+    \[ 
+      \left( \frac{a}{n} \right) \equiv a^{(n-1)/2} \pmod{n}
+    \]
+    para $a$ coprimo con él, se tiene un \index{pseudoprimo!de
+    Euler}{\emph{pseudoprimo de Euler}} para la base $a$.
+  \end{definicion}
+    Sin embargo, lo interesante viene ahora:
+    \begin{teorema}\label{noExitenciaCarmichael}
+      No existe un concepto análogo a los \index{números!de Carmichael}
+      {números de Carmichael} para los pseudoprimos de Euler. Esto es, 
+      si se prueba con las suficientes bases $a$, se revelará la
+      composición (o primalidad) del número a prueba.
+    \end{teorema}
+    
+    \subsection{Pseudoprimos fuertes}\label{pseudoprimosFuertes}
+    El teorema \ref{noExitenciaCarmichael} se hace extensivo a otro 
+    concepto íntimamente relacionado:
+    \begin{definicion}[Pseudoprimos
+      fuertes]\label{def:pseudoprimosFuertes}
+      Un número compuesto $n$ con $n-1 = d \times 2^s$ tal que $d$
+      impar, se denomina \index{pseudoprimo!fuerte}{\emph{pseudoprimo
+      fuerte}} para la base $a$ si
+      \[
+        a^d \equiv 1 \pmod{n} 
+      \]
+      o bien
+      \[
+        a^{d\times2^r} \equiv -1 \pmod{n} 
+      \]
+      para algún $r \in [0,1,\cdots, s-1]$.
+    \end{definicion}
+    Este concepto es útil ya que se demuestra que es una condición más
+    restrictiva que las impuestas por el criterio de Euler. De hecho,
+    engloba los conceptos del test de Fermat, del criterio de Euler y
+    de los números de Carmichael ---en el sentido ya expuesto de no
+    tener algo análogo---; una base $a$ para la que $n$ es un
+    pseudoprimo fuerte, también lo es bajo el criterio de Euler. A su
+    vez, si $a$ es base de un pseudoprimo de Euler $n$, también lo será en
+    el test de Fermat (\cite{handbook}\footnote{pág. 140, punto
+    4.30}).
+    
+
+  \subsection{Test de Rabin-Miller}\label{testRabinMiller}
+  El test de composición más utilizado dada su facilidad de
+  implementación y su potencia. Virtualmente todo paquete que
+  permita comprobar el carácter primo de un número, desde el titán 
+  Mathematica hasta la más modesta librería para el trabajo con Teoría
+  de Números, incluye este método en algún punto.
+  Para justificar su validez se necesitan dos resultados previos:
+
+  \begin{teorema}
+    Para $n \in \mathbb{Z}$ compuesto, como máximo $\frac{1}{4}$ de
+    los números menores que $n$ son bases para las que el test de
+    pseudoprimo fuerte se satisface, arrojándose un falso positivo. 
+    (\cite{handbook}\footnote{pág. 139. Punto 4.23})
+  \end{teorema}
+  \begin{teorema} 
+    Sean $x$, $y$, $n$ enteros. Si $x^2 \equiv y^2 \pmod{n}$ pero 
+    $x \not\equiv \pm{y} \pmod{n}$, entonces el máximo común divisor
+    de $(x-y)$ y $n$ será un divisor no trivial de $n$.
+    (\cite{handbook}\footnote{pág. 94. Punto 3.18})
+  \end{teorema}
+  
+  La formulación básica de este algoritmo se muestra por ejemplo en
+  \cite{schneier}\footnote{pág. 260}. Sin embargo, en la práctica hay
+  varios aspectos a considerar para conseguir resultados en un menor
+  tiempo. El primero es el realizar una comprobación de divisibilidad
+  entre los primos menores a una determinada cota. En
+  \cite{schneier} se discute el valor de esta cota y se da como óptimo
+  el valor $2000$. Ya que $\pi(2000) = 303$, se ha de almacenar una
+  tabla con esos $303$ primos menores que $2000$. En la librería, esta
+  tabla se encuentra bajo el nombre \texttt{Constantes::TABLA\_PRIMOS\_2000}.
+  Es más, la proporción de enteros impares no eliminados por este
+  proceso de cribado es: 
+  \[
+    \prod_{3 \leq p \leq B}{(1-\frac{1}{p})} 
+  \]
+  que por el Teorema de Mertens (\ref{mertens}),
+  es aproximadamente igual a: 
+  \[
+    \frac{1.12}{\ln{B}} = \frac{1.123}{\ln{2000}} \approx 0.1474
+  \]
+  (nótese que $1.123 = 2\times 0.5615$, ya que se consideran sólo los
+  impares)
+  con lo que más del $85\%$ de los impares a probar se eliminarán en
+  este proceso de criba.
+  Estas comprobaciones de divisibilidad se han realizado
+  mediante la aplicación de la función del máximo común divisor.
+  Está claro que para todo $n \leq 2000^2$ esto constituye una
+  \emph{prueba de primalidad}; la respuesta dada determina con
+  \emph{toda seguridad} el carácter de $n$.
+
+  La segunda estrategia consiste en aprovechar el conocimiento del
+  menor número compuesto que pasa el test de Rabin-Miller para las $k$
+  primeras bases primas para concluir de nuevo con \emph{total seguridad} el
+  carácter del número. Es decir, si se sabe que el
+  menor número compuesto que pasa el test para las $k$ primeras bases primas es $x$,
+  para todo $y < x$ se podrá dar una respuesta \emph{segura} acerca de
+  su primalidad sin más que ejecutar el test con como máximo dichas $k$ bases. 
+  Por desgracia, esta técnica sólo vale a día de hoy (primera mitad de
+  2004) para números menores que $3.4 \times 10^{14}$, ya que esta
+  secuencia, referenciada en \cite{sloane} como la A014233, sólo se
+  ha desarrollado hasta el valor $341550071728321$, por Jaeschke en 1993. La
+  secuencia en cuestión es:
+  \begin{eqnarray*}
+    \psi_1 & = & 2047 \\
+    \psi_2 & = & 1373653 \\
+    \psi_3 & = & 25326001 \\
+    \psi_4 & = & 3215031751 \\
+    \psi_5 & = & 2152302898747 \\
+    \psi_6 & = & 3474749660383 \\ 
+    \psi_7 & = & 341550071728321 \\
+    \psi_8 & = & 341550071728321 
+  \end{eqnarray*}
+  siendo el subíndice de $\psi$ el citado $k$. El valor para $k=8$ no
+  es una errata, efectivamente no aporta nada, por lo cual en la
+  implementación se considerará como máximo $k=7$.
+  
+  La tercera y última cuestión a considerar es que, según
+  \cite{handbook}\footnote{pág. 140, punto 4.28}, el producto 
+  de dos bases que satisfacen la definición \ref{def:pseudoprimosFuertes}
+  de \index{pseudoprimo!fuerte}{pseudoprimo fuerte}
+  es, muy posiblemente, también una base que produce un pseudoprimo fuerte,
+  así que parece razonable utilizar como bases primos sucesivos, lo
+  cual facilita además la implementación de la estrategia anterior, ya que
+  el probar bases primas será la norma general.
+
+  Teniendo todo esto en consideración, la formulación queda de la
+  manera expuesta en el algoritmo \ref{alg:rabinMiller}. La
+  complejidad computacional de este algoritmo es fundamentalmente
+  ---obviamente las variables ocultas serán mayores--- la del algoritmo de
+  potenciación modular utilizado.
+  \begin{algorithm}
+    \caption{Test de Rabin-Miller modificado (Parte 1 de 2)}\label{alg:rabinMiller}
+    \begin{algorithmic}[1]
+      \Procedure{RabinMillerModificado}{entero $n$, iteraciones $k$}
+        \State $n \gets |n|$
+        \If{$(n = 1) \vee (n \equiv 0 \pmod{2}) $}
+          \State \textbf{devolver} ``Compuesto''
+        \EndIf
+        \If{$n \leq B^2$}
+          \State $cota \gets \lfloor\sqrt{n}\rfloor$
+          \State $i \gets 2$
+          \While{$i \leq cota$}
+            \If{$\gcd(i,n) \neq 1$}
+              \State \textbf{devolver} ``Compuesto'' 
+            \EndIf
+            \State $i \gets siguientePrimo(i)$ 
+          \EndWhile
+          \State \textbf{devolver} ``Primo'' 
+            \Comment{Con total certeza}
+        \Else
+          \State $cota \gets \pi(B)$ 
+            \Comment{$\pi$ representa la función de recuento de primos
+            (véase \ref{funcionPi})}.
+          \State $i \gets 2$
+          \While{$i \leq cota$}
+            \If{$\gcd(i,n) \neq 1$}
+              \State \textbf{devolver} ``Compuesto'' 
+            \EndIf
+            \State $i \gets siguientePrimo(i)$ 
+          \EndWhile
+
+          \State \Comment{Optimizar si es posible el número de
+          iteraciones por medio de la secuencia de Sloane.}
+          \If{$n < \psi_7$}
+           \If{$n < \psi_6$}
+            \If{$n < \psi_5$}
+             \If{$n < \psi_4$}
+              \If{$n < \psi_3$}
+               \State $k = 3$ \EndIf
+              \Else $k = 4$ \EndIf
+             \Else $k = 5$ \EndIf
+            \Else $k = 6$ \EndIf
+           \Else $k = 7$ \EndIf
+        
+           \State \Comment{Aquí ya sí empieza el método ``clásico'' de
+           Rabin-Miller, con la salvedad de que se consideran las
+           bases como los primos sucesivos, en vez de ser números
+           aleatorios. Véase esto en la segunda parte del algoritmo.}
+           \EndIf
+           \EndProcedure
+         \end{algorithmic}
+       \end{algorithm}
+
+       \begin{algorithm}
+         \caption{Test de Rabin-Miller modificado (Parte 2 de 2)}\label{alg:rabinMiller2}
+         \begin{algorithmic}[1]
+           \State Determinar $r$ y $s$ tales que $n-1 = 2^s \times r$
+           \State $a \gets 1$
+           \For{$i=0$ hasta $i=k$}
+            \State $a \gets siguientePrimo(a)$
+            \State $y = a^r \bmod n$\label{subAlg:RM1}
+            \If{$(y \neq 1) \wedge (y \neq n-1)$}
+              \State $j \gets 1$
+              \While{$(j \leq s-1) \wedge (y \neq n-1)$}
+                \State $y \gets y^2 \bmod n$\label{subAlg:RM2}
+                \If{$y = 1$}
+                  \State \textbf{devolver} ``Compuesto'' 
+                \EndIf
+                \State $j \gets j+1$
+              \EndWhile
+              \If{$y \neq n-1$}
+                \State \textbf{devolver} ``Compuesto'' 
+              \EndIf
+            \EndIf
+           \EndFor
+           \State \textbf{devolver} ``Primo'' 
+    \end{algorithmic}
+  \end{algorithm}
+
+  
+  En relación con la segunda cita incluida al comienzo del capítulo, 
+  señalar que como indica \cite{riesel}\footnote{pág. 99}, Gary Miller
+  (como es fácil de adivinar, parte importante del desarrollo del
+  método Rabin-Miller) demostró que, \emph{asumiendo como cierta la Hipótesis
+  de Riemann Generalizada}, los tests que se apoyan en el concepto de
+  pseudoprimo fuerte, tal como es el para su método cuasi-homónimo,
+  pueden constituir un test de \emph{primalidad} en tiempo polinomial.
+  Y es seguro que no queda claro el enorme papel que la célebre
+  Hipótesis de Riemann juega en la Teoría de Números con sólo lo
+  expuesto en la presente memoria, pero
+  ciertamente es uno de los conceptos recurrentes en muchas de las ramas 
+  de la Matemática. 
+  Es muy amena e interesante la lectura de \cite{constants} para tener
+  una pequeña visión de todo esto. 
+
+  \subsection{Otros tests}
+  Existen otros tests de composición probabilísticos como el de
+  Rabin-Miller, siendo quizás uno de los más conocidos el de 
+  Slovay-Strassen. Este método es una aplicación directa del concepto
+  de \index{pseudoprimo!de Euler}{pseudoprimo de Euler} y del teorema
+  \ref{tma:criterioEuler}, como se ve en el algoritmo
+  \ref{alg:slovayStrassen}.
+
+  \begin{algorithm}
+    \caption{Test de Slovay-Strassen}\label{alg:slovayStrassen}
+    \begin{algorithmic}[1]
+      \Procedure{SlovayStrassen}{entero $n$, iteraciones $k$}
+      \For{$i=0$ hasta $i=k$}
+        \State $a \gets r \in (1,n-1) aleatorio$
+        \State $r \gets a^{(n-1)/2} \bmod n$
+        \If{$(r \neq 1) \wedge (r \neq n-1)$}
+          \State \textbf{devolver} ``Compuesto''
+        \EndIf
+        \State $s \gets \left( \frac{a}{n} \right)$ 
+          \Comment{Símbolo de Jacobi}
+          \If{$r \not\equiv s \pmod{n}$}
+            \State \textbf{devolver} ``Compuesto''
+        \EndIf
+      \EndFor
+      \State \textbf{devolver} ``Primo''
+      \EndProcedure
+    \end{algorithmic}
+  \end{algorithm}
+
+  La elección del método de Rabin-Miller como el incluido de serie en
+  la librería sobre el método de Slovay-Strassen no ha sido
+  caprichosa. Se apoya en estos puntos:
+  \begin{enumerate}
+    \item Es más costoso, básicamente a causa de calcular para cada
+      iteración un símbolo de Jacobi $\left( \frac{a}{n} \right)$ para
+      un $n$ potencialmente muy grande, teniendo en cuenta que esta
+      operación tiene un coste $O(\log^2{n})$. %todo: completar
+    \item El error del método Slovay-Strassen está acotado por
+      $\left(\frac{1}{2}\right)^k$ con $k$ el número de iteraciones,
+      mientras que para Rabin-Miller esta cota es de $\left(\frac{1}{4}\right)^k$.
+    \item Por lo dicho en \ref{pseudoprimosFuertes}, Rabin-Miller
+      nunca será ``peor'' que Slovay-Strassen, al apoyarse en el
+      concepto de pseudoprimo fuerte, frente al de pseudoprimo de Euler
+      del método de Slovay-Strassen.
+  \end{enumerate}
+\section{Tests de primalidad}\label{testsDePrimalidad}
+  Frente a los tests de composición (véase \ref{testsDeComposicion}),
+  los tests de primalidad dan una respuesta totalmente certera sobre
+  el carácter primo de un número\footnote{Algunos autores como
+  \cite{riesel,cohen} hablan de \emph{demostración} de la primalidad.
+  Aunque ciertamente puede verse así, hay quien discrepa ---de forma
+  un tanto romántica--- sobre si esto constituye una demostración en
+  el sentido ``clásico''. El denominado ``problema de los cuatro
+  colores'' es el caso clásico de demostración mediante el uso de
+  ordenadores. Una muy amena lectura divulgativa sobre esto es
+  \cite{fermat}, pág. 280 y siguientes.}.
+  
+  Entonces, ¿por qué no se han implementado
+    tests de \index{test!primalidad}{\emph{primalidad}}? Estos dan con
+    una total certeza una respuesta a la pregunta acerca de la
+    primalidad (que no composición simplemente) de un número 
+    (véase \ref{testsDePrimalidad}), ¿así
+    pues? Pues bien, las razones fundamentalmente han sido dos:
+    \begin{enumerate}
+      \item El coste computacional es notablemente superior. El mejor
+        algoritmo en este sentido del que se tiene conocimiento a la
+        hora de escribir esto (primera mitad de 2004) es el denominado
+        AKS, del cual en \cite{AKS} se dice está en $O(\log^{10.5}
+        {n})$, con la posibilidad de bajar esta cota de cumplirse
+        ciertas conjeturas\footnote{\textit{Ibídem, pp. 6,7}}. Aún así,
+        las constantes ocultas son muy considerables, lejos del
+        $O(\log^{2}{n})$ del método de Rabin-Miller, además de ser un
+        algoritmo considerablemente más complejo de implementar.
+      \item No existe una necesidad \emph{real} de estos métodos. Aún
+        cuando un test de composición se ejecute con una probabilidad de
+        error equivalente a la de ganar la lotería estatal de Estados
+        Unidos y ser fulminado por un rayo el mismo día (probabilidad $1/2^{55}$
+        según \cite{schneier}\footnote{pág. 18}), tan sólo supondrían
+        $27$ iteraciones en el método de Rabin-Miller (véase
+        \ref{testRabinMiller}), y esto siendo extremadamente
+        conservador y pesimista con las estimaciones. 
+    \end{enumerate}
+
+
+ \section{Factorización}\label{factorizacion}
+  La factorización de enteros es uno de los ``santos griales'' de la
+  criptografía, por ser precisamente el problema FACTORING expuesto en
+  la sección \ref{factoring}. 
+  Se incluyen en la librería una serie de métodos para la
+  factorización de enteros relativamente ``grandes'', pero desde el
+  punto de vista no ya de la criptografía, sino más bien del usuario: Al
+  autor un número de $40$ bits le parece honestamente bastante
+  grande; sin embargo nadie en su sano juicio usaría factores de $40$
+  bits en un algoritmo de clave pública como RSA para generar un
+  entero producto de $80$ bits, el cual podría ser roto en
+  razonablemente poco tiempo por los sencillos\footnote{\cite{cohen}
+  titula al capitulo en el que expone alguno de estos algoritmos como
+  ``Factoring in the Dark Ages'', lo cual da una idea de que han sido
+  superados ya por otros métodos.} algoritmos que esta librería
+  incorpora.
+
+  Cada método tiene un ``espectro'' de acción determinado. Es por esto
+  que la idea es combinarlos en función de sus particularidades,
+  orientando a cada uno a un determinado rango del tamaño del entero a
+  factorizar. 
+
+  Por último, remarcar que la factorización es un proceso recursivo:
+  los algoritmos tratarán siempre de encontrar un factor no trivial,
+  entre el que se dividirá el número a factorizar y vuelta a empezar
+  hasta obtener eventualmente un número primo.
+  \subsection{Criba}\label{cribaFact}
+    Es el método más obvio, y consiste en comprobar la divisibilidad
+    del número a factorizar $n$ entre todos los primos $\leq
+    \sqrt{n}$. 
+    En el peor caso, se tendría una complejidad de
+    aproximadamente $\Omega(\sqrt{n})$ divisiones
+    si $n$ está formado por dos factores
+    primos de aproximadamente el mismo tamaño. 
+    De media, se tendría un número de divisiones en $O(\pi(n))$,
+    siendo $\pi$ la función de recuento de primos de la sección
+    \ref{funcionPi}. En otras palabras, este algoritmo tiene
+    complejidad \emph{exponencial}.
+
+    Ahora bien, por el teorema de Mertens (teorema \ref{mertens}), la
+    proporción de impares que no tienen factores por debajo de una
+    cota determinada $B$ se reproduce en la tabla
+    \ref{tablaProporFactores}.
+    \begin{table}
+      \begin{center}\begin{tabular}{|c|c|} 
+        \hline 
+        \multicolumn{1}{|c|}{$B$}&
+        proporción\tabularnewline
+        \hline
+        \hline 
+        $10^2$&
+        $0.24385$\tabularnewline
+        \hline 
+        $10^4$&
+        $0.121925$\tabularnewline
+        \hline 
+        $10^6$&
+        $0.081282$\tabularnewline
+        \hline 
+        $10^8$&
+        $0.060962$\tabularnewline
+        \hline
+      \end{tabular}\end{center}
+      \caption{Proporción de impares sin factores por debajo de $B$}
+      \label{tablaProporFactores}
+    \end{table}
+    Es fácil ver que esta tabla ha sido construida en base a:
+    \[
+      \prod_{p \geq 3}^B \left(1-\frac{1}{p}\right) \approx
+      2\frac{e^{-\gamma}}{\ln B} = \frac{0.4877}{\log_{10} B}
+    \]
+    A la vista de estas proporciones, se puede concluir que es
+    razonable utilizar un proceso de cribado para tratar de extraer
+    los factores pequeños de una forma rápida. 
+
+    \paragraph{Estimación de la cota.}
+    Saber en qué momento abandonar el proceso de cribado es
+    fundamental dado el carácter exponencial del mismo; si la cota es
+    demasiado grande la complejidad del proceso de factorización se
+    dispara. Por otra parte, no ha de ser excesivamente pequeña ya que
+    entonces carecería de sentido realizar el proceso. Como casi
+    siempre, hay que encontrar una solución balanceada.
+    Primero, siempre que hay primos de por medio, ha de tenerse presente la
+    especial distribución de los mismos, que el teorema
+    \ref{teoremaPrimos} muestra: La densidad de primos puede
+    aproximarse por la función decreciente $1/\ln x$ como muestra la
+    figura \ref{fig:densidadDePrimos}.
+
+    \begin{figure} \label{fig:densidadDePrimos}
+    \begin{center}
+        \input{densidadPrimos.tex}
+    \end{center}
+    \caption{Densidad de primos}
+  \end{figure}
+
+    El valor $2000$ parece adecuado por varios motivos: por el
+    teorema de Mertens (teorema \ref{mertens}) sólo un poco más del
+    $7\%$\footnote{$0.5615/\ln{2000} \approx 0.07386$} de los enteros
+    no tendrán factores por debajo de $2000$; ya se dispone de una
+    tabla de los $303 = \pi(2000)$ primos menores de $2000$ calculada
+    (la cual se utiliza en el tests de Rabin-Miller ---véase
+    \ref{testRabinMiller}) y a la vista de la gráfica de la figura
+    \ref{fig:densidadDePrimos} parece un buen punto, estando ya
+    próximo a la zona en la que la densidad de primos es baja y sigue
+    descendiendo a un ritmo lento.
+    Por último, el uso de una cota tan pequeña
+    (\cite{cohen}\footnote{pág. 413} recomienda incluso utilizar
+    $500000$ como cota) se justifica por la presencia del método
+    $\rho$ de Pollard, que se encarga mucho mejor de los factores
+    pequeños que la criba. 
+
+  \subsection{$\rho$ de Pollard}\label{rhoPollard}
+  Este método de factorización está especialmente indicado para la
+  búsqueda de factores pequeños. 
+  
+  En la siguiente definición, se utiliza la misma terminología en
+  cuanto a $\lambda$ y $\mu$ que en el teorema
+  \ref{existenciaDeCiclos}. Asimismo, se remite al lector a ese
+  teorema, relativo a la existencia de ciclos, como paso previo a la
+  definición que sigue:
+  \begin{definicion}[Búsqueda de ciclos de Floyd]
+    Comenzando con el par $(x_1,x_2)$, calcular sucesivamente pares de
+    la forma $(x_i,x_{2i})$ a partir de $(x_{i-1},x_{2i-2})$, hasta
+    que $x_m = x_{2m}$ para algún $m$. Si la ``cola'' de la secuencia
+    tiene longitud $\lambda$ y el ciclo longitud $\mu$, la primera vez
+    que se verifique $x_m = x_{2m}$ es cuando $m = \mu(1+\lfloor
+    \lambda/\mu \rfloor )$. 
+  \end{definicion}
+
+  El meollo del método $\rho$ de Pollard se basa en el siguiente
+  razonamiento: \\
+  Sea $p$ un factor primo de un compuesto $n$. Se trata de encontrar
+  duplicados en la secuencia $x_0,x_1,\cdots$ definida por\footnote{En
+  realidad, la secuencia siguiente se define como generada por una
+  función aleatoria. Sin tener esto nada que ver con todo lo tratado
+  en el capítulo \ref{cap:random}\ldots tan solo se pretende que la
+  secuencia no sea una procesión de valores sucesivos, para facilitar
+  la búsqueda de ciclos de la que se hablará posteriormente. Se
+  comprueba que las funciones del tipo $x_{i+1} = f(x_i) = x_i^2 + a$
+  funcionan bien, \emph{excepto} para los casos $a=-2$ y $a=0$. Normalmente
+  suele utilizarse el valor $a=1$. Sin embargo, nótese que la elección
+  de esta función aleatoria es arbitraria con la salvedad
+  de los casos anteriormente citados $a=-2$ y $a=0$.}  
+  $x_0 = 2$,
+  $x_{i+1} = f(x_i) = x_i^2 + 1 \bmod p$ para $i \geq 0$. Mediante el
+  anteriormente citado método de busqueda de ciclos de Floyd, se
+  buscarían dos elementos, $x_m$ y $x_{2m}$, tales que $x_m \equiv x_{2m}
+  \pmod{p}$. Pero claro, ¡$p$ es precisamente lo que estamos buscando! 
+  En su lugar, se trabajará reduciendo módulo $n$ en vez de módulo
+  $p$. Así, en el momento en el que se encuentren valores $x_m$ y
+  $x_{2m}$ tales que $1 < d = \gcd(x_m - x_{2m},n) < n$, se habrá
+  encontrado un factor no trivial $d$ (posiblemente distinto de $p$,
+  pero eso no supone ningun problema). La justificación se deriva de la
+  propiedad (\ref{cong6}) de la sección \ref{congruencias}, por la que
+  se tendría $x_m \equiv x_{2m} \pmod{p}$, al ser $p$ divisor de $n$.
+  Entonces, al realizar el cálculo del máximo común divisor 
+  $\gcd(x_m - x_{2m},n)$, casi con total seguridad (existe una
+  pequeñísima probabilidad de que de este cálculo salga $n$, lo que no
+  aportaría nada. Si esto ocurre, habrá de utilizarse otra función
+  aleatoria $f()$ para la generación de la secuencia $x_i$ si se pretende
+  seguir utilizando este método para factorizar $n$) se se obtendría un divisor
+  no trivial de $n$, ya que
+  si $x_m \equiv x_{2m} \pmod{p}$, habrá un algún factor de $n$ (el
+  propio $p$ o cualquier otro factor no trivial) que saldrá necesariamente a la
+  luz con el cálculo del máximo común divisor citado.
+
+  Resta, sin embargo, tener alguna certeza de que las colisiones se
+  vayan a producir con una frecuencia suficiente como para que este
+  método no sea inútil. Pollard demostró que en una secuencia de
+  enteros, reducida módulo $p$, un elemento se repite tras tan solo
+  $C\sqrt{p}$ pasos, para una constante $C$. Aquí aparece una idea ya
+  presentada en el capítulo \ref{cap:fundamentosCriptograficos}: la
+  (mal llamada) paradoja del cumpleaños. Véase \ref{ataqueCumple}.
+  Se pueden encontrar tratamientos en profundidad del método de la $\rho$ de
+  Pollard en \cite{riesel}\footnote{pp. 174-184},
+  \cite{knuth2}\footnote{pp. 369-371, bajo el nombre de
+  ``Factorización à la Monte Carlo''.} y en especial \cite{cohen}\footnote{pp.
+  419-425}.
+
+  Este método toma la forma mostrada en el algoritmo
+  \ref{alg:rhoPollard}. Como se puede apreciar, uno de los puntos a
+  favor de este método es su facilidad de implementación.
+
+   \begin{algorithm}
+     \caption{Algoritmo de factorización $\rho$ de Pollard}\label{alg:rhoPollard}
+    \begin{algorithmic}[1]
+      \Procedure{RhoPollard}{entero $n$}
+      \State $a \gets 2$
+      \State $b \gets 2$
+      \For{$i=1$ hasta $i=CotaRhoPollard$}
+        \State $a \gets a^2+1 \bmod n$
+        \State $b \gets b^2+1 \bmod n$
+        \State $b \gets b^2+1 \bmod n$ \Comment{No, no es una errata}
+        \State $d \gets \gcd(a-b,n)$
+        \If{$1 < d < n$}
+          \State \textbf{devolver} $d$ como divisor no trivial de $n$.
+        \Else
+          \If{$d=n$}
+            \State \textbf{devolver} Error, necesario cambiar función
+            aleatoria.
+          \EndIf
+        \EndIf
+      \EndFor
+      \State \textbf{devolver} No se ha encontrado divisor no trivial
+      tras $CotaRhoPollard$ iteraciones.
+      \EndProcedure
+    \end{algorithmic}
+  \end{algorithm}
+
+
+
+  Ha de señalarse que este método, en algunas ocasiones, devuelve
+  factores no primos. Sin embargo, esto se ataja convenientemente al
+  someter al número a factorizar a un proceso de cribado, como se
+  describe en la sección \ref{cribaFact}, previamente a la ejecución del algoritmo que
+  implemente este método de la $\rho$ de Pollard.
+  
+\section{Generación de primos}
+ La generación de números primos es una parte fundamental de la
+ criptografía de clave pública (véase \ref{clavePublica}). Que ésta
+ sea eficiente es por tanto fundamental.
+
+ El esquema utilizado es bastante sencillo, descansando en los tests
+ antes descritos para comprobar si un número impar generado aleatoriamente
+ es o no primo. De serlo, hemos terminado. En caso contrario, se
+ puede incrementar dicho número en dos unidades (obviamente, para que
+ siga siendo impar) o bien volver a generar
+ aleatoriamente otro número impar y repetir el proceso.
+ Hacer esto es razonable a la vista del teorema \ref{teoremaPrimos},
+ por el cual, en su formulación más simple (aproximando por
+ $(x/\ln{x})$), se tiene que la densidad de primos alrededor de un
+ número $n$ será de aproximadamente $1/\ln{n}$, con lo que para
+ generar un primo de, por ejemplo, $256$ bits en el peor de los casos
+ se realizarán $\ln{2^{256}}$ comprobaciones. Pero dado que sólo se
+ consideran los impares, esta cifra se vuelve la mitad, quedándonos
+ con una cota superior de $(\ln{2^{256}}/2) \approx 88$ comparaciones.
+  \subsection{Estimación del número óptimo de iteraciones}
+    Ahora bien, los tests utilizados son probabilísticos, y por lo
+    tanto, dan su respuesta con un cierto grado de certeza (véase
+    \ref{testsDeComposicion}). Entonces surge la pregunta ¿qué puede 
+    considerarse ``certero''?
+    Un valor que suele darse por adecuado es la probabilidad de error 
+    $\left( \frac{1}{2} \right)^{80}$ ---una probabilidad
+    terriblemente pequeña: tal como dice \cite{knuth2}\footnote{pág.
+    379}, y lo dice para $\left( \frac{1}{2} \right)^{50}$, es mucho 
+    más probable que se produzca el cambio espontáneo del valor de un
+    bit debido al mal funcionamiento del hardware 
+    que el dar un número compuesto como primo trabajando con esa
+    probabilidad de error. Otra forma de verlo es que 
+    $\left( \frac{1}{2} \right)^{66}$ es la probabilidad de morir 
+    fulminado por un rayo a lo largo de un día\ldots \emph{¡dos
+    veces!}
+    
+    La estimación de que el test de Rabin-Miller responde con una
+    certeza no menor que $\left( \frac{1}{4} \right)^k$ tras $k$
+    iteraciones es muy pesimista y conservadora. Para valores
+    ``grandes'', es posible reducir considerablemente el número 
+    de iteraciones necesario para garantizar la citada 
+    probabilidad de $(1/2)^{80}$. En \cite{handbook}\footnote{pp.
+    146-148} hay un análisis muy interesante de estas cotas de
+    probabilidad para diferentes valores del número a probar por el
+    método de Rabin-Miller. Concretamente, utilizando los datos de 
+    la tabla 4.4 en la página 148 de ese texto se han implementado 
+    los métodos de generación de primos de la librería, optimizando
+    así el número de iteraciones (ya que dado que normalmente se
+    quiere generar primos grandes ---de entre 256 y 2048 bits)
+    necesario, ya que en otros textos como \cite{schneier} simplemente
+    se señala utilizar siempre cinco iteraciones, mientras que ya a
+    partir de $650$ bits no son necesarias tantas para garantizar una
+    probabilidad de error menor que $(1/2)^{40}$ (y por otra parte,
+    para valores de $500$ y menos bits, son necesarias \emph{más} para
+    garantizar esa misma cota de probabilidad).
+    
+    \subsection{\index{primos!fuertes}{Primos fuertes}}\label{primosFuertes}
+      Se denominan con este nombre los primos que satisfacen una serie
+      de propiedades, a saber (\cite{schneier,handbook}):
+      \begin{itemize}
+        \item El máximo común divisor de $(p-1)$ y $(q-1)$ ha de ser
+          pequeño.
+        \item $(p-1)$ y $(q-1)$ han de tener factores primos grandes
+          \footnote{en sentido relativo a los demás factores, que habrán de ser
+          considerablemente menores},
+          que se denominarán $p'$ y $q'$.
+        \item $(p'-1)$ y $(q'-1)$ han de tener factores primos grandes.
+        \item $(p +1)$ y $(q +1)$ han de tener factores primos grandes.
+        \item Tanto $\frac{p-1}{2}$ como $\frac{q-1}{2}$ han de ser
+          primos.
+      \end{itemize}
+      Estas propiedades están pensadas para que métodos de
+      factorización como el de la
+      $(\rho-1)$ de Pollard pierdan su efectividad. 
+      Sin embargo, con la aparición de métodos de factorización
+      basados en técnicas de reciente desarrollo como el método de
+      curva elíptica ---ECM, de sus siglas en inglés. Véase
+      \cite{cohen}\footnote{pp. 476-481}--- y la criba
+      cuadrática multipolinomial ---MPQS, de sus siglas en inglés. Véase
+      \cite{cohen}\footnote{pp. 482-486}--- hace
+      que el uso de estos primos carezca prácticamente de sentido. Es
+      más, \cite{schneier} recomienda \emph{no} utilizarlos:
+      \begin{quotation}
+        I recommend against specifically generating strong primes. The
+        length of the primes is much more important than the
+        structure. Moreover, structure may be damaging because it is
+        less random.
+      \end{quotation}
+
+      La generación de primos fuertes tiene el mismo orden de
+      complejidad que el test de Rabin-Miller. Obviamente las
+      constantes ocultas serán mayores. El algoritmo
+      \ref{alg:primosFuertesGordon} muestra la implementación elegida, 
+      también denominado el \index{algoritmo!de Gordon}{algoritmo de
+      Gordon (\cite{handbook}\footnote{pág. 150})}.
+
+      \begin{algorithm}
+        \caption{Algoritmo de Gordon para la generación de primos
+        fuertes}\label{alg:primosFuertesGordon}
+        \begin{algorithmic}[1]
+          \Procedure{PFGordon}{tamaño $b$}
+          \State $s \gets \textrm{primo aleatorio de } (b/2) \textrm{ bits}$
+          \State $t \gets \textrm{primo aleatorio de } (b/2)-2 \textrm{ bits}$
+          \State $r \gets (t \times 4)+1$
+          \State $t \gets t \times 2$
+
+          \While{ $r$ no es primo }
+            \State $r \gets r + t$ 
+          \EndWhile
+      
+          \State $p_0 \gets 2(s^{r-2} \bmod r)s - 1$
+
+          \State $dosRS \gets 2(r \times s)$
+          \State $p \gets (p_0 + dosRS)$
+          \While{ $p$ no es primo }
+            \State $p \gets p + dosRS$ 
+          \EndWhile
+   
+          \State \textbf{devolver} $p$
+          \EndProcedure
+        \end{algorithmic}
+      \end{algorithm}
+
+

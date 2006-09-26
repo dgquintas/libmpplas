@@ -1,0 +1,365 @@
+% CAPITULO SOBRE LOS FUNDAMENTOS CRIPTOGRÁFICOS
+
+\chapter{Fundamentos
+criptográficos}\label{cap:fundamentosCriptograficos}
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+        Why should you care if you have nothing to hide? 
+        }
+        \begin{flushright}
+          \textbf{\textemdash J. Edgar Hoover}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+\bigskip
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+        Quis Custodiet Ipsos Custodes.
+        }
+        \begin{flushright}
+          \textbf{\textemdash Juvenal, circa 128 a.C.}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+\bigskip
+
+\begin{center}{\line(1,0){325}}\end{center}
+
+%--------------------------------------------------------%
+
+\section{Introducción}
+Ya que la utilidad fundamental de esta librería es de ofrecer métodos
+de la Teoría de Números, con la aplicación directa que tienen estos en
+criptografía, parece adecuado presentar aquí una pequeña introducción
+de los conceptos fundamentales de esta disciplina. Por otra parte, se
+hace necesario definir algunos conceptos a los que, a lo largo de esta
+memoria, se hará referencia.
+
+\section{Los criptosistemas y su clasificación}
+Un \index{criptosistema}{\emph{criptosistema}} se define
+(\cite{schneier}\footnote{pág. 4}) como el conjunto de los algoritmos,
+las claves posibles y los pares (texto claro)-(texto cifrado)
+posibles. En la figura \ref{fig:esquemaCripto} se muestra
+esquemáticamente el proceso de funcionamiento de un determinado
+criptosistema, siendo los algoritmos las cajas ``Cifrado'' y
+``Descrifrado''; las claves $K$ ó las claves públicas y privadas de
+las partes participantes en la comunicación, $A$ y $B$; y $M$ y $C$ el
+par (texto claro)-(texto cifrado). En los apartados siguientes se dará
+una descripción más precisa, atendiendo al tipo de criptosistema
+considerado. Los tipos de criptosistemas considerados han sido los
+\index{criptosistema!simétrico}{\emph{simétricos}} y los de 
+\index{criptosistema!de clave pública}{\emph{clave pública}}.
+
+  \begin{figure}\label{fig:esquemaCripto}
+    \begin{center}
+      \includegraphics[width=1\textwidth,keepaspectratio]
+      {esquemaCripto}
+    \end{center}
+    \caption{Esquema general de un criptosistema.}
+  \end{figure}
+
+  \subsection{Cifrado simétrico}\label{cifradoSimetrico}
+  El esquema ``clásico''. Ha sido la forma de utilizar la criptografía
+  desde la antiguedad\footnote{Cualquiera que haya indagado un poco en
+  la historia de la criptografía habrá oido hablar del algoritmo de
+  cifrado ``Cesar'', el cual se dice que era utilizado por el
+  emperador romano Julio Cesar en sus campañas militares. Los cartaginenses
+  deberían haberse dado
+  cuenta de que este método lo único que hacía era desplazar cada
+  letra tres posiciones a la derecha en el alfabeto (de forma ``modular'').
+  Esto es, de ``a''se pasa a ``d'', de ``y'' a ``b'', etc.}. Su
+  característica distintiva es el utilizar una misma clave\footnote{
+  U otra distinta que puede calcularse fácilmente a partir de ésta.}
+  $K$ tanto
+  para el proceso de cifrado como para el de descifrado.
+  En símbolos, siendo $E$ la funcion de cifrado (del inglés
+  ``Encryption''), $D$ la función de descrifrado, $K$ la clave (del inglés ``Key''), $f(k)$ 
+  la función de obtención de la clave de descifrado a partir de $K$
+  (normalmente suele ser la función identidad),
+  $M$ del mensaje en texto claro y $C$ del mensaje cifrado:
+  \begin{eqnarray}
+    E_k(M) & = & C \\
+    D_{f(k)} (C) & = & M 
+  \end{eqnarray}
+  
+  \paragraph{}
+    A continuación se da una descripción de los
+    \index{criptosistemas!modos}{modos} de trabajo posibles de un
+    método de cifrado simétrico. En \cite{schneier} se dedida todo un
+    capítulo, el noveno, a la descripción y comparación entre estos
+    modos, y allí se remite al lector interesado en más detalles que
+    los que aquí se dan.
+    \paragraph{Cifrado de bloques.}\label{cifradoDeBloques}
+    El término ``bloques'' viene de cómo, esta modalidad de cifrado simétrico,
+    procesa los datos a cifrar. En efecto, los datos son procesados en
+    bloques de un tamaño fijo. Habitualmente, se utilizan tamaño del
+    orden de 64 bits, lo suficientemente largo para evitar
+    vulnerabilidades y lo suficientemente corto para ser manejable
+    (\cite{schneier}\footnote{pág. 4}). Este es el modo de trabajo de,
+    por ejemplo, el célebre algoritmo DES.
+    
+    \paragraph{Cifrado de flujo.}\label{cifradoDeFlujo}
+    En los métodos de cifrado simétrico de flujo, la información a
+    cifrar se va procesando bit a bit, de forma que es posible ir
+    arrojando resultados (datos cifrados) de forma prácticamente
+    simultánea a su recepción, al no tener que esperar a completar
+    ningún tamaño de bloque concreto. Y es precisamente de este hecho
+    del que se toma el término de ``flujo'' (del inglés, ``stream'').
+    
+    Claro, puede pensarse que un cifrado de flujo no es más que un
+    caso particular de un cifrado de bloques. Efectivamente es así, y
+    es posible transformar algoritmos basados en cada uno de estos
+    modos en el otro (sin entrar en si esto tiene alguna utilidad).
+    Respecto a esta diferenciación, \cite{schneier}\footnote{pág. 210}
+    cita lo siguiente: 
+    \begin{quotation}
+      Block ciphers operate on data with a fixed transformation on
+      large blocks of plaintext data; stream ciphers operate with a
+      time-varying transformation on individual plaintext digits.
+    \end{quotation}
+    
+    Los esquemas de cifrado simétricos tienen el problema de la
+    distribución de la clave. Si entre los participantes en la
+    comunicación, $A$ y $B$ en la figura \ref{fig:esquemaCripto}, no
+    existe en algún momento una vía de comunicación segura, no podrán
+    tener la certeza de que sus datos no son capturados y descifrados
+    con la clave $K$, la cual un observador malicioso pudo obtener al
+    observar la hipotética vía de comunicación insegura que $A$ y $B$
+    utilizaron para ponerse de acuerdo en el valor de $K$.
+    
+    \subsubsection{``One-time pad''}\label{oneTimePad}
+     Mención aparte merece el método de cifrado denominado ``One-time
+     pad'' (quizás podría traducirse como ``de desplazamiento único'',
+     pero el término inglés está lo suficientemente extendido como
+     para justificar el no traducirlo). Pese a ser un método de
+     cifrado de flujo, se le dedica su propia sección por tener el
+     carácter de ``ideal'' respaldado por la teoría (por la Teoría de
+     la Información de Claude Shannon en este caso) que, como suele
+     ser habitual en estos casos, no es abordable en la práctica. 
+     Se describe primero la idea y posteriormente se desvela lo
+     especial del método:
+     \begin{proposicion}[``One-time pad'']
+       La combinación, bit a bit, de una secuencia realmente aleatoria y un
+       texto en claro no aleatorio, produce un texto cifrado
+       totalmente aleatorio. 
+      \end{proposicion}
+      \begin{corolario}[Inviolabilidad del ``One-time pad'']
+        Un texto cifrado mediante un esquema ``One-time pad'' es
+        absoluta y totalmente seguro. 
+      \end{corolario}
+      La función de combinación puede ser, por ejemplo, una función O
+      exclusivo, XOR. De esta forma, es posible, \emph{si se cuenta con la
+      secuencia aleatoria utilizada para cifrar}, descifrar el mensaje combinando 
+      cada bit del texto cifrado con dicha secuencia.
+
+      Problema: evidentemente, al final estamos igual que al
+      principio\ldots la longitud de la clave (la secuencia aleatoria)
+      ha de ser la misma que la del texto a cifrar. Entonces, ¿cómo
+      transmitimos la clave? Si contamos con un canal seguro para
+      transmitirla, ¿por qué no lo usamos para transmitir directamente
+      el mensaje en claro? En cualquier caso, la no utilidad práctica
+      de este esquema si sirve, sin embargo, como referente. Los
+      esquemas criptográficos reales sacrifican la seguridad total por
+      la utilidad: todo lo anterior sirve como un recordatorio de que
+      \emph{siempre} existe una posibilidad de que un esquema
+      criptográfico sea violado. No hay posibilidad de que un esquema
+      \emph{útil} sea absolutamente seguro.
+      
+  \subsection{Cifrado de clave pública}\label{clavePublica}
+    Esta forma de cifrado es de reciente aparición, si se compara con
+    el cifrado simétrico. Whitfield Diffie y Martin Hellman
+  fueron quienes, junto a otro de los grandes ---Ralph Merkle---, 
+  sentaron en 1976 las bases de la criptografía de clave pública.
+  Irónicamente, Malcolm Williamson del Cuartel General de
+  Comunicaciones del gobierno británico, ya había descrito tal esquema
+  con anterioridad, pero dicho organismo gubernamental británico no
+  permitió su publicación hasta 1997.
+
+  Su característica fundamental estriba en que las claves utilizadas
+  para el cifrado y el descifrado son diferentes. Pero, al contrario que
+  en el caso del cifrado simétrico, una \emph{no} se deriva fácilmente de
+  la otra. Esta ``asimetría'' (este tipo de cifrado se denomina
+  también \index{cifrado!asimetrico}{cifrado asimétrico}) se apoya en
+  problemas como los expuestos en \ref{problemasFundamentales}.
+  La principal ventaja es que, siempre que una de las claves se
+  mantenga en secreto, es posible distribuir libremente la otra,
+  solucionando así el problema de distribución de la clave que se
+  presenta en los esquemas de cifrado simétricos anteriormente
+  tratados.
+  A la clave que se distribuye se la denomina
+  \index{clave!pública}{clave pública}, y es utilizada para cifrar los
+  mensajes. A la que permanece en secreto se la denomina 
+  \index{clave!privada}{clave privada}, y es utilizada para descifrar los
+  mensajes (también para firmarlos. Veáse
+  \cite{schneier}\footnote{Capítulo 20.} para un análisis de métodos
+  de firma digital con esquemas de clave pública).
+
+  El esquema de funcionamiento en símbolos, con $E$ la funcion de cifrado (del inglés
+  ``Encryption''), $D$ la función de descrifrado, $K_p$ la clave 
+  pública (del inglés ``Public Key''), $K_s$ la clave privada (del
+  inglés ``Secret Key''),
+  $M$ del mensaje en texto claro y $C$ del mensaje cifrado:
+
+  \begin{eqnarray}
+    E_{K_p}(M) & = & C \\
+    D_{K_s}(C) & = & M
+  \end{eqnarray}
+
+  Para un proceso de firma, el esquema es el mismo pero utilizando
+  $E_{K_s}$ para el cifrado y $D_{K_p}$ para el descifrado.
+  
+\section{Funciones}
+\subsection{\index{funciones!unidireccionales}
+{Funciones unidireccionales (``One-way'')}}
+  \label{funcionesUnidireccionales}
+  Fundamentales en criptografía, este tipo de funciones satisfacen el
+  ser muy fáciles de calcular pero muy difíciles de invertir.
+  \begin{definicion}[Función unidireccional]
+    Una función $f:X \longrightarrow Y$ se denomina \emph{función
+    unidireccional} si $f(x)$ es ``fácil'' de computar $\forall{x} \in
+    X$ pero para un $y \in Im(f)$ elegido al azar es
+    ``computacionalmente inabordable'' el encontrar un $x \in X$ tal
+    que $f(x) = y$. (\cite{handbook}\footnote{pág. 8})
+  \end{definicion}
+  El difuso término ``fácil'' se puede entender como perteneciente a
+  la clase de complejidad $\mathbf{P}$ (véase
+  \ref{teoriaDeLaComplejidad}), mientras que por contra
+  ``computacionalmente inabordable'' se correspondería a las clases
+  distintas a $\mathbf{P}$. Pero aquí uno se encuentra con que
+  precisamente no está demostrado que $\mathbf{P} \neq \mathbf{NP}$,
+  con lo cual estos términos se vuelven aún más difusos.
+  
+  Ejemplos de estas funciones son la factorización de enteros. Es muy
+  sencillo multiplicar $n = p \times q$ pero extremadamente difícil
+  obtener $p$ y $q$ del conocimiento de $n$. Véase \ref{factoring} y el
+  cálculo de logaritmos en cuerpos finitos en \ref{dlp}.
+    
+
+  \subsection{\index{funciones!con puerta trasera}{Funciones
+  con puerta trasera (``trapdoor'')}}\label{funcionesTrapdoor}
+  También de gran importancia, son un tipo especial de funciones
+  unidireccionales con la característica extra de que si se conoce un
+  determinado dato (si se sabe ``dónde está la trampilla''), es
+  ``fácil'' calcular la inversa de la función en cuestión.
+
+  El ejemplo más famoso se encuentra en el algoritmo RSA: el
+  conocimiento de la factorización de $n$ en los dos primos $p$ y $q$
+  proporciona una forma en $\mathbf{P}$ de resolver la expresión
+  $C^{d} \pmod{n}$, con $d = e^{-1} \pmod{\phi(n)}$ siendo $e$ la
+  clave de cifrado, cuyo valor ahora no es relevante. Es claro
+  que si tenemos en cuenta que $\phi(n) = (p-1)(q-1)$, todo se reduce
+  a una potenciación modular, operación que claramente entra dentro
+  de la clase de complejidad $\mathbf{P}$. Se considera indispensable
+  el conocimiento de la factorización de $n$ para el cálculo en
+  $\mathbf{P}$ de $\phi(n)$.
+  
+  \subsection{\index{funciones!hash}{Funciones
+  hash}}\label{funcionesHash}
+  Estas funciones, también denominadas \index{funciones!resumen}
+  {\emph{funciones resumen}} (del inglés, ``digest''), encuentran
+  multitud de aplicaciones en criptografía, así como en muchos 
+  otros campos. Esto se explica a la vista de sus propiedades:
+  \begin{itemize}
+    \item Son funciones unidireccionales.
+    \item Su codominio es de tamaño constante y conocido (longitud del
+      resumen).
+    \item Determinar dos elementos con la misma imagen es
+      \emph{difícil}\footnote{Inabordable computacionalmente
+      con los métodos del momento. Véase \ref{teoriaDeLaComplejidad}} (resistencia a colisiones).
+    \item La imagen no parece mantener ninguna relación con su
+      preimagen: con tan sólo el cambio de un bit en la preimagen, en
+      promedio, la mitad de los bits de la imagen cambian
+      (\cite{schneier}\footnote{pág. 30}).
+  \end{itemize}
+  En símbolos:
+  \begin{definicion}[Función Hash]
+    Sea $H:\{0,1\}^{n} \longrightarrow \{0,1\}^{m}$ para un $m \in
+    \mathbb{N}$ constante, verificando:
+    \begin{eqnarray}
+      H(M)  \stackrel{\mathbf{P}}{=}  h \quad \textrm{dado } M \label{eq:def1Hash} \\
+      H^{-1}(h)  \stackrel{\mathbf{NP}}{=}  M \quad \textrm{dado } h \label{eq:def2Hash} \\
+      \textrm{Dado M, obtener }M' / H(M) = H(M') \textrm{ es \textbf{NP}} \label{eq:def3Hash}
+    \end{eqnarray}
+  \end{definicion}
+  
+  Así pues, entre las aplicaciones más importantes está la
+  verificación de integridad de datos, firma electrónica,
+  criptosistemas de clave pública, generación de bits
+  pseudo-aleatorios, etc.
+  
+  \subsubsection{Seguridad de las funciones hash}
+  En rigor, no existen pruebas matemáticas de la existencia de
+  funciones unidireccionales (\cite{schneier}\footnote{pág. 29}):
+  se confía en el estado actual del
+  conocimiento en lo relativo a problemas \emph{difíciles} para
+  obtener este carácter de función ``de una sola dirección''. Se hace
+  necesario por tanto realizar un análisis de hasta qué punto estas
+  funciones garantizan la seguridad, o dicho de otro modo, hasta qué
+  punto cumplen con su definición.
+  \paragraph{El ataque del cumpleaños}\label{ataqueCumple}
+  ¿Cuántas personas tenemos que estar en una habitación para que
+  compartamos fecha de nacimiento con alguno de los presentes con una
+  probabilidad mayor que $\frac{1}{2}$?
+  \[
+    p(coincidencia) = 1 - \left( \frac{364}{365} \right)^n 
+  \]
+  Por tanto, 
+  \[
+    p(coincidencia) \geq (1/2) \Rightarrow n \geq 253
+  \]
+  ¿Y cuántas para que al menos una pareja comparta esta fecha de
+  cumpleaños también con una probabilidad $\geq \frac{1}{2}$?
+  \[
+    p(coincidencia) = 1 - \left( \frac{364}{365} \times \frac{363}{365}
+    \times \cdots \times \frac{365-n+1}{365} \right) = 1 - \left( \frac{365!}{365^n(365-n)!} \right)
+  \]
+  Así que, 
+  \[
+    p(coincidencia) \geq (1/2) \Rightarrow n \geq 23 
+  \]
+
+  Realizando una analogía con las funciones hash, el primer supuesto
+  se correspondería con probar hasta un total de $2^m$ valores diferentes para
+  encontrar una colisión (ecuación \ref{eq:def3Hash}). Sin embargo,
+  en \cite{handbook}\footnote{pág. 53} se afirma que cuando $m
+  \longrightarrow \infty$, el número esperado de pruebas antes de una colisión
+  es $\sqrt{\frac{\pi m}{2}}$. Por tanto podemos considerar que si nos
+  ceñimos simplemente a encontrar dos mensajes cualesquiera $M$ y $M'$ tales que 
+  $H(M) = H(M')$, sólo se habrá de invocar a la función hash $H$ un número
+  $O(\sqrt{m})$ de veces. 
+  
+  ¡Con tan sólo $2^{m/2}$ pruebas se
+  encontrarían $M$ y $M'$, una colisión para $H$! Así, se reduce a la
+  mitad el espacio de búsqueda. Esto no es más que la aplicación del
+  segundo caso del cumpleaños.
+
+  Conclusión: la longitud $m$ de la cadena resumen ha de ser \emph{el
+  doble} 
+  de lo que el estado de la tecnología del momento permita explorar
+  por fuerza bruta.
+  
+  Ejemplos de cómo se puede explotar una colisión como esta se
+  encuentran en \cite{schneier}\footnote{pág. 430} y
+  \cite{handbook}\footnote{pp. 369-371}.
+
+  \subsubsection{MD5}\label{md5}
+  Por omisión, esta es la función hash que implementa la librería. 
+  Sus detalles escapan al ámbito de esta memoria, pudiendo encontrarse
+  en \cite{rfc1321} su referencia fundamental, de mano de su autor R.
+  Rivest (la ``R'' del algoritmo RSA).
+
+  La implementación sigue el código de referencia de dicho documento.

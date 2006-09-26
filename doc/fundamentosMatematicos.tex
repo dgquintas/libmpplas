@@ -1,0 +1,734 @@
+% CAPITULO SOBRE LOS FUNDAMENTOS MATEMÁTICOS
+
+\chapter{Fundamentos matemáticos}
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+        \ldots both Gauss and lesser mathematicians may be justified
+        in rejoicing that there is one science [number theory] at any
+        rate, and that their own, whose very remoteness from ordinary
+        human activities should keep it gentle and clean.
+        }
+        \begin{flushright}
+          \textbf{\textemdash G. H. Hardy, ``A Mathematician's Apology''}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+        It seems strange that on one hand the most practical of disciplines, 
+        namely, physics has connections with the most arcane of disciplines,
+        namely, number theory. However, surprising connections have appeared
+        betwen number theory and physics...The work of Ramanujan in particular
+        has had surprising connections with string theory, conformal field
+        theory and statistical physics.
+        }
+        \begin{flushright}
+          \textbf{\textemdash R. Padma y H. Gopalkrishna Gadiyar, 
+                             ``Renormalisation and the density of
+                             prime pairs''}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+
+
+
+\begin{center}{\line(1,0){325}}\end{center}
+
+%--------------------------------------------------------%
+
+\section{Introducción}
+En este capítulo se presentan conceptos y resultados dentro de la
+Matemática, normalmente de la Teoría de Números, que sientan los
+pilares básicos sobre los que descansan muchos de los resultados que
+ser presentan tanto en la presente librería como en la criptografía en
+general.
+
+\section{Teoría de la complejidad}\label{teoriaDeLaComplejidad}
+La teoría de la complejidad sirve para proporcionar una referencia en
+el marco de la eficiencia de los algoritmos. Su importancia a la hora
+de servir de herramienta en el desarrollo de métodos criptográficos es
+fundamental, ya que se ha de ser capaz de estimar la ``dureza'' de un
+método para asegurarse, por ejemplo, de que éste no sea susceptible de
+ser atacado por fuerza bruta (esto es, probando todo el número de
+claves posibles).
+
+  \subsection{Clases de complejidad}\label{clasesDeComplejidad}
+  La complejidad de un algoritmo va en relación directa con la
+  cantidad de esfuerzo computacional necesario para ejecutarlo, siendo
+  este ``esfuerzo'' no necesariamente potencia de procesamiento, sino
+  que también puede ser necesidades de almacenamiento. De nada nos
+  serviría tener un algoritmo rapidísimo si consume grandes cantidades
+  de memoria y es requisito implementarlo en, por ejemplo, un
+  microprocesador de señales como el que puede llevar un reproductor
+  de música portatil\footnote{si el lector se percata por el título, en \cite{barrett},
+  donde se expone el método de exponenciación modular utilizado por la
+  librería, se tenía el objetivo de implementar el algoritmo RSA en
+  uno de estos microprocesadores}.
+  Aún así, salvo que se diga lo contrario, en lo sucesivo se
+  considerará la complejidad \emph{temporal}, esto es, de potencia de
+  procesamiento.
+   
+  \begin{figure}\label{fig:clasesComplejidad}
+    \begin{center}
+      \subfigure[Conjunto general]{\label{subfig:conjuntoGeneral}
+      \includegraphics[width=0.45\textwidth,keepaspectratio]
+      {clasesComplejidad1}
+    }
+    \subfigure[Detalle clases
+    temporales]{\label{subfig:detalleClasesTemporales}
+      \includegraphics[width=0.45\textwidth,keepaspectratio]
+      {clasesComplejidad2}
+    }
+    \end{center}
+    \caption{Clases de complejidad}
+  \end{figure}
+ 
+  Se cuenta con distintas \index{clases!de complejidad}{\emph{clases
+  de complejidad}} en función de la forma de su cota ``O grande'',
+  cuyo argumento $n$ suele ser el tamaño de la entrada del problema.
+  En la figura \ref{subfig:conjuntoGeneral} se muestra un esquema de
+  la familia de clases de complejidad, con la parte recuadrada en
+  línea discontínua ampliada en \ref{subfig:detalleClasesTemporales}.
+  
+  \begin{itemize}
+    \item Un algoritmo cuyo tiempo de ejecución está en
+      $O(1)$ se denomina \emph{constante}.
+    \item Un algoritmo cuyo tiempo de ejecución está en
+      $O(n)$ se denomina \emph{lineal}.
+    \item Un algoritmo cuyo tiempo de ejecución está en
+      $O(n^2)$ se denomina \emph{cuadrático}; si está en $O(n^3)$
+      \emph{cúbico}, etc.
+  \end{itemize}
+  Hasta aquí, se estaría en la clase de complejidad \textbf{P},
+  representando la clase de algoritmos de \index{tiempo!polinomial}{\emph{tiempo polinomial}}, 
+  que responden a la forma general $O(n^k)$ con $k$ constante.
+  Siempre que nos refiramos a que una determinada computación es
+  \index{computación!fácil}{``fácil''} o \index{computación!eficiente}{``eficiente''} y 
+  a que un problema es \index{problema!tratable}{``tratable''}, se entenderá 
+  que pertenece a esta clase de complejidad. Por otra parte, todo
+  algoritmo fuera de esta clase se denominará respectivamente 
+  \index{computación!difícil}{``difícil''}, \index{computación!ineficiente}{``ineficiente''} e 
+  \index{problema!intratable}{``intratable''}.
+      
+  Los algoritmos acotados por $O(k^{f(n)})$, con $k > 1$ una constante
+  y $f(n)$ una función polinomial de $n$, son denominados de 
+  \index{tiempo!exponencial}{\emph{tiempo exponencial}}. Un ejemplo
+  clásico de esta clase son los algoritmos con cota $O(2^n)$. La
+  subclase en los que la función $f(n)$ es menos que lineal pero más
+  que constante (por ejemplo, $f(n) \equiv \log(n)$) son denominados 
+  de \index{tiempo!superpolinomial}{\emph{tiempo superpolinomial}}.
+  Estos algoritmos de tiempo exponencial conformarían la clase de
+  complejidad \textbf{EXPTIME}. Un algoritmo criptografico de esta
+  complejidad es el regocijo de quien lo implementa y la pesadilla de
+  quien intente romperlo por fuerza brutal, ya que en la práctica
+  resulta inabordable.
+
+  En \cite{schneier}\footnote{pág. 239, tabla 11.2} se da una tabla
+  que resulta muy significativa e ilustra de lo que realmente se está
+  hablando con estas cotas. Se reproduce en la tabla \ref{tablaClases}
+  \begin{table}
+    \begin{center}\begin{tabular}{|c|c|c|c|} 
+      \hline
+      Clase & Complejidad & Operaciones para $n=10^6$ & Tiempo a
+      $10^6$ op./seg.\tabularnewline
+      \hline
+      \hline 
+      Constante & $O(1)$ & $1$ & $1$ $\mu$seg.\tabularnewline
+      \hline 
+      Lineal & $O(n)$ & $10^6$ & $1$ seg.\tabularnewline
+      \hline 
+      Cuadrática & $O(n^2)$ & $10^{12}$ & $11.6$ días\tabularnewline
+      \hline 
+      Cúbica & $O(n^3)$ & $10^{18}$ & $32000$ años\tabularnewline
+      \hline 
+      Exponencial & $O(2^n)$ & $10^{301030}$ & $10^{301006}$ veces la edad del Universo\tabularnewline
+      \hline 
+    \end{tabular}\end{center}
+    \caption{Ejemplos de tiempos para algunas cotas de complejidad}
+    \label{tablaClases}
+  \end{table}
+
+
+  La clase \textbf{NP} es un poco más sutil. 
+  Está compuesta por aquellos problemas que ``pueden ser resueltos en
+  tiempo polinomial únicamente en una máquina de Turing no
+  determinística'' (\cite{schneier}\footnote{pág. 240}). Esto
+  simplemente quiere decir que un algoritmo en esta clase que intente
+  dar respuesta a un problema determinado, intentará ``adivinar'' la
+  respuesta y comprobará en tiempo polinomial (mediante un algoritmo
+  en \textbf{P}) si ésta es correcta.
+  Aunque a primera vista esta definición puede parecer extraña, tras
+  un momento de reflexión puede uno darse cuenta fácilmente de que
+  este esquema es precisamente el que sigue, por ejemplo, el problema
+  de factorización de enteros (sección \ref{factoring}): comprobar si
+  se ha encontrado un factor no trivial se puede hacer en tiempo
+  polinomial (concretamente en $O(n^2)$), mientras que la búsqueda de
+  este factor actualmente (primera mitad de 2004) se reduce, con
+  métodos más o menos sofisticados, a un proceso ``adivinatorio''.
+  Es evidente que la clase \textbf{NP} incluye a la clase \textbf{P}.
+  Lo que de verdad sí resulta sorprendente es el desconocimiento de si
+  se verifica $\textbf{P} = \textbf{NP}$\footnote{si el lector es
+  asiduo, como el autor, a la serie Los Simpsons (y además es
+  observador), quizás se haya dado cuenta de que en el capítulo en el
+  que Homer se introduce en un vórtice y acaba llegando a una especie
+  de ``dimensión matemática'' donde hay fórmulas flotando tales como
+  $e^{i\pi} = -1$, también se encuentra $\textbf{P} = \textbf{NP}$}
+  , aunque parece ser (\cite{schneier}\footnote{pág. 241}) que los
+  expertos opinan que esta igualdad \emph{no} se verifica.
+
+  Existe también una clase de complejidad \textbf{NP-completo}, a la
+  que pertenecen aquellos problemas de \textbf{NP} que se demuestra que son tan 
+  complejos como cualquier otro de esta clase. Es interesante hacer
+  notar que esto implica que si se demuestra que \emph{cualquier} problema
+  perteneciente a \textbf{NP-completo} está también en \textbf{P}, se
+  demostraría que $\textbf{P} = \textbf{NP}$. Este es un tema amplio
+  que no se tratará aquí, pero del que se puede encontrar información
+  en \cite{brassard}\footnote{Todo su capítulo 12}.
+
+  Respecto a la clase \textbf{co-NP} que aparece en la
+  figura \ref{subfig:detalleClasesTemporales}, coincide con la
+  clase \textbf{NP} salvo por el hecho de que da respuestas
+  \emph{negativas}: representa los problemas para los cuales una
+  respuesta negativa puede ser comprobada en tiempo polinomial.
+  
+  Las clases \textbf{PSPACE} y \textbf{PSPACE-completo} responden a
+  problemas que pueden ser resueltos con unas necesidades de \emph{espacio}
+  polinomiales, aunque no necesariamente en en tiempo polinomial. Lo
+  dicho para \textbf{NP-completo} se aplica también a
+  \textbf{PSPACE-completo}.
+
+
+  \subsection{Problemas fundamentales}\label{problemasFundamentales}
+  Bajo esta etiqueta de ``fundamentales'' se encuentran aquellos
+  problemas utilizados habitualmente como referencia a la hora de, en
+  criptografía, contar con una base que de ciertas garantías de
+  intratabilidad. Esta intratabilidad será de la que se valgan los
+  esquemas de tipo ``puerta trasera'' (véase sección \ref{funcionesTrapdoor}) y, 
+  más concretamente, los mecanismos de criptografía de clave pública
+  (véase sección \ref{clavePublica}).
+
+  Estos problemas, al calificarlos como ``intratables'', se quiere dar
+  a entender que \emph{no} pertenecen a la clase de complejidad
+  \textbf{P}, tal y como se expuso en \ref{teoriaDeLaComplejidad}.
+  Ahora bien, no está demostrado, en general, que sean intratables
+  (\cite{handbook}\footnote{pág. 87}); es más, en el modelo de
+  computación basado en la mecánica cuántica\footnote{Esto está fuera
+  del alcance de esta memoria, pero en \cite{feynman} se puede
+  encontrar una introducción \emph{asequible} a la computación cuántica} 
+  , es posible el cálculo en \textbf{P} de logaritmos discretos y la
+  factorización de enteros, mediante el algoritmo debido a Peter Shor.
+  Se exponen estos métodos en \cite{shor}. Y no sólo esto, sino que en
+  \cite{handbook}\footnote{pág. 130, último párrafo} se expone cómo,
+  mediante técnicas de biología molecular utilizando DNA, se puede
+  resolver el conocido problema de los caminos Hamiltonianos en un
+  tiempo mucho menor que con los tradicionales ordenadores
+  electrónicos.
+  
+  Hasta podría darse el (improbable) caso de que efectivamente $\textbf{P} = \textbf{NP}$.
+  Sea como fuere, parece bastante probable que este campo depare aún
+  muchas sorpresas. Que así sea.
+  
+
+  A la hora de establecer relaciones entre estos problemas
+  fundamentales, ha de contemplarse lo siguiente
+  (\cite{handbook}\footnote{pp. 88,89}):
+  
+  \begin{definicion}[Reductible polinomial]
+    Sean $A$ y $B$ dos problemas. Se dice que $A$ es \emph{reductible
+    polinomial} a $B$ si existe un algoritmo que resuelve $A$
+    utilizando como una subrutina un hipotético algoritmo que resuelve
+    $B$. Este algoritmo que resuelve $A$ estará en \textbf{P} si el
+    que resuelve $B$ también lo está. En símbolos, esto se
+    representará como $A \leq_P B$.
+  \end{definicion}
+  Esto es, si $A \leq_P B$, $B$ es \emph{al menos} tan difícil de resolver
+  como $A$. Así, si $A$ es un problema bien estudiado y cuya
+  intratabilidad tiene sólidas garantias, $A \leq_P B$ nos dice que
+  $B$ será tanto o más sólido que $A$ en cuanto a intratabilidad.
+  Es fácil ver que si $A \leq_P B$ y $B \leq_P A$, ambos problemas
+  serán computacionalmente equivalentes. En símbolos, $A \equiv_P B$.
+    
+  En la figura \ref{fig:problemasFundamentales} se muestran los problemas
+  fundamentales que se tratarán y su interrelación entre ellos. Las
+  flechas indican qué problemas se reducen polinomialmente en otros,
+  apuntando de $A$ a $B$ si $A \leq_P B$. Una flecha con doble punta
+  indica equivalencia entre problemas. La confusa nomenclatura a base
+  de siglas debería aclararse con la descripción de las mismas en los
+  apartados siguientes.
+  \begin{figure}\label{fig:problemasFundamentales}
+    \begin{center}
+      \includegraphics[width=0.9\textwidth,keepaspectratio]
+      {problemasFundamentales}
+    \end{center}
+    \caption{Los problemas fundamentales y sus interrelaciones}
+  \end{figure}
+
+  \subsubsection{FACTORING}\label{factoring}
+  Uno de los problema fundamentales centrales. A él se reducen otros
+  tres problemas y es por si mismo la base de la gran mayoría de
+  esquemas que utilizan de algún modo un problema intratable como base
+  de su seguridad. 
+  Su formulación rigurosa es la siguiente:
+  \begin{definicion}[Problema FACTORING]
+    Dado un entero $n$, encontrar su descomposición prima. Esto es,
+    encontrar los primos de la forma $p_i^{e_i}$ tales que
+    $n = \prod_{i=1}^k p_i^{e_i}$.
+  \end{definicion}
+
+  El ejemplo clásico de algoritmo que se apoya en
+  este problema es el método de clave pública RSA, en el cual este problema FACTORING
+  tiene su representación en el cálculo de $\phi(n)$ para un entero
+  $n$, siendo $\phi$ la función ``totient'' o ``$\phi$ de Euler'',
+  cuya definición es ``el número de enteros positivos que son coprimos con $n$, 
+  considerando que $1$ es coprimo de todo número''. Es evidente que
+  $\phi(p) = p - 1$ para $p$ un primo. En base a esto y a la
+  descomposición prima de $n$ se realiza el cálculo de $\phi(n)$ para
+  un $n$ arbitrario.
+  Es más, precisamente en el algoritmo RSA se basa el siguiente
+  problema fundamental.
+  
+  \subsubsection{RSAP}\label{rsap}
+  Correspondiente al paso fundamental de encriptación del algoritmo
+  RSA, pero ``a la inversa'': no
+  se trata de conseguir la clave $e$ de un mensaje $m$ determinado,
+  sino más bien el mensaje $m$ que se correspondería con la
+  el texto cifrado $c$, habiendo utilizado la clave $e$.
+  \begin{definicion}[Inversión RSA]
+    Dado un entero $n$ producto de dos primos $p$ y $q$, un entero
+    positivo $e$ tal que $\gcd(e, (p-1)(q-1)) = 1$ y un entero $c$,
+    encontrar un $m$ tal que $m^e \equiv c \pmod{n}$.
+  \end{definicion}
+  Como se muestra en la figura \ref{fig:problemasFundamentales}, este
+  problema se reduce al problema FACTORING.
+  
+  \subsubsection{SQROOT}\label{sqroot}
+    La operación de extraer raices cuadradas módulo $p$ con $p$ primo
+    es una operación sencilla, como se ve en
+    \cite{handbook}\footnote{pág. 100, algoritmo 3.34}. No lo es, sin
+    embargo, cuando el módulo reductor es un número compuesto $n$ cuya
+    descomposición en factores primos se desconoce (y aquí se intuye
+    lo que efectivamente sucede: que este problema se reduce al
+    problema FACTORING).
+
+    \begin{definicion}[Raíces cuadradas en $\mathbb{Z}_n$]
+      Dado un entero $n$ y $a$ un elemento del conjunto de residuos
+      cuadráticos módulo $n$ (véase \ref{residuosCuadraticos}),
+      encontrar una raíz cuadrada de $a$
+      módulo $n$. En símbolos, un entero $x$ tal que $x^2 \equiv a
+      \pmod{n}$.
+    \end{definicion}
+  
+  \subsubsection{QRP}\label{qrp}
+  Con relación a lo que se expone en la sección
+  \ref{residuosCuadraticos}, es posible formular el siguiente
+  problema:
+  \begin{definicion}[Problema de los residuos cuadráticos]
+    Dado un entero impar compuesto,$n$, y un entero $a$ con símbolo de
+    Jacobi $\left( \frac{a}{n} \right) = 1$, decidir si $a$ es un
+    residuo cuadrático módulo $n$. 
+  \end{definicion}
+  Si $n$ fuese primo, esto no representaría un problema, ya que por la
+  equación (\ref{calculoLegendre}) de la sección
+  \ref{simboloLegendre}, el cálculo sería muy sencillo.
+  Pero si por contra, $n$ es compuesto, se hace necesaria la
+  descomposición de $n$ en sus factores primos para realizar el
+  cálculo de los símbolos de Legendre correspondientes de la
+  definición de símbolo de Jacobi. Es por esto que se verifica que
+  este problema se reduce al problema FACTORING.
+  
+  \subsubsection{DLP}\label{dlp}
+  Este problema es, junto con el problema FACTORING, otro de los
+  pilares básicos de muchos esquemas de clave pública, como por
+  ejemplo el sistema de cifrado denominado ElGamal (descrito en
+  \cite{handbook}\footnote{pp. 294-298}). Para su definición se
+  utilizan algunos conceptos de la Teoría de Cuerpos Finitos que no se
+  tratan en esta memoria. En cualquier texto básico de Teoría de Números puede 
+  encontrarse una definición de los mismos, tal como \cite{lidl}.
+  \begin{definicion}[Problema de los logaritmos discretos]
+    Dado un primo $p$, un generador $\alpha$ de $\mathbb{Z}_p^*$ y un
+    elemento $\beta \in \mathbb{Z}_p^*$, encontrar el entero $0 \leq x \leq p-2$ tal
+    que $\alpha^x \equiv \beta \pmod{p}$.
+  \end{definicion}
+
+  Existe una generalización de este problema, que responde como se
+  podía esperar, a las siglas GDLP.
+  \begin{definicion}[Problema de los logaritmos discretos generalizado]
+    Dado un primo grupo cíclico finito $G$ de orden $n$, un generador $\alpha$ de 
+    $G$ y un elemento $\beta \in G$, encontrar el entero $0 \leq x \leq n-1$ tal
+    que $\alpha^x = \beta$.
+  \end{definicion}
+
+  Métodos y más información al respecto de estos problemas pueden
+  encontrarse en \cite{handbook}\footnote{pp. 103-113}.
+
+  \subsubsection{DHP}\label{dhp}
+  Un problema íntimamente relacionado con el problema de los
+  logaritmos discretos es el denominado problema de Diffie-Hellman
+  \footnote{Quienes, como se expone en la sección \ref{clavePublica}, 
+  son dos de los padres de la criptografía de clave pública.}.
+  
+  Nótense las grandes similitudes en la definición:
+  \begin{definicion}[Problema de Diffie-Hellman]
+    Dado un primo $p$, un generador $\alpha$ de $\mathbb{Z}_p^*$ y 
+    elementos $\alpha^a \bmod p$ y $\alpha^b \bmod p$, encontrar 
+    $\alpha^{ab} \bmod p$.
+  \end{definicion}
+
+  Siguiendo con las similitudes, de este problema también existe una
+  generalización:
+  \begin{definicion}[Problema de Diffie-Hellman generalizado]
+    Dado grupo cíclico finito $G$, un generador $\alpha$ de $G$ y
+    elementos $\alpha^a \bmod p$ y $\alpha^b \bmod p$ de dicho grupo, encontrar 
+    $\alpha^{ab}$. 
+  \end{definicion}
+
+  El parentesco entre el problema de los logaritmos discretos y el
+  presente problema de Diffie-Hellman se remata con sendas reducciones
+  entrelazadas: el problema de Diffie-Hellman (DHP) se reduce al problema de 
+  los logaritmos discretos (DLP) y el problema de Diffie-Hellman
+  generalizado se reduce al problema de los logaritmos discretos
+  generalizado, como se recoge en la figura
+  \ref{fig:problemasFundamentales}.
+
+  \subsubsection{SUBSET SUM}\label{subsetSum}
+  Este problema tiene una característica particular, y es que se trata
+  de un problema perteneciente a la clase de complejidad
+  \textbf{NP-completo} (véase \ref{clasesDeComplejidad}). 
+  
+  \begin{definicion}[Problema de la suma del subconjunto]
+    Dado un conjunto de enteros positivos $A={a_1,a_2,\cdots,a_n}$ y un
+    entero positivo $s$, determinar si existe un subconjunto de $A$
+    tal que sume $s$.
+  \end{definicion}
+
+  Nótese que esto \emph{no} es lo mismo que el conocido
+  \index{problema!de la mochila}{``problema de
+  la mochila''}. Tal problema sólo es un caso particular del problema
+  SUBSET SUM.
+ 
+  Métodos y más información al respecto de este problema puede
+  encontrarse en \cite{handbook}\footnote{pp. 117-122}.
+  
+\section{Teoría de Números}
+    En esta sección se recogen algunos viejos conocidos de nuestras
+    etapas escolares y otras construcciones quizás no tan usuales. En
+    cualquier caso, forman el \textit{sine qua non} de cualquier
+    trabajo en criptografía.
+    
+    \subsection{Euclides y el teorema fundamental de la Aritmética}
+    \label{teoremaFundamentalAritmetica}
+    El célebre geómetra griego Euclides (nacido alrededor del 330
+    a.C.) recogió en su obra \textit{Los Elementos} 465
+    proposiciones, que divididas en trece
+    ``libros''\footnote{término arcaico para ``capítulos''} han
+    constituido el libro de texto de mayor éxito de la historia,
+    habiendo sido hasta el siglo XX ``la obra más importante del
+    mundo después de la Biblia'' (\cite{fermat}\footnote{pág. 63}).
+    Una de estas proposiciones se enuncia a continuación, con un
+    \emph{importantísimo} corolario que de ella se desprende.
+  
+    \begin{teorema}[Principio de Euclides]
+      Sean $a$ y $b$ enteros y sea $p$ un primo tal que $p | ab$.
+      Entonces, $p | a$ ó $p | b$.
+    \end{teorema}
+    \begin{corolario}[Teorema fundamental de la Aritmética]
+      Cualquier $n \in \mathbb{Z}_0$ puede ser escrito \emph{de forma
+      única} como un producto de primos.
+    \end{corolario}
+    
+    Así, se podría entender todo elemento $n \in \mathbb{Z}_0$ como 
+    $2^{e_1} \times 3^{e_3} \times 5^{e_5} \times \cdots \times
+    p_k^{e_{p_k}} \times \cdots$, donde los exponentes $e$ serían $0$ salvo para un
+    número finito de casos.
+   
+    Parece adecuado apuntar aquí una anecdota al respecto de
+    Euclides, y más en unos tiempos tan pragmáticos ---por llamarlos
+    de alguna manera--- como los que corren. En una ocasión, uno de
+    los alumnos de Euclides le preguntó acerca de la utilidad de
+    aquello que estaba aprendiendo; Euclides se volvió hacia él y
+    dijo: ``Dad una moneda al muchacho si lo que quiere es sacar
+    provecho de todo lo que aprende''. 
+    
+    \subsection{\index{Máximo común divisor}{Máximo común divisor}}
+    \label{maximoComunDivisor}
+      Un concepto omnipresente, tratado desde la escuela y
+      representado tras la definición que muchos aprendimos bajo la
+      forma de la letanía \begin{quotation}``El máximo común divisor es el mayor de los
+      divisores comunes''\end{quotation} que por evidente resultaba inútil. También
+      se grababa a fuego cómo calcular dicho máximo, 
+      \begin{quotation}``multiplicando la menor 
+      potencia de cada factor común''.\end{quotation} Así es que parece
+      que para calcular esta función se hace necesario conocer la
+      descomposición prima de los números en cuestión, o eso parecía
+      cuando las cosas se aprendían mediante retahílas.
+      Muy posiblemente el lector ya sabe que esto no es así, desde
+      hace cientos ($22.5$ ``cientos'' aproximadamente) 
+      de años se sabe: Euclides recogía tambíen en \textit{Los Elementos}
+      una manera de calcular el máximo común divisor de dos enteros sin necesidad de
+      disponer de su descomposición en factores primos. Se muestra
+      esta manera, casi con toda seguridad el algoritmo más citado de la
+      Historia, en el algoritmo \ref{alg:euclides}. En
+      \cite{knuth2}\footnote{pág. 318} puede leerse incluso una
+      reproducción cuasi-textual del texto original de Euclides.
+      \begin{algorithm}
+        \caption{Algoritmo de Euclides del máximo común divisor}\label{alg:euclides}
+        \begin{algorithmic}[1]
+          \Procedure{Euclides}{entero $a$, entero $b$}
+          \Require $(a \geq 0) \wedge (b \geq 0) \wedge ((a \neq 0)
+          \vee (b \neq 0))$
+            \Comment Si $a$ ó $b$ son negativos, apliquese el
+            algoritmo al valor absoluto del número que corresponda,
+            por lo recogido en las observaciones \ref{observacionesGCD}.
+          
+          \While{$b \neq 0$}
+            \State $resto \gets (a \bmod b)$
+            \State $a \gets b$
+            \State $b \gets resto$
+          \EndWhile
+          \State \Comment Aquí, $b = 0$.
+          \State \textbf{devolver} $a$
+         
+          \EndProcedure
+        \end{algorithmic}
+      \end{algorithm}
+
+      Finalmente, resta dar una definición formal:
+      \begin{definicion}[Máximo común divisor]
+        Sean $a$ y $b$ enteros con al menos uno de ellos distinto de
+        $0$. Se dice que su \emph{máximo común divisor}, $d$, es el mayor
+        entero que divide simultáneamente a $a$ y $b$.
+      \end{definicion}
+      
+      Véanse algunas de las propiedades que se desprenden de esta
+      definición.
+      \begin{observacion}\label{observacionesGCD}
+        Sean $a$ y $b$ enteros y $d$ su máximo común divisor. Esto se
+        representará como $d = \gcd(a,b)$, respetando las siglas
+        inglesas ``Greater Common Divisor'', más extendidas en la
+        bibliografía.
+        \begin{itemize}
+          \item $d$ es el único entero
+            divisible a su vez entre cualquier otro número que divida
+            simultáneamente a $a$ y $b$.
+          \item Por lo expuesto en la sección
+            \ref{teoremaFundamentalAritmetica}, 
+            $d = \prod_{p\; \textrm{primo}} p^{\min(a_p, b_p)}$.
+          \item $\gcd(0,0) = 0$ por convenio.\\*
+                $\gcd(a,b) = \gcd(b,a)$ \\*
+                $\gcd(a,b) = \gcd(-a,b)$ \\*
+                $\gcd(a,0) = |a|$
+        \end{itemize}
+      \end{observacion}
+
+      \subsubsection{El cálculo ``extendido''}\label{gcdExtendido}
+        El término ``extendido'' se refiere a la obtención no solo de
+        $d$, el valor del máximo común divisor, sino también de los
+        factores que acompañarían, en combinación lineal, a $a$ y $b$. 
+        En símbolos (\cite{koblitz}\footnote{pág. 14, I.2.2}):
+        \begin{teorema}
+          Sean $a$ y $b$ enteros y $d$ su máximo común divisor. Sin
+          pérdida de generalidad, sea $a > b$. Entonces, existe dos
+          enteros $C$ y $D$ tales que $d = Ca + Db$.
+        \end{teorema}
+        
+        Esto es de enorme utilidad, siendo la obtención
+        de $C$ y $D$ fundamental para, por ejemplo, el cálculo de
+        inversas (cuando sea posible) en anillos como $\mathbb{Z}_n$. 
+        También, claro está, para cuerpos $\mathbb{Z}_p$ con $p$
+        primo.
+
+       
+        Por último, como suele ser habitual, \cite{knuth2} es una
+        referencia básica también para esta función. Toda su sección
+        4.5.2 (21 páginas) la dedica análisis exhaustivo del máximo
+        común divisor.
+        
+    \subsection{Mínimo común múltiplo}\label{minimoComunMultiplo}
+    Un concepto muy emparentado al de máximo común divisor es el de
+    mínimo común múltiplo. Prácticamente todas las anécdotas que
+    anteriormente se aplicaron al máximo común divisor se pueden
+    trasladar también a este caso. 
+ 
+    \begin{definicion}[Mínimo común múltiplo]
+      Sean $a$ y $b$ enteros. Se dice que su 
+      \emph{mínimo común múltiplo},$l$, es el menor
+      entero que $a$ y $b$ dividen.
+    \end{definicion}
+
+    Y también se comparte una formulación muy similar:
+    $l = \prod_{p\; \textrm{primo}} p^{\max(a_p, b_p)}$.
+
+    Es fácil ver las fuertes relaciones entre estos dos conceptos de
+    máximo común divisor y mínimo común múltiplo, y extrayendo
+    las siguientes relaciones (``máximo común divisor'' se representará,
+    al igual que anteriormente, como $\gcd(a,b)$, mientras que el mínimo 
+    común multiplo será representado como $\textrm{lcm}(a,b)$, respetando las 
+    siglas inglesas ``Least Common Multiple'', más extendidas en la
+    bibliografía):
+
+    \begin{eqnarray}
+      \textrm{lcm}(a,b) & =  &\frac{|ab|}{\gcd(a,b)} \label{lcm-gcd}\\
+      \gcd(\textrm{lcm}(a,b),\textrm{lcm}(a,c)) & = & \textrm{lcm}(a, \gcd(b,c)) \\
+      \textrm{lcm}(\gcd(a,b),\gcd(a,c)) & =  & \gcd(a, \textrm{lcm}(b,c)) 
+    \end{eqnarray}
+
+    Mediante la relación (\ref{lcm-gcd}) el cálculo del mínimo común
+    múltiplo se reduce a la del máximo común divisor más un producto y
+    una división.
+      
+    \subsection{Congruencias}\label{congruencias}
+  A modo de referencia, se recoge aquí la definición y un pequeño resumen de las
+  propiedades del concepto de ``congruencia''.
+
+  \begin{definicion}
+    Dados tres enteros $a$, $b$ y $m$, se dice que ``$a$ es congruente
+    con $b$ módulo $m$'' y se escribe $a \equiv b \pmod{m}$, si
+    $(a-b)$ es divisible entre $m$.
+  \end{definicion}
+  Otra forma de verlo es comprobar si el resto de las divisiones enteras 
+  $\lfloor (a/m) \rfloor$ y  $\lfloor (b/m) \rfloor$ coinciden.
+
+  Se satisfacen las siguientes propiedades:
+  \begin{eqnarray}
+    a \equiv a \pmod{m} & & \label{cong1} \\ 
+    a \equiv b \pmod{m} & \Leftrightarrow & b \equiv a \pmod{m}  \label{cong2} \\
+    a \equiv a \pmod{m} \wedge b \equiv c \pmod{m} & \Rightarrow & a \equiv c \pmod{m}  \label{cong3} \\
+    a \equiv b \pmod{m} \wedge c \equiv d \pmod{m} & \Rightarrow & a \pm c \equiv b \pm d \pmod{m}  \label{cong4} \\
+    a \equiv b \pmod{m} \wedge c \equiv d \pmod{m} & \Rightarrow & ac \equiv bd \pmod{m}  \label{cong5}\\
+    a \equiv b \pmod{m} & \Rightarrow & a \equiv b \pmod{d}
+    \textrm{ si $d | m$}   \label{cong6}\\
+    a \equiv b \pmod{m} \wedge a \equiv b \pmod{n}  &
+    \Rightarrow & a \equiv b \pmod{mn} \textrm{ si $\gcd(m,n)=1$}  \label{cong7}
+  \end{eqnarray}
+  
+  Las propiedades (\ref{cong1}), (\ref{cong2}) y (\ref{cong3}) indican
+  que la congruencia es una \emph{relación de equivalencia}.
+  Las propiedades (\ref{cong4}) y (\ref{cong5}) por su parte indican
+  que $\mathbb{Z}_m$ tiene estructura de \emph{anillo conmutativo}.
+  
+  \subsection{Residuos cuadráticos}\label{residuosCuadraticos}
+  Concepto que aparece con frecuencia en el trabajo con Teoría de
+  Números, en conceptos como tests de composición y factorización, por
+  poner dos ejemplos.
+  \begin{definicion}[Residuo cuadrático]
+  Sea $p$ un primo y $0 < a < p$. Entonces $a$ es un \emph{residuo
+  cuadrático} módulo $p$ si se verifica $x^2 \equiv a \pmod{p}$ para
+  algún $x$.
+  \end{definicion}
+  Para un módulo $n$ arbitrario, no necesariamente primo, tendría que
+  verificarse que $a$ cumple la anterior definición para todo factor
+  de la descomposición prima de $n$.
+
+  En las siguientes secciones se presentan tres conceptos relacionados
+  con los residuos cuadráticos. Se presentan tan sólo las definiciones
+  básicas y algunas propiedades interesantes de las muchas que estos
+  símbolos tienen, por lo que se remite al lector interesado a
+  \cite{cohen}\footnote{pp. 27-31}, \cite{riesel}\footnote{pp.
+  278-288}.
+    \subsubsection{Símbolo de Legendre}\label{simboloLegendre}
+    Para la constatación del carácter de residuo cuadrático o no de un
+    número respecto a un módulo primo, se cuenta con el denominado
+    \index{símbolo!de Legendre}{símbolo de Legendre}.
+    \begin{definicion}[Símbolo de Legendre]
+      El símbolo de Legendre $\left( \frac{a}{p} \right)$, con $p > 2$ un
+      primo, se define como:
+      \[
+        \left( \frac{a}{p} \right) = \left\{ 
+        \begin{array}{ll}
+          0 & \textrm{si $p|a$} \\
+          1 & \textrm{si $a$ es un residuo cuadrático módulo $p$} \\
+          -1 & \textrm{si $a$ es un residuo no cuadrático módulo $p$}
+        \end{array}
+        \right.
+      \]
+    \end{definicion}
+    Dos propiedades muy importantes de este símbolo son las
+    siguientes:
+    \begin{observacion}[Multiplicabilidad]
+    Se verifica
+      \[    
+          \left( \frac{a}{p} \right) \times \left( \frac{b}{p} \right) =
+          \left( \frac{ab}{p} \right)
+      \]
+    \end{observacion}
+
+    Y como ayuda a la hora del cálculo del símbolo, se cuenta con la
+    siguiente congruencia:
+    \begin{equation}\label{calculoLegendre}
+      a^{(p-1)/2} \equiv \left( \frac{a}{p} \right) \pmod{p}
+    \end{equation}
+    
+    \subsubsection{Símbolo de Jacobi}\label{simboloJacobi}
+    Como generalización del símbolo de Legendre para los impares
+    positivos (no necesariamente primos), se tiene el denominado
+    \index{símbolo!de Jacobi}{símbolo de Jacobi}:
+    \begin{definicion}[Símbolo de Jacobi]
+      El símbolo de Jacobi $\left( \frac{a}{n} \right)$, con $n > 0$ impar,
+      se define como:
+      \[
+      \left( \frac{a}{n} \right) = 
+         \left(\frac{a}{n_1}\right)^{e_1} \left(\frac{a}{n_2}\right)^{e_2} 
+         \cdots \left(\frac{a}{n_k}\right)^{e_k}
+      \]
+      para 
+      $n = n_1^{e_1} n_2^{e_2} \cdots n_k^{e_k}$ la descomposición en
+      factores primos de $n$, siendo por tanto $\left(\frac{a}{n_i}\right)$ 
+      un símbolo de Legendre.
+    \end{definicion}
+    \subsubsection{Símbolo de Kronecker}\label{simboloKronecker}
+    El \index{símbolo!de Kronecker}{símbolo de Kronecker} es una
+    extensión del símbolo de Jacobi a todos los enteros. La simbología
+    sigue siendo la misma.
+
+    \begin{definicion}[Símbolo de Kronecker]
+      Sean $a$, $b$, $c$ y $d$ enteros. Mediante el uso del símbolo de
+      Jacobi, se define en general el símbolo de Kronecker $\left( \frac{ab}{cd} \right)$ como:
+      \[
+        \left( \frac{ab}{cd} \right) =  \left( \frac{a}{cd} \right) \left( \frac{b}{cd} \right) =
+        \left( \frac{ab}{c} \right) \left( \frac{ab}{d} \right) = 
+\left( \frac{a}{c} \right) \left( \frac{b}{c} \right) \left( \frac{a}{d} \right) \left( \frac{b}{d} \right)
+      \]
+      Para el caso en el que el módulo es $-1$ ó $2$, se tiene
+      respectivamente:
+      \[
+        \left( \frac{a}{-1} \right) = \left\{ 
+        \begin{array}{ll}
+          -1 & \textrm{para $a < 0$} \\
+          1 &  \textrm{para $a > 0$}
+        \end{array}
+        \right.
+      \]
+      
+      \bigskip
+
+      \[
+        \left( \frac{a}{2} \right) = \left\{ 
+        \begin{array}{ll}
+          0 & \textrm{para $a$ par} \\
+          1 & \textrm{para $a$ impar y $a \equiv \pm1 \pmod{8}$} \\
+          -1 & \textrm{para $a$ impar y $a \equiv \pm3 \pmod{8}$} \\
+        \end{array}
+        \right.
+      \]
+
+      En los que el módulo es primo
+      impar, el símbolo de Kronecker se reduce a un \index{símbolo!de
+      Legendre}{símbolo de Legendre}.
+
+    \end{definicion}
+
+  
+

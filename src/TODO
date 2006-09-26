@@ -1,0 +1,5 @@
+· Funciones para trabajar sobre CifraSigno y demas, sin depender de 
+cosas como labs y tal. Porque, que usar, labs, abs... y si cambia la 
+definicion del tipo?
+
+· mirar el FIXME de PiMachin::pi(const size_t precision)

@@ -1,0 +1,863 @@
+% CAPITULO SOBRE GENERADORES RANDOM
+
+\chapter{Números
+aleatorios}\label{cap:random}\index{números!aleatorios}
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+        If your algorithms are great but your random-number generator
+        stinks, any smart cryptanalyst is going to attack your system
+        through the random-number generation.
+        }
+        \begin{flushright}
+          \textbf{\textemdash Bruce Schneier, ``Applied Cryptography''}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+\bigskip
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+        Anyone who considers arithmetical methods of producing random
+        digits is, of course, in a state of sin.
+        }
+        \begin{flushright}
+          \textbf{\textemdash John Von Neumann}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+\bigskip
+
+\begin{center}{\line(1,0){325}}\end{center}
+
+%--------------------------------------------------------%
+
+\section{Introducción}
+La generación de números aleatorios juega un papel fundamental en
+numerosos campos, desde la simulación hasta el entretenimiento, pasando
+por técnicas de muestreo e incluso en análisis numérico (\cite{knuth2}
+pág. 1). 
+
+Se exponen en \cite{brentrandom} nueve casos concretos y de gran
+importancia, relativos al uso de números aleatorios en el ámbito de la
+computación (y se citan en su décimo punto aún otros doce campos de
+aplicación que dicho artículo no cubre, entre los cuales se encuentra
+la criptografía). 
+La verdad es que merece la pena valerse de uno de esos ejemplos, el
+primero, y plasmarlo aquí y ahora por su belleza, simplicidad y
+originalidad: \\
+¿Cómo comprobar la integridad de la memoria de una sonda espacial\footnote{
+En el artículo (1994) se habla de la sonda Galileo, una misión a
+Júpiter. Dicha sonda finalizó ya su misión el 21 de Septiembre de 2003
+desintegrándose en la atmósfera de este planeta.}
+que esté a millones de kilómetros de nosotros? La transferencia
+completa de la memoria es inviable. Un método que se vale de la
+generación de un número primo aleatorio $p$ en un cierto intervalo,
+por ejemplo $(10^9, 2 \cdot 10^9)$. Se envía dicho $p$ aleatorio, de
+como máximo $\lceil\log_2{(2 \cdot 10^9)}\rceil = 31$ bits y se pide que
+la sonda calcule el resto de dividir su memoria, considerada esta como
+un entero grande, entre $p$, resultando un número $r_1 < p$ y por
+tanto de asimismo $31$ bits a lo sumo. Se han transmitido pues como
+máximo $62$ bits (ida y vuelta). Ahora resulta que realizando el mismo
+calculo en la Tierra, obtendremos $r_2$. Es claro que
+de ser $r_2 \neq r_1$, se tiene una corrupción en la memoria de la
+sonda. Si por contra $r_2 = r_1$, la memoria de la sonda será
+idéntica a la de la Tierra con una probabilidad de $1-(1/10^9)$.
+Si esto no es suficiente, basta repetir el test con otro $p' \neq p$,
+teniendo, tras $n$ tests una certeza de $1-(1/10^9)^n$. La necesidad de
+trabajar con primos viene de que sino, podría darse el caso de tener
+en la Tierra un múltiplo de un primo cualquiera $k$ que al ser
+enviado se corrompe en su largo viaje, con tan mala suerte de resultar
+transformado precisamente en $k$. Así, $r_1$ y $r_2$ coincidirían en
+base a que $a \equiv b \pmod{m} \stackrel{d|m}{\Longrightarrow} a
+\equiv b \pmod{d}$, cuando el contenido de la memoria de la sonda
+puede haberse efectivamente corrompido, resultando entonces en un
+falso positivo.
+No es difícil darse cuenta de que el ejemplo anterior no deja de ser
+una forma primitiva de función hash (véase \ref{funcionesHash}), pero
+despojada de aquello que no nos es de utilidad en el caso concreto,
+ganando así en simplicidad.
+
+Más en el campo criptográfico, \cite{rfc1750} comienza exponiendo las
+aplicaciones más destacadas de los números aleatorios: Generación de
+claves para métodos de cifrado simétricos (\ref{cifradoSimetrico}),
+generación de pares de claves pública-privada en criptosistemas de
+clave pública (\ref{clavePublica}), sistemas de firma digital como el
+propuesto por el NIST\footnote{``National Institute of Standards and
+Technology'' norteamericano}. El caso más extremo de necesidad de
+datos aleatorios es el de un mecanismo ``One-time pad''
+(\ref{oneTimePad}).
+
+En todo este capitulo se considera que los
+algoritmos que se utilicen son conocidos y accesibles tanto por quien
+los utiliza como por quien pretende atacarlos. 
+
+    
+
+  \section{\index{Generador pseudoaleatorio}{Generación de secuencias pseudoaleatorias}\label{generacionDeSecuenciasPseudoAleatorias}}
+  El hecho de trabajar con una máquina determinística, i.e. un
+  ordenador, anula por definición la posibilidad de generar patrones
+  realmente aleatorios. Schneier en \cite{schneier}\footnote{pág. 44} 
+  dice:
+  \begin{quotation}
+    Of course, it is impossible to produce something truly random on
+    a computer. [\ldots] A computer can only be in a finite number of
+    states [\ldots], and the stuff that comes out will always be a
+    deterministic function of the stuff that went in and the
+    computer's current state.[\ldots] That means that any
+    random-number generator on a computer [\ldots] is, by definition,
+    \emph{periodic}. Anything that is periodic is, by definition,
+    \emph{predictable}. And if something is predictable, it can't be
+    random.\footnote{Sin los énfasis en el original.}
+  \end{quotation}
+  Este concepto de \index{Generador pseudoaleatorio!período}{\emph{período}} 
+  utilizado 
+  no esconde ningún concepto nuevo; se trata de la definición 
+  clásica de período como algo que se
+  repite cíclicamente tras un determinado número de pasos. La
+  \index{período!longitud}{\emph{longitud del período}} 
+  será precisamente ese número de pasos.
+  Como es lógico, se buscarán métodos con el mayor período posible.
+  Ver que se producen períodos cuando se trabaja con tamaños de
+  registros finitos (como será el caso en cualquier ordenador) es
+  bastante claro. De todas formas, a continuación se muestra con
+  cierto rigor, aprovechando que demostrar este enunciado es
+  precisamente el
+  ejercicio 6 de la sección 3.1 de \cite{knuth2}, cuyo enunciado se
+  puede poner, con algunas modificaciones, de la forma siguiente:
+  \begin{teorema}[Existencia de ciclos; inevitabilidad de períodos]
+    \label{existenciaDeCiclos}
+    Sea $f:[0,m-1] \rightarrow [0,m-1]$ y $X_1, X_2, \cdots , X_{n},
+    \cdots$
+    la secuencia generada por $X_{n+1} = f(X_n)$ para un $X_0$
+    (semilla) determinado. Dicha secuencia es \emph{periódica} en el
+    sentido de que existen $\mu$ y $\lambda$ tales que $X_0, X_1,
+    \cdots, X_{\mu}, \cdots, X_{\mu+\lambda-1}$ son diferentes pero
+    $X_{n+\lambda} = X_n$ cuando $\mu \leq n$.
+  \end{teorema}
+  \begin{demostracion}
+    Dado que $0 \leq X_i < m \quad \forall{i}$, la existencia última
+    de un período es clara, ya que en el peor de los casos, para $i=m$
+    o lo que es lo mismo $f^{m}(X_0)$, $X_i$ ha de ser igual a algún
+    otro elemento de la secuencia por la propia definición de $f$.
+  \end{demostracion}
+  La existencia de $\mu$ y $\lambda$ está por tanto garantizada, siendo
+  $\lambda$ la longitud del período y $\mu$ el primer elemento del
+  ciclo, al que se retorna tras los $\lambda$ pasos.
+  Sus valores máximos y mínimos es fácil ver que son $0 \leq \mu < m$
+  y $0 < \lambda \leq m$. El caso $\mu = 0$ se correspondería con el
+  de una permutación cíclica de los índices ($\lambda = m$); el caso
+  $\mu = (m-1)$ será por ejemplo el correspondiente a una definición
+  de $f$ tal que $f(X_i) = X_{i+1}$ para $i \leq (m-2)$ y $f(X_{m-1})
+  = X_{m-1}$.
+
+  Pero entonces, ¿qué se entiende por ``secuencia pseudoaleatoria''? 
+  O dicho de otro modo, ¿que tendría que cumplir una secuencia
+  $X_0, X_1, X_2, \cdots$ como la citada anteriormente para ser considerada 
+  una secuencia pseudoaleatoria? Según \cite{schneier}, sólo parecerlo. 
+  Cuan similar es o deja de serlo se
+  dilucida mediante el uso de tests estadísticos, tratados en la
+  sección \ref{testsEstadisticos}. Sin embargo, la superación de
+  dichos tests es una condición \emph{necesaria} pero \emph{no
+  suficiente} para asegurar la bondad de una secuencia y por tanto de
+  su algoritmo generador.
+  Formalmente, \cite{handbook}\footnote{pág. 170} los define de la manera siguiente:
+  \begin{definicion}[\index{Generador pseudoaleatorio}{Generador} 
+    de números pseudoaleatorios]
+    Se denomina Generador de Números Pseudo-Aleatorios\footnote{En los
+    textos escritos en ingles, se suele utilizar el acrónimo
+    \index{Generador pseudoaleatorio!PRNG}``PRNG''
+    (Pseudo-Random Number Generator) para referirse a estos generadores.}
+    a todo algoritmo (determinístico) tal que dada una secuencia inicial de longitud
+    $k$ denominada \index{Generador pseudoaleatorio!semilla}{\emph{semilla}}, 
+    devuelve otra
+    secuencia de longitud $l \gg k$ \emph{aparentemente} aleatoria.
+  \end{definicion}
+  
+  Ejemplos de algoritmos generadores pseudoaleatorios que responden a esta
+  definición son el RC4  y el método de congruencias lineales,
+  que serán tratados en este mismo apartado.
+
+  \subsubsection{RC4}\label{rc4}
+    RC4 es un algoritmo de cifrado de flujo (\ref{cifradoDeFlujo}). 
+    Como tal, su seguridad depende de la
+    secuencia pseudoaleatoria que genera y que utiliza para cifrar,
+    mediante un esquema basado en la idea del ``One-time pad'' 
+    (\ref{oneTimePad}). Aprovechándonos de esto, se puede utilizar el
+    algoritmo sólo para generación de la secuencia aleatoria, sin
+    utilizarla para cifrar nada. Así, se obtiene un generador de bits
+    pseudoaleatorios por el precio de un algoritmo de cifrado de
+    flujo.
+
+    Nótese que este esquema es extensible a cualquier
+    \index{funciones!unidireccionales}{función
+    unidireccional} (\ref{funcionesUnidireccionales})
+    $f$, como puede ser un algoritmo de cifrado 
+    en bloques (DES) o una función hash (SHA-1 o MD5, véase \ref{md5}).
+    Con una semilla $X_0$, la secuencia se construiría a base de
+    sucesivas llamadas a $f$: $\{f(X_0), f(X_0+1), f(X_0+2),\cdots\}$
+    Algoritmos basados en estas ideas (ANSI X9.17, FIPS 186) se pueden
+    encontrar en \cite{handbook}\footnote{pp. 173-175}.
+    
+  \begin{algorithm} 
+    \caption{RC4} \label{ALGrc4}
+    \begin{algorithmic}[1] 
+    \Procedure{RC4}{clave $K$}
+      \Comment{Inicializar}
+      \For{$i=0$ hasta $i=255$}
+        \State $S_i \gets i$
+      \EndFor
+      \State $K_{\{0\cdots255\}} \gets K$
+      \State 
+        \Comment{Si $K$ no completa los $256$ bytes de $K_{\{0\cdots255\}}$, 
+                 se repite $K$ hasta que lo haga}
+      \State $j \gets 0$
+      \For{$i=0$ hasta $i=255$}
+        \State $j \gets (j + S_i + K_i) \bmod 256$
+        \State Intercambiar $S_i$ y $S_j$
+      \EndFor
+      \Comment{Fin inicialización}
+      \State \Comment{Comienzo de la generación del byte pseudoaleatorio}
+      \State $i \gets (i+1) \bmod 256$
+      \State $j \gets (j+S_i) \bmod 256$
+      \State Intercambiar $S_i$ y $S_j$
+      \State $t \gets (S_i + S_j) \bmod 256$
+      \State $B \gets S_t$ \Comment{B será el byte pseudoaleatorio}
+      \State \textbf{devolver} $B$
+    \EndProcedure
+    \end{algorithmic}
+  \end{algorithm}
+  
+  El Algoritmo \ref{ALGrc4} muestra el pseudocódigo de este método.
+  La implementación es muy sencilla y extremadamente
+  eficiente (esto es, capaz de ejecutarse en tiempo polinomial). 
+  Las operaciones de módulo se pueden reducir a operaciones
+  AND a nivel de bits, que se ejecutan en tiempo constante; al ser $256 = 2^8$, 
+  se toman los $8$ bits de menos peso mediante la máscara hexadecimal $0xff$ y la 
+  citada operación AND.
+  Pruebas en el sistema de desarrollo (\ref{sistemaDeDesarrollo})
+  de la librería arrojan un rendimiento aproximado de $11$ 
+  megabytes por segundo de datos pseudoaleatorios.
+  Por omisión, la implementación asigna una semilla de $16$ bytes
+  obtenida del ``Semillero'' (véase \ref{semillero}). Se considera que
+  esto es suficiente y un buen compromiso entre la seguridad (el
+  espacio de claves sería de $2^{16\times8} = 2^{128}$, idéntico al
+  existente en las funciones hash de la familia MD* (véase \ref{md5}))
+  y el uso apropiado de la entropía del sistema.
+
+  En lo relativo a la seguridad, \cite{schneier}\footnote{pág. 398}
+  dice que este algoritmo no parece tener ciclos cortos y no ser
+  vulnerable a diversos ataques de criptoanálisis. El número posibles
+  de estados asciende a $2^{1700} = 256! \times 256^2$.
+
+  Como dato histórico curioso, este algoritmo fue un ``trade
+  secret'' de RSA Data Security Inc. (fue desarrollado en 1987 por la ``R'' del
+  famoso ``RSA'', Ron Rivest). La causa de que hoy día esté
+  presente en muchas aplicaciones, incluida ésta, se remonta al 13 de
+  Septiembre de 1994,
+  cuando alguien publicó en el grupo de noticias de Usenet sci.crypt su código
+  fuente.\footnote{Para más señas, el identificador del mensaje es 
+  ``3555ls\$fsv@news.xs4all.nl'': es posible mediante por ejemplo la
+  base de datos de noticias de www.google.com acceder al mismo.}
+  De todas formas, para curarse en salud, es práctica habitual que las
+  implementaciones no respondan al nombre literal ``RC4'' para evitar
+  litigios con RSA Security Inc. Esta librería no es una excepción.
+    
+  
+  \subsubsection{Congruencias lineales\label{congruenciasLineales}}
+    Expuestas en \cite{knuth2}\footnote{pp. 9-24} y en
+    \cite{schneier}\footnote{pp. 369-372}, en este último para
+    desaconsejar su aplicación criptográfica:
+    \begin{quotation}
+      Unfortunately, linear congruential generators cannot be used for
+      cryptography; they are predictable. [\ldots] The preponderance
+      of evidence is that congruential generators aren't useful for
+      cryptography.
+    \end{quotation}
+    
+    Aún así, la librería incluye una implementación de este generador,
+    que se basa en la generación de la secuencia pseudoaleatoria de la
+    siguiente manera:
+    \[
+    X_n = (aX_{n-1} +b) \bmod m
+    \]
+    La elección de los valores $a$, $b$ y $m$ es fundamental para
+    garantizar el periodo máximo de la secuencia. En \cite{knuth2} se
+    emplean diez páginas del rango anteriormente citado para análizar
+    estos valores.
+
+    Asimismo, en \cite{schneier}\footnote{pág. 370} se da una tabla
+    con valores de $a$, $b$ y $m$ óptimos en función de la base de
+    trabajo. En la implementación que incorpora la librería, se han
+    considerado los valores $a=9301$, $b= 49297$ y $m=233280$.
+
+  \subsection{Generación de bits 
+  \index{Generador pseudoaleatorio!criptográficamente
+  seguros}{criptográficamente seguros}}\label{randomSeguro}
+  En \ref{generacionDeSecuenciasPseudoAleatorias} se definió a los generadores 
+  de secuencias pseudoaleatorias de forma bastante vaga, dejando todo
+  pendiente de la superación o no de los tests estadísticos
+  (\ref{testsEstadisticos}) que evaluarían el grado de similitud a una
+  secuencia realmente aleatoria. Esto, además de vago, es insuficiente
+  para garantizar la seguridad de los números que se deriven de estas
+  secuencias. ¿Seguridad, qué tiene que ver en esto? 
+  Se remite al lector a la cita que encabeza
+  este capitulo (la cual es una frase literal de \cite{schneier}). 
+  Cuando el objetivo de los números pseudoaleatorios generados es el de
+  servir a fines criptográficos, ya no sólo es importante garantizar la
+  aparente aleatoriedad de los datos, sino también la imposibilidad de
+  ``tirar del hilo'', sacando información que nos permitiese deducir
+  cualquier estado ---valor de secuencia--- pasado o futuro del generador.
+  El ejemplo más fuerte de esto sería que el atacante rompiese el algoritmo
+  generador y se hiciese con la semilla (que recordemos, \emph{siempre}
+  es necesaria) con lo que por definición (determinismo) tendría
+  conocimiento de la secuencia generada por dicho algoritmo desde el
+  principio y hasta el fin de los tiempos.
+
+  Estos métodos suelen estar basados en alguno de los ``problemas
+  fundamentales'' (véase \ref{problemasFundamentales}) que a su vez
+  descansan en la Teoría de la Complejidad; se confía en su carácter
+  de problemas \textbf{NP} para garantizar la seguridad en base a la
+  imposibilidad computacional actual de resolverlos.
+
+  Como métodos de generación de números aleatorios de una seguridad
+  añadida, su uso se suele restringir a generación de claves o
+  secuencias para métodos tipo ``One-time pad'' (\ref{oneTimePad}), ya
+  que en contrapartida, son notablemente más costosos de computar.
+
+  En \cite{bbs}, entre otros, es posible encontrar las siguiente
+  definiciones:
+  \begin{definicion}[Generador criptográficamente seguro
+    (\itshape{tests estadísticos en tiempo polinomial})]
+    Sea $g:\{0,1\}^n \rightarrow \{0,1\}^{l(n)}$ una aplicación computable
+    en tiempo polinomial, con $l(n)$ (longitud de la secuencia
+    generada) un polinomio tal que $l(n) > n$.
+    Sean $X$ y $Z$ variables aleatorias distribuidas uniformemente en
+    $\{0,1\}^n$ y en $\{0,1\}^{l(n)}$ respectivamente. Entonces $g$ es un
+    generador criptográficamente seguro ---supera todos los tests
+    estadísticos en tiempo polinomial--- si para todos los adversarios $A$
+    ---que disponen de $g$ y pueden evaluarla en tiempo polinomial--- la
+    probabilidad de éxito ---poder distinguir la salida de $g$ de un
+    generador real de bits aleatorios--- es:
+    \begin{displaymath}
+      |P_X[A(g(X))=1]-P_Z[A(Z)=1]| < \frac{1}{p(n)} \qquad \forall p
+    \end{displaymath}
+    con $p$ un polinomio.
+  \end{definicion}
+  Esto es, si no existe algoritmo que se ejecute en tiempo polinomial
+  que pueda distinguir entre la secuencia dada por el generador y otra
+  secuencia realmente aleatoria de la misma longitud con una
+  probabilidad significativamente mayor que $\frac{1}{2}$.
+
+  \begin{definicion}[Generador criptográficamente seguro 
+    (\itshape{Impredictibilidad del siguiente bit})]
+    Sea $g:\{0,1\}^n \rightarrow \{0,1\}^{l(n)}$ una aplicación computable
+    en tiempo polinomial, con $l(n)$ (longitud de la secuencia
+    generada) un polinomio tal que $l(n) > n$.
+    Sean $X$ e $Y$ variables aleatorias distribuidas uniformemente en
+    $\{0,1\}^n$ y en $\{1,\cdots, l(n)\}$ respectivamente. Entonces $g$ es un
+    generador criptográficamente seguro si para todos los adversarios $A$
+    (que disponen de $g$ y pueden evaluarla en tiempo polinomial) la
+    probabilidad de éxito (poder predecir el valor del próximo bit
+    generado por $g$) es
+     \begin{displaymath}
+       P[A(Y,g(X)_{\{1,\cdots, Y-1\}}) = g(X)_Y] < \frac{1}{p(n)}
+       \qquad \forall p
+    \end{displaymath}
+    con $p$ un polinomio.
+  \end{definicion}
+  En otras palabras, ser capaz de predecir con probabilidad
+  significativamente mayor que $\frac{1}{2}$ el bit $(l+1)$-ésimo conocidos
+  los $l$ anteriores. De no existir un algoritmo en tiempo polinomial
+  para ello, se cumple con esta definición.
+
+  Y por último, un resultado sorprendente que nos permite quedarnos
+  con cualquiera de ambas definiciones.
+  \begin{teorema}[Universalidad del test de impredictibilidad]
+    Un generador supera el tests de impredictibilidad del siguiente
+    bit \emph{si y sólo si} supera todos los tests estadísticos de
+    tiempo polinomial.
+  \end{teorema}
+    
+    
+  \subsubsection{Blum-Blum-Shub}\label{bbs}
+  El generador debido a Lenore Blum, Manuel Blum y Michael
+  Shub\cite{bbsoriginal} es considerado como un PRBG\footnote{
+    \index{Generador pseudoaleatorio!PRNG}{Siglas de
+    ``Pseudo-Random Bit Generator''.}}
+  criptográficamente seguro. Su seguridad se basa en el
+  \index{problema!QRP}{QRP}
+  (\ref{qrp}), el cual se reduce en última instancia al problema
+  \index{problema!FACTORING}{FACTORING} (\ref{factoring}) de factorización de enteros.
+  A grandes rasgos, en \cite{bbsoriginal} se demuestra, asumiendo
+  que la factorización de un entero $n$ producto de dos primos
+  distintos es necesaria para determinar si un elemento $x$ tal que 
+  $\left( \frac{x}{n} \right) = 1$ (símbolo de Jacobi,
+  \ref{simboloJacobi}) es residuo cuadrático módulo $n$\footnote{lo
+  cual es precisamente el QRP}, que tales
+  factores son necesarios para obtener una pequeña ventaja al tratar
+  de adivinar la paridad de $X_{0} = \sqrt{X_1}$ en tiempo polinomial
+  conocidos $X_1$ y $n$. 
+
+  El Algoritmo \ref{ALGbbs} nos muestra el generador, siendo en su línea 
+  \ref{pasoBBSfundamental} donde reside el núcleo del método, como se
+  exponen en el párrafo precedente. Es necesario aún dar una
+  definición.
+  \begin{definicion}[\index{primos!de Blum}{Primo de Blum}]
+    Sea $p$ un primo tal que $p \equiv 3 \pmod{4}$. Dicho $p$ se
+    denomina \emph{primo de Blum}.
+  \end{definicion}
+%  \begin{teorema}\label{TMAprimoBlum}
+%    Sea $p$ un primo impar (i.e. $\neq 2$). Entonces
+%    \begin{displaymath}
+%      -1 \in QNR_p \iff p \textrm{ es primo de Blum}
+%    \end{displaymath}
+%    (vease (\ref{simboloLegendre})
+%  \end{teorema}
+%  \begin{demostracion}
+%    Para que se cumpla que $-1$ es un residuo no-cuadrático módulo
+%    $p$, basta con que $\left( \frac{-1}{p} \right) = -1$, ya que la
+%    posibilidad de que $-1 \equiv (p-1) | p$ y por tanto el símbolo de
+%    Legendre
+%    fuese $0$, no se da. Por otra parte, se tiene que
+%    por el símbolo de Legendre cumple
+%    \[
+%    \left( \frac{-1}{p} \right) \equiv (-1)^{(p-1)/2} \pmod{p}
+%    \]
+%    Por una parte se tiene que dado que $p$ es impar, 
+%    habrá de ser congruente con $1$ o con $3$ módulo $4$. 
+%    Entonces, resta demostrar que $(p-1)/2$ es impar si y solo si $p \equiv
+%    3 \pmod{4}$. Definiendo el ``ser impar'' como $\left(
+%    \frac{p-1}{2}\right) \equiv 1 \pmod{2}$, se tiene que
+%    $\frac{p-3}{4} \in \mathbb{Z}$, lo que es precisamente la
+%    definición de $p \equiv 3 \pmod{4}$.\\
+%    Además, es fácil ver que no podría cumplirse siendo congruente con
+%    $1$ ya que entonces $\frac{p-1}{4} \in \mathbb{Z} \Rightarrow \frac{p-1}{2} 
+%    par$.
+%  \end{demostracion}
+
+   La obtención de primos de Blum se puede realizar de manera muy
+   eficiente considerando los $2$ bits de menor peso de un primo $p$
+   generado aleatoriamente, ya que esto es equivalente a la reducción
+   módulo $4 = 2^2$. Es más, dado que $p$ será siempre impar, bastaría
+   con considerar el segundo bit de menor peso, concluyendo que $p
+   \equiv 3 \pmod{4}$ si y sólo si dicho bit es $1$. Ya que la
+   probabilidad de que este segundo bit sea $1$ es prácticamente igual
+   a $\frac{1}{2}$, no pasará mucho hasta que se obtenga un primo de
+   Blum.
+
+   La justificación del uso de primos de Blum y una demostración
+   rigurosa de seguridad del algoritmo puede encontrarse en \cite{bbs,
+   bbsoriginal}. El primero de estos textos se incluye como apéndice.
+   En concreto, interesa demostrar que se cumple alguna de las dos
+   definiciones equivalentes expuestas al principio de esta sección.
+    
+   \begin{algorithm} 
+    \caption{Blum-Blum-Shub} \label{ALGbbs}
+    \begin{algorithmic}[1] 
+    \Procedure{BBS}{longitud $l$, calidad $k$}
+      \State $p \gets $ primo de Blum aleatorio de $k$ bits
+      \State $q \gets $ primo de Blum aleatorio de $k$ bits
+      \State $n \gets p \times q$
+      \State $s \gets (x \in [1,n-1])$ al azar. \Comment{La semilla}
+      \State $X_0 \gets s^{2} \bmod n$
+      \For{$i = 1$ hasta $i = l$}
+        \State $X_i \gets X^{2}_{i-1} \bmod
+        n$\label{pasoBBSfundamental}
+        \State $Z_i \gets paridad(X_i)$
+      \EndFor
+      \State \textbf{devolver} $Z_1,Z_2,\cdots,Z_l$
+    \EndProcedure
+    \end{algorithmic}
+  \end{algorithm}
+
+  Este método es muy lento, si se compara con generadores como el RC4.
+  Está claro que la seguridad extra ha de venir a costa de algo,
+  habitualmente tiempo de cómputo como en este caso. De todas formas,
+  \cite{schneier}\footnote{pág. 418} apunta que es posible considerar
+  en cada iteración no sólo el bit de paridad (bit menos
+  significativo) sino hasta los $\log_2\log_2 X_i$ bits menos
+  significativos de $X_i$.
+
+  \section{Tests estadísticos\label{testsEstadisticos}}
+    La semejanza de una determinada secuencia pseudoaleatoria, a una que realmente lo
+    fuera, es susceptible de ser medida hasta cierto punto, sometiendo a
+    dicha secuencia pseudoaleatoria a una serie de pruebas
+    estadísticas que determinarán si cumple con lo que se podría
+    esperar de ella. Éste es un campo ---como casi todos por otra parte---
+    muy extenso, que se trata en profundidad en
+    \cite{knuth2}\footnote{pp. 38-113, toda su sección 3.3},
+    \cite{handbook}\footnote{pp. 175-185, toda su sección 5.4}.
+    \subsection{Tests básicos}\label{testsBasicos}
+      Se definen aquí los tests estadísticos considerados. En todo
+      ellos se supone que se estudia una secuencia de bits $B = {b_0, b_1,
+      ,b_2, \cdots, b_{n-1}}$ de $n$ elementos. 
+      \subsubsection{Test de frecuencia} 
+        Se pretende comprobar si la cantidad de ceros y unos es
+        aproximadamente la misma. Sea $n_0$ el número de ceros y $n_1$ 
+        el número de unos de la secuencia $B$. El estadístico entonces
+        será:
+        \[
+         X_f = (n_0 - n_1)^2 / n
+        \]
+      \subsection{El test del Poker}
+        Una generalización del caso anterior.
+        Sea $m$ un entero positivo tal que $\lfloor\frac{n}{m}\rfloor
+        \geq 5 \times (2^m)$ y $k=\lfloor\frac{n}{m}\rfloor$. Si se
+        divide la secuencia $B$ en $k$ secciones de longitud $m$ que no se superpongan
+        entre sí, se cuenta el número de apariciones en $B$ de cada
+        tipo de las $2^m$ subsecuencias de longitud $m$ posibles. Se
+        busca determinar si estas secuencias aparecen aproximadamente
+        el mismo número de veces, como se podría esperar que
+        apareciesen en una secuencia realmente aleatoria. El
+        estadístico será:
+        \[
+        X_p = \frac{2^m}{k}\times \left( \sum_{i=1}^{2^{m}} n_i^2
+          \right) -k 
+        \]
+        Es evidente que para $m = 1$, se tiene el tests de la
+        frecuencia anteriormente mencionado.
+      \subsection{Test de consecutividad}
+        En este test se mide el número de subsecuencias de ceros o
+        unos consecutivas y la longitud de éstas. Por ejemplo, $000$
+        sería una subsecuencia de tres ceros consecutivos, mientras
+        que $111001111$ tendría tres subsecuencias: una de tres unos,
+        otra de dos ceros y una de cuatro unos. 
+        La cantidad esperada de estas subsecuencias (ya sea de unos o de ceros)
+        de longitud $i$ para una secuencia de longitud $n$ es de
+        (\cite{handbook}\footnote{pág. 182}) $e_i = (n-i+3)/2^{i+2}$.
+        Si $k$ representa el mayor entero para el que $e_i$ es $\geq
+        5$ y $U_i$ ($C_i$) el número de subsecuencias de unos 
+        (resp. ceros) de longitud $i$, para $1 \leq i \leq k$, el
+        estadístico usado es
+        \[
+          X_c = \sum_{i=1}^k \frac{(B_i - e_i)^2}{e_i}+\sum_{i=1}^k
+          \frac{(G_i - e_i)^2}{e_i}
+        \]
+
+      \subsubsection{FIPS 140-1}\label{fips140-1}
+        El Instituto Nacional de Estándares y Tecnología
+        estadounidense (NIST) define los denominados 
+        ``Estándares Federales para el Procesamiento de Información''
+        (FIPS en sus siglas en inglés). Entre estos, véase
+        \cite{handbook}\footnote{pág. 654} para una enumeración de los
+        estándares FIPS. Como parte del estándar FIPS 140-1 se
+        encuentran los valores de los estadísticos de la sección
+        \ref{testsBasicos}, que definirían lo que en la librería se ha
+        implementado como un mecanismo de evaluación de 
+        generadores pseudoaleatorios en lo referente a su semejanza
+        con una secuencia aleatoria real. Para los valores siguientes,
+        se considera una secuencia, generada por el algoritmo a
+        probar, de longitud $n=20000$ bits.
+        \begin{description}
+          \item[Test de frecuencia.] El número de unos $n_1$ ha de
+            cumplir $9654 < n_1 < 10346$.
+          \item[Test del Poker.] $X_p$ se computa para $m=4$, y su
+            valor ha de cumplir $1.03 < X_p < 57.4$.
+          \item[Test de consecutividad.] Se consideran subsecuencias
+            de hasta longitud $6$ inclusive ($1 \leq i \leq 6$).
+            Si una secuencia rebasa
+            este valor, se la considerará como si fuese de longitud
+            $6$ igualmente. El test se considera superado si para las
+            doce ejecuciones (seis para las subsecuencias de unos y
+            seis para las de ceros), se tiene que tanto $U_i$ como
+            $C_i$ están en los intervalos de la tabla \ref{tablaFIPS}
+            para cada valor de $i$:
+            \begin{table} 
+              \begin{center}\begin{tabular}{|c|c|} 
+                \hline 
+                $i$ & Intervalo\tabularnewline
+                \hline
+                \hline 
+                $1$&
+                $2267-2733$\tabularnewline
+                \hline 
+                $2$&
+                $1079-1421$\tabularnewline
+                \hline 
+                $3$&
+                $502-748$\tabularnewline
+                \hline 
+                $4$&
+                $223-402$\tabularnewline
+                \hline
+                $5$&
+                $90-223$\tabularnewline
+                \hline
+                $6$&
+                $90223$\tabularnewline
+                \hline
+              \end{tabular}\end{center}
+              \caption{Longitudes aceptadas para subsecuencias de unos o ceros en FIPS 140-1}
+              \label{tablaFIPS}
+            \end{table}
+          \item[Longitud máxima subsecuencias consecutivas.] No debe
+            haber subsecuencias de unos o ceros de longitud $\geq 34$.
+
+    
+          \end{description}
+
+  \section{Obtención de la \index{semilla!obtención}{semilla}}
+    Todo lo expuesto hasta ahora descansa en el supuesto de que
+    inicialmente se nutre al método de generación de rigor con datos
+    iniciales realmente aleatorios (la \emph{semilla}). En el momento
+    en que estos métodos han de servir a fines con ciertos
+    requerimientos de seguridad (i.e. criptográficos), ha de
+    garantizarse su carácter de aleatoriedad \emph{real}; su
+    conocimiento conlleva la posibilidad de reproducir completamente
+    la secuencia pseudoaleatoria ulterior. Además,    
+    estos datos no pueden ser
+    generados por el propio sistema por todo lo dicho acerca del carácter
+    determinista de los ordenadores. Por tanto surge ahora la pregunta, y
+    aparente paradoja, de cómo obtener de un sistema que trabaja de forma
+    determinística, algo que es precisamente diametralmente opuesto:
+    entropía real.
+    \subsection{Fuentes de entropía}\label{fuentesDeEntropia}
+    Este problema se resuelve con una pequeña ``trampa''. La entropía
+    no se obtiene de un proceso determinístico (esto por otra parte
+    sería una contradicción), sino de procesos externos que pueden
+    argumentarse realmente aleatorios\footnote{Blaise Pascal decía que dado el
+    suficiente conocimiento del estado de las cosas en un determinado
+    momento y de las leyes que rigen estos, dejaría de haber sitio
+    para el azar. Albert Einstein se negaba al concepto de azar con
+    ``Dios no juega a los dados con el Universo''. Aún así, parece
+    demostrado en base a la Física Cuántica que efectivamente sí
+    existe un componente aleatorio en la Naturaleza}. Qué se entiende
+    por ``realmente aleatorios'' roza el campo de la filosofía.
+    \cite{knuth2}\footnote{pp. 142-166} lo trata en profundidad con
+    mucho rigor. Aquí se confía que a la vista de los ejemplos se
+    comprenda qué se quiere decir:
+    \begin{itemize}
+      \item Tiempos en la descomposición de una fuente
+        radiactiva\footnote{Claro, una fuente con una vida media lo
+        suficientemente larga como para poder considerarse, como el
+        Uranio-235 ($4.47 \times 10^9$ años) o el Plutonio ($24200$
+        años)}. Pero téngase en cuenta que exponerse a fuentes de
+        radiación no resulta muy saludable.
+      \item Fluctuaciones en los tiempos de lectura de un disco duro,
+        producidas por las turbulencias de aire en su interior.
+      \item Ruido proveniente de una toma de audio o vídeo al aire.
+      \item Fluctuaciones de frecuencia de un oscilador libre.
+        Utilizado en dispositivos comerciales.
+      \item Intervalos de tiempo
+        entre cada $2\times10^4$ emisiones sucesivas de un átomo de
+        mercurio en una trampa electromagnética (\cite{schneier}\footnote{pág. 423}).
+    \end{itemize}
+    Ahora bien, explotar estas fuentes es en algunos casos difícil y
+    en otros prácticamente imposible o bastante desaconsejable.
+    Métodos más al alcance son:
+    \begin{itemize}
+      \item Ruido térmico (blanco) producido en dispositivos
+        electrónicos. Utilizado en dispositivos comerciales.
+      \item Intervalos de tiempo entre pulsaciones del teclado.
+      \item Intervalos de tiempo entre movimientos del ratón.
+      \item Reloj del sistema.
+      \item Latencia en los paquetes recibidos a través de una red.
+    \end{itemize}
+    El problema que presentan estos métodos es que pueden ser
+    manipulados por un atacante, y por otra parte son bastante menos
+    aleatorios que los de la anterior enumeración. 
+    \subsection{Semillero\label{semillero}}
+    En base a lo expuesto hasta ahora, parece que la obtención de
+    datos aleatorios de calidad para poder suministrar una semilla a
+    los generadores no es tarea fácil. De hecho, incluso la entropía
+    obtenida de las fuentes citadas en \ref{fuentesDeEntropia} puede
+    tener un cierto sesgo (\cite{schneier}\footnote{pág. 425},
+    \cite{handbook}\footnote{pág. 172,173}, \cite{rfc1750}\footnote{pág. 10-13})
+    que ha de ser eliminado. 
+
+    Con el fin de evitar al usuario todo el trabajo de tratar con
+    estos aspectos, se proporciona en la librería un mecanismo
+    encargado de suministrar semillas que cumplan unas ciertas
+    garantías en cuanto a su aleatoriedad: el
+    \index{Generador pseudoaleatorio!semillero}{\emph{semillero}}. 
+    Su cometido es el de servir de ``almacén de entropía'',
+    gestionando y sirviendo esta entropía bajo petición del usuario. El
+    gestionar la entropía se hace necesario dado que es costoso
+    obtenerla y ``caduca'' muy rápidamente. Por esto, rara vez se
+    utiliza entropía pura; en su lugar se ha optado por un mecanismo
+    que sigue garantizando la seguridad de las semillas a la vez que
+    no esquilma la entropía del sistema. Dicho esquema se muestra en
+    la figura \ref{fig:esquemaHashRandom}.
+    \begin{figure}
+     \begin{center}
+     \includegraphics[width=0.8\textwidth,keepaspectratio]{esquemaHashRandom.eps}
+     \caption{Esquema con función hash.\label{fig:esquemaHashRandom}}
+     \end{center}
+    \end{figure}
+
+    \begin{algorithm} 
+      \caption{Ciclo semillero} \label{ALGsemillero}
+      \begin{algorithmic}[1] 
+        \Procedure{leerSemilla}{longitud $L$}
+        \State $i \gets 0$
+        \State $l \gets 0$
+        \State $agitador \gets a$
+          \Comment{$a$ puede tomar cualquier valor. Por ejemplo la
+          fecha del sistema. No es necesario que sea aleatorio.}
+        \State $Q_0 \gets leerDeFuente(m)$
+          \Comment{Se leen tantos bits como longitud del resumen que
+          la f. hash genera ($m$)}
+        \For{$l = 1$ hasta $l = L$}
+          \If{$l \geq k$}
+            \State $Q_l \gets leerDeFuente(m)$
+          \Else
+            \State $H(agitador)$ \Comment{$H$ la función hash}
+            \State $Q_l \gets H(Q_{l-1})$ 
+            \State $agitador \gets agitador+1$
+          \EndIf
+        \EndFor
+        \EndProcedure
+      \end{algorithmic}
+    \end{algorithm}
+        
+    
+    La idea, una variación de lo propuesto en
+    \cite{schneier}\footnote{pág. 427}, es valerse de la propiedad
+    \ref{eq:def2Hash} de las funciones hash (\ref{funcionesHash}) de
+    resistencia a preimagen para ``reciclar'' en cada iteración una
+    cantidad inicial de entropía real de tal forma que invertir el
+    proceso sea inviable computacionalmente (un problema
+    \emph{difícil}) y no se pueda predecir de la $i$-ésima iteración
+    y anteriores el valor de los bits obtenidos en la $(i+1)$-ésima.
+    Para contribuir a la irreversibilidad de este proceso se pasa
+    también como entrada a la función hash en cada iteración un dato
+    ``agitador'' que no ha de ser aleatorio; es más, no es
+    estrictamente necesario y es posible que no aporte seguridad, pero
+    tampoco la quita; sólo hace que quien pudiera intentar invertir la
+    función hash se encuentre no sólo con un dato de entrada, sino con
+    dos. La versión en pseudocódigo y simplificada ---se considera que
+    la longitud de la semilla es un múltiplo de la longitud del
+    resumen de la función hash $m$, cuando en la librería se trabaja
+    con una precisión de bytes--- se muestra en el algoritmo
+    \ref{ALGsemillero}.
+    
+    Está claro que a medida que este proceso evoluciona, la
+    entropía real de los datos servidos se va degenerando, por lo que
+    cada $k$ iteraciones la entrada a la función hash no será el valor
+    anterior obtenido de la misma, sino entropía real como si de la
+    primera iteración se tratase. El valor de este parámetro $k$ ha de
+    conjugar el no abusar de la entropía del sistema (como sucedería
+    si fuese demasiado pequeño) y el permitir que la entropía se degrade en exceso.
+    Teniendo en cuenta que cada iteración generará una cantidad de
+    bits que normalmente será de $128$ ó $160$ (MD5 y SHA-1
+    respectivamente), y que en principio a los generadores
+    pseudoaleatorios sólo se les suministrará una semilla una vez,
+    restará por determinar cuál es el ``tamaño típico'' de una semilla. 
+    Pero de nuevo, no existe un valor fijo o de referencia para esto:
+    el tamaño que se quiera utilizar dependerá de nuestro grado de
+    paranoia y/o del valor de los datos a custodiar. \cite{schneier}
+    dedica todo un capítulo, el séptimo, a discutir el íntimamente
+    relacionado tema de la longitud de las claves con el de la
+    longitud de la semilla que nos ocupa; a él se remite al
+    lector interesado. De ese capítulo aquí nos quedaremos con lo
+    expuesto en su tabla 7.10, donde se manejan longitudes en bits de
+    $64$ a $128$ para seguridad contra ataques por fuerza bruta que
+    oscilan en su duración de horas a siglos. Teniendo en cuenta que
+    dicha tabla probablemente tenga ya cerca de diez años de
+    antigüedad, y que el ser pesimista en este sentido es positivo,
+    doblemos esas cantidades; $256$ bits será un tamaño de semilla
+    suficientemente grande para que un atacante que tuviera que buscar
+    por un espacio de $2^{256}$ se lo pensase dos veces ---el espacio en
+    el que buscar es precisamente igual a todas las combinaciones ya
+    que estamos suponiendo que a ojos del atacante todas las
+    combinaciones son equiprobables, como idealmente habrían de ser.
+    Así que, concluyendo, se gastarán dos iteraciones en cada nueva
+    semilla generada. Un valor de $10$ iteraciones antes de regenerar
+    el esquema con entropía real parece adecuado; daría para
+    inicializar ocho generadores distintos, algo extremadamente raro
+    en un programa, donde se utilizará normalmente sólo uno. Y si el
+    caso es que se utilizan semillas de un tamaño mayor de $256$ bits,
+    está justificado regenerar con esa frecuencia, ya que tal semilla
+    sólo sería necesaria en aplicaciones de altísima seguridad,
+    justificando pues el gasto de entropía real.
+    
+
+    Pero aún no se ha tratado el problema de la obtención de la
+    entropía real. Pues bien, este problema, debido a todo lo apuntado
+    con anterioridad, se delega al sistema operativo. Y esto se hace
+    así ya que es el único que está en situación de acceder a los
+    dispositivos de bajo nivel pertinentes para recolectar entropía.
+    Examinar la frecuencia de pulsaciones en el teclado o analizar el
+    movimiento del ratón es algo que se escapa por completo a la
+    capacidad de un programa que resida fuera del núcleo del sistema.
+    Hacerlo pasaría por tener que realizar llamadas al sistema de muy
+    bajo nivel con todo lo que ello implica: romper la portabilidad,
+    necesidad de asignar unos permisos especiales que representarían
+    una potencial brecha de seguridad, etc. Y eso sin tener en cuenta
+    toda la compleja manipulación de la entropía y tratamiento de los
+    citados sesgos en los datos recolectados. ¿No se está entonces
+    violando uno de los objetivos de la librería, su portabilidad? Sí
+    y no. Por una parte está claro que si uno ha de valerse del
+    sistema operativo para algo, se vuelve dependiente de éste. Pero
+    al ser las necesidades de entropía algo relativamente común y por
+    lo expuesto antes, sólo susceptible de ser realizado por el
+    sistema operativo, estos mecanismos están presentes en la práctica
+    totalidad de los sistemas, y en muchos de ellos de forma idéntica:
+    la gran mayoría de los sistemas derivados o basados en UNIX
+    ofrecen un dispositivo especial \texttt{/dev/random} y/o
+    \texttt{/dev/urandom} que tratado como un fichero ordinario
+    permite obtener esta entropía recolectada por el sistema. El
+    código que implementa esta funcionalidad en la versión 2.6.5 de
+    Linux se puede leer:
+    \begin{quotation}
+      Computers are very predictable devices.  Hence it is extremely hard
+      to produce truly random numbers on a computer. [\ldots] we must try to
+      gather ``environmental noise'' from the computer's environment, which
+      must be hard for outside attackers to observe, and use that to
+      generate random numbers.  In a Unix environment, this is best done
+      from inside the kernel.
+      
+      Sources of randomness from the environment include \emph{inter-keyboard
+      timings}, \emph{inter-interrupt timings from some interrupts}, and other
+      events which are both (a) non-deterministic and (b) hard for an
+      outside observer to measure. \footnote{Sin los énfasis en el original.}
+    \end{quotation}
+    Se comenta en ese mismo archivo ( \texttt{drivers/char/random.c}
+    dentro de la jerarquía de las fuentes del núcleo ) las técnicas
+    utilizadas para el tratamiento de los datos y demás aspectos muy
+    interesantes.
+
+    Para el otro gran conjunto de sistemas, los sistemas basados en
+    Microsoft Windows, esta funcionalidad no está tan a la vista,
+    siendo proporcionada por el ``Crypto API'' mediante la función
+    \texttt{CryptGenRandom}, documentada en \\
+    \texttt{http://msdn.microsoft.com/library/en-us/security/security/cryptgenrandom.asp}.
+    Allí se lee lo siguiente:
+    \begin{quotation}
+      CryptoAPI stores an intermediate random seed with every
+      user. To form the seed for the random number generator, a calling application
+      supplies bits it might have for instance, \emph{mouse or keyboard timing input} that
+      are then added to both the stored seed and various system data and user data
+      such as the \emph{process ID} and \emph{thread ID}, \emph{the system clock}, 
+      \emph{the system time}, \emph{the 
+      system counter}, \emph{memory status}, \emph{free disk clusters},
+      \emph{the hashed user environment block}. 
+      \footnote{Sin los énfasis en el original.}
+    \end{quotation}
+    Como era de esperar, ambos sistemas utilizan básicamente unas
+    fuentes de entropía similares.
+
+    Así pues, conceder un pequeño permiso a la utilización de estas
+    funciones dependientes del sistema aporta numerosas ventajas con
+    un impacto mínimo a la portabilidad: aún en el caso de no estar en
+    un sistema que no ofreciese ninguno de los mecanismos citados,
+    todo cambio pasaría tan sólo por implementar un único método de la
+    clase que implementa el semillero de la manera que consideremos
+    oportuna. El autor confiesa no conocer ningún sistema operativo
+    que no brinde uno de los dos métodos citados.
+    
+
+

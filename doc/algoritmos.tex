@@ -1,0 +1,108 @@
+\documentclass[a4paper,twoside,spanish]{article}
+\usepackage{pslatex} %utilizar fuentes postscript standard
+\usepackage[T1]{fontenc} %codificacion de tipo
+\usepackage[spanish]{babel}
+\usepackage[latin1]{inputenc} %entrada usando ISO-Latin1
+\usepackage{makeidx} %para los indices
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{euler}
+
+\usepackage[section]{algorithm}
+\usepackage{algorithmic}
+\floatname{algorithm}{Algoritmo}
+\renewcommand{\listalgorithmname}{Lista de algoritmos}
+
+\usepackage{makeidx}
+%\usepackage{hyperref}
+%\hypersetup{colorlinks,%
+%            pdftex,%
+%            linkcolor=black,%
+%            citecolor=black,%
+%            filecolor=black,%
+%            urlcolor=black,%
+%						pdfpagemode={None}		}
+\frenchspacing
+
+\usepackage{type1cm}
+
+
+\begin{document}
+% IMPLEMENTACION DE LOS ALGORITMOS
+
+%\section{Multiplicación}
+%\subsection{Caso base}
+%Como se describe en \cite{lucena} 7.2.3 y \cite{gmp} 16.1.1, 
+
+\section{División}
+Puede chocar que se requiera que $n>1$: se utiliza otro algoritmo para
+la división entre una sola cifra (es este mismo algoritmo pero
+simplificado, claro --- sin iteraciones.)
+
+\begin{algorithm}
+  \caption{Algoritmo clásico de división}
+  \begin{algorithmic}
+    \REQUIRE $u=(u_1u_2\ldots u_{m+n})_b$, $v=(v_1v_2\ldots v_n)_b$ no
+    negativos. $v_1 \neq 0$ y $n>1$.
+
+    \COMMENT{Normalización. Para tener $v_1 >= \lfloor b/2 \rfloor$}
+    \STATE $d \leftarrow \textrm{Nº de ceros a la izquierda del
+    primer $1$ significativo de } v_1$
+    \STATE $(u_1u_2\ldots u_{m+n})_b \leftarrow (u_1u_2\ldots u_{m+n})_b \cdot 2^d$
+    \STATE $(v_1v_2\ldots v_{n})_b \leftarrow (v_1v_2\ldots v_{n})_b \cdot 2^d$\\*
+
+    \COMMENT{Comienza el bucle}
+    \FOR{ $j = 0$ hasta $j \leq m$ }
+    \IF{ $u_j = v_1$}
+        \STATE $\hat{q} \leftarrow b-1$
+      \ELSE
+        \STATE $\hat{q} \leftarrow \lfloor \frac{u_{j}b+u_{j+1}}{v_1}
+              \rfloor$
+      \ENDIF
+      \WHILE{ $v_{2}\hat{q} > (u_{j}b+u_{j+1}-\hat{q}v_1)b + u_{j+2}$}
+        \STATE $\hat{q} \leftarrow \hat{q} - 1$
+      \ENDWHILE
+      
+      $(u_ju_{j+1}\ldots u_{j+n})_b \leftarrow (u_ju_{j+1}\ldots u_{j+n})_b - \hat{q}(v_1v_2\ldots v_{n})_b$
+      \COMMENT{$(u_ju_{j+1}\ldots u_{j+n})_b$ debe mantenerse
+      positivo. Si fuera negativo se le sumaría $b^{n+1}$ con el fin de
+      obtener su representacion en complemento a $b$}
+
+      \STATE $q_j \leftarrow \hat{q}$
+      \IF{$(u_ju_{j+1}\ldots u_{j+n})_b$ fue negativo}
+        \STATE $q_j \leftarrow q_j -1$
+        \STATE $(u_ju_{j+1}\ldots u_{j+n})_b \leftarrow (u_ju_{j+1}\ldots u_{j+n})_b + (0v_1v_2\ldots v_n)_b$
+        \COMMENT{Ignorar el acarreo que se produce a la izquierda de
+        $u_j$, debido al complemento en base $b$}
+      \ENDIF
+    \ENDFOR
+    \COMMENT{Desnormalizar, para el resto}
+    \STATE $(u_{m+1}u_{m+2}\ldots u_{m+n})_b \leftarrow (u_{m+1}u_{m+2}\ldots u_{m+n})_b / 2^d$
+    \STATE Devolver $(q_{0}q_{1}\ldots q_{m})_b$ como cociente.
+    \STATE Devolver $(u_{m+1}u_{m+2}\ldots u_{m+n})_b$ como resto.
+
+
+    \ENSURE Se forma el producto $\lfloor u/v \rfloor = (q_0q_1\ldots
+    q_m)_b$ y el resto $u \bmod v = (r_1r_2\ldots r_n)_b$
+  \end{algorithmic}
+\end{algorithm}
+
+Se cita que la probabilidad de que el nuevo dividendo tras la resta
+sea negativo es del orden de $2/b$ con $b$ la base.
+
+Una forma de verlo es:
+\begin{equation}
+\textrm{Si } 
+\left.
+\begin{array}{l}
+  v_1 \geq \lfloor b/2 \rfloor \\ 
+  v_2\hat{q}\leq b\hat{r}+u_2 \\
+  \hat{q} \neq q  
+\end{array}\right\}
+\Longrightarrow u \bmod u \geq (1-2/b)v
+\end{equation}
+Esto ultimo ocurre con aprox. frecuencia $2/b$, así que cuando $b$ es
+el ancho de palabra (base) utilizado, tendremos $q_j = \hat{q}$
+excepto en raras ocasiones (precisamente en las que la resta para
+conformar el nuevo dividendo tiene un resultado $<0$).
+\end{document}

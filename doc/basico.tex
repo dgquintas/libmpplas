@@ -1,0 +1,406 @@
+% EXPOSICION DE CONCEPTOS BASICOS
+\chapter{Conceptos básicos}
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+        Se debe hacer todo tan sencillo como sea posible, pero no más sencillo.
+        }
+        \begin{flushright}
+          \textbf{\textemdash Albert Einstein}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+\bigskip
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+        Fundamental progress has to do with the reinterpretation of basic ideas.
+        }
+        \begin{flushright}
+          \textbf{\textemdash Alfred North Whitehead}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+\bigskip
+
+\begin{center}{\line(1,0){325}}\end{center}
+
+%--------------------------------------------------------%
+
+  
+\section{Elección de la base}\label{eleccionDeLaBase}
+    Existen numerosas ``fórmulas'' para la elección del valor de la base a
+    utilizar (véase por ejemplo \cite{riesel}\footnote{pág. 334}, 
+    \cite{cohen}\footnote{pág. 3}, \cite{knuth2}\footnote{pág. 250},
+    \cite{lucena}\footnote{pág. 82} y \cite{arbpreccomp} 
+    \footnote{pp. 1,2}).
+    La idea fundamental es utilizar como tipo básico de datos uno cuyo
+    tamaño sea lo más próximo al tamaño que el procesador de la máquina
+    maneja internamente. Ahora bien, éste esta sometido a ciertas
+    restricciones (\cite{arbpreccomp}\footnote{pág. 2}):
+    \begin{enumerate}
+      \item Debe poder contenerse en un registro del procesador de la
+      máquina.
+      \item Ha de ser lo mayor posible (mayor número de bits) para así
+      hacer que la longitud de la representación del número en esta base
+      sea lo más compacta posible, aprovechando memoria y mejorando los
+      tiempos de computación de los algoritmos. Por otra parte, tiene
+      que ser lo suficientemente pequeño como para que los resultados
+      temporales de ciertas operaciones ( véase \ref{multiplicacion} )
+      también quepan en dichos registros. \label{puntoSobreLongitud}
+      \item Es preferible utilizar como base una potencia de 2, dado que
+      de esta forma es posible utilizar ciertas operaciones del 
+      procesador, 
+      de muy bajo nivel y extremadamente rápidas (desplazamiento de 
+      bits,
+      operaciones lógicas a nivel de bit, etc.). La opción de utilizar
+      una base potencia de $10$, puede parecer tentadora, sobre todo 
+      a la hora de
+      realizar entrada/salida de datos de cara al usuario. Sin embargo,
+      esta aproximación no es óptima, dado el desperdicio de
+      espacio:
+      supongamos que la longitud en bits del tipo de
+      dato básico que maneja el procesador es de $32$ bits. Esto es,
+      se manejaría una base de $2^{32}$. De utilizar de base una 
+      potencia de 
+      $10$, manejaríamos un máximo de $\lfloor \log_{10} {2^{32}}
+      \rfloor = 9$
+      dígitos. Esto es, $10^9 = 1000000000$, mientras que con $2^{32} =
+      4294967296$ se cuenta con $2^{32} - 10^9 = 3294967296$ posibles
+      valores más. Estamos desperdiciando aproximadamente el $76\%$ del
+      espacio disponible, además de no poder usar operaciones a
+      nivel de bit. El hecho de tener que convertir de/hacia una
+      potencia de $10$ a la hora de la introducción/visualización 
+      de datos
+      desde/para el usuario ---teniendo en cuenta que la conversión de
+      una base a otra no es un proceso trivial--- es admisible dado el
+      bajo volumen de utilización de estas operaciones.
+    \end{enumerate}
+
+    Concretando. Actualmente es habitual trabajar con máquinas con un
+    tamaño de registro de $32$ bits (como es el caso de la arquitectura
+    más extendida, la x86 de Intel). Así pues, podría pensarse que
+    como máximo se podría trabajar con la raíz cuadrada del mayor
+    valor almacenable, $2^{16}$, para que operaciones, como el cálculo
+    de un cuadrado, no se desborden. Pero da la impresión de que se
+    está desperdiciando demasiado espacio para atender a necesidades
+    relativamente puntuales y perfectamente identificadas: tan sólo la
+    suma y la multiplicación pueden provocar desbordamientos cuando los
+    operandos, y donde se almacenará el resultado, son de la misma
+    longitud.
+    
+    Nos encontramos por tanto en este punto con la decisión de rebajar a
+    la mitad el número de bits de la base o manejar de manera especial
+    los datos de tamaño \emph{doble}. La primera opción supondría doblar
+    el tamaño de los polinomios que representan el número, violando
+    el punto \ref{puntoSobreLongitud} de la anterior enumeración. Es
+    más, en \cite{cohen}\footnote{pág. 3} se analiza este hecho,
+    concluyendo un impacto en el rendimiento en el caso de la
+    multiplicación que va de un factor de $4$ a $10$, ya que el
+    carácter de complejidad cuadrática de la multiplicación pasaría
+    factura, no aprovechándose efectivamente todo el tamaño del
+    registro en la multiplicación, sino sólo la mitad.
+
+    En la segunda opción se ha de realizar un tratamiento ``manual''
+    de las operaciones, algo que normalmente se realiza en lenguaje
+    ensamblador dado que se trabaja a muy bajo nivel en operaciones
+    que han de ejecutarse literalmente millones de veces en intervalos
+    de tiempo de segundos. Confiar en que el compilador del lenguaje
+    de programación realice esto por nosotros de la manera que
+    deseamos, y en diversas plataformas y sistemas operativos, es un acto de fe
+    demasiado grande, además de no darse en este caso concreto (C++)
+    prácticamente ninguna garantía del tamaño concreto de los
+    operandos. En resumidas cuentas, se cede demasiado el control.
+    Pero por otra parte, trabajar exclusivamente en lenguaje
+    ensamblador es, no sólo complejo y propenso a errores, sino que también es no
+    portable y de muy difícil mantenimiento. Algunas metodologías
+    recomiendan no bajar nunca la programación a este nivel. Eso sí,
+    el control es absoluto. 
+    
+    Un compromiso intermedio es utilizar un enfoque \emph{híbrido}. 
+    Mediante la utilización
+    de ``cajas negras'' podemos abstraer las operaciones básicas
+    sobre las que todas las demás se apoyan y programar éstas a bajo
+    nivel, salvando el obstáculo de la portabilidad y la dificultad
+    teniendo en cuenta el hecho de que al ser operaciones muy básicas
+    y especificas, es relativamente sencilla su reescritura en otras
+    plataformas. Se sigue teniendo un control total, pero mucho más
+    limpio, al codificarse estas cajas negras como funciones en C++,
+    con sus prototipos perfectamente definidos y su comprobación de
+    tipos, etc. Contamos de esta forma con la ventaja de una relativa velocidad 
+    sin sacrificar la portabilidad y la facilidad de mantenimiento del
+    código. Ésta ha sido pues la opción escogida.
+
+    Para acabar de justificar esta elección, apuntar el hecho de que
+    en máquinas Intel de la familia
+    x86 equipadas con coprocesador matemático ---prácticamente todos
+    estos procesadores desde 1994--- pueden realizar operaciones con
+    operandos de $32$ bits manejando resultados temporales de $64$ 
+    bits de
+    forma nativa, mediante la utilización de dos registros
+    encadenados. En otras arquitecturas donde esto no sea así, no es
+    tampoco excesivamente complejo realizar los ajustes adecuados en
+    las rutinas pertinentes
+    Parece por tanto adecuado utilizar una base de $32$ bits de forma
+    genérica. Esto es, $B = 2^{32}$.
+
+\section{Estructura general de la
+librería}\label{estructuraGeneralDeLaLiberia}
+  Considerando el enfoque híbrido anteriormente citado, se podría
+  empezar a pensar en una organización jerárquica en capas: La
+  $N$-ésima capa proporcionaría servicios a la $(N+1)$-ésima (y
+  solamente a esa) y se
+  serviría de los proporcionados por la $(N-1)$-ésima (y solamente de
+  esa). Como es
+  natural, la capa de más bajo nivel sería la que implementase las
+  operaciones básicas citadas en el apartado anterior y que serán
+  concretadas posteriormente.
+
+  Con esta idea en mente, se ha realizado el siguiente diagrama de la
+  figura \ref{fig:estructuraGeneral}, que trata de mostrar la jerarquía
+  de los diferentes niveles o capas, y reflejar asimismo la librería 
+  en su conjunto, con sus prestaciones y capacidades.
+  \begin{figure}
+    \includegraphics[width=1\textwidth,keepaspectratio]{estructuraGeneral.eps}
+    \caption{Estructura general.\label{fig:estructuraGeneral}}
+  \end{figure}
+  Vemos, pues, que consta de tres grandes bloques: el 
+  \index{Procesador Virtual}{Procesador Virtual}, 
+  los conjuntos numéricos que descansan sobre las
+  operaciones que éste ofrece y por último las funciones (en el
+  sentido matemático) que trabajan sobre los números en si.
+  Además, también está presente el mecanismo de \index{control de errores}%
+  {control de errores} mediante el uso de excepciones C++.
+  Se pasa a describir en más detalle cada uno de ellos:
+  
+  
+  \subsection{El Procesador Virtual}\label{elProcesadorVirtual}
+  Representa una abstracción de la
+  arquitectura subyacente. Consta de dos partes bien diferenciadas: la
+  \index{CPU!básica}{\emph{CPU básica}} y la 
+  \index{CPU!vectorial}{\emph{CPU vectorial}}.
+
+  \paragraph{La CPU básica} es el verdadero núcleo de la librería. En
+  ella se realizan todos los cálculos de más bajo nivel, los que
+  trabajan con el tipo de dato básico \index{Cifra}{Cifra}, cuya
+  longitud es precisamente la que define la base de trabajo. Todo
+  cálculo sobre elementos de la librería (i.e., en multiprecisión)
+  pasa en última instancia por esta capa. Esto posibilita por una
+  parte el tener un mayor control sobre las operaciones, ya que somos
+  nosotros quienes definimos las funciones; nos libramos de las
+  diferencias entre arquitecturas\footnote{Por ejemplo, en la
+  arquitectura Power PC de Apple, la multiplicación de dos números de
+  $32$ bits ha de realizarse utilizando dos instrucciones distintas,
+  una para cada parte del resultado de $64$ bits, mientras que en
+  Intel X86 sólo es necesario una instrucción.} a la vez que es
+  posible mantener la optimalidad del código ensamblador por lo
+  compacto de las rutinas (que se describen en
+  \ref{implementacionCpuBasica}). Por otro lado, permite que se hagan cosas
+  como el sistema de \index{perfilado}{perfilado} que se ha incluido en la
+  librería (véase \ref{perfilado}), gracias al cual es posible 
+  conocer de forma precisa el número de operaciones
+  básicas de cada tipo ejecutadas en un determinado 
+  intervalo, cosa que a nuestro juicio es muy interesante
+  cuando se quiere comprobar empíricamente la bondad de un algoritmo o
+  método determinado. Dado que esto, como todo proceso de
+  depuración/perfilado, introduce una sobrecarga, se considera
+  opcional, pudiendo prescindir de ello para un mejor desempeño.
+  Es posible, con relativamente poco trabajo, el implementar las rutinas de
+  esta capa no en ensamblador, sino también en C++, con lo cual la
+  portabilidad sería total, a expensas de rendimiento.
+  La elección de la arquitectura a utilizar
+  se realiza en tiempo de compilación. 
+  
+  \paragraph{La CPU vectorial} se encarga de las operaciones sobre los
+  vectores (polinomios) que se utilizan para representar los números,
+  como se expone en \ref{representacionZ}. Descansa totalmente
+  sobre la capa inmediatamente inferior, la CPU básica.
+  Implementa tan sólo operaciones en $\mathbb{Z}_0$: el
+  tratamiento del signo vendrá en capas superiores. Si la CPU básica
+  era importante, esta capa lo es mucho más: el grueso del manejo de
+  operaciones en múltiple precisión se encuentra aquí.
+
+
+
+  \subsection{Conjuntos numéricos}\label{conjuntosNumericos}
+  Una vez que se han establecido los cimientos para el trabajo sobre
+  enteros positivos puede empezar a pensarse en ampliar las
+  posibilidades de trabajo a los negativos teniendo en cuenta la
+  casuística de signos habitual en $\mathbb{Z}$, y todo ello
+  sirviéndose de los métodos ofrecidos por los mecanismos de la capa
+  inferior CPU vectorial. Mas esto sólo es el principio, ya que otra
+  de las particularidades de este nivel es que es el primero que va a
+  estar de cara al usuario. Esto implica el tener un especial cuidado
+  en la especificación de los métodos y decidir qué poner a
+  disposición de quien pudiera, como programador, utilizar la
+  librería. Empieza por tanto a ser necesario aplicar políticas de
+  mínimos privilegios y ocultación/encapsulamiento de información para
+  no pillarse los dedos en posibles revisiones que ofreciesen una estructura 
+  interna distinta a la propuesta.
+  
+  Una vez establecido el soporte para todo $\mathbb{Z}$, se sientan
+  las bases para muchos otros conjuntos, como pueden ser
+  $\mathbb{Z}_n$ y su interesante carácter de cuerpo finito cuando $n$ es primo, 
+  $\mathbb{R}$\footnote{Esto no es estrictamente cierto: por la no
+  numerabilidad de $\mathbb{R}$, no es posible representar a este
+  conjunto mediante $\mathbb{Z}$. Pero en un ordenador no queda otro
+  remedio y se suele contar con un cierto margen de maniobra que
+  disculpa las inexactitudes}, $\mathbb{Z}[X]$ como el anillo de
+  polinomios sobre $\mathbb{Z}$, etc. Los detalles se mostrarán en el
+  capítulo \ref{implementacionAlgoritmosBasicos}.
+
+
+  
+  \subsection{Funciones}\label{funcionesBasico}
+    Como constituyentes de la última capa se encontrarían ya las funciones numéricas que
+    operan sobre los anteriores conjuntos. Dado la orientación
+    mayormente criptográfica del Proyecto, éstas son en su práctica
+    totalidad provenientes de la Teoría de Números. Véase
+    \ref{funcionesSoportadas} para más detalles.
+
+    Una característica clave es lo que en la figura
+    \ref{fig:estructuraGeneral} se denomina ``Interfaz Plug-ins''. La
+    idea es hacer extensible la colección de funciones \emph{sin
+    necesidad de recompilación} por parte del usuario y además de
+    forma \emph{sencilla}. Pero no sólo extender las funciones, sino
+    también redefinirlas: hacer que la librería internamente utilice
+    aquella implementación que el usuario desee para la computación de
+    un determinado concepto (máximo común divisor, comprobación de
+    primalidad, etc.) en todo lugar en el que el uso del mismo sea
+    necesario. No sólo se utilizará la versión personal del usuario en
+    el código que éste escriba valiéndose de la librería, sino que
+    \emph{toda} la librería utilizará su versión. Se insiste en que
+    esto se realizaría sin necesidad alguna de recompilar la librería
+    ni de conocer las interioridades de la misma, tan sólo, claro
+    está, la especificación de la función a redefinir. Los usos
+    que podrían dársele a esta funcionalidad pasan por la mejora
+    puntual de algún método hasta que quizás la nueva versión fuera
+    incorporada internamente en la librería, la posibilidad de
+    utilizar la librería como un ``banco de pruebas'' de algoritmos
+    conjuntamente con las capacidades de
+    perfilado anteriormente citadas. Los detalles de la implementación del mecanismo
+    utilizado se dan en \ref{mecanismoDeImplementacion}.
+    
+  \subsection{Control de errores}\label{controlDeErrores}
+    Suele ser habitual en muchas librerías encontrarse con que los
+    errores se tratan de formas variopintas, desde adoptando una
+    convención en los valores de retorno de las funciones (el ejemplo
+    más universal de esto es el común \texttt{return 0} de C,
+    prácticamente un estándar ``de facto'' para como mínimo la función
+    \texttt{main}), invocando alguna otra función que se encargue de
+    tratar el error posiblemente en base al argumento que se le
+    proporciona, etc. Estos enfoques, aunque funcionales, adolecen de
+    serios inconvenientes, a saber:
+    \begin{itemize}
+      \item Falta de homogeneidad: No existe un criterio universal más
+        allá de quizás el considerar al \texttt{0} como éxito y
+        cualquier otro valor como error (costumbre ``herencia'' de C).
+      \item Dificultades si se quiere concretar el problema, más allá
+        del simple éxito/no éxito.
+      \item El tratamiento del error (ya sea para intentar subsanarlo
+        o para simplemente mostrar un mensaje) queda enterrado en el
+        código de la hipotética librería, totalmente fuera del alcance
+        del usuario, quien quizás quisiera tratar él mismo el error.
+      \item En relación con el punto anterior, de tener acceso el
+        usuario a los códigos de error, el carácter arbitrario y
+        habitualmente críptico de los mismos (suelen ser valores
+        enteros como \texttt{127} ó \texttt{-1}, por ejemplo, que no 
+        transmiten demasiada información a simple vista) hace que
+        su uso por parte del usuario no sea particularmente fácil.
+      \item Normalmente el error se detecta y se trata ``tan abajo
+        como se produce'', es decir, si se detecta un error estando
+        dentro ya de otras dos llamadas, el tratamiento se producirá a
+        ese mismo nivel, no siendo posible de una forma sencilla el
+        manejarlo, por ejemplo, al nivel de la primera llamada a
+        función realizada.
+      \item Problemas de extensibilidad: Si alguien pretende añadir
+        funcionalidades a la librería, por lo expuesto anteriormente,
+        resulta prácticamente imposible realizar el tratamiento 
+        de errores manteniendo un esquema uniforme (es decir, 
+        consiguiendo un acabado equivalente a si hubiera escrito el 
+        código en la librería en si).
+    \end{itemize}
+    
+    Como ilustración de estos puntos, 
+    la librería NTL (véase \ref{ntl}) utiliza la
+    siguiente función para tratar errores:
+    \begin{verbatim}
+    static void zhalt(char *c)
+    {
+       fprintf(stderr,"fatal error:\n   %s\nexit...\n",c);
+       fflush(stderr);
+       abort();
+    }
+    \end{verbatim}
+      
+    
+    Evidentemente, se pretende atajar estos problemas. El mecanismo
+    que más adecuado parece son las excepciones que C++ ofrece (véase
+    \cite{stroustrup} para un tratamiento en profundidad). Veamos como
+    se solucionan pues los anteriores puntos:
+    \begin{itemize}
+       \item 
+         Mediante el establecimiento de una ``jerarquía de errores''
+         utilizando mecanismos de herencia de C++ se consigue una
+         organización más cercana al concepto humano de error, además
+         de una mayor escalabilidad del software derivada de poder
+         utilizar las relaciones de parentesco de los errores para
+         afinar cuanto se desee en la detección/tratamiento de los
+         mismos. Véase la documentación del espacio de nombres
+         \texttt{Errores} en el tomo de código para la descripción de
+         la jerarquía concreta considerada.
+      \item Dado que las excepciones lanzadas al detectar una
+        condición de error son objetos, en el código se trabaja con el
+        nombre de los mismos, dando una mayor capacidad de expresar la
+        naturaleza del problema ya sólo con ese nombre.  
+        \texttt{throw Errores::DivisionPorCero()}, por ejemplo, resulta
+        notablemente
+        más descriptivo para alguien que pudiera estar leyendo el
+        código o incluso escribiendo una extensión de la librería que 
+        \texttt{return -1}.
+      \item 
+        Utilizando excepciones contamos con la característica de su
+        funcionamiento que hace que si tras lanzar una excepción ésta
+        no es tratada en ese mismo nivel, es remitida ``hacia arriba''
+        hasta encontrar un punto donde se la trate o eventualmente al
+        último nivel sin ser tratada, lo cual provocaría por omisión
+        una llamada a la función \texttt{abort()} de C y el programa
+        detendría su ejecución. Lo que es interesante hacer notar aquí
+        es que con este comportamiento podemos delegar el manejo del
+        error a cualquier nivel de una hipotética aplicación que
+        utilice la librería, y no se tiene el anteriormente citado
+        problema de ``tratamiento prematuro'' o unilateral por parte
+        de la librería. Un ejemplo de lo expuesto en este punto lo
+        tenemos en la aplicación de demostración desarrollada y que se
+        trata en la sección \ref{laCalculadora}.
+      \item 
+        En relación con la ya citada ``jerarquía de errores'',
+        extender la librería por parte del usuario es una tarea
+        sencilla, sin más que heredar de la clase base de errores
+        adecuada en función del tipo de éste. Mediante a un mecanismo
+        análogo al que se utiliza para las funciones matemáticas de la 
+        librería (véase \ref{funcionesBasico} y
+        \ref{mecanismoDeImplementacion}), se consigue que los errores
+        añadidos por el usuario tengan ``la misma categoría'' que los
+        incorporados ``de serie''.
+    \end{itemize}
+       
+    Todos los objetos utilizados para representar las excepciones de
+    error (véase para más detalles el espacio de nombre
+    \texttt{Errores} en la documentación del código) cuentan con un
+    método \texttt{virtual const char* info(void) const} que
+    proporciona información acerca del error concreto.
+
+

@@ -1,5 +1,5 @@
-env = Environment(CPPPATH=['#/nucleo','#/.'],
-                  CCFLAGS=['-O3', '-g'] )
+env = Environment(CPPPATH=['#/nucleo', '#/.'],
+                  CCFLAGS='' )
 files = Split("""
     CRT.cpp
     Factor.cpp
@@ -21,4 +21,45 @@ files = Split("""
     Z.cpp
     Z_n.cpp
     """)
-env.SharedLibrary('numth', files)
+
+
+conf = Configure(env)
+import platform
+
+x86ArchMachines = ['i386', 'i486', 'i586', 'i686']
+currentPlatformMachine = platform.machine()
+
+if currentPlatformMachine in x86ArchMachines:
+  conf.env.Append(CCFLAGS = ' -DARCH=x86')
+elif currentPlatformMachine == 'x86_64':
+  conf.env.Append(CCFLAGS = ' -DARCH=x86_64')
+elif currentPlatformMachine == 'ppc':
+  conf.env.Append(CCFLAGS = ' -DARCH=ppc')
+else:
+  conf.env.Append(CCFLAGS = ' -DARCH=generic')
+
+if not conf.CheckType('uint32_t', '#include <stdint.h>\n', 'C++'):
+  print 'Could not find C99 type "uint32_t". Exiting...'
+  Exit(1)
+if not conf.CheckType('int32_t', '#include <stdint.h>\n', 'C++'):
+  print 'Could not find C99 type "int32_t". Exiting...'
+  Exit(1)
+
+env = conf.Finish()
+
+debug = int(ARGUMENTS.get('Debug',0))
+if int(debug):
+  env.Append(CCFLAGS = ' -g')
+
+optLevel = int(ARGUMENTS.get('OptimizationLevel',2))
+env.Append(CCFLAGS = (' -O%u' % optLevel)) 
+
+
+lib_list = env.SharedLibrary('numth', files)
+import os.path
+fullpath = os.path.abspath(str(lib_list[0]))
+libnumth_path = os.path.dirname(fullpath)
+Export('libnumth_path')
+
+#SConscript(['tests/cppunit/SConscript'])
+

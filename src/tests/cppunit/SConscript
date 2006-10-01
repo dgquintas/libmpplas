@@ -1,0 +1,23 @@
+
+Import('libnumth_path')
+env = Environment(CPPPATH=[libnumth_path, '/usr/include/qt3'],
+                  CCFLAGS=['-g'],
+                  LIBS=['numth','qt-mt', 'pthread', 'm', 'X11', 'Xext','qttestrunner' ],
+                  LIBPATH=[libnumth_path])
+
+env.ParseConfig('cppunit-config --libs')
+
+files = Split("""
+    ZTest.cpp
+    main.cpp
+    """)
+
+conf = Configure(env)
+
+if not conf.CheckLib('numth', language='C++'):
+  print 'Could not find libnumth. Exiting'
+  Exit(1)
+
+env = conf.Finish()
+
+env.Program('runTests', files)

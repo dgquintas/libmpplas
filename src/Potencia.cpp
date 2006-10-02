@@ -1,3 +1,8 @@
+/* 
+ * $Id$
+ */
+
+
 #include "Potencia.h"
 #include "Funciones.h"
 #include "utils.h"

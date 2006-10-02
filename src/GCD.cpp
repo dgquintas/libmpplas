@@ -1,3 +1,8 @@
+/* 
+ * $Id$
+ */
+
+
 #include "GCD.h"
 #include <cstdlib>
 

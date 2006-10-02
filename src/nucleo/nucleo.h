@@ -1,5 +1,5 @@
 /* 
- * $Id: nucleo.h,v 1.1.1.1 2005/12/16 17:44:09 dgquintas Exp $
+ * $Id$
  */
 
 #ifndef __NUCLEO_H

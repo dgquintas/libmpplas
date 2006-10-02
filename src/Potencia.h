@@ -1,3 +1,7 @@
+/* 
+ * $Id$
+ */
+
 #ifndef __POTENCIA_H
 #define __POTENCIA_H
 

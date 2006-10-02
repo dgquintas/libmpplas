@@ -1,3 +1,7 @@
+/* 
+ * $Id$ 
+ */
+
 #include "RedModular.h"
 #include "Funciones.h"
 #include <algorithm>

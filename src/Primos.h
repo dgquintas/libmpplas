@@ -1,3 +1,7 @@
+/* 
+ * $Id$
+ */
+
 #ifndef __PRIMOS_H
 #define __PRIMOS_H
 

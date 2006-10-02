@@ -1,3 +1,8 @@
+/* 
+ * $Id$
+ */
+
+
 #include "CRT.h"
 #include "Funciones.h"
 #include "RedModular.h"

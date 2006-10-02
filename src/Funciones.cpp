@@ -1,3 +1,6 @@
+/* 
+ * $Id$
+ */
 
 #include "Funciones.h"
 

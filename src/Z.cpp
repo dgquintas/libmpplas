@@ -1,5 +1,5 @@
 /*
- * $Id: Z.cpp,v 1.3 2006/09/06 14:16:24 dgquintas Exp $
+ * $Id$
  */
 
 #include "Z.h"

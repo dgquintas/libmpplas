@@ -1,3 +1,7 @@
+/* 
+ * $Id$
+ */
+
 #ifndef __LCM_H
 #define __LCM_H
 

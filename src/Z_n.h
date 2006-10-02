@@ -1,5 +1,5 @@
 /*
- * $Id: Z_n.h,v 1.2 2006/09/06 14:16:24 dgquintas Exp $
+ * $Id$
  */
 
 #ifndef __Z_N_H

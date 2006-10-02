@@ -1,3 +1,7 @@
+/* 
+ * $Id$
+ */
+
 #ifndef __REDMODULAR_H
 #define __REDMODULAR_H
 

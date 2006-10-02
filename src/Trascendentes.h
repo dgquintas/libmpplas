@@ -1,3 +1,6 @@
+/* 
+ * $Id$
+ */
 #ifndef __TRANSCENDENTES_H
 #define __TRANSCENDENTES_H
 

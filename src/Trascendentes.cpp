@@ -1,3 +1,7 @@
+/* 
+ * $Id$ 
+ */
+
 #include "Trascendentes.h"
 #include "Funciones.h"
 #include <iostream>

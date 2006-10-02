@@ -1,3 +1,8 @@
+/* 
+ * $Id$
+ */
+
+
 #include <set> //para set de metodo SQUFOF
 #include "Factor.h"
 #include "Funciones.h"

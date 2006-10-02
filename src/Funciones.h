@@ -1,3 +1,7 @@
+/* 
+ * $Id$
+ */
+
 #ifndef __FUNCIONES_H
 #define __FUNCIONES_H
 

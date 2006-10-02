@@ -1,3 +1,7 @@
+/* 
+ * $Id$
+ */
+
 #ifndef __FACTOR_H
 #define __FACTOR_H
 

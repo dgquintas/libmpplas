@@ -1,3 +1,7 @@
+/* 
+ * $Id$
+ */
+
 #ifndef __SIMBOLOSLEGENDRE_H
 #define __SIMBOLOSLEGENDRE_H
 

@@ -1,3 +1,7 @@
+/* 
+ * $Id$
+ */
+
 #ifndef __MIVEC_H
 #define __MIVEC_H
 

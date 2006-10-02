@@ -1,3 +1,6 @@
+/* 
+ * $Id$ 
+ */
 
 #include "Semillero.h"
 #include "Funciones.h"

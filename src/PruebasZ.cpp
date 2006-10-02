@@ -1,5 +1,5 @@
 /* 
- * $Id: PruebasZ.cpp,v 1.2 2006/09/06 14:16:23 dgquintas Exp $
+ * $Id$
  */
 
 #include <cassert>

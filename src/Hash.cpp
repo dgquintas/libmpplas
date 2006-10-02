@@ -1,3 +1,6 @@
+/* 
+ * $Id$
+ */
 
 #include "Hash.h"
 #include <cassert>

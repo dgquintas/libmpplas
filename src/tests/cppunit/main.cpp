@@ -1,3 +1,7 @@
+/*
+ * $Id$
+ */
+
 #include "ZTest.h"
 #include <qapplication.h>
 #include <cppunit/ui/qt/TestRunner.h>

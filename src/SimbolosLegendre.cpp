@@ -1,3 +1,7 @@
+/* 
+ * $Id$ 
+ */
+
 #include "SimbolosLegendre.h"
 #include "Funciones.h"
 

@@ -1,4 +1,6 @@
-
+/* 
+ * $Id$ 
+ */
 #include "Random.h"
 #include "Funciones.h"
 #include "Semillero.h"

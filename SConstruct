@@ -1,4 +1,4 @@
-import platform, time, sys
+import platform, time, sys, os, shutil
 
 #############################################################
 #                    SUPPORT FUNCTIONS                      #
@@ -19,11 +19,19 @@ def getNativelySupportedArchs():
   return tuple(natArchs)
 #############################################################
 
+#############################################################
+#                    SOME CONSTANTS                         #
+#############################################################
+
+BUILD_DIR = 'build/'
+CONFIG_LOG = '#/config.log'
+
+#############################################################
 
 opts  = Options()
 opts.AddOptions(
     
-    EnumOption('optLevel', 'Compiler optimization level', '2', 
+    EnumOption('optLevel', 'Compiler optimization level', '3', 
                 allowed_values=('0','1','2','3')),
     
     EnumOption('arch', 'Target architecture', 'x86',
@@ -47,11 +55,13 @@ if env['enableProf']:
 
 env.Append(CPPDEFINES = {'ARCH': env['arch']})
 if env['arch'] not in getNativelySupportedArchs():
-  print "WARNING: the selected architecture (" + env['arch'] + ") is not natively supported by this system"
+  print "\nWARNING: the selected architecture (" + env['arch'] + ") is not natively supported by this system"
   for i in xrange(3):
     time.sleep(1)
     print '.',
     sys.stdout.flush()
+  else:
+    print ''
   
 
 if env['enableExtraOpt']:
@@ -64,20 +74,27 @@ if env['enableWarnings']:
   env.Append(CCFLAGS = ' -Wall -W -Werror')
 #options processing ends
 
-# configuring starts
-conf = Configure(env)
-if not conf.CheckType('uint32_t', '#include <stdint.h>\n', 'C++'):
-  print 'Could not find C99 type "uint32_t". Exiting...'
-  Exit(1)
-if not conf.CheckType('int32_t', '#include <stdint.h>\n', 'C++'):
-  print 'Could not find C99 type "int32_t". Exiting...'
-  Exit(1)
-env = conf.Finish()
-# configuring ends
+# configuring starts (only if we are not cleaning)
+if env.GetOption('clean'):
+  if os.path.exists(File(CONFIG_LOG).abspath):
+    os.remove(File(CONFIG_LOG).abspath)
+  shutil.rmtree(Dir(BUILD_DIR).abspath,ignore_errors=1)
+else:
+  conf = Configure(env,log_file=CONFIG_LOG)
+  if not conf.CheckType('uint32_t', '#include <stdint.h>\n', 'C++'):
+    print 'Could not find C99 type "uint32_t". Exiting...'
+    Exit(1)
+  if not conf.CheckType('int32_t', '#include <stdint.h>\n', 'C++'):
+    print 'Could not find C99 type "int32_t". Exiting...'
+    Exit(1)
+  env = conf.Finish()
+  # configuring ends
 
 Export('env')
 
-SConscript("src/SConscript", build_dir="build", duplicate=0)
+
+SConscript("src/SConscript", build_dir=BUILD_DIR, duplicate=0)
+
 #SConscript("doc/SConscript")
 
 

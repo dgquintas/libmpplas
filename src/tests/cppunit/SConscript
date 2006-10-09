@@ -1,5 +1,3 @@
-
-Import('libnumth_path')
 env = Environment(CPPPATH=[libnumth_path, '/usr/include/qt3'],
                   CCFLAGS=['-g'],
                   LIBS=['numth','qt-mt', 'pthread', 'm', 'X11', 'Xext','qttestrunner' ],

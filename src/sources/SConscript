@@ -1,0 +1,28 @@
+Import('env')
+
+myenv = env.Copy(CPPPATH=['nucleo', '../headers'])
+
+files = Split("""
+    CRT.cpp
+    Factor.cpp
+    Funciones.cpp
+    GCD.cpp
+    Hash.cpp
+    LCM.cpp
+    mp.cpp
+    Perfil.cpp
+    Potencia.cpp
+    Primos.cpp
+    Random.cpp
+    R.cpp
+    RedModular.cpp
+    Semillero.cpp
+    SimbolosLegendre.cpp
+    Trascendentes.cpp
+    utils.cpp
+    Z.cpp
+    Z_n.cpp
+    """)
+
+lib = myenv.SharedLibrary('numth', files)
+env.Clean('all', lib)

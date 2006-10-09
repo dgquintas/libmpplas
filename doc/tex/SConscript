@@ -1,0 +1,10 @@
+#Import('env')
+myenv = Environment()
+myenv.Tool("latex")
+#myenv.Replace( LATEX = 'latex' )
+
+
+sources = ['doc.tex']
+
+dvi = myenv.DVI( target='doc', source = sources )
+myenv.PDF(dvi)

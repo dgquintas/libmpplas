@@ -1,3 +1,26 @@
+import platform, time, sys, os, shutil
+
+#############################################################
+#                    SUPPORT FUNCTIONS                      #
+#############################################################
+def getNativelySupportedArchs():
+  natArchs = ['generic']
+  x86ArchMachines = ['i386', 'i486', 'i586', 'i686']
+  currentPlatformMachine = platform.machine()
+
+  
+  if currentPlatformMachine in x86ArchMachines:
+    natArchs.append('x86')
+    if currentPlatformMachine == 'x86_64':
+      natArchs.append('x86_64')
+  elif currentPlatformMachine == 'ppc':
+    natArchs.append('ppc')
+
+  return tuple(natArchs)
+
+
+
+
 Import('env')
 
 myenv = env.Copy()
@@ -25,8 +48,56 @@ files = Split("""
     Z_n.cpp
     """)
 
-lib = myenv.SharedLibrary('numth', files)
+myenv.Append(CCFLAGS = ' -O' + myenv['optLevel'])
 
-env.Append(LIBPATH = [Dir('.')])
+if myenv['enableProf']:
+  myenv['arch'] += 'Prof'
+
+myenv.Append(CPPDEFINES = {'ARCH': myenv['arch']})
+if myenv['arch'] not in getNativelySupportedArchs():
+  print "\nWARNING: the selected architecture (" + myenv['arch'] + ") is not natively supported by this system"
+  for i in xrange(3):
+    time.sleep(1)
+    print '.',
+    sys.stdout.flush()
+  else:
+    print ''
+  
+
+if myenv['enableExtraOpt']:
+  myenv.Append(CCFLAGS = ' -ffast-math')
+
+if myenv['enableDebug']:
+  myenv.Append(CCFLAGS = ' -g')
+
+if myenv['enableWarnings']:
+  myenv.Append(CCFLAGS = ' -Wall -W -Werror')
+#options processing ends
+
+# configuring starts (only if we are not cleaning)
+if myenv.GetOption('clean'):
+  if os.path.exists(File(env['CONFIG_LOG']).abspath):
+    os.remove(File(env['CONFIG_LOG']).abspath)
+else:
+  conf = Configure(myenv,log_file=env['CONFIG_LOG'])
+  if not conf.CheckType('uint32_t', '#include <stdint.h>\n', 'C++'):
+    print 'Could not find C99 type "uint32_t". Exiting...'
+    Exit(1)
+  if not conf.CheckType('int32_t', '#include <stdint.h>\n', 'C++'):
+    print 'Could not find C99 type "int32_t". Exiting...'
+    Exit(1)
+  myenv = conf.Finish()
+  # configuring ends
+
+
+lib = myenv.SharedLibrary('numth', files)
+env.Default(lib)
+Alias('lib', lib)
+Alias('all', lib)
+env.Install(env['INSTALL_DIR'], lib)
+Alias('install',env['INSTALL_DIR'])
+Alias('all', 'install')
+
+env.Append(LIBPATH = [Dir(env['INSTALL_DIR'])])
 Export('env')
 SConscript(dirs='tests')

@@ -1,7 +1,7 @@
 Import('env')
 
-testingEnv = env.Copy(LIBS=['numth'])
+env.Append(LIBS=['numth'])
 
-Export('testingEnv')
-if env['enableTests']:
-  SConscript(dirs="cppunit")
+
+Export('env')
+SConscript(dirs="cppunit")

@@ -3,7 +3,7 @@
 #                  LIBS=['numth','qt-mt', 'pthread', 'm', 'X11', 'Xext','qttestrunner' ],
 #                  LIBPATH=[libnumth_path])
 #
-Import('testingEnv')
+Import('env')
 
 def CheckCppunit(context):
   context.Message('Checking for Cppunit... ')
@@ -11,19 +11,22 @@ def CheckCppunit(context):
   context.Result(ret[0])
   return ret[0]
 
-if not testingEnv.GetOption('clean'):
-  conf = Configure(testingEnv, custom_tests = {'CheckCppunit':CheckCppunit} )
+if not env.GetOption('clean'):
+  conf = Configure(env, custom_tests = {'CheckCppunit':CheckCppunit} )
   if not conf.CheckCppunit():
     print 'Cppunit is not installed. Exiting...'
     Exit(1)
-  testingEnv = conf.Finish()
+  env = conf.Finish()
 
 
-testingEnv.ParseConfig('cppunit-config --libs')
+env.ParseConfig('cppunit-config --libs')
 
 files = Split("""
     ZTest.cpp
     main.cpp
     """)
 
-testingEnv.Program('runTests', files)
+
+cppunitTests = env.Program('runTests', files)
+Alias('unitTests', cppunitTests)
+Alias('all', cppunitTests)

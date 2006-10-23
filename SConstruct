@@ -40,7 +40,8 @@ opts.AddOptions(
     BoolOption('enableProf','Use the profiling version of the kernel', 0),
     BoolOption('enableExtraOpt', 'Use extra optimization flags', 1),
     BoolOption('enableDebug', 'Generate debug symbols', 0),
-    BoolOption('enableWarnings', 'Compile with -Wall and similar flags', 1)
+    BoolOption('enableWarnings', 'Compile with -Wall and similar flags', 1),
+    BoolOption('enableTests', 'Compile the testing programs', 0)
     )   
 
 env = Environment(options = opts)
@@ -93,7 +94,7 @@ else:
 Export('env')
 
 
-SConscript("src/SConscript", build_dir=BUILD_DIR, duplicate=0)
+SConscript(dirs="src", duplicate=0)
 
 #SConscript("doc/SConscript")
 

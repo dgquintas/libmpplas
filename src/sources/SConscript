@@ -1,6 +1,7 @@
 Import('env')
 
-myenv = env.Copy(CPPPATH=['nucleo', '../headers'])
+myenv = env.Copy()
+myenv.Append( CPPPATH=['nucleo'] )
 
 files = Split("""
     CRT.cpp
@@ -25,4 +26,7 @@ files = Split("""
     """)
 
 lib = myenv.SharedLibrary('numth', files)
-env.Clean('all', lib)
+
+env.Append(LIBPATH = [Dir('.')])
+Export('env')
+SConscript(dirs='tests')

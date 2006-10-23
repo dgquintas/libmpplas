@@ -1,21 +1,29 @@
-env = Environment(CPPPATH=[libnumth_path, '/usr/include/qt3'],
-                  CCFLAGS=['-g'],
-                  LIBS=['numth','qt-mt', 'pthread', 'm', 'X11', 'Xext','qttestrunner' ],
-                  LIBPATH=[libnumth_path])
+#env = Environment(CPPPATH=[libnumth_path, '/usr/include/qt3'],
+#                  CCFLAGS=['-g'],
+#                  LIBS=['numth','qt-mt', 'pthread', 'm', 'X11', 'Xext','qttestrunner' ],
+#                  LIBPATH=[libnumth_path])
+#
+Import('testingEnv')
 
-env.ParseConfig('cppunit-config --libs')
+def CheckCppunit(context):
+  context.Message('Checking for Cppunit... ')
+  ret = context.TryAction( Action('cppunit-config --libs') )
+  context.Result(ret[0])
+  return ret[0]
+
+if not testingEnv.GetOption('clean'):
+  conf = Configure(testingEnv, custom_tests = {'CheckCppunit':CheckCppunit} )
+  if not conf.CheckCppunit():
+    print 'Cppunit is not installed. Exiting...'
+    Exit(1)
+  testingEnv = conf.Finish()
+
+
+testingEnv.ParseConfig('cppunit-config --libs')
 
 files = Split("""
     ZTest.cpp
     main.cpp
     """)
 
-conf = Configure(env)
-
-if not conf.CheckLib('numth', language='C++'):
-  print 'Could not find libnumth. Exiting'
-  Exit(1)
-
-env = conf.Finish()
-
-env.Program('runTests', files)
+testingEnv.Program('runTests', files)

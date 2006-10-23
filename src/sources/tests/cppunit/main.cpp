@@ -3,15 +3,16 @@
  */
 
 #include "ZTest.h"
-#include <qapplication.h>
-#include <cppunit/ui/qt/TestRunner.h>
+//#include <qapplication.h>
+//#include <cppunit/ui/qt/TestRunner.h>
+#include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 
 int main( int argc, char **argv)
 {
-  QApplication app(argc, argv);
-  //CppUnit::TextUi::TestRunner runner;
-  CppUnit::QtTestRunner runner;
+ // QApplication app(argc, argv);
+  CppUnit::TextUi::TestRunner runner;
+//  CppUnit::QtTestRunner runner;
   CppUnit::TestFactoryRegistry &registry = 
     CppUnit::TestFactoryRegistry::getRegistry();
   runner.addTest( registry.makeTest() );

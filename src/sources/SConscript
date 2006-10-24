@@ -100,4 +100,6 @@ Alias('all', 'install')
 
 env.Append(LIBPATH = [Dir(env['INSTALL_DIR'])])
 Export('env')
-SConscript(dirs='tests')
+
+if 'tests' in map(str, BUILD_TARGETS):
+  SConscript(dirs='tests')

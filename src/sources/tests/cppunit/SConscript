@@ -1,3 +1,5 @@
+import os.path
+
 #env = Environment(CPPPATH=[libnumth_path, '/usr/include/qt3'],
 #                  CCFLAGS=['-g'],
 #                  LIBS=['numth','qt-mt', 'pthread', 'm', 'X11', 'Xext','qttestrunner' ],
@@ -27,6 +29,8 @@ files = Split("""
     """)
 
 
-cppunitTests = env.Program('runTests', files)
-Alias('unitTests', cppunitTests)
+cppunitTests = env.Program('unitTests', files)
+Install(env['INSTALL_DIR_TESTS'], cppunitTests)
+Alias('tests', cppunitTests)
 Alias('all', cppunitTests)
+Alias('install', env['INSTALL_DIR_TESTS'])

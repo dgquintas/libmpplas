@@ -19,6 +19,7 @@ env = Environment(options = opts)
 Help(opts.GenerateHelpText(env))
 env['CONFIG_LOG'] = '#/config.log'
 env['INSTALL_DIR'] = '#/bin'
+env['INSTALL_DIR_TESTS'] = '#/bin/tests'
 
 
 #options processing starts

@@ -3,7 +3,7 @@
 opts  = Options()
 opts.AddOptions(
     
-    EnumOption('optLevel', 'Compiler optimization level', '3', 
+    EnumOption('optLevel', 'Compiler optimization level', '0', 
                 allowed_values=('0','1','2','3')),
     
     EnumOption('arch', 'Target architecture', 'x86',
@@ -12,13 +12,14 @@ opts.AddOptions(
     BoolOption('enableProf','Use the profiling version of the kernel', 0),
     BoolOption('enableExtraOpt', 'Use extra optimization flags', 1),
     BoolOption('enableDebug', 'Generate debug symbols', 0),
-    BoolOption('enableWarnings', 'Compile with -Wall and similar flags', 1)
+    BoolOption('enableWarnings', 'Compile with -Wall and similar flags', 0)
     )   
 
 env = Environment(options = opts)
 Help(opts.GenerateHelpText(env))
 env['CONFIG_LOG'] = '#/config.log'
-env['INSTALL_DIR'] = '#/bin'
+env['INSTALL_DIR_BIN'] = '#/bin'
+env['INSTALL_DIR_LIB'] = '#/lib'
 env['INSTALL_DIR_TESTS'] = '#/bin/tests'
 
 

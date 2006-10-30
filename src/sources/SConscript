@@ -93,11 +93,11 @@ lib = env.SharedLibrary('numth', files)
 env.Default(lib)
 Alias('lib', lib)
 Alias('all', lib)
-env.Install(env['INSTALL_DIR'], lib)
-Alias('install',env['INSTALL_DIR'])
+env.Install(env['INSTALL_DIR_LIB'], lib)
+Alias('install',env['INSTALL_DIR_LIB'])
 Alias('all', 'install')
 
-env.Append(LIBPATH = [Dir(env['INSTALL_DIR'])])
+env.Append(LIBPATH = [Dir(env['INSTALL_DIR_LIB'])])
 Export('env')
 
 if 'tests' in map(str, BUILD_TARGETS):

@@ -43,8 +43,6 @@ namespace numth{
      *
      * @return Parte baja de la suma de arg1 y arg2
      */
-    /* Add(a,b) + (base·overflow) = a - b + overflow_ini 
-     * overflow = {0,1} */
     inline Cifra Add(Cifra arg1, Cifra arg2);
     
     /** Suma básica extendida de dos Cifras
@@ -63,8 +61,6 @@ namespace numth{
      *
      * @return Parte baja de la suma de arg1, arg2 y overflow inicial
      */
-    /* Addx(a,b) + (base·overflow) = a - b + overflow_ini 
-     * overflow = {0,1} */
     inline Cifra Addx(Cifra arg1, Cifra arg2);
 
 

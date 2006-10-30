@@ -1,6 +1,6 @@
 Import('env')
 
-env.Append(CPPPATH = [Dir('./headers')])
+env.Append(CPPPATH = [Dir('#/src/headers')])
 
 Export('env')
 

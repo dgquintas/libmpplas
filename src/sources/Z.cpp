@@ -101,7 +101,7 @@ namespace numth{
   {
     std::string temp(strC);
     std::istringstream flujoEntrada(temp);
-    numth::operator>>(flujoEntrada,*this);
+    operator>>(flujoEntrada,*this);
     return;
   }
 

@@ -23,8 +23,7 @@ def getNativelySupportedArchs():
 
 Import('env')
 
-myenv = env.Copy()
-myenv.Append( CPPPATH=['nucleo'] )
+env.Append( CPPPATH=['#/src/sources/nucleo'] )
 
 files = Split("""
     CRT.cpp
@@ -48,14 +47,14 @@ files = Split("""
     Z_n.cpp
     """)
 
-myenv.Append(CCFLAGS = ' -O' + myenv['optLevel'])
+env.Append(CCFLAGS = ' -O' + env['optLevel'])
 
-if myenv['enableProf']:
-  myenv['arch'] += 'Prof'
+if env['enableProf']:
+  env['arch'] += 'Prof'
 
-myenv.Append(CPPDEFINES = {'ARCH': myenv['arch']})
-if myenv['arch'] not in getNativelySupportedArchs():
-  print "\nWARNING: the selected architecture (" + myenv['arch'] + ") is not natively supported by this system"
+env.Append(CPPDEFINES = {'ARCH': env['arch']})
+if env['arch'] not in getNativelySupportedArchs():
+  print "\nWARNING: the selected architecture (" + env['arch'] + ") is not natively supported by this system"
   for i in xrange(3):
     time.sleep(1)
     print '.',
@@ -64,33 +63,33 @@ if myenv['arch'] not in getNativelySupportedArchs():
     print ''
   
 
-if myenv['enableExtraOpt']:
-  myenv.Append(CCFLAGS = ' -ffast-math')
+if env['enableExtraOpt']:
+  env.Append(CCFLAGS = ' -ffast-math')
 
-if myenv['enableDebug']:
-  myenv.Append(CCFLAGS = ' -g')
+if env['enableDebug']:
+  env.Append(CCFLAGS = ' -g')
 
-if myenv['enableWarnings']:
-  myenv.Append(CCFLAGS = ' -Wall -W -Werror')
+if env['enableWarnings']:
+  env.Append(CCFLAGS = ' -Wall -W -Werror')
 #options processing ends
 
 # configuring starts (only if we are not cleaning)
-if myenv.GetOption('clean'):
+if env.GetOption('clean'):
   if os.path.exists(File(env['CONFIG_LOG']).abspath):
     os.remove(File(env['CONFIG_LOG']).abspath)
 else:
-  conf = Configure(myenv,log_file=env['CONFIG_LOG'])
+  conf = Configure(env,log_file=env['CONFIG_LOG'])
   if not conf.CheckType('uint32_t', '#include <stdint.h>\n', 'C++'):
     print 'Could not find C99 type "uint32_t". Exiting...'
     Exit(1)
   if not conf.CheckType('int32_t', '#include <stdint.h>\n', 'C++'):
     print 'Could not find C99 type "int32_t". Exiting...'
     Exit(1)
-  myenv = conf.Finish()
+  env = conf.Finish()
   # configuring ends
 
 
-lib = myenv.SharedLibrary('numth', files)
+lib = env.SharedLibrary('numth', files)
 env.Default(lib)
 Alias('lib', lib)
 Alias('all', lib)

@@ -3,6 +3,7 @@
  */
 
 #include "ZTest.h"
+#include "KernelTest.h"
 //#include <qapplication.h>
 //#include <cppunit/ui/qt/TestRunner.h>
 #include <cppunit/ui/text/TestRunner.h>

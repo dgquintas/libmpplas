@@ -18,6 +18,8 @@ class KernelTest: public CppUnit::TestFixture {
  
   CPPUNIT_TEST_SUITE( KernelTest );
     CPPUNIT_TEST( testAdd );
+    CPPUNIT_TEST( testAddx );
+    CPPUNIT_TEST( testMul );
   CPPUNIT_TEST_SUITE_END();
   
   public:

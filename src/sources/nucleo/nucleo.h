@@ -229,6 +229,39 @@ namespace numth{
        hacia la izquierda para que su cifra más significativa fuera 1. */
     inline Cifra Bfffo(Cifra arg1) ;
 
+
+    /** Reset the CPU to its initial state.
+     *
+     * Resets the "registers" of the CPU to cero.
+     *
+     * \par Definition:
+     *    \f$ resto = 0 \f$
+     *    \f$ overflow = 0 \f$
+     *
+     */
+    inline void reset(){
+      overflow = 0;
+      resto = 0;
+    }
+
+    /** Gets the current overflow.
+     *
+     * @return A constant reference to the @a overflow register.
+     */
+    inline const Cifra& getOverflow() const {
+      return overflow;
+    }
+
+    /** Gets the current resto.
+     *
+     * @return A constant reference to the @a resto register.
+     */
+    inline const Cifra& getResto() const {
+      return resto;
+    }
+
+
+
     protected:
     /** Cifra que representa el acarreo en las operaciones de suma y
      * resta. */

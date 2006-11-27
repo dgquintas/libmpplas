@@ -20,6 +20,9 @@ namespace numth{
   class vCPUVectorial  {
    
     public:
+      vCPUVectorial(int numCPUs);
+      ~vCPUVectorial();
+
     /* de desplazamiento */
     void lShift(numth::MiVec <Cifra>& a, size_t n);
     void rShift(numth::MiVec <Cifra>& a, size_t n);
@@ -79,7 +82,7 @@ namespace numth{
     void cuadKaratsuba(MiVec<Cifra>& resultado, const MiVec<Cifra>& x);
     
     private:
-    vCPUBasica<Arch::ARCH> cpuBasica_; 
+    vCPUBasica<Arch::ARCH> *basicCPUs_; 
 
   };
 }

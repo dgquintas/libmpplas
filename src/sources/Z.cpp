@@ -3,7 +3,6 @@
  */
 
 #include "Z.h"
-#include "mp.h"
 #include "Funciones.h"
 #include <cstring>
 #include <sstream>
@@ -13,11 +12,12 @@
 #include <cmath>
 #include <string>
 #include <utility>
-
+#include "mp.h"
 
 namespace numth{
 
   size_t Z::precisionSalida_ = 0;
+  vCPUVectorial cpuVectorial_(1);
 
   // implementacion constructores
   Z::Z()
@@ -136,7 +136,6 @@ namespace numth{
   bool Z::operator>(const Z& der) const
   {
 
-    vCPUVectorial cpuVectorial_;
 
     if( (signo_ > 0) ){
       if( (der.signo_ > 0) )
@@ -155,7 +154,6 @@ namespace numth{
   bool Z::operator<(const Z& der) const
   {
 
-    vCPUVectorial cpuVectorial_;
 
     if( (signo_ > 0) ){
       if( (der.signo_ > 0) )
@@ -175,7 +173,6 @@ namespace numth{
   bool Z::operator==(const Z& der) const
   {
 
-    vCPUVectorial cpuVectorial_;
 
     if( signo_ == der.signo_ )
       if ( cpuVectorial_.igual(coefPoliB_, der.coefPoliB_) )
@@ -201,7 +198,6 @@ namespace numth{
   bool Z::operator>(const CifraSigno der) const
   {
 
-    vCPUVectorial cpuVectorial_;
 
     if( (signo_ > 0) )
       if(der >= 0)
@@ -220,7 +216,6 @@ namespace numth{
   bool Z::operator<(const CifraSigno der) const
   {
 
-    vCPUVectorial cpuVectorial_;
 
     if( (signo_ > 0) )
       if(der >= 0)
@@ -239,7 +234,6 @@ namespace numth{
   bool Z::operator==(const CifraSigno der) const
   {
 
-    vCPUVectorial cpuVectorial_;
 
     if( (signo_ > 0) )
       if(der >= 0)
@@ -276,7 +270,6 @@ namespace numth{
   bool Z::operator>(const Cifra der) const
   {
 
-    vCPUVectorial cpuVectorial_;
 
     if( (signo_ > 0) )
       return cpuVectorial_.mayorque( coefPoliB_, der );
@@ -286,7 +279,6 @@ namespace numth{
 
   bool Z::operator<(const Cifra der) const
   {
-    vCPUVectorial cpuVectorial_;
 
 
     if( (signo_ > 0) )
@@ -297,7 +289,6 @@ namespace numth{
 
   bool Z::operator==(const Cifra der) const
   {
-    vCPUVectorial cpuVectorial_;
 
 
     if( (signo_ > 0) )
@@ -329,7 +320,6 @@ namespace numth{
 
   Z& Z::operator+=(const Z& sumandoDerecha)
   {
-    vCPUVectorial cpuVectorial_;
 
     if( (signo_ > 0) ){
       if( (sumandoDerecha.signo_ > 0) ){
@@ -367,7 +357,6 @@ namespace numth{
 
   Z& Z::operator-=(const Z&sustraendo)
   {
-    vCPUVectorial cpuVectorial_;
 
     if( (signo_ > 0) ){
       if( (sustraendo.signo_ > 0) ){
@@ -411,7 +400,6 @@ namespace numth{
 
   Z& Z::operator*=(const Z& factorDer)
   {
-    vCPUVectorial cpuVectorial_;
 
     if( (signo_ > 0) ){
       if( (factorDer.signo_ > 0) ){
@@ -444,7 +432,6 @@ namespace numth{
 
   Z& Z::operator/=(const Z& divisor)
   {
-    vCPUVectorial cpuVectorial_;
 
     if( divisor.esCero() )
       throw Errores::DivisionPorCero();
@@ -480,7 +467,6 @@ namespace numth{
   Z& Z::operator%=(const Z& divisor)
   {
 
-    vCPUVectorial cpuVectorial_;
 
     if( divisor.esCero() )
       throw Errores::DivisionPorCero();
@@ -600,7 +586,6 @@ namespace numth{
 
   Z& Z::cuadrado(void)
   {
-    vCPUVectorial cpuVectorial_;
 
     signo_ = 1; //el cuadrado siempre va a tener este efecto
     coefPoliB_ = cpuVectorial_.cuadMP(coefPoliB_); 
@@ -609,7 +594,6 @@ namespace numth{
 
   Z& Z::cuadradoModular(const Z& mod)
   {
-    vCPUVectorial cpuVectorial_;
 
     (*this) %= mod;
 
@@ -723,7 +707,6 @@ namespace numth{
   Z& Z::operator+=(const CifraSigno corto)
   {
 
-    vCPUVectorial cpuVectorial_;
 
     Cifra cortoCifra;
     if( corto >= 0 )
@@ -768,7 +751,6 @@ namespace numth{
   Z& Z::operator-=(const CifraSigno corto)
   {
 
-    vCPUVectorial cpuVectorial_;
 
     Cifra cortoCifra;
     if( corto >= 0 )
@@ -818,7 +800,6 @@ namespace numth{
   Z& Z::operator*=(const CifraSigno corto)
   {
 
-    vCPUVectorial cpuVectorial_;
 
     Cifra cortoCifra;
     if( corto >= 0 )
@@ -861,7 +842,6 @@ namespace numth{
     if( corto == 0 )
       throw Errores::DivisionPorCero();
 
-    vCPUVectorial cpuVectorial_;
 
     Cifra cortoCifra;
     if( corto >= 0 )
@@ -988,7 +968,6 @@ namespace numth{
   Z& Z::operator+=(const Cifra corto)
   {
 
-    vCPUVectorial cpuVectorial_;
 
     Cifra cortoCifra;
     cortoCifra = (Cifra)corto;
@@ -1012,7 +991,6 @@ namespace numth{
     Cifra cortoCifra;
     cortoCifra = (Cifra)corto;
 
-    vCPUVectorial cpuVectorial_;
 
     if( signo_ > 0 ){ // a - b
       if(  cpuVectorial_.menorque(coefPoliB_, cortoCifra) ){ // a < b 
@@ -1034,7 +1012,6 @@ namespace numth{
   Z& Z::operator*=(const Cifra corto)
   {
 
-    vCPUVectorial cpuVectorial_;
 
     Cifra cortoCifra;
     cortoCifra = (Cifra)corto;
@@ -1059,7 +1036,6 @@ namespace numth{
       throw Errores::DivisionPorCero();
 
 
-    vCPUVectorial cpuVectorial_;
 
     Cifra cortoCifra;
     cortoCifra = (Cifra)corto;
@@ -1162,7 +1138,6 @@ namespace numth{
 
   Z& Z::operator>>=(const size_t desp)
   {
-    vCPUVectorial cpuVectorial_;
 
     cpuVectorial_.rShift(coefPoliB_, desp);
     return *this;
@@ -1170,7 +1145,6 @@ namespace numth{
 
   Z& Z::operator<<=(const size_t desp)
   {
-    vCPUVectorial cpuVectorial_;
 
     cpuVectorial_.lShift(coefPoliB_, desp);
     return *this;
@@ -1180,7 +1154,6 @@ namespace numth{
   Z& Z::operator++(void)
   {
 
-    vCPUVectorial cpuVectorial_;
 
     if( esCero() ){
       hacerUno();
@@ -1211,7 +1184,6 @@ namespace numth{
       return *this;
     }
 
-    vCPUVectorial cpuVectorial_;
 
     if(signo_ > 0){
       if(coefPoliB_[0] < Constantes::CIFRA_MAX)
@@ -1239,7 +1211,6 @@ namespace numth{
     }
 
 
-    vCPUVectorial cpuVectorial_;
 
     if(signo_ > 0){
       if(coefPoliB_[0] > 0)
@@ -1268,7 +1239,6 @@ namespace numth{
     }
 
 
-    vCPUVectorial cpuVectorial_;
 
     if(signo_ > 0){
       if(coefPoliB_[0] > 0)
@@ -1289,7 +1259,6 @@ namespace numth{
 
   size_t Z::numBits(void) const
   {
-    vCPUVectorial cpuVectorial_;
 
     size_t componentes = coefPoliB_.size() - 1;
     return (( Constantes::BITS_EN_CIFRA * componentes) + cpuVectorial_.numBits(coefPoliB_[componentes]));
@@ -1298,7 +1267,6 @@ namespace numth{
 
   CifraSigno Z::redondear(size_t exceso) 
   {
-    vCPUVectorial cpuVectorial_;
 
     return cpuVectorial_.redondear(coefPoliB_, exceso, signo_);
   }
@@ -1348,7 +1316,6 @@ namespace numth{
 
   void Z::limpiarCeros(void)
   {
-    vCPUVectorial cpuVectorial_;
 
 
     cpuVectorial_.limpiarCeros(coefPoliB_);
@@ -2107,7 +2074,6 @@ namespace numth{
   void divMod(const Z& dividendo, const Z& divisor, Z* cociente, Z* resto)
     throw (Errores::DivisionPorCero)
     {
-      vCPUVectorial cpuVectorial_;
 
       if( divisor.esCero() )
         throw Errores::DivisionPorCero();
@@ -2178,7 +2144,6 @@ namespace numth{
   void divMod(const Z& dividendo, const CifraSigno divisor, Z* cociente, Z* resto)
     throw (Errores::DivisionPorCero)
     {
-      vCPUVectorial cpuVectorial_;
 
       bool divisorPositivo;
       Cifra divisorCifra;
@@ -2263,7 +2228,6 @@ namespace numth{
     throw (Errores::DivisionPorCero)
     {
 
-      vCPUVectorial cpuVectorial_;
 
       if( divisor == 0 )
         throw Errores::DivisionPorCero();
@@ -2357,13 +2321,11 @@ namespace numth{
   }
   size_t numBits(const Cifra x)
   {
-    vCPUVectorial cpu;
-    return cpu.numBits(x);
+    return cpuVectorial_.numBits(x);
   }
   size_t numBits(const CifraSigno x)
   {
-    vCPUVectorial cpu;
-    return cpu.numBits((Cifra)labs(x));
+    return cpuVectorial_.numBits((Cifra)labs(x));
   }
 
 }

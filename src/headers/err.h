@@ -12,24 +12,24 @@
 namespace numth{
   /** Espacio de nombres contenedor del mecanismo de errores. */
   namespace Errores{
-    // Tipos b醩icos
+    // Tipos b谩icos
     /** Clase base de todas las excepciones (errores) que comprende
-     * la librer韆. */
+     * la librer铆a. */
     class Excepcion
     {
       public:
-        /** Informaci髇 sobre el error.
+        /** Informaci贸n sobre el error.
          * 
          * @return Un vector de caracteres con un mensaje explicativo
-         * del error en cuesti髇.
+         * del error en cuesti贸n.
          */
         virtual const char* info(void) const = 0;
         virtual ~Excepcion(){};
     };
       
-    /** Clase base para errores de tipo aritm閠ico.
+    /** Clase base para errores de tipo aritm茅ico.
      *
-     * Ejemplo cl醩ico: la divisi髇 por cero.
+     * Ejemplo cl谩sico: la divisi贸n por cero.
      * 
      * */
     class Aritmetico : public Excepcion
@@ -37,13 +37,13 @@ namespace numth{
       public:
       virtual const char* info(void) const 
       {
-        return "Error aritm閠ico indeterminado";
+        return "Error aritm茅tico indeterminado";
       }
     };
 
-    /** Clase base para errores de tipo sint醕tico.
+    /** Clase base para errores de tipo sint谩ctico.
      *
-     * Se utiliza por ejemplo en la lectura de n鷐eros con el operador
+     * Se utiliza por ejemplo en la lectura de n煤meros con el operador
      * de entrada ">>".
      * 
      */
@@ -52,14 +52,14 @@ namespace numth{
       public:
       virtual const char* info(void) const 
       {
-        return "Error sint醕tico indeterminado";
+        return "Error sint谩ctico indeterminado";
       }
     };
 
     /** Clase base para errores internos.
      *
-     * Por ejemplo al detectar un puntero inv醠ido, intento de acceso
-     * a una posici髇 de memoria no reservada, etc.
+     * Por ejemplo al detectar un puntero inv谩lido, intento de acceso
+     * a una posici贸n de memoria no reservada, etc.
      * */
     class Interno : public Excepcion
     {
@@ -72,13 +72,13 @@ namespace numth{
 
 
     // Tipos derivados
-    /** Error de divisi髇 por cero */
+    /** Error de divisi贸n por cero */
     class DivisionPorCero : public Aritmetico
     {
       public:
       virtual const char* info(void) const 
       { 
-        return "Se ha producido una divisi髇 por cero";
+        return "Se ha producido una divisi贸n por cero";
       }
     };
 
@@ -98,11 +98,11 @@ namespace numth{
       public:
       virtual const char* info(void) const
       {
-         return "Intento de inversi髇 inv醠ido";
+         return "Intento de inversi贸n inv谩lido";
       }
     };
 
-    /** Intento de potenciaci髇 de un elemento no inverbiel en un no-cuerpo */
+    /** Intento de potenciaci贸n de un elemento no inverbiel en un no-cuerpo */
     class ExponenteNegativo : public Aritmetico
     {
       public:
@@ -112,7 +112,7 @@ namespace numth{
       }
     };
 
-    /** Segundo argumento de un s韒bolo de Jacobi es par */
+    /** Segundo argumento de un s铆mbolo de Jacobi es par */
     class ParEnSimboloJacobi : public Aritmetico
     {
       public:
@@ -122,13 +122,13 @@ namespace numth{
       }
     };
 
-    /** Modulo par en la exponenciaci髇 por Montgomery */
+    /** Modulo par en la exponenciaci贸n por Montgomery */
     class ModuloParEnMontgomery : public Aritmetico
     {
       public:
       virtual const char* info(void) const
       {
-         return "Modulo par en exponenciaci髇 de Montgomery";
+         return "Modulo par en exponenciaci贸n de Montgomery";
       }
     };
 
@@ -138,14 +138,14 @@ namespace numth{
       public:
       virtual const char* info(void) const
       {
-         return "Intento de c醠culo del logaritmo de cero";
+         return "Intento de c谩lculo del logaritmo de cero";
       }
     };
 
 
 
 
-    /** Detectado s韒bolo inv醠ido en la lectura de un n鷐ero */
+    /** Detectado s铆mbolo inv谩lido en la lectura de un nmero */
     class SimboloInvalido : public Sintactico
     {
       char simbolo_;
@@ -154,23 +154,23 @@ namespace numth{
         SimboloInvalido(char c) : simbolo_(c){}
         virtual const char* info(void) const 
         { 
-          std::string msg("Simbolo inv醠ido: ");
+          std::string msg("Simbolo inv谩lido: ");
           msg += simbolo_;
           return msg.c_str();
         }
     };
 
-    /** N鷐ero sin longitud alguna (al menos tendria que ser 1, para
+    /** Nmero sin longitud alguna (al menos tendria que ser 1, para
      * el cero)*/
     class NumeroVacio : public Interno
     {
       virtual const char* info(void) const
       {
-         return "Polinomio representante del n鷐ero de longitud 0";
+         return "Polinomio representante del nmero de longitud 0";
       }
     };
 
-    /** Signo inv醠ido */
+    /** Signo inv谩lido */
     class SignoInvalido : public Interno
     {
       virtual const char* info(void) const
@@ -180,12 +180,12 @@ namespace numth{
 
     };
 
-    /** Uso de un n鷐ero demasiado grande para el contexto */
+    /** Uso de un nmero demasiado grande para el contexto */
     class DemasiadoGrande : public Interno
     {
       virtual const char* info(void) const
       {
-         return "N鷐ero demasiado grande";
+         return "Nmero demasiado grande";
       }
     };
 
@@ -210,12 +210,12 @@ namespace numth{
     };
 
 
-    /** Error al acceder a la fuente de entrop韆 */
+    /** Error al acceder a la fuente de entrop铆a */
     class FuenteEntropiaInvalida : public Interno
     {
       virtual const char* info(void) const
       {
-         return "Error al acceder a la fuente de entrop韆";
+         return "Error al acceder a la fuente de entrop铆a";
       }
     };
 
@@ -234,16 +234,16 @@ namespace numth{
     {
       virtual const char* info(void) const
       {
-         return "El exponente de la representaci髇 de reales se ha desbordado";
+         return "El exponente de la representaci贸n de reales se ha desbordado";
       }
     };
  
-    /** Funci髇 no implementada */
+    /** Funci贸n no implementada */
     class NoImplementado : public Interno
     {
       virtual const char* info(void) const
       {
-         return "Funci髇 a鷑 no implementada";
+         return "Funci贸n an no implementada";
       }
     };
 

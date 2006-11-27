@@ -1,3 +1,7 @@
+#include <omp.h>
+#include <iostream>
+#include <unistd.h>
+#include <stdlib.h>
 /* 
  * $Id$
  */
@@ -12,7 +16,8 @@
   template<>
     inline vCPUBasica<Arch::x86>::vCPUBasica()
       : overflow(0), resto(0)
-    {}
+    {
+    }
  
 
   /** Suma básica de dos Cifras para x86.
@@ -23,6 +28,7 @@
     inline Cifra vCPUBasica<Arch::x86>::Add(Cifra arg1, Cifra arg2)
     {
       Cifra ret; 
+
 
       __asm__ ("xor %[_of], %[_of];"
                "addl %[_arg2], %[_arg1]; "
@@ -118,6 +124,8 @@
     inline Cifra vCPUBasica<Arch::x86>::Addmul(Cifra arg1,Cifra arg2) 
     { 
       Cifra ret; 
+
+//      sleep( rand() % 3);
 
       __asm__ (" mull %[_arg2];"
                "addl %[_restoViejo],%[_ret];" 

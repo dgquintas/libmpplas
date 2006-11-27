@@ -93,6 +93,7 @@ namespace numth{
   class GCDLehmer : public GCD
   {
     public:
+      using GCD::gcd;
       virtual Z gcd(Z u, Z v);
 
       virtual ~GCDLehmer(){}

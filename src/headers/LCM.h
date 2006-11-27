@@ -66,6 +66,7 @@ namespace numth{
   class LCMViaGCD : public LCM
   {
     public:
+      using LCM::lcm;
       virtual Z lcm(Z u, Z v);
   };
   typedef LCMViaGCD LCMDFL;

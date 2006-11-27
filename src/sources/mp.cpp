@@ -4,9 +4,19 @@
 
 #include "mp.h"
 #include <algorithm>
+#include <omp.h>
 
 
 namespace numth{
+
+  vCPUVectorial::vCPUVectorial(int numCPUs){
+    basicCPUs_ = new vCPUBasica<Arch::ARCH>[numCPUs];
+  }
+
+  vCPUVectorial::~vCPUVectorial()
+  {
+    delete[] basicCPUs_;
+  }
 
   /*** OPERACIONES BASICAS EN VECTORES UNSIGNED ***/
   /*** DESPLAZAMIENTO ***/
@@ -25,6 +35,8 @@ namespace numth{
     //    a.insert(a.begin(), 0);
     //  }
     a.insert(a.begin(), componentes, 0);
+
+    vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
 
     if(fraccion){
       a.push_back(0);
@@ -63,6 +75,7 @@ namespace numth{
       a.push_back(0);
     }
 
+    vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
 
     if(fraccion){
       a[0] = cpuBasica_.Shiftlr(a[0], fraccion);
@@ -125,6 +138,8 @@ namespace numth{
   size_t vCPUVectorial::numBits(const Cifra num)
   {
     size_t bits = sizeof(Cifra) << 3;
+
+    vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
     bits -= cpuBasica_.Bfffo(num);
 
     return bits;
@@ -304,6 +319,7 @@ namespace numth{
 
       numth::MiVec<Cifra> c(tamA + 1, 0); // +1 por el carry posible
 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
       size_t i;
       cpuBasica_.overflow = 0;
       for(i = 0; i < tamB; i++){
@@ -331,6 +347,8 @@ namespace numth{
       numth::MiVec<Cifra> c(tamA + 1, 0); // +1 por el carry posible
 
       size_t i;
+
+      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
       cpuBasica_.overflow = 0;
       c[0]= cpuBasica_.Addx(a[0],b);
 
@@ -360,6 +378,7 @@ namespace numth{
 
       numth::MiVec<Cifra> c(tamA,0);
 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
       cpuBasica_.overflow = 0;
       size_t i;
       for(i = 0; i < tamB; i++)
@@ -380,6 +399,7 @@ namespace numth{
 
       numth::MiVec<Cifra> c(tamA,0);
 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
       cpuBasica_.overflow = 0;
       size_t i;
       c[0] = cpuBasica_.Subx(a[0],b);
@@ -396,6 +416,7 @@ namespace numth{
     {
       assert( b[0] <= a ); //FIXME
 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
       numth::MiVec<Cifra> c(1);
       c[0] = cpuBasica_.Sub(a,b[0]);
 
@@ -436,6 +457,7 @@ namespace numth{
         }
       }
 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
       for(size_t i=0; i < tamB; i++){
         c = 0;
         // esta "iteracion particular de j=0" se pone aqui
@@ -480,6 +502,7 @@ namespace numth{
 
       numth::MiVec<Cifra> c(tamA + 1, 0);
 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
       cpuBasica_.resto = 0;
       unsigned int i;
       for(i=0; i < tamA; i++)
@@ -559,6 +582,7 @@ namespace numth{
       }
 
 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
       
       //los resultados temporales se expresan como un numero (uA uB v) en la
       //base de trabajo.
@@ -653,6 +677,7 @@ namespace numth{
       //obtenemos el digito mas significativo del divisor
       //=> siempre sera el señalado por size() - 1 (o deberia serlo)
 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
       d = cpuBasica_.Bfffo(b[tamB]); // nº de ceros a la izq
       // del 1er bit del long 
       // en cuestion 
@@ -796,6 +821,8 @@ namespace numth{
   std::pair< numth::MiVec<Cifra>, numth::MiVec<Cifra> > 
     vCPUVectorial::divMP(const numth::MiVec<Cifra>& a, const Cifra b ) 
     {
+
+      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
       cpuBasica_.resto = 0;
       numth::MiVec<Cifra> q(a.size());
 

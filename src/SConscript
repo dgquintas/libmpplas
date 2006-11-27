@@ -4,4 +4,4 @@ env.Append(CPPPATH = [Dir('#/src/headers')])
 
 Export('env')
 
-SConscript(dirs='sources')
+SConscript(dirs='sources', build_dir='sources/build', duplicate=0)

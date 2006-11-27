@@ -1,4 +1,4 @@
-
+import os
 
 opts  = Options()
 opts.AddOptions(
@@ -15,7 +15,7 @@ opts.AddOptions(
     BoolOption('enableWarnings', 'Compile with -Wall and similar flags', 0)
     )   
 
-env = Environment(options = opts)
+env = Environment(options = opts, CXX='icpc', CXXFLAGS="", ENV=os.environ)
 Help(opts.GenerateHelpText(env))
 env['CONFIG_LOG'] = '#/config.log'
 env['INSTALL_DIR_BIN'] = '#/bin'

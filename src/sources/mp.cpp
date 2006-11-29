@@ -4,7 +4,12 @@
 
 #include "mp.h"
 #include <algorithm>
-#include <omp.h>
+#ifdef _OPENMP
+  #include <omp.h>
+  #define GET_BASIC_CPU() basicCPUs_[omp_get_thread_num()]
+#else
+  #define GET_BASIC_CPU() basicCPUs_[0]
+#endif
 
 
 namespace numth{
@@ -36,7 +41,7 @@ namespace numth{
     //  }
     a.insert(a.begin(), componentes, 0);
 
-    vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
+    vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU();
 
     if(fraccion){
       a.push_back(0);
@@ -75,7 +80,7 @@ namespace numth{
       a.push_back(0);
     }
 
-    vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
+    vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
 
     if(fraccion){
       a[0] = cpuBasica_.Shiftlr(a[0], fraccion);
@@ -107,11 +112,11 @@ namespace numth{
       while(true){ //saldremos via break
         Cifra compActual = numero[componente];
         while(mascara){
-          if(compActual & mascara) //bit posterior al 1º es 1 => parte frac >0.5
+          if(compActual & mascara) //bit posterior al 1ï¿½ es 1 => parte frac >0.5
             return signo;
           mascara = mascara >> 1;
         }
-        //aquí, mascara = 0
+        //aquï¿½, mascara = 0
         //la "revivimos"
         if(componente != 0){
           mascara = (1UL << (Constantes::BITS_EN_CIFRA-1));
@@ -120,15 +125,15 @@ namespace numth{
         else //componente == 0
           break;
       }
-      //aquí, todos excepto el primer bit decimal, han sido 0 =>
+      //aquï¿½, todos excepto el primer bit decimal, han sido 0 =>
       //=> la parte frac. es exactamente 0.5
       //veamos si el digito a la izq del primer "conflictivo" es par o impar
       componente = exceso/Constantes::BITS_EN_CIFRA;
       bcomponente = exceso % Constantes::BITS_EN_CIFRA;
       mascara = (1UL << bcomponente);
-      if( numero[componente] & mascara ) // el nº de impar
+      if( numero[componente] & mascara ) // el nï¿½ de impar
         return signo;
-      else //nº par
+      else //nï¿½ par
         return 0;
     }
     else //1er bit frac. es 0 => parte frac <0.5
@@ -139,7 +144,7 @@ namespace numth{
   {
     size_t bits = sizeof(Cifra) << 3;
 
-    vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
+    vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
     bits -= cpuBasica_.Bfffo(num);
 
     return bits;
@@ -172,7 +177,7 @@ namespace numth{
       if( a[tamA] < b[tamB] )
         return false;
 
-      // "nª" cifra tambien es igual, iterar
+      // "nï¿½" cifra tambien es igual, iterar
       if( tamA == 0)
         break;
     } 
@@ -209,7 +214,7 @@ namespace numth{
       if( a[tamA] < b[tamB] )
         return true;
 
-      // "2ª" cifra tambien es igual, iterar
+      // "2ï¿½" cifra tambien es igual, iterar
       if( tamA == 0 )
         break;
     } 
@@ -319,12 +324,12 @@ namespace numth{
 
       numth::MiVec<Cifra> c(tamA + 1, 0); // +1 por el carry posible
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       size_t i;
       cpuBasica_.overflow = 0;
       for(i = 0; i < tamB; i++){
         c[i]= cpuBasica_.Addx((*mayor)[i],(*menor)[i]);
-        // el propio "loop" del nº del desbordarse es 
+        // el propio "loop" del nï¿½ del desbordarse es 
         // equivalente al modulo. FIXME: no te fies de
         // esto
       }
@@ -348,7 +353,7 @@ namespace numth{
 
       size_t i;
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       cpuBasica_.overflow = 0;
       c[0]= cpuBasica_.Addx(a[0],b);
 
@@ -367,7 +372,7 @@ namespace numth{
     vCPUVectorial::restaMP(const numth::MiVec<Cifra>&a, const numth::MiVec<Cifra>& b) 
     {
       /* PRECONDICION:
-       * el nº que representa "a" deber ser >= que el nº q rep. "b"
+       * el nï¿½ que representa "a" deber ser >= que el nï¿½ q rep. "b"
        */
 
       size_t tamA = a.size();
@@ -378,7 +383,7 @@ namespace numth{
 
       numth::MiVec<Cifra> c(tamA,0);
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       cpuBasica_.overflow = 0;
       size_t i;
       for(i = 0; i < tamB; i++)
@@ -399,7 +404,7 @@ namespace numth{
 
       numth::MiVec<Cifra> c(tamA,0);
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       cpuBasica_.overflow = 0;
       size_t i;
       c[0] = cpuBasica_.Subx(a[0],b);
@@ -416,7 +421,7 @@ namespace numth{
     {
       assert( b[0] <= a ); //FIXME
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       numth::MiVec<Cifra> c(1);
       c[0] = cpuBasica_.Sub(a,b[0]);
 
@@ -450,14 +455,14 @@ namespace numth{
             karatsuba(w, a,bBis);
             return w;
           }
-          else{ //igual tamaño
+          else{ //igual tamaï¿½o
             karatsuba(w, a,b);
             return w;
           }
         }
       }
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       for(size_t i=0; i < tamB; i++){
         c = 0;
         // esta "iteracion particular de j=0" se pone aqui
@@ -502,7 +507,7 @@ namespace numth{
 
       numth::MiVec<Cifra> c(tamA + 1, 0);
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       cpuBasica_.resto = 0;
       unsigned int i;
       for(i=0; i < tamA; i++)
@@ -571,7 +576,7 @@ namespace numth{
   numth::MiVec<Cifra>
     vCPUVectorial::cuadMP(const numth::MiVec<Cifra>& x)
     {
-      size_t t = x.size(); //nº de cifras en la base de trabajo de "x"
+      size_t t = x.size(); //nï¿½ de cifras en la base de trabajo de "x"
 
       numth::MiVec<Cifra> w(2*t,0); //vector de resultado
 
@@ -582,7 +587,7 @@ namespace numth{
       }
 
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       
       //los resultados temporales se expresan como un numero (uA uB v) en la
       //base de trabajo.
@@ -596,7 +601,7 @@ namespace numth{
         v = cpuBasica_.Mul(x[i],x[i]);
         uB = cpuBasica_.resto;
         v = cpuBasica_.Add(v, w[2*i]);
-        uB += cpuBasica_.overflow; //ya que aqui no va a darse nunca un 2º overflow
+        uB += cpuBasica_.overflow; //ya que aqui no va a darse nunca un 2ï¿½ overflow
         uA = 0;
 
         w[2*i] = v;
@@ -635,8 +640,8 @@ namespace numth{
           //tomamos nota para siguientes iteraciones.
           cA = uA; cB = uB;
         }
-        if( uA ) //esto NO deberia ser cierto en la ultima iteración, ya que el cuad. 
-          //tiene sólo el doble de cifras que el nº original
+        if( uA ) //esto NO deberia ser cierto en la ultima iteraciï¿½n, ya que el cuad. 
+          //tiene sï¿½lo el doble de cifras que el nï¿½ original
           w[i+1+t] += uA;
 
         w[i+t] += uB;
@@ -675,10 +680,10 @@ namespace numth{
       //D1. NORMALIZAR
 
       //obtenemos el digito mas significativo del divisor
-      //=> siempre sera el señalado por size() - 1 (o deberia serlo)
+      //=> siempre sera el seï¿½alado por size() - 1 (o deberia serlo)
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
-      d = cpuBasica_.Bfffo(b[tamB]); // nº de ceros a la izq
+      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
+      d = cpuBasica_.Bfffo(b[tamB]); // nï¿½ de ceros a la izq
       // del 1er bit del long 
       // en cuestion 
 
@@ -738,10 +743,10 @@ namespace numth{
 
 
         
-        /* ¿ v2·q > ((u0·b + u1)-q·v1)·b + u2 ?
-         * parteDrchaAlta = resto -> RestoDe[ (u0·b + u1) / v1 ]
+        /* ï¿½ v2ï¿½q > ((u0ï¿½b + u1)-qï¿½v1)ï¿½b + u2 ?
+         * parteDrchaAlta = resto -> RestoDe[ (u0ï¿½b + u1) / v1 ]
          * parteDrchaBaja = u2
-         * parteIzdaAlta:parteIzdaBaja  = v2·q */
+         * parteIzdaAlta:parteIzdaBaja  = v2ï¿½q */
 //        bool centinela = false;
 //        bool segundaVez = false;
 //        bool terceraVez = false;
@@ -822,7 +827,7 @@ namespace numth{
     vCPUVectorial::divMP(const numth::MiVec<Cifra>& a, const Cifra b ) 
     {
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = basicCPUs_[omp_get_thread_num()]; //FIXME 
+      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       cpuBasica_.resto = 0;
       numth::MiVec<Cifra> q(a.size());
 
@@ -830,11 +835,11 @@ namespace numth{
         q[j] = cpuBasica_.Div(a[j], b);
 
       //No es necesario llevar cuenta del resto aparte ya que la CPU
-      //básica se encarga de forma transparente de ello: en cada
+      //bï¿½sica se encarga de forma transparente de ello: en cada
       //division, "cpuBasica.resto" almacena el resto, y a la hora de
       //dividir en el paso ulterior, considera el contenido de
       //"cpuBasica.resto" como la parte alta del divisor (y a lo que
-      //se pase como primer parámetro a Div como la baja)
+      //se pase como primer parï¿½metro a Div como la baja)
 
       limpiarCeros(q);
 
@@ -845,7 +850,7 @@ namespace numth{
   void vCPUVectorial::karatsuba(MiVec<Cifra>& resultado, 
       const MiVec<Cifra>& x, const MiVec<Cifra>& y)
   {
-    /* precond: "x" e "y" tienen el mismo tamaño (mismo nº de pos el
+    /* precond: "x" e "y" tienen el mismo tamaï¿½o (mismo nï¿½ de pos el
      * vector) */
     size_t m = x.size() >> 1; // indistintamente podria haberse usado y.size()
 

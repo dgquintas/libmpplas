@@ -1,4 +1,3 @@
-#include <omp.h>
 #include <iostream>
 #include <unistd.h>
 #include <stdlib.h>
@@ -9,10 +8,10 @@
 
   /******************************************************************
    *                                                                 *
-   *               IMPLEMENTACIÓN PARA ARQUITECTURA X86              *
+   *               IMPLEMENTACIï¿½N PARA ARQUITECTURA X86              *
    *                                                                 *
    ******************************************************************/ 
-  /** Constructor por defecto de la Cpu Básica para x86 */
+  /** Constructor por defecto de la Cpu Bï¿½sica para x86 */
   template<>
     inline vCPUBasica<Arch::x86>::vCPUBasica()
       : overflow(0), resto(0)
@@ -20,7 +19,7 @@
     }
  
 
-  /** Suma básica de dos Cifras para x86.
+  /** Suma bï¿½sica de dos Cifras para x86.
    *
    * @sa Add(Cifra arg1, Cifra arg2)
    */
@@ -41,7 +40,7 @@
       return ret; 
     }
 
-  /** Suma básica extendida de dos Cifras para x86.
+  /** Suma bï¿½sica extendida de dos Cifras para x86.
    *
    * @sa Addx(Cifra arg1, Cifra arg2)
    */
@@ -62,7 +61,7 @@
     }
 
 
-  /** Resta básica de dos Cifras para x86.
+  /** Resta bï¿½sica de dos Cifras para x86.
    *
    * @sa Sub(Cifra arg1, Cifra arg2)
    */
@@ -81,7 +80,7 @@
 
       return ret; 
     }
-  /** Resta básica extendida de dos Cifras para x86.
+  /** Resta bï¿½sica extendida de dos Cifras para x86.
    *
    * @sa Subx(Cifra arg1, Cifra arg2)
    */
@@ -213,9 +212,9 @@
       return ret; 
     }
 
-  /** Función de perfilado en x86 (inválido).
+  /** Funciï¿½n de perfilado en x86 (invï¿½lido).
    *
-   * Invicar esta función produce que se lance una excepción de tipo 
+   * Invicar esta funciï¿½n produce que se lance una excepciï¿½n de tipo 
    * Errores::ArchNoProfiling
    */
   template<>
@@ -224,9 +223,9 @@
       throw Errores::ArchNoProfiling();
     }
 
-   /** Función de perfilado en x86 (inválido).
+   /** Funciï¿½n de perfilado en x86 (invï¿½lido).
    *
-   * Invicar esta función produce que se lance una excepción de tipo 
+   * Invicar esta funciï¿½n produce que se lance una excepciï¿½n de tipo 
    * Errores::ArchNoProfiling
    */
  template<>
@@ -235,9 +234,9 @@
       throw Errores::ArchNoProfiling();
     }
 
-   /** Función de perfilado en x86 (inválido).
+   /** Funciï¿½n de perfilado en x86 (invï¿½lido).
    *
-   * Invicar esta función produce que se lance una excepción de tipo 
+   * Invicar esta funciï¿½n produce que se lance una excepciï¿½n de tipo 
    * Errores::ArchNoProfiling
    */
  template<>
@@ -246,9 +245,9 @@
       throw Errores::ArchNoProfiling();
     }
 
-   /** Función de perfilado en x86 (inválido).
+   /** Funciï¿½n de perfilado en x86 (invï¿½lido).
    *
-   * Invicar esta función produce que se lance una excepción de tipo 
+   * Invicar esta funciï¿½n produce que se lance una excepciï¿½n de tipo 
    * Errores::ArchNoProfiling
    */
  template<>

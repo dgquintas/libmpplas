@@ -63,8 +63,8 @@ if env['arch'] not in getNativelySupportedArchs():
     print ''
   
 
-if env['enableExtraOpt']:
-  env.Append(CCFLAGS = ' -ffast-math')
+#if env['enableExtraOpt']: 
+#  env.Append(CCFLAGS = ' -ffast-math')  #FIXME: esto con icc no chuta
 
 if env['enableDebug']:
   env.Append(CCFLAGS = ' -g')
@@ -72,7 +72,7 @@ if env['enableDebug']:
 if env['enableWarnings']:
   env.Append(CCFLAGS = ' -Wall -W -Werror')
 #options processing ends
-
+ 
 # configuring starts (only if we are not cleaning)
 if env.GetOption('clean'):
   if os.path.exists(File(env['CONFIG_LOG']).abspath):

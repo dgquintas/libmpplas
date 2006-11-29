@@ -10,20 +10,18 @@ opts.AddOptions(
                 allowed_values=('generic','x86','ppc')),
     
     BoolOption('enableProf','Use the profiling version of the kernel', 0),
-    BoolOption('enableExtraOpt', 'Use extra optimization flags', 1),
+   # BoolOption('enableExtraOpt', 'Use extra optimization flags', 1),
     BoolOption('enableDebug', 'Generate debug symbols', 0),
     BoolOption('enableWarnings', 'Compile with -Wall and similar flags', 0)
     )   
 
-env = Environment(options = opts, CXX='icpc', CXXFLAGS="", ENV=os.environ)
+env = Environment( options = opts, CXX=os.environ['CXX'], ENV=os.environ)
 Help(opts.GenerateHelpText(env))
 env['CONFIG_LOG'] = '#/config.log'
 env['INSTALL_DIR_BIN'] = '#/bin'
 env['INSTALL_DIR_LIB'] = '#/lib'
 env['INSTALL_DIR_TESTS'] = '#/bin/tests'
 
-
-#options processing starts
 
 Export('env')
 

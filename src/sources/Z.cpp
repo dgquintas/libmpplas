@@ -14,10 +14,17 @@
 #include <utility>
 #include "mp.h"
 
+#ifdef _OPENMP
+  #include <omp.h>
+  #define NUM_CPUS omp_get_num_threads()
+#else
+  #define NUM_CPUS 1
+#endif
+
 namespace numth{
 
   size_t Z::precisionSalida_ = 0;
-  vCPUVectorial cpuVectorial_(1);
+  vCPUVectorial cpuVectorial_(NUM_CPUS);
 
   // implementacion constructores
   Z::Z()
@@ -208,7 +215,7 @@ namespace numth{
       if( der >= 0)
         return false;
       else // der < 0
-        // ambos son negativos. Por tanto el mayor será el menor
+        // ambos son negativos. Por tanto el mayor serï¿½ el menor
         // en valor absoluto
         return cpuVectorial_.menorque( coefPoliB_, (Cifra)labs(der) );
   }  
@@ -226,7 +233,7 @@ namespace numth{
       if( der >= 0)
         return true;
       else // der < 0
-        // ambos son negativos. Por tanto el menor será el mayor
+        // ambos son negativos. Por tanto el menor serï¿½ el mayor
         // en valor absoluto
         return cpuVectorial_.mayorque( coefPoliB_, (Cifra)labs(der) );
   }
@@ -244,7 +251,7 @@ namespace numth{
       if( der >= 0)
         return false;
       else // der < 0
-        //ambos negativos; serán iguales si son iguales en valor
+        //ambos negativos; serï¿½n iguales si son iguales en valor
         //absoluto
         return cpuVectorial_.igual( coefPoliB_, (Cifra)labs(der) );
   }
@@ -482,7 +489,7 @@ namespace numth{
           this->operator+=(divisor); // ajuste por dividendo negativo
         signo_ = 1;
         //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
-        //sería una unidad menor que la parte entera, ya que sería
+        //serï¿½a una unidad menor que la parte entera, ya que serï¿½a
         //negativo. Por tanto, esto es equivalente a:
         // modulo(m,n) / n < 0 = modulo(m,-n) + n 
         //
@@ -496,7 +503,7 @@ namespace numth{
         if( !(this->esCero()) )
           this->operator+=(divisor); //ajuste por ser divisor negativo
         //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
-        //sería una unidad menor que la parte entera, ya que sería
+        //serï¿½a una unidad menor que la parte entera, ya que serï¿½a
         //negativo. Por tanto, esto es equivalente a:
         // modulo(m,n) / n < 0 = modulo(m,-n) + n (esto seria una resta,
         // recordar que n es < 0 ).
@@ -902,7 +909,7 @@ namespace numth{
     //        this->operator+=(divisor); // ajuste por dividendo negativo
     //      signo_ = 1;
     //      //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
-    //      //sería una unidad menor que la parte entera, ya que sería
+    //      //serï¿½a una unidad menor que la parte entera, ya que serï¿½a
     //      //negativo. Por tanto, esto es equivalente a:
     //      // modulo(m,n) / n < 0 = modulo(m,-n) + n 
     //      //
@@ -916,7 +923,7 @@ namespace numth{
     //      if( !(this->esCero()) )
     //        this->operator-=(divisor); //ajuste por ser divisor negativo
     //      //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
-    //      //sería una unidad menor que la parte entera, ya que sería
+    //      //serï¿½a una unidad menor que la parte entera, ya que serï¿½a
     //      //negativo. Por tanto, esto es equivalente a:
     //      // modulo(m,n) / n < 0 = modulo(m,-n) + n (esto seria una resta,
     //      // recordar que n es < 0 ).
@@ -1073,7 +1080,7 @@ namespace numth{
     //      this->operator+=(cortoCifra); // ajuste por dividendo negativo
     //    signo_ = 1;
     //    //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
-    //    //sería una unidad menor que la parte entera, ya que sería
+    //    //serï¿½a una unidad menor que la parte entera, ya que serï¿½a
     //    //negativo. Por tanto, esto es equivalente a:
     //    // modulo(m,n) / n < 0 = modulo(m,-n) + n 
     //    //
@@ -1341,8 +1348,8 @@ namespace numth{
       else{
         doses++;
         temp >>= 1;
-        break; // ya que si hemos entrado aqui es porque el nº es de la forma
-        // ...10 , que tras el >>= 1 será ....1
+        break; // ya que si hemos entrado aqui es porque el nï¿½ es de la forma
+        // ...10 , que tras el >>= 1 serï¿½ ....1
       }
     }
 
@@ -1460,7 +1467,7 @@ namespace numth{
           pila.push(resto);
         }
 
-        //"num" es ahora la primera cifra del nº en base 10^{Constantes::MAX_EXP10_CIFRA}
+        //"num" es ahora la primera cifra del nï¿½ en base 10^{Constantes::MAX_EXP10_CIFRA}
         out << num[0];
         while( !pila.empty() ){
           out.width(Constantes::MAX_EXP10_CIFRA);
@@ -1487,7 +1494,7 @@ namespace numth{
             //si se sacan menos digitos de los que hay...
             out << "~" ;
 
-          //"num" es ahora la primera cifra del nº en base 10
+          //"num" es ahora la primera cifra del nï¿½ en base 10
           //    out << num[0];
           //    digitos10Mostrados++;
           while( (!pila.empty()) && (digitos10Mostrados < Z::precisionSalida_) ){
@@ -1509,7 +1516,7 @@ namespace numth{
        *
        *
        * -----------------
-       * |               | primeros digitos del nº      (MSG) -> most sig. "group"
+       * |               | primeros digitos del nï¿½      (MSG) -> most sig. "group"
        * -----------------
        * |               | segundo grupo de digitos
        * -----------------
@@ -1519,14 +1526,14 @@ namespace numth{
        * -----------------
        * 
        * mientras(haya elementos en la pila){
-       *  desapilar y sacar por cout nº a nº (ir convirtiendo 
-       *  cada cifra del nº a caracter (utilizando % 10 sobre el nº 
+       *  desapilar y sacar por cout nï¿½ a nï¿½ (ir convirtiendo 
+       *  cada cifra del nï¿½ a caracter (utilizando % 10 sobre el nï¿½ 
        *  seguido de un d /= 10 ) )
        * } 
        *
        * TODO: david tio tu eres tonto... ES SACAR EL VECTOR AL REVESSSSSS
        * directamente, sin estas milongas, usando iteradores. Solo hay q
-       * tener el cuenta si el nº es + o -
+       * tener el cuenta si el nï¿½ es + o -
        * TODO 2: si, es verdad, eres mongol. Y la base gallo? Esa mierda
        * de ahi arriba solo vale cuando estas en una base q sea potencia
        * de diez. Cada dia me das mas asco joder
@@ -2103,7 +2110,7 @@ namespace numth{
           resto->coefPoliB_ = resultados.second;
           (*resto )+= divisor; // ajuste por dividendo negativo
           //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
-          //sería una unidad menor que la parte entera, ya que sería
+          //serï¿½a una unidad menor que la parte entera, ya que serï¿½a
           //negativo. Por tanto, esto es equivalente a:
           // modulo(m,n) / n < 0 = modulo(m,-n) + n 
           //
@@ -2121,7 +2128,7 @@ namespace numth{
           resto->coefPoliB_ = resultados.second;
           (*resto) += divisor; //ajuste por ser divisor negativo
           //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
-          //sería una unidad menor que la parte entera, ya que sería
+          //serï¿½a una unidad menor que la parte entera, ya que serï¿½a
           //negativo. Por tanto, esto es equivalente a:
           // modulo(m,n) / n < 0 = modulo(m,-n) + n (esto seria una resta,
           // recordar que n es < 0 ).
@@ -2185,7 +2192,7 @@ namespace numth{
           resto->coefPoliB_ = resultados.second;
           (*resto) += divisor; // ajuste por dividendo negativo
           //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
-          //sería una unidad menor que la parte entera, ya que sería
+          //serï¿½a una unidad menor que la parte entera, ya que serï¿½a
           //negativo. Por tanto, esto es equivalente a:
           // modulo(m,n) / n < 0 = modulo(m,-n) + n 
           //
@@ -2203,7 +2210,7 @@ namespace numth{
           resto->coefPoliB_ = resultados.second;
           (*resto) += divisor; //ajuste por ser divisor negativo
           //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
-          //sería una unidad menor que la parte entera, ya que sería
+          //serï¿½a una unidad menor que la parte entera, ya que serï¿½a
           //negativo. Por tanto, esto es equivalente a:
           // modulo(m,n) / n < 0 = modulo(m,-n) + n (esto seria una resta,
           // recordar que n es < 0 ).
@@ -2256,7 +2263,7 @@ namespace numth{
         resto->coefPoliB_ = resultados.second;
         (*resto) += divisor; // ajuste por dividendo negativo
         //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
-        //sería una unidad menor que la parte entera, ya que sería
+        //serï¿½a una unidad menor que la parte entera, ya que serï¿½a
         //negativo. Por tanto, esto es equivalente a:
         // modulo(m,n) / n < 0 = modulo(m,-n) + n 
         //

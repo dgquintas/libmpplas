@@ -14,7 +14,7 @@ def CheckCppunit(context):
   return ret[0]
 
 if not myenv.GetOption('clean'):
-  conf = Configure(myenv, custom_tests = {'CheckCppunit':CheckCppunit} )
+  conf = Configure(myenv, log_file=myenv['CONFIG_LOG'], custom_tests = {'CheckCppunit':CheckCppunit} )
   if not conf.CheckCppunit():
     print 'Cppunit is not installed. Exiting...'
     Exit(1)
@@ -33,6 +33,6 @@ files = Split("""
 cppunitTests = myenv.Program('unitTests', files)
 myenv.Install(myenv['INSTALL_DIR_TESTS'], cppunitTests)
 Alias('tests', cppunitTests)
-Alias('tests', myenv['INSTALL_DIR_TESTS'])
+#Alias('tests', myenv['INSTALL_DIR_TESTS'])
 Alias('all', cppunitTests)
 Alias('install', myenv['INSTALL_DIR_TESTS'])

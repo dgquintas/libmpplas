@@ -72,19 +72,51 @@ if env['enableDebug']:
 if env['enableWarnings']:
   env.Append(CCFLAGS = ' -Wall -W -Werror')
 #options processing ends
- 
+
+def CheckOpenMP(context):
+  context.Message('Checking for OpenMP support... ')
+  ret = context.TryRun( 
+    """
+      #include <omp.h>
+      int main(){
+        #ifdef _OPENMP
+          return 0;
+        #else
+          return 1;
+        #endif
+      }
+    """, '.cpp')
+  context.Result(ret[0])
+  return ret[0]
+
 # configuring starts (only if we are not cleaning)
 if env.GetOption('clean'):
   if os.path.exists(File(env['CONFIG_LOG']).abspath):
     os.remove(File(env['CONFIG_LOG']).abspath)
 else:
-  conf = Configure(env,log_file=env['CONFIG_LOG'])
+  conf = Configure(env,log_file=env['CONFIG_LOG'],custom_tests =
+{'CheckOpenMP':CheckOpenMP} )
   if not conf.CheckType('uint32_t', '#include <stdint.h>\n', 'C++'):
     print 'Could not find C99 type "uint32_t". Exiting...'
     Exit(1)
   if not conf.CheckType('int32_t', '#include <stdint.h>\n', 'C++'):
     print 'Could not find C99 type "int32_t". Exiting...'
     Exit(1)
+  if conf.CheckCXXHeader('omp.h','<>'):
+    if( env['CXX'][:3] == 'g++' ): #gcc
+      tmpEnv = env.Copy()
+      env.Append(CPPFLAGS='-fopenmp', LIBS='-lgomp')
+      
+    elif ( env['CXX'][:2] == 'ic' ): #intel c compiler
+      tmpEnv = env.Copy()
+      env.Append(CPPFLAGS='-openmp', LINKFLAGS='-openmp')
+      
+    if conf.CheckOpenMP():
+      print 'OpenMP support present'
+    else:
+      print 'OpenMP support *not* present'
+      env = tmpEnv #restore the previous environment
+    
   env = conf.Finish()
   # configuring ends
 
@@ -100,5 +132,5 @@ Alias('all', 'install')
 env.Append(LIBPATH = [Dir(env['INSTALL_DIR_LIB'])])
 Export('env')
 
-if 'tests' in map(str, BUILD_TARGETS):
-  SConscript(dirs='tests')
+#if 'tests' in map(str, BUILD_TARGETS):
+SConscript(dirs='tests')

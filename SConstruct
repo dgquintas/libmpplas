@@ -15,16 +15,22 @@ opts.AddOptions(
     BoolOption('enableWarnings', 'Compile with -Wall and similar flags', 0)
     )   
 
-env = Environment( options = opts, CXX=os.environ['CXX'], ENV=os.environ)
+env = Environment( options = opts, ENV=os.environ)
+
+if os.environ.has_key('CXX'):
+  env.Replace(CXX = os.environ['CXX'])   
+if os.environ.has_key('CXXFLAGS'):
+  env.Replace(CXXFLAGS = os.environ['CXXFLAGS'])   
+
+
 Help(opts.GenerateHelpText(env))
-env['CONFIG_LOG'] = '#/config.log'
+env['CONFIG_LOG'] = '#/.config.log'
 env['INSTALL_DIR_BIN'] = '#/bin'
 env['INSTALL_DIR_LIB'] = '#/lib'
 env['INSTALL_DIR_TESTS'] = '#/bin/tests'
 
 
 Export('env')
-
 
 SConscript(dirs="src", duplicate=0)
 

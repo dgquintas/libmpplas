@@ -197,8 +197,9 @@ namespace numth{
   Z_n& Z_n::operator-=(const Cifra derC)
   { 
     Cifra der = (derC % n_)[0];
-    if( n_.esNegativo() )
+    if( n_.esNegativo() ){
       der *= -1;
+    }
 
     Z::operator-=(der);
 
@@ -321,7 +322,7 @@ namespace numth{
     Z temp = Z::convertir(corto) % largo.modulo();
     temp -= largo;
     //largo.cambiarSigno();
-    // en Z_n_n el cambio de signo es equivalente a restar el nº a cambiar
+    // en Z_n_n el cambio de signo es equivalente a restar el nï¿½ a cambiar
     // de signo al modulo
     if(temp.esNegativo() )
       temp += largo.modulo();
@@ -391,7 +392,7 @@ namespace numth{
     Z temp = Z::convertir(corto) % largo.modulo();
     temp -= largo;
     //largo.cambiarSigno();
-    // en Z_n_n el cambio de signo es equivalente a restar el nº a cambiar
+    // en Z_n_n el cambio de signo es equivalente a restar el nï¿½ a cambiar
     // de signo al modulo
     if(temp.esNegativo())
       temp += largo.modulo();

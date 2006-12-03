@@ -26,6 +26,7 @@ myenv.ParseConfig('cppunit-config --libs')
 files = Split("""
     ZTest.cpp
     KernelTest.cpp
+    OpenMPTest.cpp
     main.cpp
     """)
 

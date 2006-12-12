@@ -1,11 +1,11 @@
-# Doxyfile 1.4.4
+# Doxyfile 1.4.7
 
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = "Librería NumTh"
 PROJECT_NUMBER         = 
-OUTPUT_DIRECTORY       = ./
+OUTPUT_DIRECTORY       = /home/dgquintas/libnumth/svn/doc/
 CREATE_SUBDIRS         = YES
 OUTPUT_LANGUAGE        = English
 USE_WINDOWS_ENCODING   = NO
@@ -22,12 +22,13 @@ JAVADOC_AUTOBRIEF      = YES
 MULTILINE_CPP_IS_BRIEF = NO
 DETAILS_AT_TOP         = YES
 INHERIT_DOCS           = YES
-DISTRIBUTE_GROUP_DOC   = NO
 SEPARATE_MEMBER_PAGES  = NO
 TAB_SIZE               = 2
 ALIASES                = 
 OPTIMIZE_OUTPUT_FOR_C  = NO
 OPTIMIZE_OUTPUT_JAVA   = NO
+BUILTIN_STL_SUPPORT    = NO
+DISTRIBUTE_GROUP_DOC   = NO
 SUBGROUPING            = YES
 #---------------------------------------------------------------------------
 # Build related configuration options
@@ -36,7 +37,7 @@ EXTRACT_ALL            = YES
 EXTRACT_PRIVATE        = YES
 EXTRACT_STATIC         = YES
 EXTRACT_LOCAL_CLASSES  = YES
-EXTRACT_LOCAL_METHODS  = NO
+EXTRACT_LOCAL_METHODS  = YES
 HIDE_UNDOC_MEMBERS     = NO
 HIDE_UNDOC_CLASSES     = NO
 HIDE_FRIEND_COMPOUNDS  = NO
@@ -71,24 +72,15 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = 
+INPUT                  = /home/dgquintas/libnumth/svn/src/sources/ \
+                         /home/dgquintas/libnumth/svn/src/sources/nucleo/ \
+                         /home/dgquintas/libnumth/svn/src/headers/
 FILE_PATTERNS          = 
 RECURSIVE              = YES
-EXCLUDE                = ui/ \
-                         fft/ \
-                         CVS/ \
-                         umbralKaratsuba/ \
-                         parser/ \
-                         estimacionBoptimoMiller.cpp \
-                         foo.cpp \
-                         funcionesViejo.h \
-                         pruebaCola.cpp \
-                         pruebaFact.cpp \
-                         pruebaPPC.cpp \
-                         nucleo/pruebaPPC.cpp \
-                         nucleo/tags \
-                         nucleo/testNucleo \
-                         nucleo/testNucleo.cpp
+EXCLUDE                = /home/dgquintas/libnumth/svn/src/sources/tests/ \
+                         /home/dgquintas/libnumth/svn/src/sources/ui/ \
+                         /home/dgquintas/libnumth/svn/src/sources/build/ \
+                         /home/dgquintas/libnumth/svn/src/sources/nucleo/pruebaPPC.cpp
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = test*
 EXAMPLE_PATH           = 
@@ -106,6 +98,7 @@ INLINE_SOURCES         = NO
 STRIP_CODE_COMMENTS    = NO
 REFERENCED_BY_RELATION = YES
 REFERENCES_RELATION    = YES
+REFERENCES_LINK_SOURCE = YES
 USE_HTAGS              = NO
 VERBATIM_HEADERS       = YES
 #---------------------------------------------------------------------------
@@ -218,6 +211,7 @@ TEMPLATE_RELATIONS     = YES
 INCLUDE_GRAPH          = YES
 INCLUDED_BY_GRAPH      = YES
 CALL_GRAPH             = YES
+CALLER_GRAPH           = NO
 GRAPHICAL_HIERARCHY    = YES
 DIRECTORY_GRAPH        = NO
 DOT_IMAGE_FORMAT       = jpg

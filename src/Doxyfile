@@ -1,9 +1,9 @@
-# Doxyfile 1.4.7
+# Doxyfile 1.5.1
 
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
-PROJECT_NAME           = "Librería NumTh"
+PROJECT_NAME           = "LibrerÃ­a NumTh"
 PROJECT_NUMBER         = 
 OUTPUT_DIRECTORY       = /home/dgquintas/libnumth/svn/doc/
 CREATE_SUBDIRS         = YES

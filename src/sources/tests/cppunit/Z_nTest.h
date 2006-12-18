@@ -6,13 +6,16 @@
 #include <string>
 #include "Z.h"
 #include "Z_n.h"
+#include "Funciones.h"
+#include <sstream>
+
 
 
 using namespace numth;
 
-class Test : public CppUnit::TestFixture {
+class Z_nTest : public CppUnit::TestFixture {
 
-  CPPUNIT_TEST_SUITE( Test );
+  CPPUNIT_TEST_SUITE( Z_nTest );
     CPPUNIT_TEST( testAdditionWithZ );
     CPPUNIT_TEST( testAdditionWithZn );
     CPPUNIT_TEST( testAdditionWithCifra );
@@ -29,6 +32,7 @@ class Test : public CppUnit::TestFixture {
     CPPUNIT_TEST( testProductWithCifraSigno);
     
     CPPUNIT_TEST( testDivisionWithZ);
+    CPPUNIT_TEST_EXCEPTION( testDivisionWithZThrows, Errores::ElementoNoInvertible );
     CPPUNIT_TEST( testDivisionWithZn);
     CPPUNIT_TEST( testDivisionWithCifra);
     CPPUNIT_TEST( testDivisionWithCifraSigno);
@@ -41,6 +45,7 @@ class Test : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
   
   public:
+    Z_nTest();
     void setUp();
     void tearDown();
     
@@ -61,6 +66,7 @@ class Test : public CppUnit::TestFixture {
     void testProductWithCifraSigno();
     
     void testDivisionWithZ();
+    void testDivisionWithZThrows();
     void testDivisionWithZn();
     void testDivisionWithCifra();
     void testDivisionWithCifraSigno();
@@ -72,10 +78,15 @@ class Test : public CppUnit::TestFixture {
     
   private:
     Z integer;
-    Z_n modularInteger;
+    Z_n *modularInteger;
     Z modulus;
+    Z primeModulus;
     Cifra cifra;
     CifraSigno cifraSigno;
+
+    std::ostringstream oss;
+
+    Funciones funcs;
 };
 
 #endif /*Z_NTEST_H_*/

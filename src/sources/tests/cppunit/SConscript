@@ -18,15 +18,21 @@ if not myenv.GetOption('clean'):
   if not conf.CheckCppunit():
     print 'Cppunit is not installed. Exiting...'
     Exit(1)
+  if not conf.CheckHeader('pari/pari.h'):
+    print 'Libpari develoment libraries are not installed. Exiting...'
+    Exit(1)
   myenv = conf.Finish()
 
-
 myenv.ParseConfig('cppunit-config --libs')
+myenv.Append(LIBS = '-lpari')
+myenv.Append(LIBS = ['qt-mt', 'pthread', 'm', 'X11', 'Xext','qttestrunner'])
+myenv.Append(CPPPATH = '/usr/include/qt3')
 
 files = Split("""
     ZTest.cpp
     KernelTest.cpp
     OpenMPTest.cpp
+    Z_nTest.cpp
     main.cpp
     """)
 

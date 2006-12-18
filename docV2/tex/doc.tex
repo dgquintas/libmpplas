@@ -1,0 +1,164 @@
+\documentclass[a4paper,twoside,spanish,12pt]{report}
+\usepackage{pslatex} %utilizar fuentes postscript standard
+\usepackage[T1]{fontenc} %codificacion de tipo
+\usepackage[spanish]{babel}
+\usepackage[latin1]{inputenc} %entrada usando ISO-Latin1
+\usepackage{makeidx} %para los indices
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{euler}
+\usepackage{a4wide}
+%\oddsidemargin 2.5cm
+\usepackage{subfigure}
+\usepackage{graphicx}
+  \graphicspath{{figures/}}
+\usepackage{array}
+\providecommand{\tabularnewline}{\\}
+
+
+\usepackage[boxed,section]{algorithm}
+\usepackage{algpseudocode}
+\floatname{algorithm}{Algoritmo}
+\renewcommand{\listalgorithmname}{Lista de algoritmos}
+\usepackage{makeidx}
+%\usepackage{hyperref}
+%\hypersetup{colorlinks,%
+%            pdftex,%
+%            linkcolor=black,%
+%            citecolor=black,%
+%            filecolor=black,%
+%            urlcolor=black,%
+%						pdfpagemode={None}		}
+\frenchspacing
+\usepackage[amsmath,framed,thref,hyperref]{ntheorem}
+
+\theoremstyle{break}
+\theoremheaderfont{\normalfont\bfseries}
+\theorembodyfont{\slshape}
+\theoremseparator{:}
+\newtheorem{teorema}{Teorema}[section]
+\newtheorem{proposicion}{Proposici�}[section]
+\newtheorem{lema}{Lema}[section]
+\newtheorem{observacion}{Observaci�}[section]
+\newtheorem{corolario}[teorema]{Corolario}
+\theoremseparator{.}
+%\theoremprework{\bigskip\hrule}
+%\theorempostwork{\hrule\bigskip}
+\newtheorem{definicion}{Definición}[section]
+
+\theoremstyle{change}
+\theorembodyfont{\upshape}
+\theoremseparator{}
+\newtheorem{ejemplo}{Ejemplo}
+
+\theoremstyle{nonumberplain}
+\theoremseparator{}
+\theoremprework{\relax}
+\theorempostwork{\relax}
+\newtheorem{demostracion}{Demostración}
+
+ \newenvironment{lyxcode}
+   {\begin{list}{}{
+     \setlength{\rightmargin}{\leftmargin}
+     \setlength{\listparindent}{0pt}
+     \raggedright
+     \setlength{\itemsep}{0pt}
+     \setlength{\parsep}{0pt}
+     \normalfont\ttfamily}%
+    \item[]}
+   {\end{list}}
+
+\usepackage{type1cm}
+
+\makeindex
+
+\pagestyle{headings}
+
+%\renewcommand{\thefootnote}{\roman{footnote}}
+
+\author{David García Quintas}
+\title{La librería NumTh}
+\date{\today}
+
+\begin{document}
+
+\renewcommand{\tablename}{Tabla}
+\maketitle
+
+%\newpage
+%
+%\vbox to 0.4\textheight{}
+%\begin{flushright}
+%  \begin{minipage}[t]{13cm}
+%    \begin{flushright}
+%      \begin{quote}
+%        \emph{
+%        No estudio más que lo que me place;
+%        no ocupo mi espiritu sino en las ideas que me interesan.
+%        Estas seran utiles o inutiles para mi o para los demas.
+%        El tiempo propiciara o no las circunstancias que me permitiran
+%        hacer de mis adquisiciones un empleo provechoso.
+%        En todo caso, habre tenido la inestimable ventaja de no contrariarme
+%        y de haber obedecido a mi pensamiento y mi carácter.
+%        }
+%        \begin{flushright}
+%          \textbf{\textemdash S. R. N. Chamfort}
+%        \end{flushright}
+%      \end{quote}
+%    \end{flushright}
+%  \end{minipage}
+%\end{flushright}
+%\vfill
+%
+
+
+
+\newpage
+
+\vbox to 0.4\textheight{}
+\begin{flushright}
+  \begin{minipage}[t]{8cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+        God does arithmetic.
+        }
+        \begin{flushright}
+          \textbf{\textemdash Karl Friedrich Gauss}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+\vfill
+
+\newpage
+
+
+\tableofcontents
+\listoffigures
+\listofalgorithms
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%d\include{prologo}
+\include{introduccion}
+\include{arquitectura}
+\include{paralelismo}
+%\include{fundamentosMatematicos}
+%\include{fundamentosCriptograficos}
+%\include{basico}
+%\include{implementacion}
+%\include{primos}
+%\include{random}
+\include{trascendentes}
+%\include{demos}
+%\include{ampliaciones}
+\include{pruebas}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliographystyle{proyecto}
+\bibliography{biblbibliografia}
+
+\printindex
+
+\end{document}

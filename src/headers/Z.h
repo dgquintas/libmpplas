@@ -10,6 +10,8 @@
 #ifndef __Z_H
 #define __Z_H
 
+
+#include <string>
 #include "MiVec.h"
 #include "err.h"
 #include "constantes.h"
@@ -999,6 +1001,13 @@ namespace numth
        * El entero actual (*this) toma el valor \f$2^{BITS_EN_BASE \cdot n}\f$.
        */
       Z& potenciaBase(const size_t n);
+
+
+      /** Get a text representation of the integer.
+       *
+       * @return A constant char[] representing the base-10 conversion of *this
+       */
+      std::string toString();
 
       
       //destructor

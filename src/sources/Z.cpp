@@ -1444,6 +1444,12 @@ namespace numth{
   }
 
 
+  std::string Z::toString(){
+    std::ostringstream oss;
+    oss << *this;
+
+    return oss.str().c_str();
+  }
 
 
 

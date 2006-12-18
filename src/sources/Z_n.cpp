@@ -80,7 +80,7 @@ namespace numth{
     Z::operator+=(der);
 
     if( *this >= n_ )
-      Z::operator-=(n_);
+      Z::operator%=(n_);
 
     return *this;
   }
@@ -90,7 +90,7 @@ namespace numth{
     Z::operator-=(der);
 
     if( *this < (Cifra)0 )
-      Z::operator+=(n_);
+      Z::operator%=(n_);
 
     return *this;
   }
@@ -301,6 +301,38 @@ namespace numth{
   }
 
   Z_n operator/(Z_n izq, const Z_n& der)
+  {
+    if( der.esCero() )
+      throw Errores::DivisionPorCero();  
+
+    izq /= der;
+
+    return izq;
+  }
+
+
+  Z_n operator+(Z_n izq, const Z& der)
+  {
+    izq += der;
+
+    return izq;
+  }
+
+  Z_n operator-(Z_n izq, const Z& der)
+  {
+    izq -= der;
+
+    return izq;
+  } 
+
+  Z_n operator*(Z_n izq, const Z& der)
+  {
+    izq *= der;
+
+    return izq;
+  }
+
+  Z_n operator/(Z_n izq, const Z& der)
   {
     if( der.esCero() )
       throw Errores::DivisionPorCero();  

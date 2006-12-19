@@ -20,11 +20,16 @@ Z_nTest::Z_nTest(){
 
 void Z_nTest::setUp(){
   
-  this->integer = funcs.randomRapido()->leerBits(2000);
-  this->modulus = funcs.randomRapido()->leerBits(500);
-  this->modularInteger = new Z_n(funcs.randomRapido()->leerBits(1234), modulus);
-  this->cifra = funcs.randomRapido()->leerCifra();
-  this->cifraSigno = (funcs.randomRapido()->leerCifra() >> 1)*(-1); //force a negative number
+  integer = funcs.randomRapido()->leerBits(2000);
+  modulus = funcs.randomRapido()->leerBits(500);
+  modularInteger = new Z_n(funcs.randomRapido()->leerBits(1234), modulus);
+  cifra = funcs.randomRapido()->leerCifra();
+  cifraSigno = funcs.randomRapido()->leerCifraSigno();
+  if( cifraSigno > 0 ){
+    cifraSigno *= -1;  //force a negative number
+  }
+      
+      
   
 }
 void Z_nTest::tearDown(){

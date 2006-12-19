@@ -79,8 +79,6 @@ namespace numth{
      *
      * @return Resta de arg1 y arg2 
      */
-    /* Sub(a,b) + (base·overflow) = a - b  
-     * overflow = {0,1} */
     inline Cifra Sub(Cifra arg1, Cifra arg2);
 
     /** Resta básica extendida de dos Cifras

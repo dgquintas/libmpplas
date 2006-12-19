@@ -41,9 +41,41 @@ void KernelTest::testAddx(){
 
 void KernelTest::testSub(){
 
+  CPPUNIT_ASSERT_EQUAL( one, cpu_.Sub(three, two) );
+  CPPUNIT_ASSERT_EQUAL( zero, cpu_.getOverflow() );
+
+  CPPUNIT_ASSERT_EQUAL( zero, cpu_.Sub(three, three) );
+  CPPUNIT_ASSERT_EQUAL( zero, cpu_.getOverflow() );
+
+  CPPUNIT_ASSERT_EQUAL( (Cifra)(Constantes::CIFRASIGNO_MAX+1), cpu_.Sub(Constantes::CIFRA_MAX, Constantes::CIFRASIGNO_MAX) );
+  CPPUNIT_ASSERT_EQUAL( zero, cpu_.getOverflow() );
+
+  CPPUNIT_ASSERT_EQUAL( Constantes::CIFRA_MAX, cpu_.Sub(zero, one) );
+  CPPUNIT_ASSERT_EQUAL( one, cpu_.getOverflow() );
 }
 
 void KernelTest::testSubx(){
+  CPPUNIT_ASSERT_EQUAL( one, cpu_.Subx(three, two) );
+  CPPUNIT_ASSERT_EQUAL( zero, cpu_.getOverflow() );
+
+  CPPUNIT_ASSERT_EQUAL( zero, cpu_.Subx(three, three) );
+  CPPUNIT_ASSERT_EQUAL( zero, cpu_.getOverflow() );
+
+  CPPUNIT_ASSERT_EQUAL( (Cifra)(Constantes::CIFRASIGNO_MAX+1), cpu_.Subx(Constantes::CIFRA_MAX, Constantes::CIFRASIGNO_MAX) );
+  CPPUNIT_ASSERT_EQUAL( zero, cpu_.getOverflow() );
+
+  CPPUNIT_ASSERT_EQUAL( Constantes::CIFRA_MAX, cpu_.Sub(zero, one) );
+  CPPUNIT_ASSERT_EQUAL( one, cpu_.getOverflow() );
+
+  CPPUNIT_ASSERT_EQUAL( zero, cpu_.Subx(three, two) );
+  CPPUNIT_ASSERT_EQUAL( zero, cpu_.getOverflow() );
+
+  CPPUNIT_ASSERT_EQUAL( Constantes::CIFRA_MAX, cpu_.Sub(zero, one) );
+  CPPUNIT_ASSERT_EQUAL( one, cpu_.getOverflow() );
+
+  CPPUNIT_ASSERT_EQUAL( Constantes::CIFRA_MAX, cpu_.Subx(two, two) );
+  CPPUNIT_ASSERT_EQUAL( one, cpu_.getOverflow() );
+
 
 }
 

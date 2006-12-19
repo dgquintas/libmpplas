@@ -36,6 +36,13 @@ namespace numth{
        * generar un número aleatorio de \f$BASE\f$ bits.
        */
       virtual Cifra leerCifra(void);
+ 
+      /** Get a random CifraSigno
+       *
+       * @return A random CifraSigno.
+       *
+       */
+      virtual CifraSigno leerCifraSigno(void);
 
       /** Obtención de un número aleatorio menor que otro dado.
        *

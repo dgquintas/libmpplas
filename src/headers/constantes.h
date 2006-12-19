@@ -118,6 +118,9 @@ namespace numth{
     /** Bits en un Cifra */
     const unsigned long BITS_EN_CIFRA = std::numeric_limits<Cifra>::digits;
 
+    /** Bits en un CifraSigno */
+    const unsigned long BITS_EN_CIFRASIGNO = std::numeric_limits<CifraSigno>::digits;
+
     /** Bytes en un Cifra */
     const unsigned long BYTES_EN_CIFRA = BITS_EN_CIFRA >> 3;
 

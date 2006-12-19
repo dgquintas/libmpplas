@@ -10,13 +10,14 @@
 #include <string>
 #include "Z.h"
 #include "err.h"
+#include "Funciones.h"
 
 using namespace numth;
 
 class OpenMPTest : public CppUnit::TestFixture {
 
   CPPUNIT_TEST_SUITE( OpenMPTest );
-    CPPUNIT_TEST( testEquality );
+    CPPUNIT_TEST( testParallelFor );
   CPPUNIT_TEST_SUITE_END();
   
   public:
@@ -24,9 +25,13 @@ class OpenMPTest : public CppUnit::TestFixture {
     void tearDown();
     
     /* The actual tests */
-    void testEquality();
+    void testParallelFor();
   private:
-    Z uno, dos, cero;
+    Z *integers, *integersPAR, *integersSEQ;
+    Z factor;
+    Funciones funcs;
+
+    static const int NUM_THREADS = 10;
 };
 
 #endif

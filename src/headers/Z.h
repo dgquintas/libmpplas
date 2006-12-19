@@ -1003,11 +1003,47 @@ namespace numth
       Z& potenciaBase(const size_t n);
 
 
+      /////////////////////////////////
+      //      CONVERSION METHODS     //
+      /////////////////////////////////
+
       /** Get a text representation of the integer.
        *
        * @return A constant char[] representing the base-10 conversion of *this
        */
-      std::string toString();
+      std::string toString(void);
+
+
+      /** Get the Z as a single precision signed type.
+       *
+       * If the conversion cannot be performed (the actual Z being
+       * larger than numth::Constantes::CIFRASIGNO_MAX), only the first
+       * numth::Constructor::BITS_EN_CIFRASIGNO are considered.
+       *
+       * @return A CifraSigno representing (a possibly truncated) *this.
+       */
+      inline CifraSigno toCifraSigno(void) throw(){
+        Cifra c = coefPoliB_[0] & (Constantes::CIFRASIGNO_MAX-1);
+        CifraSigno ret = (CifraSigno)c;
+        if(signo_ < 0 ){
+          return -ret;
+        }
+        else{
+          return ret;
+        }
+      }; 
+
+      /** Get the Z as a single precision unsigned type.
+       *
+       * If the conversion cannot be performed (the actual Z being
+       * larger than numth::Constantes::CIFRA_MAX), only the first
+       * numth::Constructor::BITS_EN_CIFRA are considered.
+       *
+       * @return A Cifra representing (a possibly truncated) *this.
+       */
+      inline Cifra toCifra(void) throw(){
+        return coefPoliB_[0];
+      };
 
       
       //destructor

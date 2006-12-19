@@ -10,7 +10,12 @@ namespace numth{
 
   Z_n::Z_n(const Z& mod)
     : Z(), n_(mod)
-    {}
+    {
+      // equivalence classes modulo n and -n are the same
+      if( n_.esNegativo() ){
+        n_.cambiarSigno();
+      }
+    }
 
   Z_n::Z_n(const Cifra mod)
     : Z()
@@ -22,13 +27,21 @@ namespace numth{
   Z_n::Z_n(const CifraSigno mod)
     : Z()
     {
-      n_ = Z::convertir(mod);
+      CifraSigno tmp;
+      if( mod < 0 ){
+        tmp = -mod;
+      }
+      n_ = Z::convertir(tmp);
     }
 
   Z_n::Z_n(const Z& num, const Z& mod, bool reducir)
     : Z(num)
     {
-      n_ = mod;
+      n_ = mod; 
+      if( n_.esNegativo() ){
+        n_.cambiarSigno();
+      }
+
       if( reducir)
         this->operator%=(n_);
     }
@@ -38,6 +51,10 @@ namespace numth{
     {
 
       n_ = Z::convertir(mod);
+      if( n_.esNegativo() ){
+        n_.cambiarSigno();
+      }
+
       if( reducir )
         Z::operator%=(n_);
     }
@@ -47,6 +64,10 @@ namespace numth{
     : Z(num)
     {
       n_ = Z::convertir(mod);
+      if( n_.esNegativo() ){
+        n_.cambiarSigno();
+      }
+
       if( reducir )
         Z::operator%=(n_);
     }
@@ -54,6 +75,7 @@ namespace numth{
   Z_n::Z_n(const Z_n& otro)
     : Z(otro), n_(otro.n_)
     {
+      // the modulus (n_) should already be positive
     }
 
 
@@ -118,9 +140,7 @@ namespace numth{
   /* simple prec */
   Z_n& Z_n::operator+=(const CifraSigno derC)
   {
-    CifraSigno der = (derC % n_)[0];
-    if( n_.esNegativo() )
-      der *= -1;
+    CifraSigno der = (derC % n_).toCifraSigno();
 
     Z::operator+=(der);
 
@@ -133,9 +153,7 @@ namespace numth{
   Z_n& Z_n::operator-=(const CifraSigno derC)
   {
 
-    CifraSigno der = (derC % n_)[0];
-    if( n_.esNegativo() )
-      der *= -1;
+    CifraSigno der = (derC % n_).toCifraSigno();
 
     Z::operator-=(der);
 
@@ -148,9 +166,7 @@ namespace numth{
   Z_n& Z_n::operator*=(const CifraSigno derC)
   {
 
-    CifraSigno der = (derC % n_)[0];
-    if( n_.esNegativo() )
-      der *= -1;
+    CifraSigno der = (derC % n_).toCifraSigno();
 
     Z::operator*=(der);
     Z::operator%=(n_);
@@ -162,9 +178,7 @@ namespace numth{
   Z_n& Z_n::operator/=(const CifraSigno derC)
   {
 
-    CifraSigno der = (derC % n_)[0];
-    if( n_.esNegativo() )
-      der *= -1;
+    CifraSigno der = (derC % n_).toCifraSigno();
 
     Z_n inv(n_);
 
@@ -182,9 +196,7 @@ namespace numth{
 
   Z_n& Z_n::operator+=(const Cifra derC)
   {
-    Cifra der = (derC % n_)[0];
-    if( n_.esNegativo() )
-      der *= -1;
+    Cifra der = (derC % n_).toCifra();
 
     Z::operator+=(der);
 
@@ -196,10 +208,7 @@ namespace numth{
 
   Z_n& Z_n::operator-=(const Cifra derC)
   { 
-    Cifra der = (derC % n_)[0];
-    if( n_.esNegativo() ){
-      der *= -1;
-    }
+    Cifra der = (derC % n_).toCifra();
 
     Z::operator-=(der);
 
@@ -211,9 +220,7 @@ namespace numth{
 
   Z_n& Z_n::operator*=(const Cifra derC)
   {
-    Cifra der = (derC % n_)[0];
-    if( n_.esNegativo() )
-      der *= -1;
+    Cifra der = (derC % n_).toCifra();
 
     Z::operator*=(der);
     Z::operator%=(n_);
@@ -225,9 +232,7 @@ namespace numth{
   Z_n& Z_n::operator/=(const Cifra derC)
   {
 
-    CifraSigno der = (derC % n_)[0];
-    if( n_.esNegativo() )
-      der *= -1;
+    CifraSigno der = (derC % n_).toCifra();
 
     Z_n inv(n_);
     Z derEntero = Z::convertir(der);

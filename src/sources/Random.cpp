@@ -12,7 +12,14 @@ namespace numth{
   Cifra Random::leerCifra(void)
   {
     Cifra temp;
-    temp = (this->leerBits(Constantes::BITS_EN_CIFRA))[0];
+    temp = (this->leerBits(Constantes::BITS_EN_CIFRA)).toCifra();
+
+    return temp;
+  }
+  CifraSigno Random::leerCifraSigno(void)
+  {
+    CifraSigno temp;
+    temp = (this->leerBits(Constantes::BITS_EN_CIFRASIGNO)).toCifraSigno();
 
     return temp;
   }

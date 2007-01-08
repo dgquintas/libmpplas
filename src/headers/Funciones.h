@@ -17,6 +17,11 @@
 #include "Factor.h"
 #include "Trascendentes.h"
 
+#include <memory>
+
+
+using std::auto_ptr;
+
 namespace numth{
 
   /** Clase repositorio de funciones.
@@ -31,180 +36,183 @@ namespace numth{
     public:
 
       /** Asignar tests de composición por defecto */
-      void ponerTestPrimoProb(TestPrimoProb* ptr);
+      void setTestPrimoProb(TestPrimoProb* ptr);
       /** Asignar test de primalidad para primos de Mersenne por
        * defecto */
-      void ponerTestPrimoMersenne(TestPrimoMersenne* ptr);
-//      void ponerRandom(Random* ptr);
+      void setTestPrimoMersenne(TestPrimoMersenne* ptr);
       /** Asignar generador de números aleatorios por defecto */
-      void ponerRandomRapido(RandomRapido* ptr);
+      void setRandomRapido(RandomRapido* ptr);
       /** Asignar generador de números aleatorios seguros por defecto */
-      void ponerRandomSeguro(RandomSeguro* ptr);
+      void setRandomSeguro(RandomSeguro* ptr);
       /** Asignar tests de aleatoriedad por defecto*/
-      void ponerPruebaRandom(PruebaRandom* ptr);
+      void setPruebaRandom(PruebaRandom* ptr);
       /** Asignar generador de primos por defecto */
-      void ponerGenPrimos(GenPrimos* ptr);
+      void setGenPrimos(GenPrimos* ptr);
       /** Asignar función hash por defecto */
-      void ponerHash(Hash* ptr);
+      void setHash(Hash* ptr);
       /** Asignar método de potenciación por defecto*/
-      void ponerPotencia(Potencia* ptr);
+      void setPotencia(Potencia* ptr);
       /** Asignar método de potenciación de reales por defecto*/
-      void ponerPotenciaR(PotenciaR* ptr);
+      void setPotenciaR(PotenciaR* ptr);
 
       /** Asignar método para el cálculo del máximo común divisor por
        * defecto*/
-      void ponerGCD(GCD* ptr);
+      void setGCD(GCD* ptr);
       /** Asignar método para el cálculo del máximo común divisor
        * extendido por defecto */
-      void ponerGCDExt(GCDExt* ptr);
+      void setGCDExt(GCDExt* ptr);
       /** Asignar método para el cálculo del mínimo común multiplo por
        * defecto*/
-      void ponerLCM(LCM* ptr);
+      void setLCM(LCM* ptr);
       /** Asignar método de potenciación modular por defecto */
-      void ponerPotModular(PotModular* ptr);
+      void setPotModular(PotModular* ptr);
       /** Asignar algoritmo para la reducción de Barrett por defecto */
-      void ponerRedBarrett(RedBarrett* ptr);
+      void setBarrettReduction(RedBarrett* ptr);
       /** Asignar algoritmo para la reducción de Montogomery por
        * defecto */
-      void ponerRedMontgomery(RedMontgomery* ptr);
+      void setMontgomeryReduction(RedMontgomery* ptr);
       /** Asignar algoritmo para la reducción de números de la forma
        * \f$ b^t-c\f$ con \f$c\f$ un número de \f$l\f$ dígitos en base 
        * \f$b\f$ y \f$l < t\f$ por defecto*/
-      void ponerRedModularALaMersenne(RedModularALaMersenne* ptr);
+      void setModularReductionALaMersenne(RedModularALaMersenne* ptr);
       /** Asignar algoritmo para al cálculo del símbolo de Kronecker
        * por defecto*/
-      void ponerSimboloKronecker(SimboloKronecker* ptr);
+      void setKroneckerSymbol(SimboloKronecker* ptr);
       /** Asignar algoritmo para el cálculo del símbolo de Jacobi por
        * defecto */
-      void ponerSimboloJacobi(SimboloJacobi* ptr);
+      void setJacobiSymbol(SimboloJacobi* ptr);
       /** Asignar algoritmo para el cálculo del símbolo de Legendre
        * por defecto*/
-      void ponerSimboloLegendre(SimboloLegendre* ptr);
+      void setLegendreSymbol(SimboloLegendre* ptr);
       /** Asignar algoritmo para el cálculo del Teorema del Resto
        * Chino por defecto*/
-      void ponerCRT(CRT* ptr); 
+      void setCRT(CRT* ptr); 
       /** Asignar método de factorización por defecto */
-      void ponerFactoriza(Factoriza* ptr);
+      void setFactoriza(Factoriza* ptr);
        /** Asignar método de calculo de exponencial por defecto */
-      void ponerExponencial(Exponencial* ptr);
+      void setExponencial(Exponencial* ptr);
       /** Asignar método de calculo de log nep por defecto */
-      void ponerLn(Ln* ptr);
+      void setLn(Ln* ptr);
       /** Asignar método de calculo del coseno por defecto */
-      void ponerCoseno(Coseno* ptr);
+      void setCoseno(Coseno* ptr);
       /** Asignar método de calculo del seno por defecto */
-      void ponerSeno(Seno* ptr);
+      void setSeno(Seno* ptr);
       /** Asignar método de calculo del arcotangente por defecto */
-      void ponerArcoTangente(ArcoTangente* ptr);
+      void setArcoTangente(ArcoTangente* ptr);
       /** Asignar método de calculo de \f$ \pi \f$ por defecto */
-      void ponerPi(Pi* ptr);
+      void setPi(Pi* ptr);
    
+
+
+
+
+
+
       /** Obtención del tests de composición por defecto */
-      TestPrimoProb* testPrimoProb(void);
+      TestPrimoProb* getTestPrimoProb(void);
       /** Obtención del test de primalidad para primos de Mersenne por
        * defecto */
-      TestPrimoMersenne* testPrimoMersenne(void);
-//      Random* random(void);
+      TestPrimoMersenne* getTestPrimoMersenne(void);
       /** Obtención del generador de números aleatorios por defecto */
-      RandomRapido* randomRapido(void);
+      RandomRapido* getRandomRapido(void);
       /** Obtención del generador de números aleatorios seguros por defecto */
-      RandomSeguro* randomSeguro(void);
+      RandomSeguro* getRandomSeguro(void);
       /** Obtención del tests de aleatoriedad por defecto*/
-      PruebaRandom* pruebaRandom(void);
+      PruebaRandom* getPruebaRandom(void);
       /** Obtención del generador de primos por defecto */
-      GenPrimos* genPrimos(void);
+      GenPrimos* getGenPrimos(void);
       /** Obtención del función hash por defecto */
-      Hash* hash(void);
+      Hash* getHash(void);
       /** Obtención del método de potenciación por defecto*/
-      Potencia* potencia(void);
+      Potencia* getPotencia(void);
       /** Obtención del método de potenciación de reales por defecto*/
-      PotenciaR* potenciaR(void);
+      PotenciaR* getPotenciaR(void);
       /** Obtención del método para el cálculo del máximo común divisor por
        * defecto*/
-      GCD* gcd(void);
+      GCD* getGCD(void);
       /** Obtención del método para el cálculo del máximo común divisor
        * extendido por defecto */
-      GCDExt * gcdext(void);
+      GCDExt * getGCDExt(void);
       /** Obtención del método para el cálculo del mínimo común multiplo por
        * defecto*/
-      LCM* lcm(void);
+      LCM* getLCM(void);
       /** Obtención del método de potenciación modular por defecto */
-      PotModular* potModular(void);
+      PotModular* getPotModular(void);
       /** Obtención del algoritmo para la reducción de Barrett por defecto */
-      RedBarrett* redBarrett(void);
+      RedBarrett* getBarrettReduction(void);
       /** Obtención del algoritmo para la reducción de Montogomery por
        * defecto */
-      RedMontgomery* redMontgomery(void);
+      RedMontgomery* getMontgomeryReduction(void);
       /** Obtención del algoritmo para la reducción de números de la forma
        * \f$ b^t-c\f$ con \f$c\f$ un número de \f$l\f$ dígitos en base 
        * \f$b\f$ y \f$l < t\f$ por defecto*/
-      RedModularALaMersenne* redModularALaMersenne(void);
+      RedModularALaMersenne* getModularReductionALaMersenne(void);
       /** Obtención del algoritmo para al cálculo del símbolo de Kronecker
        * por defecto*/
-      SimboloKronecker* simboloKronecker(void);
+      SimboloKronecker* getKroneckerSymbol(void);
       /** Obtención del algoritmo para al cálculo del símbolo de Kronecker
        * por defecto*/
-      SimboloJacobi* simboloJacobi(void);
+      SimboloJacobi* getJacobiSymbol(void);
       /** Obtención del algoritmo para al cálculo del símbolo de Kronecker
        * por defecto*/
-      SimboloLegendre* simboloLegendre(void);
+      SimboloLegendre* getLegendreSymbol(void);
       
       /** Obtención del algoritmo para el cálculo del Teorema del Resto
        * Chino por defecto*/
-      CRT* crt(void);
+      CRT* getCRT(void);
       
       /** Obtención del método de factorización por defecto */
-      Factoriza* factoriza(void);
+      Factoriza* getFactoriza(void);
  
 
 
       /* FUNCIONES SOBRE REALES */
       /** Obtención del método del calculo de exponencial ( e^x ) por defecto */
-      Exponencial* exponencial(void);
+      Exponencial* getExponencial(void);
       /** Obtención del método del calculo del log nep por defecto */
-      Ln* ln(void);
+      Ln* getLn(void);
        /** Obtención del método de calculo del coseno por defecto */
-      Coseno* coseno(void);
+      Coseno* getCoseno(void);
        /** Obtención del método de calculo del seno por defecto */
-      Seno* seno(void);
+      Seno* getSeno(void);
       /** Obtención del método de calculo del arcotangente por defecto */
-      ArcoTangente* arcotangente(void);
+      ArcoTangente* getArcotangente(void);
       /** Obtención del método de calculo de \f$ \pi \f$ por defecto */
-      Pi* pi(void);
+      Pi* getPi(void);
     
       
       ~Funciones();
 
     private:
-      static TestPrimoProb* testPrimoProbPTR;
-      static TestPrimoMersenne* testPrimoMersennePTR;
-//      static Random* randomPTR;
-      static RandomRapido* randomRapidoPTR;
-      static RandomSeguro* randomSeguroPTR;
-      static PruebaRandom* pruebaRandomPTR;
-      static GenPrimos* genPrimosPTR;
-      static Hash* hashPTR;
-      static Potencia* potenciaPTR;
-      static PotenciaR* potenciaRPTR;
-      static GCD* gcdPTR;
-      static GCDExt* gcdextPTR;
-      static LCM* lcmPTR;
-      static PotModular* potModularPTR;
-      static RedBarrett* redBarrettPTR;
-      static RedMontgomery* redMontgomeryPTR;
-      static RedModularALaMersenne* redModularALaMersennePTR;
-      static SimboloKronecker* simboloKroneckerPTR;
-      static SimboloJacobi* simboloJacobiPTR;
-      static SimboloLegendre* simboloLegendrePTR;
-      static CRT* crtPTR;
-      static Factoriza* factorizaPTR;
-      static Exponencial* exponencialPTR;
-      static Ln* lnPTR;
-      static Coseno* cosenoPTR;
-      static Seno* senoPTR;
-      static ArcoTangente* arcotangentePTR;
-      static Pi* piPTR;
 
-      
+
+      auto_ptr< TestPrimoProb > testPrimoProbPTR;
+      auto_ptr< TestPrimoMersenne > testPrimoMersennePTR;
+      auto_ptr< RandomRapido > randomRapidoPTR;
+      auto_ptr< RandomSeguro > randomSeguroPTR;
+      auto_ptr< PruebaRandom > pruebaRandomPTR;
+      auto_ptr< GenPrimos > genPrimosPTR;
+      auto_ptr< Hash > hashPTR;
+      auto_ptr< Potencia > potenciaPTR;
+      auto_ptr< PotenciaR > potenciaRPTR;
+      auto_ptr< GCD > gcdPTR;
+      auto_ptr< GCDExt > gcdextPTR;
+      auto_ptr< LCM > lcmPTR;
+      auto_ptr< PotModular > potModularPTR;
+      auto_ptr< RedBarrett > redBarrettPTR;
+      auto_ptr< RedMontgomery > redMontgomeryPTR;
+      auto_ptr< RedModularALaMersenne > redModularALaMersennePTR;
+      auto_ptr< SimboloKronecker > simboloKroneckerPTR;
+      auto_ptr< SimboloJacobi > simboloJacobiPTR;
+      auto_ptr< SimboloLegendre > simboloLegendrePTR;
+      auto_ptr< CRT > crtPTR;
+      auto_ptr< Factoriza > factorizaPTR;
+      auto_ptr< Exponencial > exponencialPTR;
+      auto_ptr< Ln > lnPTR;
+      auto_ptr< Coseno > cosenoPTR;
+      auto_ptr< Seno > senoPTR;
+      auto_ptr< ArcoTangente > arcotangentePTR;
+      auto_ptr< Pi > piPTR;
   };
 
 

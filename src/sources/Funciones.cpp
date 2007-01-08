@@ -2,39 +2,10 @@
  * $Id$
  */
 
+#include <memory> //for auto_ptr
 #include "Funciones.h"
 
 namespace numth{
-
-  TestPrimoProb* Funciones::testPrimoProbPTR = NULL;
-  TestPrimoMersenne* Funciones::testPrimoMersennePTR = NULL;
-//  Random* Funciones::randomPTR = NULL;
-  RandomRapido* Funciones::randomRapidoPTR = NULL;
-  RandomSeguro* Funciones::randomSeguroPTR = NULL;
-  PruebaRandom* Funciones::pruebaRandomPTR = NULL;
-  GenPrimos* Funciones::genPrimosPTR = NULL;
-  Hash* Funciones::hashPTR = NULL;
-  Potencia* Funciones::potenciaPTR = NULL;
-  PotenciaR* Funciones::potenciaRPTR = NULL;
-  GCD* Funciones::gcdPTR = NULL;
-  GCDExt* Funciones::gcdextPTR = NULL;
-  LCM* Funciones::lcmPTR = NULL;
-  PotModular* Funciones::potModularPTR = NULL;
-  RedBarrett* Funciones::redBarrettPTR = NULL;
-  RedMontgomery* Funciones::redMontgomeryPTR = NULL;
-  RedModularALaMersenne* Funciones::redModularALaMersennePTR = NULL;
-  SimboloKronecker* Funciones::simboloKroneckerPTR = NULL;
-  SimboloJacobi* Funciones::simboloJacobiPTR = NULL;
-  SimboloLegendre* Funciones::simboloLegendrePTR = NULL;
-  CRT* Funciones::crtPTR = NULL;
-  Factoriza* Funciones::factorizaPTR = NULL;
-  Exponencial* Funciones::exponencialPTR = NULL;
-  Ln* Funciones::lnPTR = NULL;
-  Coseno* Funciones::cosenoPTR = NULL;
-  Seno* Funciones::senoPTR = NULL;
-  ArcoTangente* Funciones::arcotangentePTR = NULL;
-  Pi* Funciones::piPTR = NULL;
-
 
   /** Destructor.
    *
@@ -48,684 +19,568 @@ namespace numth{
    */
   Funciones::~Funciones()
   { 
-    // No se liberan los punteros ya que no tiene sentido que las
-    // instancias de las funciones esten creandose y destruyendose a
-    // la vez que la instancia de Funciones (justo por eso son
-    // static...). 
-    // Y ya que las funciones habrán de perdurar todo el programa, se
-    // deja que sea el sistema, al finalizar totalmente la ejecución,
-    // quien libere las cosas.
+    //auto_ptr takes care of freeing (destroying) the pointers (functions) not needed anymore
   }
 
-  void Funciones::ponerTestPrimoProb(TestPrimoProb* ptr)
+  void Funciones::setTestPrimoProb(TestPrimoProb* ptr)
   {
     if( ptr ){
-      if( testPrimoProbPTR)
-        delete testPrimoProbPTR;
-      testPrimoProbPTR = ptr;
+      testPrimoProbPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( testPrimoProbPTR )
-        delete testPrimoProbPTR;
-      testPrimoProbPTR = new TestPrimoProbDFL;
+    else{ //instantiate the default one
+      testPrimoProbPTR.reset(new TestPrimoProbDFL());
     }
     return;
   }
-  void Funciones::ponerTestPrimoMersenne(TestPrimoMersenne* ptr)
+  void Funciones::setTestPrimoMersenne(TestPrimoMersenne* ptr)
   {
     if( ptr ){
-      if( testPrimoMersennePTR)
-        delete testPrimoMersennePTR;
-      testPrimoMersennePTR = ptr;
+      testPrimoMersennePTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( testPrimoMersennePTR )
-        delete testPrimoMersennePTR;
-      testPrimoMersennePTR = new TestPrimoMersenneDFL;
+    else{ //instantiate the default one
+      testPrimoMersennePTR.reset(new TestPrimoMersenneDFL);
     }
     return;
   }
 
-  void Funciones::ponerRandomRapido(RandomRapido* ptr)
+  void Funciones::setRandomRapido(RandomRapido* ptr)
   {
     if( ptr ){
-      if( randomRapidoPTR)
-        delete randomRapidoPTR;
-      randomRapidoPTR = ptr;
+      randomRapidoPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( randomRapidoPTR )
-        delete randomRapidoPTR;
-      randomRapidoPTR = new RandomRapidoDFL;
+    else{ //instantiate the default one
+      randomRapidoPTR.reset(new RandomRapidoDFL);
     }
     return;
   }
-  void Funciones::ponerRandomSeguro(RandomSeguro* ptr)
+  void Funciones::setRandomSeguro(RandomSeguro* ptr)
   {
     if( ptr ){
-      if( randomSeguroPTR)
-        delete randomSeguroPTR;
-      randomSeguroPTR = ptr;
+      randomSeguroPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( randomSeguroPTR )
-        delete randomSeguroPTR;
-      randomSeguroPTR = new RandomSeguroDFL;
+    else{ //instantiate the default one
+      randomSeguroPTR.reset(new RandomSeguroDFL);
     }
     return;
   }
-  void Funciones::ponerPruebaRandom(PruebaRandom* ptr)
+  void Funciones::setPruebaRandom(PruebaRandom* ptr)
   {
     if( ptr ){
-      if( pruebaRandomPTR)
-        delete pruebaRandomPTR;
-      pruebaRandomPTR = ptr;
+      pruebaRandomPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( pruebaRandomPTR )
-        delete pruebaRandomPTR;
-      pruebaRandomPTR = new PruebaRandomDFL;
+    else{ //instantiate the default one
+      pruebaRandomPTR.reset(new PruebaRandomDFL);
     }
     return;
   }
 
-  void Funciones::ponerGenPrimos(GenPrimos* ptr)
+  void Funciones::setGenPrimos(GenPrimos* ptr)
   {
     if( ptr ){
-      if( genPrimosPTR)
-        delete genPrimosPTR;
-      genPrimosPTR = ptr;
+      genPrimosPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( genPrimosPTR )
-        delete genPrimosPTR;
-      genPrimosPTR = new GenPrimosDFL;
+    else{ //instantiate the default one
+      genPrimosPTR.reset(new GenPrimosDFL);
     }
     return;
   }
  
-  void Funciones::ponerHash(Hash* ptr)
+  void Funciones::setHash(Hash* ptr)
   {
     if( ptr ){
-      if( hashPTR)
-        delete hashPTR;
-      hashPTR = ptr;
+      hashPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( hashPTR )
-        delete hashPTR;
-      hashPTR = new HashDFL;
+    else{ //instantiate the default one
+      hashPTR.reset(new HashDFL);
     }
     return;
   } 
 
-  void Funciones::ponerPotencia(Potencia* ptr)
+  void Funciones::setPotencia(Potencia* ptr)
   {
     if( ptr ){
-      if( potenciaPTR)
-        delete potenciaPTR;
-      potenciaPTR = ptr;
+      potenciaPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( potenciaPTR )
-        delete potenciaPTR;
-      potenciaPTR = new PotenciaDFL;
+    else{ //instantiate the default one
+      potenciaPTR.reset(new PotenciaDFL);
     }
     return;
   } 
  
-  void Funciones::ponerPotenciaR(PotenciaR* ptr)
+  void Funciones::setPotenciaR(PotenciaR* ptr)
   {
     if( ptr ){
-      if( potenciaRPTR)
-        delete potenciaRPTR;
-      potenciaRPTR = ptr;
+      potenciaRPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( potenciaRPTR )
-        delete potenciaRPTR;
-      potenciaRPTR = new PotenciaRDFL;
+    else{ //instantiate the default one
+      potenciaRPTR.reset(new PotenciaRDFL);
     }
     return;
   } 
 
-  void Funciones::ponerGCD(GCD* ptr)
+  void Funciones::setGCD(GCD* ptr)
   {
     if( ptr ){
-      if( gcdPTR)
-        delete gcdPTR;
-      gcdPTR = ptr;
+      gcdPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( gcdPTR )
-        delete gcdPTR;
-      gcdPTR = new GCDDFL;
+    else{ //instantiate the default one
+      gcdPTR.reset(new GCDDFL);
     }
     return;
   } 
  
-  void Funciones::ponerGCDExt(GCDExt* ptr)
+  void Funciones::setGCDExt(GCDExt* ptr)
   {
     if( ptr ){
-      if( gcdextPTR)
-        delete gcdextPTR;
-      gcdextPTR = ptr;
+      gcdextPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( gcdextPTR )
-        delete gcdextPTR;
-      gcdextPTR = new GCDExtDFL;
+    else{ //instantiate the default one
+      gcdextPTR.reset(new GCDExtDFL);
     }
     return;
   } 
-  void Funciones::ponerLCM(LCM* ptr)
+  void Funciones::setLCM(LCM* ptr)
   {
     if( ptr ){
-      if( lcmPTR)
-        delete lcmPTR;
-      lcmPTR = ptr;
+      lcmPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( lcmPTR )
-        delete lcmPTR;
-      lcmPTR = new LCMDFL;
+    else{ //instantiate the default one
+      lcmPTR.reset(new LCMDFL);
     }
     return;
   } 
 
-  void Funciones::ponerPotModular(PotModular* ptr)
+  void Funciones::setPotModular(PotModular* ptr)
   {
     if( ptr ){
-      if( potModularPTR)
-        delete potModularPTR;
-      potModularPTR = ptr;
+      potModularPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( potModularPTR )
-        delete potModularPTR;
-      potModularPTR = new PotModularDFL;
+    else{ //instantiate the default one
+      potModularPTR.reset(new PotModularDFL);
     }
     return;
   } 
 
-  void Funciones::ponerRedBarrett(RedBarrett* ptr)
+  void Funciones::setBarrettReduction(RedBarrett* ptr)
   {
     if( ptr ){
-      if( redBarrettPTR)
-        delete redBarrettPTR;
-      redBarrettPTR = ptr;
+      redBarrettPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( redBarrettPTR )
-        delete redBarrettPTR;
-      redBarrettPTR = new RedBarrettDFL;
+    else{ //instantiate the default one
+      redBarrettPTR.reset(new RedBarrettDFL);
     }
     return;
   } 
-  void Funciones::ponerRedMontgomery(RedMontgomery* ptr)
+  void Funciones::setMontgomeryReduction(RedMontgomery* ptr)
   {
     if( ptr ){
-      if( redMontgomeryPTR)
-        delete redMontgomeryPTR;
-      redMontgomeryPTR = ptr;
+      redMontgomeryPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( redMontgomeryPTR )
-        delete redMontgomeryPTR;
-      redMontgomeryPTR = new RedMontgomeryDFL;
+    else{ //instantiate the default one
+      redMontgomeryPTR.reset(new RedMontgomeryDFL);
     }
     return;
   } 
-  void Funciones::ponerRedModularALaMersenne(RedModularALaMersenne* ptr)
+  void Funciones::setModularReductionALaMersenne(RedModularALaMersenne* ptr)
   {
     if( ptr ){
-      if( redModularALaMersennePTR)
-        delete redModularALaMersennePTR;
-      redModularALaMersennePTR = ptr;
+      redModularALaMersennePTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( redModularALaMersennePTR )
-        delete redModularALaMersennePTR;
-      redModularALaMersennePTR = new RedModularALaMersenneDFL;
+    else{ //instantiate the default one
+      redModularALaMersennePTR.reset(new RedModularALaMersenneDFL);
     }
     return;
   } 
 
-  void Funciones::ponerSimboloKronecker(SimboloKronecker* ptr)
+  void Funciones::setKroneckerSymbol(SimboloKronecker* ptr)
   {
     if( ptr ){
-      if( simboloKroneckerPTR)
-        delete simboloKroneckerPTR;
-      simboloKroneckerPTR = ptr;
+      simboloKroneckerPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( simboloKroneckerPTR )
-        delete simboloKroneckerPTR;
-      simboloKroneckerPTR = new SimboloKroneckerDFL;
+    else{ //instantiate the default one
+      simboloKroneckerPTR.reset(new SimboloKroneckerDFL);
     }
     return;
   } 
-  void Funciones::ponerSimboloJacobi(SimboloJacobi* ptr)
+  void Funciones::setJacobiSymbol(SimboloJacobi* ptr)
   {
     if( ptr ){
-      if( simboloJacobiPTR)
-        delete simboloJacobiPTR;
-      simboloJacobiPTR = ptr;
+      simboloJacobiPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( simboloJacobiPTR )
-        delete simboloJacobiPTR;
-      simboloJacobiPTR = new SimboloJacobiDFL;
+    else{ //instantiate the default one
+      simboloJacobiPTR.reset(new SimboloJacobiDFL);
     }
     return;
   } 
-  void Funciones::ponerSimboloLegendre(SimboloLegendre* ptr)
+  void Funciones::setLegendreSymbol(SimboloLegendre* ptr)
   {
     if( ptr ){
-      if( simboloLegendrePTR)
-        delete simboloLegendrePTR;
-      simboloLegendrePTR = ptr;
+      simboloLegendrePTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( simboloLegendrePTR )
-        delete simboloLegendrePTR;
-      simboloLegendrePTR = new SimboloLegendreDFL;
+    else{ //instantiate the default one
+      simboloLegendrePTR.reset(new SimboloLegendreDFL);
     }
     return;
   } 
 
-  void Funciones::ponerCRT(CRT* ptr)
+  void Funciones::setCRT(CRT* ptr)
   {
     if( ptr ){
-      if( crtPTR)
-        delete crtPTR;
-      crtPTR = ptr;
+      crtPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( crtPTR )
-        delete crtPTR;
-      crtPTR = new CRTDFL;
+    else{ //instantiate the default one
+      crtPTR.reset(new CRTDFL);
     }
     return;
   } 
 
-  void Funciones::ponerFactoriza(Factoriza* ptr)
+  void Funciones::setFactoriza(Factoriza* ptr)
   {
     if( ptr ){
-      if( factorizaPTR)
-        delete factorizaPTR;
-      factorizaPTR = ptr;
+      factorizaPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( factorizaPTR )
-        delete factorizaPTR;
-      factorizaPTR = new FactorizaDFL;
+    else{ //instantiate the default one
+      factorizaPTR.reset(new FactorizaDFL);
     }
     return;
   } 
 
-  void Funciones::ponerExponencial(Exponencial* ptr)
+  void Funciones::setExponencial(Exponencial* ptr)
   {
     if( ptr ){
-      if( exponencialPTR)
-        delete exponencialPTR;
-      exponencialPTR = ptr;
+      exponencialPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( exponencialPTR )
-        delete exponencialPTR;
-      exponencialPTR = new ExponencialDFL;
+    else{ //instantiate the default one
+      exponencialPTR.reset(new ExponencialDFL);
     }
     return;
   } 
 
-  void Funciones::ponerLn(Ln* ptr)
+  void Funciones::setLn(Ln* ptr)
   {
     if( ptr ){
-      if( lnPTR)
-        delete lnPTR;
-      lnPTR = ptr;
+      lnPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( lnPTR )
-        delete lnPTR;
-      lnPTR = new LnDFL;
+    else{ //instantiate the default one
+      lnPTR.reset(new LnDFL);
     }
     return;
   } 
 
-  void Funciones::ponerCoseno(Coseno* ptr)
+  void Funciones::setCoseno(Coseno* ptr)
   {
     if( ptr ){
-      if( cosenoPTR)
-        delete cosenoPTR;
-      cosenoPTR = ptr;
+      cosenoPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( cosenoPTR )
-        delete cosenoPTR;
-      cosenoPTR = new CosenoDFL;
+    else{ //instantiate the default one
+      cosenoPTR.reset(new CosenoDFL);
     }
     return;
   } 
 
-  void Funciones::ponerSeno(Seno* ptr)
+  void Funciones::setSeno(Seno* ptr)
   {
     if( ptr ){
-      if( senoPTR)
-        delete senoPTR;
-      senoPTR = ptr;
+      senoPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( senoPTR )
-        delete senoPTR;
-      senoPTR = new SenoDFL;
+    else{ //instantiate the default one
+      senoPTR.reset(new SenoDFL);
     }
     return;
   } 
-
   
-  void Funciones::ponerArcoTangente(ArcoTangente* ptr)
+  void Funciones::setArcoTangente(ArcoTangente* ptr)
   {
     if( ptr ){
-      if( arcotangentePTR)
-        delete arcotangentePTR;
-      arcotangentePTR = ptr;
+      arcotangentePTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( arcotangentePTR )
-        delete arcotangentePTR;
-      arcotangentePTR = new ArcoTangenteDFL;
+    else{ //instantiate the default one
+      arcotangentePTR.reset(new ArcoTangenteDFL);
     }
     return;
   } 
-
   
-  void Funciones::ponerPi(Pi* ptr)
+  void Funciones::setPi(Pi* ptr)
   {
     if( ptr ){
-      if( piPTR)
-        delete piPTR;
-      piPTR = ptr;
+      piPTR.reset(ptr);
     }
-    else{ //poner el por omision
-      if( piPTR )
-        delete piPTR;
-      piPTR = new PiDFL;
+    else{ //instantiate the default one
+      piPTR.reset(new PiDFL);
     }
     return;
   } 
 
 
 
-
+///////////////////////////////////////////////////////////////////////////////////////////
   
   
  
-  TestPrimoProb* Funciones::testPrimoProb(void)
+  TestPrimoProb* Funciones::getTestPrimoProb(void)
   {
-    if ( !testPrimoProbPTR )
+    if ( testPrimoProbPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      testPrimoProbPTR = new TestPrimoProbDFL;
+      testPrimoProbPTR.reset(new TestPrimoProbDFL);
                                                
-    return testPrimoProbPTR;
+    return testPrimoProbPTR.get();
   }                  
-  TestPrimoMersenne* Funciones::testPrimoMersenne(void)
+  TestPrimoMersenne* Funciones::getTestPrimoMersenne(void)
   {
-    if ( !testPrimoMersennePTR )
+    if ( testPrimoMersennePTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      testPrimoMersennePTR = new TestPrimoMersenneDFL;
+      testPrimoMersennePTR.reset(new TestPrimoMersenneDFL);
                                                
-    return testPrimoMersennePTR;
+    return testPrimoMersennePTR.get();
   }                  
                                               
-  RandomRapido* Funciones::randomRapido(void)
+  RandomRapido* Funciones::getRandomRapido(void)
   {
-    if ( !randomRapidoPTR )
+    if ( randomRapidoPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      randomRapidoPTR = new RandomRapidoDFL;
+      randomRapidoPTR.reset(new RandomRapidoDFL);
     
-    return randomRapidoPTR;
+    return randomRapidoPTR.get();
   }   
-  RandomSeguro* Funciones::randomSeguro(void)
+  RandomSeguro* Funciones::getRandomSeguro(void)
   {
-    if ( !randomSeguroPTR )
+    if ( randomSeguroPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      randomSeguroPTR = new RandomSeguroDFL;
+      randomSeguroPTR.reset(new RandomSeguroDFL);
     
-    return randomSeguroPTR;
+    return randomSeguroPTR.get();
   }   
-  PruebaRandom* Funciones::pruebaRandom(void)
+  PruebaRandom* Funciones::getPruebaRandom(void)
   {
-    if ( !pruebaRandomPTR )
+    if ( pruebaRandomPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      pruebaRandomPTR = new PruebaRandomDFL;
+      pruebaRandomPTR.reset(new PruebaRandomDFL);
     
-    return pruebaRandomPTR;
+    return pruebaRandomPTR.get();
   }   
 
-  GenPrimos* Funciones::genPrimos(void)
+  GenPrimos* Funciones::getGenPrimos(void)
   {
-    if ( !genPrimosPTR )
+    if ( genPrimosPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      genPrimosPTR = new GenPrimosDFL;
+      genPrimosPTR.reset(new GenPrimosDFL);
     
-    return genPrimosPTR;
+    return genPrimosPTR.get();
   }
  
-  Hash* Funciones::hash(void)
+  Hash* Funciones::getHash(void)
   {
-    if ( !hashPTR )
+    if ( hashPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      hashPTR = new HashDFL;
+      hashPTR.reset(new HashDFL);
     
-    return hashPTR;
+    return hashPTR.get();
   }
 
-  Potencia* Funciones::potencia(void)
+  Potencia* Funciones::getPotencia(void)
   {
-    if ( !potenciaPTR )
+    if ( potenciaPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      potenciaPTR = new PotenciaDFL;
+      potenciaPTR.reset(new PotenciaDFL);
     
-    return potenciaPTR;
+    return potenciaPTR.get();
   }
 
-  PotenciaR* Funciones::potenciaR(void)
+  PotenciaR* Funciones::getPotenciaR(void)
   {
-    if ( !potenciaRPTR )
+    if ( potenciaRPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      potenciaRPTR = new PotenciaRDFL;
+      potenciaRPTR.reset(new PotenciaRDFL);
     
-    return potenciaRPTR;
+    return potenciaRPTR.get();
   }
 
   
-  GCD* Funciones::gcd(void)
+  GCD* Funciones::getGCD(void)
   {
-    if ( !gcdPTR )
+    if ( gcdPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      gcdPTR = new GCDDFL;
+      gcdPTR.reset(new GCDDFL);
     
-    return gcdPTR;
+    return gcdPTR.get();
   }
 
-  GCDExt* Funciones::gcdext(void)
+  GCDExt* Funciones::getGCDExt(void)
   {
-    if ( !gcdextPTR )
+    if ( gcdextPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      gcdextPTR = new GCDExtDFL;
+      gcdextPTR.reset(new GCDExtDFL);
     
-    return gcdextPTR;
+    return gcdextPTR.get();
   }
-  LCM* Funciones::lcm(void)
+  LCM* Funciones::getLCM(void)
   {
-    if ( !lcmPTR )
+    if ( lcmPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      lcmPTR = new LCMDFL;
+      lcmPTR.reset(new LCMDFL);
     
-    return lcmPTR;
-  }
-
-  PotModular* Funciones::potModular(void)
-  {
-    if ( !potModularPTR )
-      //instanciar la implementacion concreta por defecto, que se habra definido p ej
-      //via typedef en la cabecera del tipo
-      potModularPTR = new PotModularDFL;
-    
-    return potModularPTR;
+    return lcmPTR.get();
   }
 
-  RedBarrett* Funciones::redBarrett(void)
+  PotModular* Funciones::getPotModular(void)
   {
-    if ( !redBarrettPTR )
+    if ( potModularPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      redBarrettPTR = new RedBarrettDFL;
+      potModularPTR.reset(new PotModularDFL);
     
-    return redBarrettPTR;
-  }
-  RedMontgomery* Funciones::redMontgomery(void)
-  {
-    if ( !redMontgomeryPTR )
-      //instanciar la implementacion concreta por defecto, que se habra definido p ej
-      //via typedef en la cabecera del tipo
-      redMontgomeryPTR = new RedMontgomeryDFL;
-    
-    return redMontgomeryPTR;
-  }
-  RedModularALaMersenne* Funciones::redModularALaMersenne(void)
-  {
-    if ( !redModularALaMersennePTR )
-      //instanciar la implementacion concreta por defecto, que se habra definido p ej
-      //via typedef en la cabecera del tipo
-      redModularALaMersennePTR = new RedModularALaMersenneDFL;
-    
-    return redModularALaMersennePTR;
+    return potModularPTR.get();
   }
 
-  SimboloKronecker* Funciones::simboloKronecker(void)
+  RedBarrett* Funciones::getBarrettReduction(void)
   {
-    if ( !simboloKroneckerPTR )
+    if ( redBarrettPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      simboloKroneckerPTR = new SimboloKroneckerDFL;
+      redBarrettPTR.reset(new RedBarrettDFL);
     
-    return simboloKroneckerPTR;
+    return redBarrettPTR.get();
   }
-  SimboloJacobi* Funciones::simboloJacobi(void)
+  RedMontgomery* Funciones::getMontgomeryReduction(void)
   {
-    if ( !simboloJacobiPTR )
+    if ( redMontgomeryPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      simboloJacobiPTR = new SimboloJacobiDFL;
+      redMontgomeryPTR.reset(new RedMontgomeryDFL);
     
-    return simboloJacobiPTR;
+    return redMontgomeryPTR.get();
   }
-  SimboloLegendre* Funciones::simboloLegendre(void)
+  RedModularALaMersenne* Funciones::getModularReductionALaMersenne(void)
   {
-    if ( !simboloLegendrePTR )
+    if ( redModularALaMersennePTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      simboloLegendrePTR = new SimboloLegendreDFL;
+      redModularALaMersennePTR.reset(new RedModularALaMersenneDFL);
     
-    return simboloLegendrePTR;
+    return redModularALaMersennePTR.get();
+  }
+
+  SimboloKronecker* Funciones::getKroneckerSymbol(void)
+  {
+    if ( simboloKroneckerPTR.get() == NULL )
+      //instanciar la implementacion concreta por defecto, que se habra definido p ej
+      //via typedef en la cabecera del tipo
+      simboloKroneckerPTR.reset(new SimboloKroneckerDFL);
+    
+    return simboloKroneckerPTR.get();
+  }
+  SimboloJacobi* Funciones::getJacobiSymbol(void)
+  {
+    if ( simboloJacobiPTR.get() == NULL )
+      //instanciar la implementacion concreta por defecto, que se habra definido p ej
+      //via typedef en la cabecera del tipo
+      simboloJacobiPTR.reset(new SimboloJacobiDFL);
+    
+    return simboloJacobiPTR.get();
+  }
+  SimboloLegendre* Funciones::getLegendreSymbol(void)
+  {
+    if ( simboloLegendrePTR.get() == NULL )
+      //instanciar la implementacion concreta por defecto, que se habra definido p ej
+      //via typedef en la cabecera del tipo
+      simboloLegendrePTR.reset(new SimboloLegendreDFL);
+    
+    return simboloLegendrePTR.get();
   }
 
 
-  CRT* Funciones::crt(void)
+  CRT* Funciones::getCRT(void)
   {
-    if ( !crtPTR )
+    if ( crtPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      crtPTR = new CRTDFL;
+      crtPTR.reset(new CRTDFL);
     
-    return crtPTR;
+    return crtPTR.get();
   }
 
-  Factoriza* Funciones::factoriza(void)
+  Factoriza* Funciones::getFactoriza(void)
   {
-    if ( !factorizaPTR )
+    if ( factorizaPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      factorizaPTR = new FactorizaDFL;
+      factorizaPTR.reset(new FactorizaDFL);
     
-    return factorizaPTR;
+    return factorizaPTR.get();
   }
 
-  Exponencial* Funciones::exponencial(void)
+  Exponencial* Funciones::getExponencial(void)
   {
-    if ( !exponencialPTR )
+    if ( exponencialPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      exponencialPTR = new ExponencialDFL;
+      exponencialPTR.reset(new ExponencialDFL);
     
-    return exponencialPTR;
+    return exponencialPTR.get();
   }
  
-  Ln* Funciones::ln(void)
+  Ln* Funciones::getLn(void)
   {
-    if ( !lnPTR )
+    if ( lnPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      lnPTR = new LnDFL;
+      lnPTR.reset(new LnDFL);
     
-    return lnPTR;
+    return lnPTR.get();
   }
  
-  Coseno* Funciones::coseno(void)
+  Coseno* Funciones::getCoseno(void)
   {
-    if ( !cosenoPTR )
+    if ( cosenoPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      cosenoPTR = new CosenoDFL;
+      cosenoPTR.reset(new CosenoDFL);
     
-    return cosenoPTR;
+    return cosenoPTR.get();
   }
 
-  Seno* Funciones::seno(void)
+  Seno* Funciones::getSeno(void)
   {
-    if ( !senoPTR )
+    if ( senoPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      senoPTR = new SenoDFL;
+      senoPTR.reset(new SenoDFL);
     
-    return senoPTR;
+    return senoPTR.get();
   }
 
   
-  ArcoTangente* Funciones::arcotangente(void)
+  ArcoTangente* Funciones::getArcotangente(void)
   {
-    if ( !arcotangentePTR )
+    if ( arcotangentePTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      arcotangentePTR = new ArcoTangenteDFL;
+      arcotangentePTR.reset(new ArcoTangenteDFL);
     
-    return arcotangentePTR;
+    return arcotangentePTR.get();
   }
 
   
-  Pi* Funciones::pi(void)
+  Pi* Funciones::getPi(void)
   {
-    if ( !piPTR )
+    if ( piPTR.get() == NULL )
       //instanciar la implementacion concreta por defecto, que se habra definido p ej
       //via typedef en la cabecera del tipo
-      piPTR = new PiDFL;
+      piPTR.reset(new PiDFL);
     
-    return piPTR;
+    return piPTR.get();
   }
 
 }

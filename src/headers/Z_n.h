@@ -110,10 +110,10 @@ namespace numth{
   };
 
  
-  Z_n operator+(Z_n, const Z_n&);
-  Z_n operator-(Z_n, const Z_n&);
-  Z_n operator*(Z_n, const Z_n&);
-  Z_n operator/(Z_n, const Z_n&);
+//  Z_n operator+(Z_n, const Z_n&);
+//  Z_n operator-(Z_n, const Z_n&);
+//  Z_n operator*(Z_n, const Z_n&);
+//  Z_n operator/(Z_n, const Z_n&);
 
   Z_n operator+(Z_n, const Z&);
   Z_n operator-(Z_n, const Z&);

@@ -130,7 +130,7 @@ namespace numth{
     Z_n inv(n_);
     Funciones funcs;
 
-    inv = Z_n(funcs.potModular()->inversa(der, n_), n_, false);
+    inv = Z_n(funcs.getPotModular()->inversa(der, n_), n_, false);
     operator*=(inv);
 
     return *this;
@@ -140,12 +140,14 @@ namespace numth{
   /* simple prec */
   Z_n& Z_n::operator+=(const CifraSigno derC)
   {
-    CifraSigno der = (derC % n_).toCifraSigno();
+    Z::operator+=(derC);
 
-    Z::operator+=(der);
-
-    if( *this >= n_ )
+    //substraction is less expensive than division.
+    //Besides, given the fact that derC is a basic type,
+    //we can't have gone very far away from the modulus n_
+    while( *this >= n_ ){
       Z::operator-=(n_);
+    }
 
     return *this;
   }
@@ -153,12 +155,14 @@ namespace numth{
   Z_n& Z_n::operator-=(const CifraSigno derC)
   {
 
-    CifraSigno der = (derC % n_).toCifraSigno();
+    Z::operator-=(derC);
 
-    Z::operator-=(der);
-
-    if( *this < (Cifra)0 )
+    //substraction is less expensive than division.
+    //Besides, given the fact that derC is a basic type,
+    //we can't have gone very far away from the modulus n_
+    while( *this < (Cifra)0 ){
       Z::operator+=(n_);
+    }
 
     return *this;
   }
@@ -166,9 +170,7 @@ namespace numth{
   Z_n& Z_n::operator*=(const CifraSigno derC)
   {
 
-    CifraSigno der = (derC % n_).toCifraSigno();
-
-    Z::operator*=(der);
+    Z::operator*=(derC);
     Z::operator%=(n_);
 
 
@@ -177,16 +179,11 @@ namespace numth{
 
   Z_n& Z_n::operator/=(const CifraSigno derC)
   {
-
-    CifraSigno der = (derC % n_).toCifraSigno();
-
-    Z_n inv(n_);
-
-    Z derEntero = Z::convertir(der);
+    Z_n derEntero(Z::convertir(derC), n_);
 
     Funciones funcs;
 
-    inv = Z_n(funcs.potModular()->inversa(Z::convertir(der), n_), n_, false);
+    Z_n inv(funcs.getPotModular()->inversa(derEntero, n_), n_, false);
 
     operator*=(inv);
 
@@ -231,14 +228,13 @@ namespace numth{
 
   Z_n& Z_n::operator/=(const Cifra derC)
   {
-
-    CifraSigno der = (derC % n_).toCifra();
+    Cifra der = (derC % n_).toCifra();
 
     Z_n inv(n_);
     Z derEntero = Z::convertir(der);
 
     Funciones funcs;
-    inv = Z_n(funcs.potModular()->inversa(Z::convertir(der), n_), n_, false);
+    inv = Z_n(funcs.getPotModular()->inversa(Z::convertir(der), n_), n_, false);
     operator*=(inv);
 
     return *this;
@@ -251,7 +247,7 @@ namespace numth{
     Funciones funcs;
 
     Z eZ = Z::convertir(e);
-    funcs.potModular()->potModular(this, eZ, n_);
+    funcs.getPotModular()->potModular(this, eZ, n_);
     return *this;
   }
 
@@ -260,7 +256,7 @@ namespace numth{
     Funciones funcs;
 
     Z eZ = Z::convertir(e);
-    funcs.potModular()->potModular(this, eZ, n_);
+    funcs.getPotModular()->potModular(this, eZ, n_);
     return *this;
   }
 
@@ -268,7 +264,7 @@ namespace numth{
   {
     Funciones funcs;
 
-    funcs.potModular()->potModular(this, e, n_);
+    funcs.getPotModular()->potModular(this, e, n_);
     return *this;
   }
 
@@ -284,36 +280,36 @@ namespace numth{
     }
 
 
-  Z_n operator+(Z_n izq, const Z_n& der)
-  {
-    izq += der;
-
-    return izq;
-  }
-
-  Z_n operator-(Z_n izq, const Z_n& der)
-  {
-    izq -= der;
-
-    return izq;
-  } 
-
-  Z_n operator*(Z_n izq, const Z_n& der)
-  {
-    izq *= der;
-
-    return izq;
-  }
-
-  Z_n operator/(Z_n izq, const Z_n& der)
-  {
-    if( der.esCero() )
-      throw Errores::DivisionPorCero();  
-
-    izq /= der;
-
-    return izq;
-  }
+//  Z_n operator+(Z_n izq, const Z_n& der)
+//  {
+//    izq += der;
+//
+//    return izq;
+//  }
+//
+//  Z_n operator-(Z_n izq, const Z_n& der)
+//  {
+//    izq -= der;
+//
+//    return izq;
+//  } 
+//
+//  Z_n operator*(Z_n izq, const Z_n& der)
+//  {
+//    izq *= der;
+//
+//    return izq;
+//  }
+//
+//  Z_n operator/(Z_n izq, const Z_n& der)
+//  {
+//    if( der.esCero() )
+//      throw Errores::DivisionPorCero();  
+//
+//    izq /= der;
+//
+//    return izq;
+//  }
 
 
   Z_n operator+(Z_n izq, const Z& der)

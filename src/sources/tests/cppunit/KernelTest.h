@@ -23,6 +23,10 @@ class KernelTest: public CppUnit::TestFixture {
     CPPUNIT_TEST( testSubx );
     CPPUNIT_TEST( testMul );
     CPPUNIT_TEST( testAddmul );
+    CPPUNIT_TEST( testDiv );
+    CPPUNIT_TEST( testShiftl );
+    CPPUNIT_TEST( testShiftlr );
+    CPPUNIT_TEST( testBfffo );
   CPPUNIT_TEST_SUITE_END();
 
   public:

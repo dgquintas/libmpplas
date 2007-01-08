@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 #include "Z_nTest.h"
+#include "TestHelpers.h"
 #include <pari/pari.h>
 
 
@@ -19,124 +20,338 @@ Z_nTest::Z_nTest(){
 }
 
 void Z_nTest::setUp(){
-  
-  integer = funcs.randomRapido()->leerBits(2000);
-  modulus = funcs.randomRapido()->leerBits(500);
-  modularInteger = new Z_n(funcs.randomRapido()->leerBits(1234), modulus);
-  cifra = funcs.randomRapido()->leerCifra();
-  cifraSigno = funcs.randomRapido()->leerCifraSigno();
+  integer = funcs.getRandomRapido()->leerBits(2000);
+  modulus = funcs.getRandomRapido()->leerBits(500);
+  modularInteger = new Z_n(funcs.getRandomRapido()->leerBits(1234), modulus);
+  //anotherModularInteger = new Z_n(funcs.getRandomRapido()->leerBits(1414), modulus);
+  cifra = funcs.getRandomRapido()->leerCifra();
+  cifraSigno = funcs.getRandomRapido()->leerCifraSigno();
   if( cifraSigno > 0 ){
     cifraSigno *= -1;  //force a negative number
   }
-      
-      
-  
 }
+
+
 void Z_nTest::tearDown(){
   delete this->modularInteger;
 }
 
 
+
+
+
 void Z_nTest::testAdditionWithZ(){
   Z_n res = (*modularInteger) + integer; 
-  
+
   string tmp;
   tmp += '(';
-    tmp += modularInteger->toString();
-    tmp += " + ";
-    tmp += integer.toString();
+  tmp += modularInteger->toString();
+  tmp += " + ";
+  tmp += integer.toString();
   tmp += ") % ";
   tmp += modulus.toString();
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
+  printDebug("testAdditionWithZn", pariStr, thisStr);
+
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
-void Z_nTest::testAdditionWithZn(){}
-void Z_nTest::testAdditionWithCifra(){}
-void Z_nTest::testAdditionWithCifraSigno(){}
+void Z_nTest::testAdditionWithCifra(){
+  Z_n res = (*modularInteger) + cifra; 
+ 
+  ostringstream oss;
+  oss << cifra;
+  string cifraStr = oss.str();
+
+  string tmp;
+  tmp += '(';
+  tmp += modularInteger->toString();
+  tmp += " + ";
+  tmp += cifraStr;
+  tmp += ") % ";
+  tmp += modulus.toString();
+
+  string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
+  string thisStr = res.toString();
+
+  printDebug("testAdditionWithCifra", pariStr, thisStr);
+  CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+}
+void Z_nTest::testAdditionWithCifraSigno(){
+  Z_n res = (*modularInteger) + cifraSigno; 
+ 
+  ostringstream oss;
+  oss << cifraSigno;
+  string cifraStr = oss.str();
+
+  string tmp;
+  tmp += '(';
+  tmp += modularInteger->toString();
+  tmp += " + ";
+  tmp += cifraStr;
+  tmp += ") % ";
+  tmp += modulus.toString();
+
+  string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
+  string thisStr = res.toString();
+
+  printDebug("testAdditionWithCifraSigno", pariStr, thisStr);
+  CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+
+}
+
+
+
+
 
 void Z_nTest::testSubstractionWithZ(){
   Z_n res = (*modularInteger) - integer ; 
-  
+
   string tmp;
   tmp += '(';
-    tmp += modularInteger->toString();
-    tmp += " - ";
-    tmp += integer.toString();
+  tmp += modularInteger->toString();
+  tmp += " - ";
+  tmp += integer.toString();
   tmp += ") % ";
   tmp += modulus.toString();
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
+  printDebug("testSubstractionWithZ", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
-void Z_nTest::testSubstractionWithZn(){}
-void Z_nTest::testSubstractionWithCifra(){}
-void Z_nTest::testSubstractionWithCifraSigno(){}
+void Z_nTest::testSubstractionWithCifra(){
+  Z_n res = (*modularInteger) - cifra; 
+ 
+  ostringstream oss;
+  oss << cifra;
+  string cifraStr = oss.str();
+
+  string tmp;
+  tmp += '(';
+  tmp += modularInteger->toString();
+  tmp += " - ";
+  tmp += cifraStr;
+  tmp += ") % ";
+  tmp += modulus.toString();
+
+  string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
+  string thisStr = res.toString();
+
+  printDebug("testSubstractionWithCifra", pariStr, thisStr);
+  CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+}
+void Z_nTest::testSubstractionWithCifraSigno(){
+  Z_n res = (*modularInteger) - cifraSigno; 
+ 
+  ostringstream oss;
+  oss << cifraSigno;
+  string cifraStr = oss.str();
+
+  string tmp;
+  tmp += '(';
+  tmp += modularInteger->toString();
+  tmp += " - ";
+  tmp += cifraStr;
+  tmp += ") % ";
+  tmp += modulus.toString();
+
+  string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
+  string thisStr = res.toString();
+
+  printDebug("testSubstractionWithCifraSigno", pariStr, thisStr);
+  CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+
+}
+
+
+
 
 void Z_nTest::testProductWithZ(){
   Z_n res = (*modularInteger) * integer ; 
-  
+
   string tmp;
   tmp += '(';
-    tmp += modularInteger->toString();
-    tmp += " * ";
-    tmp += integer.toString();
+  tmp += modularInteger->toString();
+  tmp += " * ";
+  tmp += integer.toString();
   tmp += ") % ";
   tmp += modulus.toString();
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
-
+  
+  printDebug("testProductWithZ", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
-void Z_nTest::testProductWithZn(){}
-void Z_nTest::testProductWithCifra(){}
-void Z_nTest::testProductWithCifraSigno(){}
+void Z_nTest::testProductWithCifra(){
+  Z_n res = (*modularInteger) * cifra; 
+ 
+  ostringstream oss;
+  oss << cifra;
+  string cifraStr = oss.str();
 
-void Z_nTest::testDivisionWithZ(){
-  this->modulus = funcs.genPrimos()->leerPrimoProb(128);  //make sure the modulus is prime (ie, invertible)
-  delete this->modularInteger; //get rid of the one set up by setUp()
-  this->modularInteger = new Z_n(funcs.randomRapido()->leerBits(1234), modulus);
-  Z_n res = (*modularInteger) / integer ; 
-  
   string tmp;
   tmp += '(';
-    tmp += modularInteger->toString();
-    tmp += " / ";
-    tmp += integer.toString();
+  tmp += modularInteger->toString();
+  tmp += " * ";
+  tmp += cifraStr;
   tmp += ") % ";
   tmp += modulus.toString();
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
+  printDebug("testProductWithCifra", pariStr, thisStr);
+  CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+}
+void Z_nTest::testProductWithCifraSigno(){
+  Z_n res = (*modularInteger) * cifraSigno; 
+ 
+  ostringstream oss;
+  oss << cifraSigno;
+  string cifraStr = oss.str();
+
+  string tmp;
+  tmp += '(';
+  tmp += modularInteger->toString();
+  tmp += " * ";
+  tmp += cifraStr;
+  tmp += ") % ";
+  tmp += modulus.toString();
+
+  string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
+  string thisStr = res.toString();
+
+  printDebug("testProductWithCifraSigno", pariStr, thisStr);
+  CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+}
+
+
+
+
+
+
+void Z_nTest::testDivisionWithZ(){
+  //make sure the modulus is prime (ie, invertible)
+  this->modulus = funcs.getGenPrimos()->leerPrimoProb(128);  
+  delete this->modularInteger; //get rid of the one set up by setUp()
+  this->modularInteger = new Z_n(funcs.getRandomRapido()->leerBits(1234), modulus);
+  Z_n res = (*modularInteger) / integer ; 
+
+  string tmp;
+  tmp += '(';
+  tmp += modularInteger->toString();
+  tmp += " / ";
+  tmp += integer.toString();
+  tmp += ") % ";
+  tmp += modulus.toString();
+
+  string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
+  string thisStr = res.toString();
+
+  printDebug("testDivisionWithZ", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
 void Z_nTest::testDivisionWithZThrows(){
-  this->modulus = funcs.randomRapido()->leerBits(500)*integer;  //make sure the modulus isn't 
-                                                                //coprime with the divisor
+  this->modulus = funcs.getRandomRapido()->leerBits(500)*integer;  //make sure the modulus isn't 
+  //coprime with the divisor
   delete this->modularInteger; //get rid of the one set up by setUp()
-  this->modularInteger = new Z_n(funcs.randomRapido()->leerBits(1234), modulus);
+  this->modularInteger = new Z_n(funcs.getRandomRapido()->leerBits(1234), modulus);
 
   Z_n res = (*modularInteger) / integer ; 
 
-  //this point shouldn't be reached FIXME: remove this
-  std::cout << "modular Integer = " << this->modularInteger->toString() << std::endl;
-  std::cout << "modulus = " << this->modulus.toString() << std::endl;
-  std::cout << "exponent = " << this->integer.toString() << std::endl;
-  std::cout << "res = "      << res.toString() << std::endl;
+  //this point shouldn't be reached 
+  CPPUNIT_ASSERT(false);
 }
-void Z_nTest::testDivisionWithZn(){}
-void Z_nTest::testDivisionWithCifra(){}
-void Z_nTest::testDivisionWithCifraSigno(){}
+void Z_nTest::testDivisionWithCifra(){
+  //make sure the modulus is prime (ie, invertible)
+  this->modulus = funcs.getGenPrimos()->leerPrimoProb(128);  
+  delete this->modularInteger; //get rid of the one set up by setUp()
+  this->modularInteger = new Z_n(funcs.getRandomRapido()->leerBits(1234), modulus);
+  Z_n res = (*modularInteger) / cifra ; 
+
+  ostringstream oss;
+  oss << cifra;
+  string cifraStr = oss.str();
+
+  string tmp;
+  tmp += '(';
+  tmp += modularInteger->toString();
+  tmp += " / ";
+  tmp += cifraStr;
+  tmp += ") % ";
+  tmp += modulus.toString();
+
+  string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
+  string thisStr = res.toString();
+
+  printDebug("testDivisionWithCifra", pariStr, thisStr);
+  CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+
+}
+
+void Z_nTest::testDivisionWithCifraThrows(){
+  this->modulus = funcs.getRandomRapido()->leerBits(500)*cifra;  //make sure the modulus isn't 
+  //coprime with the divisor
+  delete this->modularInteger; //get rid of the one set up by setUp()
+  this->modularInteger = new Z_n(funcs.getRandomRapido()->leerBits(1234), modulus);
+
+  Z_n res = (*modularInteger) / cifra ; 
+
+  //this point shouldn't be reached 
+  CPPUNIT_ASSERT(false);
+
+}
+void Z_nTest::testDivisionWithCifraSigno(){
+  //make sure the modulus is prime (ie, invertible)
+  this->modulus = funcs.getGenPrimos()->leerPrimoProb(128);  
+  delete this->modularInteger; //get rid of the one set up by setUp()
+  this->modularInteger = new Z_n(funcs.getRandomRapido()->leerBits(1234), modulus);
+  Z_n res = (*modularInteger) / cifraSigno ; 
+
+  ostringstream oss;
+  oss << cifraSigno;
+  string cifraStr = oss.str();
+
+  string tmp;
+  tmp += '(';
+  tmp += modularInteger->toString();
+  tmp += " / ";
+  tmp += cifraStr;
+  tmp += ") % ";
+  tmp += modulus.toString();
+
+  string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
+  string thisStr = res.toString();
+
+  printDebug("testDivisionWithCifraSigno", pariStr, thisStr);
+  CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+}
+void Z_nTest::testDivisionWithCifraSignoThrows(){
+  this->modulus = funcs.getRandomRapido()->leerBits(500)*cifraSigno;  //make sure the modulus isn't 
+  //coprime with the divisor
+  delete this->modularInteger; //get rid of the one set up by setUp()
+  this->modularInteger = new Z_n(funcs.getRandomRapido()->leerBits(1234), modulus);
+
+  Z_n res = (*modularInteger) / cifraSigno ; 
+
+  //this point shouldn't be reached 
+  CPPUNIT_ASSERT(false);
+}
+
+
+
+
+
+
 
 void Z_nTest::testExponentiationWithZ(){
-   Z_n res = (*modularInteger) ^ integer ; 
-  
+  Z_n res = (*modularInteger) ^ integer ; 
+
   GEN x,y,m;
 
   x = gp_read_str(const_cast<char*>(modularInteger->toString().c_str()));
@@ -148,11 +363,15 @@ void Z_nTest::testExponentiationWithZ(){
   string pariStr(GENtostr( pariRes ));
   string thisStr = res.toString();
 
+  printDebug("testExponentiationWithZ", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
-
-void Z_nTest::testExponentiationWithZn(){}
 void Z_nTest::testExponentiationWithCifra(){
+  //make sure the modulus is coprime with the base
+  this->modulus = funcs.getGenPrimos()->leerPrimoProb(128);
+  delete this->modularInteger;
+  this->modularInteger = new Z_n(funcs.getRandomRapido()->leerBits(1234), modulus);
+
   Z_n res = (*modularInteger) ^ cifra ;
 
   ostringstream oss;
@@ -170,9 +389,15 @@ void Z_nTest::testExponentiationWithCifra(){
   string pariStr(GENtostr( pariRes ));
   string thisStr = res.toString();
 
+  printDebug("testExponentiationWithCifra", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
-void Z_nTest::testExponentiationWithCifraSigno(){
+void Z_nTest::testExponentiationWithCifraSigno(){ 
+  //make sure the modulus is coprime with the base
+  this->modulus = funcs.getGenPrimos()->leerPrimoProb(128);
+  delete this->modularInteger;
+  this->modularInteger = new Z_n(funcs.getRandomRapido()->leerBits(1234), modulus);
+
   Z_n res = (*modularInteger) ^ cifraSigno ;
 
   ostringstream oss;
@@ -190,6 +415,14 @@ void Z_nTest::testExponentiationWithCifraSigno(){
   string pariStr(GENtostr( pariRes ));
   string thisStr = res.toString();
 
+  printDebug("testExponentiationWithCifraSigno", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+}
+void Z_nTest::testExponentiationWithCifraSignoThrows(){
+  //make sure the modulus isn't coprime with the base
+  this->modularInteger->operator*=(this->modulus);
+
+  Z_n res = (*modularInteger) ^ cifraSigno ;
+
 }
 

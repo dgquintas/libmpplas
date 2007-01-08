@@ -17,8 +17,8 @@ int main()
   cin >> mod;
   funcs.ponerPotModular(pm);
 
-//  cout << funcs.potModular()->potModular(foo, exp, mod) << endl;
-  cout << funcs.potModular()->potModular(foo, exp, mod) << endl;
+//  cout << funcs.getPotModular()->potModular(foo, exp, mod) << endl;
+  cout << funcs.getPotModular()->potModular(foo, exp, mod) << endl;
 
   return 0;
 }

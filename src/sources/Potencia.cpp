@@ -30,7 +30,7 @@ namespace numth{
 
     Z inv;
     Z temp;
-    if( !(funcs.gcdext()->gcdext(base, mod, inv, temp)).esUno() )
+    if( !(funcs.getGCDExt()->gcdext(base, mod, inv, temp)).esUno() )
       throw Errores::ElementoNoInvertible();
 
     if( inv.signo() < 0 )
@@ -188,7 +188,7 @@ namespace numth{
       Z modPrima; 
 
       // modPrima = -mod^{-1} (mod base)
-      modPrima = funcs.redMontgomery()->precomputaciones(mod); 
+      modPrima = funcs.getMontgomeryReduction()->precomputaciones(mod); 
       
       Z xTilde(*base);
       montgomeryMult(&xTilde, R2,mod,modPrima ); // R2 = R^{2} mod n
@@ -244,7 +244,7 @@ namespace numth{
     Funciones funcs;
     
     x->cuadrado();
-    funcs.redMontgomery()->redMontgomery(x,mod, modPrima);
+    funcs.getMontgomeryReduction()->redMontgomery(x,mod, modPrima);
 
     return; 
     
@@ -262,7 +262,7 @@ namespace numth{
       throw Errores::PunteroNulo();
 
     Funciones funcs;
-    RedBarrett* redbarrett = funcs.redBarrett();
+    RedBarrett* redbarrett = funcs.getBarrettReduction();
     bool eNegativo = false;
     base->operator%=(mod);
     Z mu = redbarrett->precomputaciones(mod);

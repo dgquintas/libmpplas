@@ -12,7 +12,7 @@ int main()
   
   cin >> base >> exp >> mod;
 
-  cout << funcs.potModular()->potModular(base, exp, mod) << endl;
+  cout << funcs.getPotModular()->potModular(base, exp, mod) << endl;
 
   return 0;
 }

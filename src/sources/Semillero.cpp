@@ -33,7 +33,7 @@ namespace numth{
   Z Semillero::leerSemilla(size_t numBytes)
   {
     Funciones funcs;
-    Hash* hash = funcs.hash();
+    Hash* hash = funcs.getHash();
     static size_t contador = 0;
 //    datosRnd_.resize( hash->numBitsResumen() >> 3);
     

@@ -378,7 +378,7 @@ namespace numth{
 
     Funciones funcs;
 
-    funcs.potenciaR()->potenciaR(this, exponente);
+    funcs.getPotenciaR()->potenciaR(this, exponente);
 
     normalizar();
 

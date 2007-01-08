@@ -1118,7 +1118,7 @@ namespace numth{
   Z& Z::operator^=(const Cifra e)
   {
     Funciones funcs;
-    funcs.potencia()->potencia(this, e);
+    funcs.getPotencia()->potencia(this, e);
 
     return *this; 
 
@@ -1380,13 +1380,13 @@ namespace numth{
     else{
       q = (*this);
       while(true){
-        if(funcs.testPrimoProb()->esPrimo(q, &a)){
+        if(funcs.getTestPrimoProb()->esPrimo(q, &a)){
           p = q;
           break;
         }
         else{
           Z d;
-          d = funcs.gcd()->gcd((a^q)-a,q);
+          d = funcs.getGCD()->gcd((a^q)-a,q);
           if( d.esUno() || (d == q) ){
             primo->hacerCero();
             return false;
@@ -1579,7 +1579,8 @@ namespace numth{
       unsigned long tam = entrada.size();
 
       if( tam % Constantes::MAX_EXP10_CIFRA ){
-        num = strtoul((entrada.substr(0, tam % Constantes::MAX_EXP10_CIFRA)).c_str(), &error, 10);
+        std::string tmpSubstr = entrada.substr(0, tam % Constantes::MAX_EXP10_CIFRA);
+        num = strtoul(tmpSubstr.c_str(), &error, 10);
         if(*error != '\0')
           throw Errores::Sintactico();
 
@@ -1593,7 +1594,8 @@ namespace numth{
             i+Constantes::MAX_EXP10_CIFRA < tam ; 
             i += Constantes::MAX_EXP10_CIFRA){
 
-          num = strtoul((entrada.substr(i,Constantes::MAX_EXP10_CIFRA)).c_str(), &error, 10);
+          std::string tmpSubstr = entrada.substr(i,Constantes::MAX_EXP10_CIFRA);
+          num = strtoul(tmpSubstr.c_str(), &error, 10);
           if(*error != '\0')
             throw Errores::Sintactico();
 
@@ -1603,7 +1605,8 @@ namespace numth{
 
         //ultima cifra
         assert(tam >= Constantes::MAX_EXP10_CIFRA ); //FIXME
-        num = strtoul((entrada.substr(tam-Constantes::MAX_EXP10_CIFRA,Constantes::MAX_EXP10_CIFRA)).c_str(), &error, 10);
+        std::string tmpSubstr = entrada.substr(tam-Constantes::MAX_EXP10_CIFRA,Constantes::MAX_EXP10_CIFRA);
+        num = strtoul(tmpSubstr.c_str(), &error, 10);
         if(*error != '\0')
           throw Errores::Sintactico();
 

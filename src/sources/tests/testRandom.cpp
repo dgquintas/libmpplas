@@ -29,7 +29,7 @@ int main()
 //  funcs.ponerRandom(LCG);
   
   funcs.random()->ponerSemilla(Z::convertir("323658476")); 
-  n = funcs.genPrimos()->leerPrimoProb(600);
+  n = funcs.getGenPrimos()->leerPrimoProb(600);
   cout << n << endl;
 
 //  cin >> n;

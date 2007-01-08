@@ -93,7 +93,7 @@ namespace numth{
     Z modPrima;
     
     modPrima.potenciaBase(1);
-    modPrima -= funcs.potModular()->inversa(modulo, modPrima); // modPrima = -mod^{-1} (mod base)
+    modPrima -= funcs.getPotModular()->inversa(modulo, modPrima); // modPrima = -mod^{-1} (mod base)
 
     return modPrima;
   }

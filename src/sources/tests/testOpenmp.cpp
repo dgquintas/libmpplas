@@ -18,9 +18,9 @@ int main()
 
 
   for(int i = 0; i < NUM; i++){
-    enteros[i] = funcs.randomRapido()->leerBits(256);
+    enteros[i] = funcs.getRandomRapido()->leerBits(256);
   }
-  factor = funcs.randomRapido()->leerCifra();
+  factor = funcs.getRandomRapido()->leerCifra();
 
 
   cout << "\nSecuencial" << endl;

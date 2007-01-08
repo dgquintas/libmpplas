@@ -13,7 +13,7 @@ namespace numth{
     // cuestiones de eficiencia
     
     Funciones funcs;
-    return funcs.simboloJacobi()->simboloJacobi(a,p);
+    return funcs.getJacobiSymbol()->simboloJacobi(a,p);
   }
 
   
@@ -24,7 +24,7 @@ namespace numth{
    
     Funciones funcs;
     
-    return funcs.simboloKronecker()->simboloKronecker(a,b);
+    return funcs.getKroneckerSymbol()->simboloKronecker(a,b);
   }
     
   SKroneckerCohen::SKroneckerCohen(void)

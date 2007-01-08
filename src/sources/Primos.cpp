@@ -19,8 +19,8 @@ namespace numth{
   bool RabinMiller::esPrimo(const Z& p, Z* testigo) 
   {
     numth::Funciones funcs;
-    GCD* gcd = funcs.gcd();
-    RandomRapido* rnd = funcs.randomRapido();
+    GCD* gcd = funcs.getGCD();
+    RandomRapido* rnd = funcs.getRandomRapido();
     
     if( p == (Cifra)2 )
       return true;
@@ -189,9 +189,9 @@ namespace numth{
     */
 
     Funciones funcs;
-    RedModularALaMersenne* redmodmers = funcs.redModularALaMersenne();
+    RedModularALaMersenne* redmodmers = funcs.getModularReductionALaMersenne();
 
-    if( !funcs.testPrimoProb()->esPrimo(Z::convertir(p)) )
+    if( !funcs.getTestPrimoProb()->esPrimo(Z::convertir(p)) )
       return false;
     
     Z s(Z::convertir((Cifra)4));
@@ -214,8 +214,8 @@ namespace numth{
   Z GenPrimos::leerPrimoProb(size_t bits)
   {
     Funciones funcs;
-    TestPrimoProb* test = funcs.testPrimoProb();
-    RandomRapido* rnd = funcs.randomRapido();
+    TestPrimoProb* test = funcs.getTestPrimoProb();
+    RandomRapido* rnd = funcs.getRandomRapido();
 
     Z n(rnd->leerBits(bits));
 
@@ -273,7 +273,7 @@ namespace numth{
   Z GenPrimos::siguientePrimoProb(const Z& comienzo)
   {
     Funciones funcs;
-    TestPrimoProb* test = funcs.testPrimoProb();
+    TestPrimoProb* test = funcs.getTestPrimoProb();
 
     //caso especial
     if( comienzo == (Cifra)2 )
@@ -332,7 +332,7 @@ namespace numth{
   Z GenPrimos::leerPrimoFuerte(size_t bits)
   {
     Funciones funcs;
-    TestPrimoProb* testPrim = funcs.testPrimoProb();
+    TestPrimoProb* testPrim = funcs.getTestPrimoProb();
     
     Z s,t;
     s = leerPrimoProb( bits/2 );
@@ -347,7 +347,7 @@ namespace numth{
       r += t; //este "t" es el doble del "t" inicial
 
     Z p,p0;
-    p0 = funcs.potModular()->potModular(s,r-(Cifra)2, r);
+    p0 = funcs.getPotModular()->potModular(s,r-(Cifra)2, r);
     p0 *= s; p0 <<= 1; p0--;
     
     Z dosRS = r*s; dosRS <<= 1;

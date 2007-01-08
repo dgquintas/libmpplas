@@ -27,7 +27,7 @@ int main()
 //  cout << k << endl;
 //    Cifra k = CIFRA_MAX;  
 
-  funcs.randomRapido()->ponerSemilla(Z::convertir("12345"));
+  funcs.getRandomRapido()->ponerSemilla(Z::convertir("12345"));
  for(unsigned long i = 1; i <= 5000; i+=50){
 //    numVec.resize(1000, k);
     
@@ -44,8 +44,8 @@ int main()
 
 //    cout << num << endl;
     
-  Z num1 = funcs.randomRapido()->leerBits(32*i);
-  Z num2 = funcs.randomRapido()->leerBits(32*i);
+  Z num1 = funcs.getRandomRapido()->leerBits(32*i);
+  Z num2 = funcs.getRandomRapido()->leerBits(32*i);
 //  Z num1 = funcs.random()->leerBits(10000000);
 //  cout << num1.longitud() << endl;
 //  cout << num1 << endl;

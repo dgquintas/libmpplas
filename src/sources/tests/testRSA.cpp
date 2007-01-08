@@ -17,10 +17,10 @@ int main()
 
   //esto no es estrictamente necesario: para acceder de forma resumida
   //al generador del numeros aleatorios en cuestion
-  RandomRapido* genRandom = funcs.randomRapido();
+  RandomRapido* genRandom = funcs.getRandomRapido();
   genRandom->ponerSemilla(Z::convertir("34"));
   //idem para el generador de primos
-  GenPrimos* genPrimos = funcs.genPrimos();
+  GenPrimos* genPrimos = funcs.getGenPrimos();
   
   //se declaran 4 numeros enteros. 
   Z p,q,n,phi; 
@@ -50,10 +50,10 @@ int main()
   //el algoritmo
   do{
     e = genRandom->leerEntero(n);
-  } while( !(funcs.gcd()->gcd(e,phi).esUno()) );
+  } while( !(funcs.getGCD()->gcd(e,phi).esUno()) );
 
   //y la clave de desencriptacion la inversa de "e" modulo "phi"
-  d = funcs.potModular()->inversa(e,phi);
+  d = funcs.getPotModular()->inversa(e,phi);
   
   
   cout << "Clave encript.: " << e << endl;
@@ -76,14 +76,14 @@ int main()
 
   // se encripta con la exponenciacion modular 
   Z c;
-  c = funcs.potModular()->potModular(m,e,n);
+  c = funcs.getPotModular()->potModular(m,e,n);
   
   
   cout << "Mensaje encriptado: " << c << endl;
 
   // y el entero que representa el mensaje desencriptado
   Z mdesc;
-  mdesc = funcs.potModular()->potModular(c,d,n);
+  mdesc = funcs.getPotModular()->potModular(c,d,n);
   
   cout << "Mensaje desencriptado: " << mdesc << endl;
   
@@ -92,7 +92,8 @@ int main()
   str.resize(tam);
   mdesc.escribirBytes(str.begin(), str.end());
   cout << str << endl;
-  
+
+
   return 0;
 }
   

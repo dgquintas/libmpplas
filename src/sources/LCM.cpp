@@ -17,7 +17,7 @@ namespace numth{
     //propiedad del gcd/lcm recogida en knuth p. 317 (10)
     // uv = gcd(u,v)·lcm(u,v)
     u.hacerPositivo();
-    return ((u*v)/funcs.gcd()->gcd(u,v));
+    return ((u*v)/funcs.getGCD()->gcd(u,v));
   }
   Z LCM::lcm(Z u, CifraSigno v)
   {
@@ -28,7 +28,7 @@ namespace numth{
     v = labs(v);
     
     u.hacerPositivo();
-    return ((u*v)/funcs.gcd()->gcd(u,v));
+    return ((u*v)/funcs.getGCD()->gcd(u,v));
   }
 
 
@@ -42,7 +42,7 @@ namespace numth{
     u.hacerPositivo();
     v.hacerPositivo();
     
-    return ((u*v)/funcs.gcd()->gcd(u,v));
+    return ((u*v)/funcs.getGCD()->gcd(u,v));
   }
 
 }

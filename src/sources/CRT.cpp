@@ -12,7 +12,7 @@ namespace numth{
   Z CRTGarner::crt(MiVec<Z> y, MiVec<Z> m)
   {
     Funciones funcs;
-    PotModular* potModular = funcs.potModular();
+    PotModular* potModular = funcs.getPotModular();
     size_t t = y.size();
     MiVec<Z> C(t);
     Z x, u;

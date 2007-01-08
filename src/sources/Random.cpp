@@ -263,10 +263,10 @@ namespace numth{
     //1º, encontrar 2 primos p y q de Blum ( p = 3 (mod 4) <=>
     // (-1/p) == -1 
     Funciones funcs;
-    GenPrimos* gprimos = funcs.genPrimos();
+    GenPrimos* gprimos = funcs.getGenPrimos();
 //    SimboloLegendre* slegendre = funcs.simboloLegendre();
-    GCD* gcd = funcs.gcd();
-    RandomRapido* rnd = funcs.randomRapido();
+    GCD* gcd = funcs.getGCD();
+    RandomRapido* rnd = funcs.getRandomRapido();
  
     Z p,q;
     Z menosUno; menosUno.hacerUno(); menosUno.hacerNegativo();

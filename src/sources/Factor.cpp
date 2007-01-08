@@ -13,7 +13,7 @@ namespace numth{
   MiVec<Z> CadenaAlgFactor::factoriza(const Z& n)
   {
     Funciones funcs;
-    TestPrimoProb* test = funcs.testPrimoProb();
+    TestPrimoProb* test = funcs.getTestPrimoProb();
     MiVec<Z> factores; factores.clear();
     Trial trial;
     RhoPollard rho;
@@ -38,10 +38,10 @@ namespace numth{
   //  bool RhoPollard::factorZ(Z* n, MiVec<Z>* factores)
   //  {
   //    Funciones funcs;
-  //    RedBarrett* reduccion = funcs.redBarrett();
+  //    RedBarrett* reduccion = funcs.getBarrettReduction();
   //    Z mu = reduccion->precomputaciones(*n);
-  //    GCD* gcd = funcs.gcd();
-  ////    TestPrimoProb* test = funcs.testPrimoProb();
+  //    GCD* gcd = funcs.getGCD();
+  ////    TestPrimoProb* test = funcs.getTestPrimoProb();
   //
   //    Z y, x, x1;
   //    size_t k, l, c;
@@ -159,8 +159,8 @@ namespace numth{
 //    
 //    // pag 430 cohen
 //    Funciones funcs;
-//    GCD* gcd = funcs.gcd();
-//    TestPrimoProb* test = funcs.testPrimoProb();
+//    GCD* gcd = funcs.getGCD();
+//    TestPrimoProb* test = funcs.getTestPrimoProb();
 //
 //    Z D,d,L; // d = sqrt(D) , L = sqrt(d) = sqrt(sqrt(D))
 //    Z a,b,c; //representacion de la forma cuadratica f = (a,b,c)
@@ -331,10 +331,10 @@ namespace numth{
 
     // pag 91 Menezes
     Funciones funcs;
-    RedBarrett* reduccion = funcs.redBarrett();
+    RedBarrett* reduccion = funcs.getBarrettReduction();
     Z mu = reduccion->precomputaciones(*n);
-    GCD* gcd = funcs.gcd();
-    TestPrimoProb* test = funcs.testPrimoProb();
+    GCD* gcd = funcs.getGCD();
+    TestPrimoProb* test = funcs.getTestPrimoProb();
     Z a;
     Z b;
     Z d;
@@ -382,10 +382,10 @@ namespace numth{
   //  {
   //    // pag 91 Menezes
   //    Funciones funcs;
-  //    RedBarrett* reduccion = funcs.redBarrett();
+  //    RedBarrett* reduccion = funcs.getBarrettReduction();
   //    Z mu = reduccion->precomputaciones(*n);
-  //    GCD* gcd = funcs.gcd();
-  //    //    TestPrimoProb* test = funcs.testPrimoProb();
+  //    GCD* gcd = funcs.getGCD();
+  //    //    TestPrimoProb* test = funcs.getTestPrimoProb();
   //
   //    Z x, x0;
   //    Z y, ys;
@@ -451,15 +451,15 @@ namespace numth{
   //    xPrima = Z::convertir((Cifra)2); 
   //    Z k; k.hacerUno();
   //    Z l; l.hacerUno();
-  //    RedBarrett* reduccion = funcs.redBarrett();
-  //    GCD* gcd = funcs.gcd();
+  //    RedBarrett* reduccion = funcs.getBarrettReduction();
+  //    GCD* gcd = funcs.getGCD();
   //    Z mu = reduccion->precomputaciones(n);
   //    Z g;
   //
   ////    Trial trial;
   //    
   //    while(true){
-  //      if( funcs.testPrimoProb()->esPrimo(n) ){
+  //      if( funcs.getTestPrimoProb()->esPrimo(n) ){
   //        factores.push_back(n);
   //        return factores;
   //      }

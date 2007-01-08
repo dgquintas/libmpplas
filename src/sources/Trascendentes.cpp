@@ -165,11 +165,11 @@ namespace numth{
   {
     Funciones funcs;
 
-    R piMedios = funcs.pi()->pi();
+    R piMedios = funcs.getPi()->pi();
     piMedios >>= 1;
 
     //FIXME: esto es una mierda que te cagas de ineficiente
-    return funcs.coseno()->coseno(piMedios - x);
+    return funcs.getCoseno()->coseno(piMedios - x);
   }
     
 
@@ -181,7 +181,7 @@ namespace numth{
     size_t precVieja = R::precision();
     R::precision(2*precVieja);
     
-    R DosPi = (funcs.pi()->pi());
+    R DosPi = (funcs.getPi()->pi());
     DosPi <<= 1;
 //    cout << DosPi << endl;
     Z cociente = (x / DosPi).floor();
@@ -246,7 +246,7 @@ namespace numth{
     
     R result; 
     Funciones funcs;
-    ArcoTangente *arctan = funcs.arcotangente();
+    ArcoTangente *arctan = funcs.getArcotangente();
     size_t precisionVieja=0;
     if( prec ){
       precisionVieja = R::precision();

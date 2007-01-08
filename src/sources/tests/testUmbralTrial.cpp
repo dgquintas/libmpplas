@@ -19,7 +19,7 @@ int main()
   
   size_t anterior=0;
   MiVec<Z> vec;
-  funcs.randomRapido()->ponerSemilla(Z::convertir("983587"));
+  funcs.getRandomRapido()->ponerSemilla(Z::convertir("983587"));
   for(size_t j = 10; j < 100; j++){
 //    do{
 //      num = rnd.leerPrimoProb(j);  

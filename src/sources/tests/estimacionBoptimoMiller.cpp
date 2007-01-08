@@ -9,10 +9,10 @@ using namespace numth;
 int main()
 {
   Funciones funcs;
-  RandomRapido* rnd = funcs.randomRapido();
+  RandomRapido* rnd = funcs.getRandomRapido();
   TestPrimoProb* test = funcs.testPrimoProb();
-  GCD* gcd = funcs.gcd();
-  PotModular* potMod = funcs.potModular();
+  GCD* gcd = funcs.getGCD();
+  PotModular* potMod = funcs.getPotModular();
 
   size_t k;
   Z numKBits; numKBits.hacerUno();

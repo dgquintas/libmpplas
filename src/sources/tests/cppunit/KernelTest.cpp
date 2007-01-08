@@ -40,7 +40,6 @@ void KernelTest::testAddx(){
 }
 
 void KernelTest::testSub(){
-
   CPPUNIT_ASSERT_EQUAL( one, cpu_.Sub(three, two) );
   CPPUNIT_ASSERT_EQUAL( zero, cpu_.getOverflow() );
 
@@ -75,8 +74,6 @@ void KernelTest::testSubx(){
 
   CPPUNIT_ASSERT_EQUAL( Constantes::CIFRA_MAX, cpu_.Subx(two, two) );
   CPPUNIT_ASSERT_EQUAL( one, cpu_.getOverflow() );
-
-
 }
 
 void KernelTest::testMul(){
@@ -97,9 +94,48 @@ void KernelTest::testAddmul(){
 }
 
 void KernelTest::testDiv(){
+  //shouldn't try to divide by zero
+  CPPUNIT_ASSERT_EQUAL( three, cpu_.Div(three, one) );
 
+
+  CPPUNIT_ASSERT_EQUAL( zero, cpu_.Div(one, two) ); 
+  CPPUNIT_ASSERT_EQUAL( one, cpu_.getResto() ); 
+  
+  CPPUNIT_ASSERT_EQUAL( (Constantes::CIFRA_MAX/2) +1, cpu_.Div(zero, two) ); 
+  CPPUNIT_ASSERT_EQUAL( zero, cpu_.getResto() );
+}
+
+void KernelTest::testShiftl(){
+  CPPUNIT_ASSERT_EQUAL( two, cpu_.Shiftl(one,1) );
+  Cifra tmp = one;
+  tmp <<= Constantes::BITS_EN_CIFRA-1;
+  CPPUNIT_ASSERT_EQUAL( tmp, cpu_.Shiftl(one, Constantes::BITS_EN_CIFRA-1));
+
+  CPPUNIT_ASSERT_EQUAL( zero, cpu_.Shiftl(two, Constantes::BITS_EN_CIFRA-1));
+  CPPUNIT_ASSERT_EQUAL( (Cifra)1, cpu_.getResto());
+}
+
+void KernelTest::testShiftlr(){
+  CPPUNIT_ASSERT_EQUAL( one, cpu_.Shiftlr(three, 1) );
+  Cifra tmp = one;
+  tmp <<= Constantes::BITS_EN_CIFRA-1;
+  CPPUNIT_ASSERT_EQUAL( tmp, cpu_.getResto());
+
+  CPPUNIT_ASSERT_EQUAL( one, cpu_.Shiftlr(two, 1) );
+  CPPUNIT_ASSERT_EQUAL( zero, cpu_.getResto());
 
 }
+
+
+void KernelTest::testBfffo(){
+  CPPUNIT_ASSERT_EQUAL( (Cifra)Constantes::BITS_EN_CIFRA-1, cpu_.Bfffo(one));
+  CPPUNIT_ASSERT_EQUAL( (Cifra)Constantes::BITS_EN_CIFRA, cpu_.Bfffo(zero));
+  CPPUNIT_ASSERT_EQUAL( (Cifra)Constantes::BITS_EN_CIFRA-2, cpu_.Bfffo(two));
+  CPPUNIT_ASSERT_EQUAL( (Cifra)0, cpu_.Bfffo(Constantes::CIFRA_MAX));
+}
+
+
+
 
 
 

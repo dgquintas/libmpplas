@@ -17,30 +17,28 @@ class Z_nTest : public CppUnit::TestFixture {
 
   CPPUNIT_TEST_SUITE( Z_nTest );
     CPPUNIT_TEST( testAdditionWithZ );
-    CPPUNIT_TEST( testAdditionWithZn );
     CPPUNIT_TEST( testAdditionWithCifra );
     CPPUNIT_TEST( testAdditionWithCifraSigno );
     
     CPPUNIT_TEST( testSubstractionWithZ );
-    CPPUNIT_TEST( testSubstractionWithZn );
     CPPUNIT_TEST( testSubstractionWithCifra );
     CPPUNIT_TEST( testSubstractionWithCifraSigno );
     
     CPPUNIT_TEST( testProductWithZ);
-    CPPUNIT_TEST( testProductWithZn);
     CPPUNIT_TEST( testProductWithCifra);
     CPPUNIT_TEST( testProductWithCifraSigno);
     
     CPPUNIT_TEST( testDivisionWithZ);
     CPPUNIT_TEST_EXCEPTION( testDivisionWithZThrows, Errores::ElementoNoInvertible );
-    CPPUNIT_TEST( testDivisionWithZn);
     CPPUNIT_TEST( testDivisionWithCifra);
+    CPPUNIT_TEST_EXCEPTION( testDivisionWithCifraThrows, Errores::ElementoNoInvertible);
     CPPUNIT_TEST( testDivisionWithCifraSigno);
+    CPPUNIT_TEST_EXCEPTION( testDivisionWithCifraSignoThrows, Errores::ElementoNoInvertible);
     
     CPPUNIT_TEST( testExponentiationWithZ);
-    CPPUNIT_TEST( testExponentiationWithZn);
     CPPUNIT_TEST( testExponentiationWithCifra);
-    CPPUNIT_TEST( testExponentiationWithCifraSigno);
+    CPPUNIT_TEST_EXCEPTION( testExponentiationWithCifraSignoThrows, Errores::ElementoNoInvertible );
+    CPPUNIT_TEST( testExponentiationWithCifraSigno );
 
   CPPUNIT_TEST_SUITE_END();
   
@@ -51,30 +49,28 @@ class Z_nTest : public CppUnit::TestFixture {
     
     /* The actual tests */
     void testAdditionWithZ();
-    void testAdditionWithZn();
     void testAdditionWithCifra();
     void testAdditionWithCifraSigno();
     
     void testSubstractionWithZ();
-    void testSubstractionWithZn();
     void testSubstractionWithCifra();
     void testSubstractionWithCifraSigno();
     
     void testProductWithZ();
-    void testProductWithZn();
     void testProductWithCifra();
     void testProductWithCifraSigno();
     
     void testDivisionWithZ();
     void testDivisionWithZThrows();
-    void testDivisionWithZn();
     void testDivisionWithCifra();
+    void testDivisionWithCifraThrows();
     void testDivisionWithCifraSigno();
+    void testDivisionWithCifraSignoThrows();
     
     void testExponentiationWithZ();
-    void testExponentiationWithZn();
     void testExponentiationWithCifra();
     void testExponentiationWithCifraSigno();
+    void testExponentiationWithCifraSignoThrows();
     
   private:
     Z integer;
@@ -83,8 +79,6 @@ class Z_nTest : public CppUnit::TestFixture {
     Z primeModulus;
     Cifra cifra;
     CifraSigno cifraSigno;
-
-    std::ostringstream oss;
 
     Funciones funcs;
 };

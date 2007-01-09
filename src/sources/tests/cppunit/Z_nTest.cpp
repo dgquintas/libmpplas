@@ -6,7 +6,6 @@
 #include <string>
 #include <sstream>
 #include "Z_nTest.h"
-#include "TestHelpers.h"
 #include <pari/pari.h>
 
 
@@ -54,8 +53,6 @@ void Z_nTest::testAdditionWithZ(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  printDebug("testAdditionWithZn", pariStr, thisStr);
-
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
 void Z_nTest::testAdditionWithCifra(){
@@ -76,7 +73,6 @@ void Z_nTest::testAdditionWithCifra(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  printDebug("testAdditionWithCifra", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
 void Z_nTest::testAdditionWithCifraSigno(){
@@ -97,7 +93,6 @@ void Z_nTest::testAdditionWithCifraSigno(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  printDebug("testAdditionWithCifraSigno", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 
 }
@@ -120,7 +115,6 @@ void Z_nTest::testSubstractionWithZ(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  printDebug("testSubstractionWithZ", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
 void Z_nTest::testSubstractionWithCifra(){
@@ -141,7 +135,6 @@ void Z_nTest::testSubstractionWithCifra(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  printDebug("testSubstractionWithCifra", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
 void Z_nTest::testSubstractionWithCifraSigno(){
@@ -162,7 +155,6 @@ void Z_nTest::testSubstractionWithCifraSigno(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  printDebug("testSubstractionWithCifraSigno", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 
 }
@@ -184,7 +176,6 @@ void Z_nTest::testProductWithZ(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
   
-  printDebug("testProductWithZ", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
 void Z_nTest::testProductWithCifra(){
@@ -205,7 +196,6 @@ void Z_nTest::testProductWithCifra(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  printDebug("testProductWithCifra", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
 void Z_nTest::testProductWithCifraSigno(){
@@ -226,7 +216,6 @@ void Z_nTest::testProductWithCifraSigno(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  printDebug("testProductWithCifraSigno", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
 
@@ -253,7 +242,6 @@ void Z_nTest::testDivisionWithZ(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  printDebug("testDivisionWithZ", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
 void Z_nTest::testDivisionWithZThrows(){
@@ -289,7 +277,6 @@ void Z_nTest::testDivisionWithCifra(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  printDebug("testDivisionWithCifra", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 
 }
@@ -328,7 +315,6 @@ void Z_nTest::testDivisionWithCifraSigno(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  printDebug("testDivisionWithCifraSigno", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
 void Z_nTest::testDivisionWithCifraSignoThrows(){
@@ -363,7 +349,6 @@ void Z_nTest::testExponentiationWithZ(){
   string pariStr(GENtostr( pariRes ));
   string thisStr = res.toString();
 
-  printDebug("testExponentiationWithZ", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
 void Z_nTest::testExponentiationWithCifra(){
@@ -389,7 +374,6 @@ void Z_nTest::testExponentiationWithCifra(){
   string pariStr(GENtostr( pariRes ));
   string thisStr = res.toString();
 
-  printDebug("testExponentiationWithCifra", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
 void Z_nTest::testExponentiationWithCifraSigno(){ 
@@ -415,7 +399,6 @@ void Z_nTest::testExponentiationWithCifraSigno(){
   string pariStr(GENtostr( pariRes ));
   string thisStr = res.toString();
 
-  printDebug("testExponentiationWithCifraSigno", pariStr, thisStr);
   CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
 }
 void Z_nTest::testExponentiationWithCifraSignoThrows(){

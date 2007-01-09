@@ -27,12 +27,15 @@ myenv.ParseConfig('cppunit-config --libs')
 myenv.Append(LIBS = '-lpari')
 myenv.Append(LIBS = ['qt-mt', 'pthread', 'm', 'X11', 'Xext','qttestrunner'])
 myenv.Append(CPPPATH = '/usr/include/qt3')
+myenv.Replace(CCFLAGS = '-O0 -ggdb3') #FIXME
 
 files = Split("""
     ZTest.cpp
     KernelTest.cpp
     OpenMPTest.cpp
     Z_nTest.cpp
+    FunctionsTest.cpp
+    RandomTest.cpp
     main.cpp
     """)
 

@@ -67,7 +67,7 @@ if env['arch'] not in getNativelySupportedArchs():
 #  env.Append(CCFLAGS = ' -ffast-math')  #FIXME: esto con icc no chuta
 
 if env['enableDebug']:
-  env.Append(CCFLAGS = ' -g')
+  env.Append(CCFLAGS = ' -ggdb3')
 
 if env['enableWarnings']:
   env.Append(CCFLAGS = ' -Wall -W -Werror')

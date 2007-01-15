@@ -22,14 +22,8 @@
   template<>
     inline Cifra vCPUBasica<Arch::generic>::Add(Cifra arg1, Cifra arg2)
     {
-      Cifra ret; 
-
-      ret = arg1 + arg2;
-      if( ret < arg1 )
-        overflow = 1;
-      else
-        overflow = 0;
-
+      const Cifra ret = arg1 + arg2;
+      overflow = ( ret < arg1 );
       return ret; 
     }
 
@@ -40,24 +34,8 @@
   template<>
     inline Cifra vCPUBasica<Arch::generic>::Addx(Cifra arg1, Cifra arg2) 
     { 
-      Cifra ret; 
-
-      ret = arg1 + arg2;
-
-      if( overflow ){
-        ret++;
-        if ( ret <= arg1  ){
-          overflow = 0;
-        }
-        //no hay else, el overflow seguiria siendo 1
-      } 
-      else{ //overflow == 0
-        if( ret < arg1 ){
-          overflow++;
-        }
-      }
-
-
+      const Cifra ret = arg1 + arg2 + overflow;
+      overflow = (ret < arg1 || (ret==arg1 && overflow));
       return ret; 
     }
 
@@ -69,14 +47,8 @@
   template<>
     inline Cifra vCPUBasica<Arch::generic>::Sub(Cifra arg1, Cifra arg2) 
     { 
-      Cifra ret; 
-//
-        if( arg2 > arg1 )
-          overflow = 1;
-        else
-          overflow = 0;
-       ret = arg1-arg2;
-     
+      const Cifra ret = arg1-arg2;
+      overflow = ( ret > arg1 );
       return ret; 
     }
   /** Resta básica extendida de dos Cifras para generic.
@@ -86,19 +58,8 @@
   template<>
     inline Cifra vCPUBasica<Arch::generic>::Subx(Cifra arg1, Cifra arg2) 
     { 
-      Cifra ret; 
-      ret = arg1-arg2;
-
-      if( overflow ){
-        if ( arg1 > arg2 )
-          overflow = 0;
-        //no hay else, el overflow seguiria siendo 1
-        ret--;
-      } 
-      else //overflow == 0
-        if( arg2 > arg1 )
-          overflow = 1;
- 
+      const Cifra ret = arg1-arg2-overflow;
+      overflow = (ret > arg1 || (ret == arg1 && overflow) );
 
       return ret; 
     }

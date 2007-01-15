@@ -44,6 +44,7 @@ class Z_nTest : public CppUnit::TestFixture {
   
   public:
     Z_nTest();
+    ~Z_nTest();
     void setUp();
     void tearDown();
     

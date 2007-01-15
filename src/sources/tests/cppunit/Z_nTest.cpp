@@ -18,6 +18,10 @@ Z_nTest::Z_nTest(){
   pari_init(1000000, 0);
 }
 
+Z_nTest::~Z_nTest(){
+  pari_close();
+}
+
 void Z_nTest::setUp(){
   integer = funcs.getRandomRapido()->leerBits(2000);
   modulus = funcs.getRandomRapido()->leerBits(500);

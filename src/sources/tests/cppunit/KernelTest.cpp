@@ -129,9 +129,9 @@ void KernelTest::testShiftlr(){
 
 void KernelTest::testBfffo(){
   CPPUNIT_ASSERT_EQUAL( (Cifra)Constantes::BITS_EN_CIFRA-1, cpu_.Bfffo(one));
-  CPPUNIT_ASSERT_EQUAL( (Cifra)Constantes::BITS_EN_CIFRA, cpu_.Bfffo(zero));
   CPPUNIT_ASSERT_EQUAL( (Cifra)Constantes::BITS_EN_CIFRA-2, cpu_.Bfffo(two));
-  CPPUNIT_ASSERT_EQUAL( (Cifra)0, cpu_.Bfffo(Constantes::CIFRA_MAX));
+  //undefined for 0. Could be considered to be the number of bits of
+  //the basic type, but that's not guaranted
 }
 
 

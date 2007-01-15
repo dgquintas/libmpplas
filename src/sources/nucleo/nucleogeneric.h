@@ -42,13 +42,21 @@
     { 
       Cifra ret; 
 
-            __asm__ ("btr $0, %[_of];"
-               "adcl %[_arg2], %[_arg1];" 
-               "adcl $0, %[_of]; "
-          : "=r" (ret), [_of] "=r" (overflow) 
-          : [_arg1] "0" (arg1), [_arg2] "g" (arg2), "1" (overflow) 
-          : "cc" /* modificamos eflags */
-          );
+      ret = arg1 + arg2;
+
+      if( overflow ){
+        ret++;
+        if ( ret <= arg1  ){
+          overflow = 0;
+        }
+        //no hay else, el overflow seguiria siendo 1
+      } 
+      else{ //overflow == 0
+        if( ret < arg1 ){
+          overflow++;
+        }
+      }
+
 
       return ret; 
     }
@@ -62,13 +70,6 @@
     inline Cifra vCPUBasica<Arch::generic>::Sub(Cifra arg1, Cifra arg2) 
     { 
       Cifra ret; 
-//     __asm__ ("xor %[_of], %[_of];"
-//               "subl %[_arg2], %[_arg1];"
-//               "adcl $0, %[_of]; " 
-//          : "=r" (ret), [_of] "=r" (overflow) 
-//          : [_arg1] "0" (arg1), [_arg2] "g" (arg2)
-//          : "cc" /* modificamos eflags */
-//          ); 
 //
         if( arg2 > arg1 )
           overflow = 1;
@@ -87,14 +88,6 @@
     { 
       Cifra ret; 
       ret = arg1-arg2;
-
-//        __asm__ ("btr $0, %[_of];" /* pone CF al valor del bit 0 de overflow */
-//               "sbbl %[_arg2], %[_arg1];"
-//               "adcl $0, %[_of];" 
-//          : "=r" (ret), [_of] "=r" (overflow) 
-//          : [_arg1] "0" (arg1), [_arg2] "g" (arg2), "1" (overflow) 
-//          : "cc" /* modificamos eflags */
-//          );
 
       if( overflow ){
         if ( arg1 > arg2 )
@@ -124,48 +117,52 @@
 //          : [_arg1] "0" (arg1), [_arg2] "rm" (arg2)
 //          ); 
 
-      Cifra arg1_1, arg1_2;
-      Cifra arg2_1, arg2_2;
+//      Cifra arg1_1, arg1_2;
+//      Cifra arg2_1, arg2_2;
+//
+//      Cifra temp1,temp2,temp3,temp4;
+//
+//      arg1_1 = arg1 & ((Constantes::CIFRA_MAX >> 1)-1);
+//      arg1_2 = ( arg1 >> (Constantes::BITS_EN_CIFRA >> 1));
+// 
+//      arg2_1 = arg2 & ((Constantes::CIFRA_MAX >> 1)-1);
+//      arg2_2 = ( arg2 >> (Constantes::BITS_EN_CIFRA >> 1));
+//
+//      temp1 = arg1_1 * arg2_1;
+//      temp2 = arg1_1 * arg2_2;
+//      temp3 = arg1_2 * arg2_1;
+//      temp4 = arg1_2 * arg2_2;
+//      
+//      arg1_1 = temp1 & ((Constantes::CIFRA_MAX >> 1)-1);
+//      arg1_2 = ( temp1 >> (Constantes::BITS_EN_CIFRA >> 1));
+//      
+//      arg2_1 = temp2 & ((Constantes::CIFRA_MAX >> 1)-1);
+//      arg2_2 = ( temp2 >> (Constantes::BITS_EN_CIFRA >> 1));
+//     
+//      arg2_1 <<= (Constantes::BITS_EN_CIFRA >> 1);
+//      temp1 = Add(temp1, arg2_1);
+//      temp2 = Addx(0, arg2_2);
+//      
+//
+//      ///////////////
+//      
+//      arg1_1 = temp3 & ((Constantes::CIFRA_MAX >> 1)-1);
+//      arg1_2 = ( temp3 >> (Constantes::BITS_EN_CIFRA >> 1));
+//      
+//      arg2_1 = temp4 & ((Constantes::CIFRA_MAX >> 1)-1);
+//      arg2_2 = ( temp4 >> (Constantes::BITS_EN_CIFRA >> 1));
+//     
+//      arg2_1 <<= (Constantes::BITS_EN_CIFRA >> 1);
+//      temp3 = Add(temp3, arg2_1);
+//      temp4 = Addx(0, arg2_2);
 
-      Cifra temp1,temp2,temp3,temp4;
+      
+      uint64_t res = arg1;
+      res *= arg2;
 
-      arg1_1 = arg1 & ((Constantes::CIFRA_MAX >> 1)-1);
-      arg1_2 = ( arg1 >> (Constantes::BITS_EN_CIFRA >> 1));
- 
-      arg2_1 = arg2 & ((Constantes::CIFRA_MAX >> 1)-1);
-      arg2_2 = ( arg2 >> (Constantes::BITS_EN_CIFRA >> 1));
+      resto = ((res>> 32) & Constantes::CIFRA_MAX );
+      ret = res & (Constantes::CIFRA_MAX) ;
 
-      temp1 = arg1_1 * arg2_1;
-      temp2 = arg1_1 * arg2_2;
-      temp3 = arg1_2 * arg2_1;
-      temp4 = arg1_2 * arg2_2;
-      
-      arg1_1 = temp1 & ((Constantes::CIFRA_MAX >> 1)-1);
-      arg1_2 = ( temp1 >> (Constantes::BITS_EN_CIFRA >> 1));
-      
-      arg2_1 = temp2 & ((Constantes::CIFRA_MAX >> 1)-1);
-      arg2_2 = ( temp2 >> (Constantes::BITS_EN_CIFRA >> 1));
-     
-      arg2_1 <<= (Constantes::BITS_EN_CIFRA >> 1);
-      temp1 = Add(temp1, arg2_1);
-      temp2 = Addx(0, arg2_2);
-      
-
-      ///////////////
-      
-      arg1_1 = temp3 & ((Constantes::CIFRA_MAX >> 1)-1);
-      arg1_2 = ( temp3 >> (Constantes::BITS_EN_CIFRA >> 1));
-      
-      arg2_1 = temp4 & ((Constantes::CIFRA_MAX >> 1)-1);
-      arg2_2 = ( temp4 >> (Constantes::BITS_EN_CIFRA >> 1));
-     
-      arg2_1 <<= (Constantes::BITS_EN_CIFRA >> 1);
-      temp3 = Add(temp3, arg2_1);
-      temp4 = Addx(0, arg2_2);
-
-      
-      
-      
       return ret; 
     }
 
@@ -212,16 +209,8 @@
   template<>
     inline Cifra vCPUBasica<Arch::generic>::Shiftl(Cifra arg1,Cifra arg2) 
     { 
-      Cifra ret;
-
-      __asm__ ("xor %[_resto], %[_resto];"
-               "shldl %%cl, %[_arg1], %[_resto]; "
-               "shll %%cl, %[_arg1];"  
-          : "=r" (ret), [_resto] "=r" (resto) 
-          : [_arg1] "0" (arg1), "c" (arg2), "1" (resto)
-          ); 
-
-      return ret; 
+      resto = arg1 >> (Constantes::BITS_EN_CIFRA-arg2);
+      return (arg1 << arg2) ; 
     }
 
   /** Desplazamiento de bits de la derecha para generic.
@@ -231,16 +220,8 @@
   template<>
     inline Cifra vCPUBasica<Arch::generic>::Shiftlr(Cifra arg1,Cifra arg2) 
     { 
-      Cifra ret;
-
-      __asm__ ("xor %[_resto], %[_resto];"
-               "shrdl %%cl, %[_arg1], %[_resto];"
-               "shrl %%cl, %[_arg1]" 
-          : "=r" (ret), [_resto] "=r" (resto) 
-          : [_arg1] "0" (arg1), "c" (arg2), "1" (resto)
-          ); 
-
-      return ret; 
+      resto = arg1 << (Constantes::BITS_EN_CIFRA-arg2);
+      return (arg1 >> arg2);
     }
 
   /** Encabezado de ceros para generic.
@@ -250,18 +231,35 @@
   template<>
     inline Cifra vCPUBasica<Arch::generic>::Bfffo(Cifra arg1) 
     {
-      Cifra ret = (Constantes::BITS_EN_CIFRA-1), temp; 
+      int res = Constantes::BITS_EN_CIFRA;
 
-      if( (arg1) != (0))  { 
-//        __asm__ (" bsrl %[_arg1], %[_temp]; " 
-//            : [_temp] "=r" (temp) 
-//            : [_arg1] "g" (arg1) 
-//            ); 
-        ret -= temp; 
+      static const Cifra masks[] = { 0x2, 0xc, 0xf0, 0xff00, 0xffff0000 }; //FIXME:generate at compiletime
+
+      if( arg1 & masks[4] ){
+        arg1 >>= 16;
+        res -= 16;
       }
-      else ret++; 
-
-      return ret; 
+      if( arg1 & masks[3] ){
+        arg1 >>= 8;
+        res -= 8;
+      }
+      if( arg1 & masks[2] ){
+        arg1 >>= 4;
+        res -= 4;
+      }
+      if(arg1 & masks[1] ){
+        arg1 >>= 2;
+        res -= 2;
+      }
+      switch(arg1){
+        case 3:
+        case 2:
+          return res -2 ;
+        case 1:
+          return res - 1;
+        case 0:
+          return res ;
+      }
     }
 
   /** Función de perfilado en generic (inválido).

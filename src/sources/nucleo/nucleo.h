@@ -300,7 +300,7 @@ namespace numth{
   template<int A>
     ResultadosProf vCPUBasica<A>::resultadosProf_;
 
-//  #include "nucleogeneric.h"
+  #include "nucleogeneric.h"
   #include "nucleox86.h"
   #include "nucleox86prof.h"
   #include "nucleoppc.h"

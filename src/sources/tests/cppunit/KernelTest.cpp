@@ -35,8 +35,12 @@ void KernelTest::testAdd(){
 }
 
 void KernelTest::testAddx(){
-  CPPUNIT_ASSERT_EQUAL( zero, cpu_.Addx(Constantes::CIFRA_MAX, one) );
+  const Cifra CM = Constantes::CIFRA_MAX;
+  CPPUNIT_ASSERT_EQUAL( zero, cpu_.Addx(CM, one) );
   CPPUNIT_ASSERT_EQUAL( one,  cpu_.Addx(zero,zero) );
+  CPPUNIT_ASSERT_EQUAL( CM-1, cpu_.Addx(CM,CM) );
+  CPPUNIT_ASSERT_EQUAL( one, cpu_.getOverflow() );
+
 }
 
 void KernelTest::testSub(){

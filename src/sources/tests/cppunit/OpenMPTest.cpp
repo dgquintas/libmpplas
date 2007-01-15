@@ -1,5 +1,5 @@
 /*
- * $Id $
+ * $Id$
  */
 
 #ifdef _OPENMP

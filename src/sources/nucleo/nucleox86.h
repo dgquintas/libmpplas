@@ -124,7 +124,6 @@
     { 
       Cifra ret; 
 
-//      sleep( rand() % 3);
 
       __asm__ (" mull %[_arg2];"
                "addl %[_restoViejo],%[_ret];" 

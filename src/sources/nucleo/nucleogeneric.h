@@ -2,6 +2,9 @@
  * $Id$
  */
 
+inline Cifra HIGHHALF(Cifra x) { return (x >> Constantes::BITS_IN_HALFCIFRA); }
+inline Cifra LOWHALF(Cifra x) { return (x & Constantes::MASK_CIFRALOW); }
+
 
   /******************************************************************
    *                                                                 *
@@ -71,60 +74,24 @@
   template<>
     inline Cifra vCPUBasica<Arch::generic>::Mul(Cifra arg1,Cifra arg2) 
     { 
-      Cifra ret; 
+      // based on pari-gp's implementation by Peter Montgomery
+      const Cifra xlo = LOWHALF(arg1), xhi = HIGHHALF(arg1);
+      const Cifra ylo = LOWHALF(arg2), yhi = HIGHHALF(arg2);
+      Cifra xylo,xymid,xyhi,xymidhi,xymidlo;
+      Cifra xhl,yhl;
 
-//      __asm__ (" mull %[_arg2]" 
-//          : "=a" (ret), "=d" (resto) 
-//          : [_arg1] "0" (arg1), [_arg2] "rm" (arg2)
-//          ); 
+      xylo = xlo*ylo; xyhi = xhi*yhi;
+      xhl = xhi+xlo; yhl = yhi+ylo;
+      xymid = xhl*yhl - (xyhi+xylo);
 
-//      Cifra arg1_1, arg1_2;
-//      Cifra arg2_1, arg2_2;
-//
-//      Cifra temp1,temp2,temp3,temp4;
-//
-//      arg1_1 = arg1 & ((Constantes::CIFRA_MAX >> 1)-1);
-//      arg1_2 = ( arg1 >> (Constantes::BITS_EN_CIFRA >> 1));
-// 
-//      arg2_1 = arg2 & ((Constantes::CIFRA_MAX >> 1)-1);
-//      arg2_2 = ( arg2 >> (Constantes::BITS_EN_CIFRA >> 1));
-//
-//      temp1 = arg1_1 * arg2_1;
-//      temp2 = arg1_1 * arg2_2;
-//      temp3 = arg1_2 * arg2_1;
-//      temp4 = arg1_2 * arg2_2;
-//      
-//      arg1_1 = temp1 & ((Constantes::CIFRA_MAX >> 1)-1);
-//      arg1_2 = ( temp1 >> (Constantes::BITS_EN_CIFRA >> 1));
-//      
-//      arg2_1 = temp2 & ((Constantes::CIFRA_MAX >> 1)-1);
-//      arg2_2 = ( temp2 >> (Constantes::BITS_EN_CIFRA >> 1));
-//     
-//      arg2_1 <<= (Constantes::BITS_EN_CIFRA >> 1);
-//      temp1 = Add(temp1, arg2_1);
-//      temp2 = Addx(0, arg2_2);
-//      
-//
-//      ///////////////
-//      
-//      arg1_1 = temp3 & ((Constantes::CIFRA_MAX >> 1)-1);
-//      arg1_2 = ( temp3 >> (Constantes::BITS_EN_CIFRA >> 1));
-//      
-//      arg2_1 = temp4 & ((Constantes::CIFRA_MAX >> 1)-1);
-//      arg2_2 = ( temp4 >> (Constantes::BITS_EN_CIFRA >> 1));
-//     
-//      arg2_1 <<= (Constantes::BITS_EN_CIFRA >> 1);
-//      temp3 = Add(temp3, arg2_1);
-//      temp4 = Addx(0, arg2_2);
+      xymidhi = HIGHHALF(xymid);
+      xymidlo = xymid << Constantes::BITS_IN_HALFCIFRA;
 
-      
-      uint64_t res = arg1;
-      res *= arg2;
+      xylo += xymidlo;
+      resto = xyhi + xymidhi + (xylo < xymidlo)
+         + ((((xhl + yhl) >> 1) - xymidhi) & Constantes::MASK_CIFRAHIGH);
 
-      resto = ((res>> 32) & Constantes::CIFRA_MAX );
-      ret = res & (Constantes::CIFRA_MAX) ;
-
-      return ret; 
+      return xylo;
     }
 
   /** Producto de dos Cifras con suma para generic.
@@ -134,16 +101,26 @@
   template<>
     inline Cifra vCPUBasica<Arch::generic>::Addmul(Cifra arg1,Cifra arg2) 
     { 
-      Cifra ret; 
+      // based on pari-gp's implementation by Peter Montgomery
+        const Cifra xlo = LOWHALF(arg1), xhi = HIGHHALF(arg1);
+        const Cifra ylo = LOWHALF(arg2), yhi = HIGHHALF(arg2);
+        Cifra xylo,xymid,xyhi,xymidhi,xymidlo;
+        Cifra xhl,yhl;
 
-      __asm__ (" mull %[_arg2];"
-               "addl %[_restoViejo],%[_ret];" 
-               "adcl $0, %%edx;"      
-          : [_ret] "=a" (ret), "=&d" (resto) 
-          : [_arg1] "0" (arg1), [_arg2] "rm" (arg2), [_restoViejo] "g" (resto) 
-          ); 
+        xylo = xlo*ylo; xyhi = xhi*yhi;
+        xhl = xhi+xlo; yhl = yhi+ylo;
+        xymid = xhl*yhl - (xyhi+xylo);
 
-      return ret; 
+        xylo += resto; xyhi += (xylo < resto);
+
+        xymidhi = HIGHHALF(xymid);
+        xymidlo = xymid << Constantes::BITS_IN_HALFCIFRA;
+
+        xylo += xymidlo;
+        resto = xyhi + xymidhi + (xylo < xymidlo)
+          + ((((xhl + yhl) >> 1) - xymidhi) & Constantes::MASK_CIFRAHIGH);
+
+        return xylo;
     }
 
   /** Cociente y resto de dos Cifras para generic. 
@@ -153,11 +130,16 @@
    template<>
     inline Cifra vCPUBasica<Arch::generic>::Div(Cifra arg1, Cifra arg2) 
     { 
-      Cifra ret; 
-      __asm__ (" divl %[_arg2]" 
-          : "=a" (ret), "=d" (resto) 
-          : [_arg1] "0" (arg1), [_arg2] "g" (arg2), "1" (resto)
-          ); 
+      //FIXME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      uint64_t x = resto;
+      x <<= Constantes::BITS_EN_CIFRA;
+      x |= arg1;
+      const Cifra ret = x/arg2; 
+      resto = x % arg2;
+//      __asm__ (" divl %[_arg2]" 
+//          : "=a" (ret), "=d" (resto) 
+//          : [_arg1] "0" (arg1), [_arg2] "g" (arg2), "1" (resto)
+//          ); 
 
       return ret;
     }

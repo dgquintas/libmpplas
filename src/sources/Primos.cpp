@@ -208,7 +208,7 @@ namespace numth{
     
   }
 
-
+////////////////////////////////////////////////
 
 
   Z GenPrimos::leerPrimoProb(size_t bits)

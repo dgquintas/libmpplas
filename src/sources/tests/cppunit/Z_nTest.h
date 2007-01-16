@@ -82,6 +82,7 @@ class Z_nTest : public CppUnit::TestFixture {
     CifraSigno cifraSigno;
 
     Funciones funcs;
+
 };
 
 #endif /*Z_NTEST_H_*/

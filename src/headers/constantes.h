@@ -61,10 +61,39 @@ namespace numth{
     /** Log en base 10 de 2*/
     const double LOG_10_2 = 0.3010299956639812;
 
-    /* Maximo valor de una Cifra */
+
+    /** Bits en mantisa de un double */
+    const unsigned long BITS_EN_DOUBLE = std::numeric_limits<double>::digits;
+
+    /** Bits en un unsigned long */
+    const unsigned long BITS_EN_ULONG = std::numeric_limits<unsigned long>::digits;
+
+    /** Bits en un Cifra */
+    const unsigned long BITS_EN_CIFRA = std::numeric_limits<Cifra>::digits;
+
+    /** Bits in half a Cifra */
+    const unsigned long BITS_IN_HALFCIFRA = std::numeric_limits<Cifra>::digits >> 1;
+
+    /** Bits en un CifraSigno */
+    const unsigned long BITS_EN_CIFRASIGNO = std::numeric_limits<CifraSigno>::digits;
+
+    /** Bytes en un Cifra */
+    const unsigned long BYTES_EN_CIFRA = BITS_EN_CIFRA >> 3;
+
+
+    /** Maximo valor de una Cifra */
     const Cifra CIFRA_MAX = std::numeric_limits<Cifra>::max();
+
+    /** Maximum value for half a Cifra */
+    const Cifra CIFRAHALF_MAX = (((Cifra)1) << BITS_IN_HALFCIFRA) - 1;
+
+    /** TODO */
+   const Cifra MASK_CIFRALOW = CIFRAHALF_MAX;
+
+    /** TODO  */
+   const Cifra MASK_CIFRAHIGH = ~MASK_CIFRALOW;
  
-    /* Maximo valor de una CifraSigno */
+    /** Maximo valor de una CifraSigno */
     const CifraSigno CIFRASIGNO_MAX = std::numeric_limits<CifraSigno>::max();
 
 #ifdef ULONG_MAX
@@ -109,20 +138,7 @@ namespace numth{
     * fraccionaria. */
     const unsigned long MAX_EXP10_DOUBLE = std::numeric_limits<double>::digits10;
 
-    /** Bits en mantisa de un double */
-    const unsigned long BITS_EN_DOUBLE = std::numeric_limits<double>::digits;
 
-    /** Bits en un unsigned long */
-    const unsigned long BITS_EN_ULONG = std::numeric_limits<unsigned long>::digits;
-
-    /** Bits en un Cifra */
-    const unsigned long BITS_EN_CIFRA = std::numeric_limits<Cifra>::digits;
-
-    /** Bits en un CifraSigno */
-    const unsigned long BITS_EN_CIFRASIGNO = std::numeric_limits<CifraSigno>::digits;
-
-    /** Bytes en un Cifra */
-    const unsigned long BYTES_EN_CIFRA = BITS_EN_CIFRA >> 3;
 
     /** Número de cifras en base \f$2^{BITS_EN_CIFRA}\f$ a partir del cual se usa
     * la multiplicacion de Karatsuba */

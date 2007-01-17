@@ -53,81 +53,81 @@ namespace numth{
    * largo de la librería. */
   namespace Constantes{
     /** Número de operaciones soportadas por vCPUBasica */
-    const size_t NUM_OPERACIONES = 10;
+    static const size_t NUM_OPERACIONES = 10;
 
     /** Log en base 2 de 10*/
-    const double LOG_2_10 = 3.3219280948873623;
+    static const double LOG_2_10 = 3.3219280948873623;
 
     /** Log en base 10 de 2*/
-    const double LOG_10_2 = 0.3010299956639812;
+    static const double LOG_10_2 = 0.3010299956639812;
 
 
     /** Bits en mantisa de un double */
-    const unsigned long BITS_EN_DOUBLE = std::numeric_limits<double>::digits;
+    static const unsigned long BITS_EN_DOUBLE = std::numeric_limits<double>::digits;
 
     /** Bits en un unsigned long */
-    const unsigned long BITS_EN_ULONG = std::numeric_limits<unsigned long>::digits;
+    static const unsigned long BITS_EN_ULONG = std::numeric_limits<unsigned long>::digits;
 
     /** Bits en un Cifra */
-    const unsigned long BITS_EN_CIFRA = std::numeric_limits<Cifra>::digits;
+    static const unsigned long BITS_EN_CIFRA = std::numeric_limits<Cifra>::digits;
 
     /** Bits in half a Cifra */
-    const unsigned long BITS_IN_HALFCIFRA = std::numeric_limits<Cifra>::digits >> 1;
+    static const unsigned long BITS_IN_HALFCIFRA = std::numeric_limits<Cifra>::digits >> 1;
 
     /** Bits en un CifraSigno */
-    const unsigned long BITS_EN_CIFRASIGNO = std::numeric_limits<CifraSigno>::digits;
+    static const unsigned long BITS_EN_CIFRASIGNO = std::numeric_limits<CifraSigno>::digits;
 
     /** Bytes en un Cifra */
-    const unsigned long BYTES_EN_CIFRA = BITS_EN_CIFRA >> 3;
+    static const unsigned long BYTES_EN_CIFRA = BITS_EN_CIFRA >> 3;
 
 
     /** Maximo valor de una Cifra */
-    const Cifra CIFRA_MAX = std::numeric_limits<Cifra>::max();
+    static const Cifra CIFRA_MAX = std::numeric_limits<Cifra>::max();
 
     /** Maximum value for half a Cifra */
-    const Cifra CIFRAHALF_MAX = (((Cifra)1) << BITS_IN_HALFCIFRA) - 1;
+    static const Cifra CIFRAHALF_MAX = (((Cifra)1) << BITS_IN_HALFCIFRA) - 1;
 
     /** TODO */
-   const Cifra MASK_CIFRALOW = CIFRAHALF_MAX;
+   static const Cifra MASK_CIFRALOW = CIFRAHALF_MAX;
 
     /** TODO  */
-   const Cifra MASK_CIFRAHIGH = ~MASK_CIFRALOW;
+   static const Cifra MASK_CIFRAHIGH = ~MASK_CIFRALOW;
  
     /** Maximo valor de una CifraSigno */
-    const CifraSigno CIFRASIGNO_MAX = std::numeric_limits<CifraSigno>::max();
+    static const CifraSigno CIFRASIGNO_MAX = std::numeric_limits<CifraSigno>::max();
 
 #ifdef ULONG_MAX
 #undef ULONG_MAX
 #endif
     /** Maximo valor de un unsigned long */
-    const unsigned long ULONG_MAX = std::numeric_limits<unsigned long>::max();
+    static const unsigned long ULONG_MAX = std::numeric_limits<unsigned long>::max();
 
 #ifdef LONG_MAX
 #undef LONG_MAX
 #endif
     /** Maximo valor de un long */
-    const unsigned long LONG_MAX = std::numeric_limits<long>::max();
+    static const unsigned long LONG_MAX = std::numeric_limits<long>::max();
 
     /* Maximo valor de un size_t */
-    const unsigned long SIZE_T_MAX = std::numeric_limits<size_t>::max();
+    static const unsigned long SIZE_T_MAX = std::numeric_limits<size_t>::max();
 
     /** Mayor 'n' tal que \f$10^n \leq 2^{base}\f$.
      * 
     * Es decir, el número de cifras decimales que "caben" en un 'Cifra'
     * para \f$ \lfloor\log_{10} 2^{32}\rfloor = 9 \f$ */
-    const unsigned long MAX_EXP10_CIFRA = std::numeric_limits<Cifra>::digits10;
+    static const unsigned long MAX_EXP10_CIFRA = std::numeric_limits<Cifra>::digits10;
  
     /** Mayor 'n' tal que \f$10^n \leq 2^{base}\f$.
      * 
     * Es decir, el número de cifras decimales que "caben" en un 'CifraSigno'
     * para \f$ \lfloor\log_{10} 2^{31}\rfloor = 9 \f$ */
-    const unsigned long MAX_EXP10_CIFRASIGNO = std::numeric_limits<CifraSigno>::digits10;
+    static const unsigned long MAX_EXP10_CIFRASIGNO = std::numeric_limits<CifraSigno>::digits10;
 
     /** Mayor 'n' tal que \f$10^n \leq 2^{base}\f$.
      * 
     * Es decir, el número de cifras decimales que "caben" en un 'Cifra'
     * para \f$ \lfloor\log_{10} 2^{32}\rfloor = 9 \f$ */
-    const unsigned long MAX_EXP10_ULONG = std::numeric_limits<unsigned long>::digits10;
+    static const unsigned long MAX_EXP10_ULONG = std::numeric_limits<unsigned long>::digits10;
 
 
     /** Máximo numero de digitos en base 10 representables por un double.
@@ -136,40 +136,40 @@ namespace numth{
     * (se añade un uno ya que hay cierto "margen" para una cifra más;
     * Esto es, el \f$\log_{10}(bits_mantisa)\f$ normalmente tiene cierta parte
     * fraccionaria. */
-    const unsigned long MAX_EXP10_DOUBLE = std::numeric_limits<double>::digits10;
+    static const unsigned long MAX_EXP10_DOUBLE = std::numeric_limits<double>::digits10;
 
 
 
     /** Número de cifras en base \f$2^{BITS_EN_CIFRA}\f$ a partir del cual se usa
     * la multiplicacion de Karatsuba */
-    const size_t UMBRAL_KARATSUBA = 64; 
+    static const size_t UMBRAL_KARATSUBA = 64; 
 
     /** Número de cifras en base \f$2^{BITS_EN_CIFRA}\f$ a partir del cual se usa
     * karatsuba para el calculo del cuadrado. */
-    const size_t UMBRAL_CUAD_KARATSUBA = 72;
+    static const size_t UMBRAL_CUAD_KARATSUBA = 72;
 
     /** Número de bytes tras los cuales el generador de semillas (el no
     * seguro) se renueva con datos random reales. */
-    const size_t UMBRAL_SEMILLA = 10; 
+    static const size_t UMBRAL_SEMILLA = 10; 
 
     /** Iteraciones que se considerarán en la factorización trial */
-    const size_t COTA_FACTORIZACION_TRIAL = 303; // pi(2000) 
+    static const size_t COTA_FACTORIZACION_TRIAL = 303; // pi(2000) 
 
     /** Iteraciones que se considerarán en la factorización por el metodo 
     * \f$\rho\f$ de Pollard */
-    const size_t COTA_FACTORIZACION_RHO = 50000; 
+    static const size_t COTA_FACTORIZACION_RHO = 50000; 
 
     /** Iteraciones que se considerarán en la factorización por el metodo 
     * SQUFOR */
-    const size_t COTA_FACTORIZACION_SQUFOF = 500; 
+    static const size_t COTA_FACTORIZACION_SQUFOF = 500; 
 
     /** Tabla para el uso por la función de detección de cuadrado de
     * enteros */
-    const bool Q11[11] = {true, true, false, true, true, true, false, false, 
+    static const bool Q11[11] = {true, true, false, true, true, true, false, false, 
       false, true, false};
      /** Tabla para el uso por la función de detección de cuadrado de
     * enteros */
-   const bool Q63[63] = {true, true, false, false, true, false, false, true, 
+   static const bool Q63[63] = {true, true, false, false, true, false, false, true, 
       false, true, false, false, false, false, false, false, true, false, true,
       false, false, false, true, false, false,  true, false, false, true, false,
       false, false, false, false,  false, false, true, true, false, false, false,
@@ -177,7 +177,7 @@ namespace numth{
       false, false, false, false, false, false, true, false, false, false, false};
       /** Tabla para el uso por la función de detección de cuadrado de
     * enteros */
-  const bool Q64[64] = {true, true, false, false, true, false, false, false, false,
+  static const bool Q64[64] = {true, true, false, false, true, false, false, false, false,
       true, false, false, false, false, false, false, true, true, false, false, false,
       false, false, false, false, true, false, false, false, false, false, false, false,
       true, false, false, true, false, false, false, false, true, false, false, false,
@@ -185,7 +185,7 @@ namespace numth{
       true, false, false, false, false, false, false};
        /** Tabla para el uso por la función de detección de cuadrado de
     * enteros */
- const bool Q65[65] = {true, true, false, false, true, false, false, false, false,
+ static const bool Q65[65] = {true, true, false, false, true, false, false, false, false,
       true, true, false, false, false, true, false, true, false, false, false, false,
       false, false, false, false, true, true, false, false, true, true, false, false,
       false, false, true, true, false, false, true, true, false, false, false, false,
@@ -193,7 +193,7 @@ namespace numth{
       false, false, false, false, true, false, false, true};
 
       /** Tabla de los primos hasta 2000. */
-    const Cifra TABLA_PRIMOS_2000[] = {
+    static const Cifra TABLA_PRIMOS_2000[] = {
       2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 
       73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151,
       157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233,

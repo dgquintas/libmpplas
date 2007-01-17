@@ -19,14 +19,15 @@ namespace numth{
         MiVec(size_t tam, const T& ini);/**< Construir vector reservando @a tam posiciones 
                                              y rellenándolas con el valor @a ini */
 
-        MiVec(const MiVec<T>&); /** Constructor de copia. */
+        MiVec(const MiVec<T>&); /**< Constructor de copia. */
 
         MiVec& operator=(const MiVec<T>& otro)
         { 
           std::vector<T>::operator=((std::vector<T>)otro);
           return *this;
         }
-        
+
+#ifndef RELEASE
         /** Operador de acceso.
          *
          * Acceso al elemento @a i del vector. Si tal posición no
@@ -52,6 +53,7 @@ namespace numth{
          * 
          */
        const T& operator[](size_t i) const { return this->at(i); }
+#endif
 
     };
 

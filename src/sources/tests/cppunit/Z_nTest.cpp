@@ -7,6 +7,7 @@
 #include <sstream>
 #include "Z_nTest.h"
 #include <pari/pari.h>
+#include "aux.h"
 
 
 using namespace std;
@@ -23,9 +24,9 @@ Z_nTest::~Z_nTest(){
 }
 
 void Z_nTest::setUp(){
-  integer = funcs.getRandomRapido()->leerBits(2000);
-  modulus = funcs.getRandomRapido()->leerBits(500);
-  modularInteger = new Z_n(funcs.getRandomRapido()->leerBits(1234), modulus);
+  integer = funcs.getRandomRapido()->leerBits(brand(2000,5000));
+  modulus = funcs.getRandomRapido()->leerBits(brand(500,1000));
+  modularInteger = new Z_n(funcs.getRandomRapido()->leerBits(brand(1000,2000)), modulus);
   //anotherModularInteger = new Z_n(funcs.getRandomRapido()->leerBits(1414), modulus);
   cifra = funcs.getRandomRapido()->leerCifra();
   cifraSigno = funcs.getRandomRapido()->leerCifraSigno();

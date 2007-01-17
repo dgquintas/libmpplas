@@ -42,7 +42,6 @@ files = Split("""
     Semillero.cpp
     SimbolosLegendre.cpp
     Trascendentes.cpp
-    utils.cpp
     Z.cpp
     Z_n.cpp
     """)

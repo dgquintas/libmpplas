@@ -624,11 +624,13 @@ namespace numth{
     unsigned long doses = 0;
 
     for( ; n > 1; n-- ){
-      for( m = n; (m & 0x1) == 0; m >>= 1 )
+      for( m = n; (m & 0x1) == 0; m >>= 1 ){
         doses++;
-
-
+      }
+      // m is now odd
+      
       if( mTemp <= Constantes::CIFRA_MAX/m ){
+        //mTemp * m fits inside a basic word
         mTemp *= m;
         continue;
       }

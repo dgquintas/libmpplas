@@ -6,6 +6,7 @@
 #define __PRIMOS_H
 
 #include "Z.h"
+#include "Random.h"
 
 namespace numth{
   
@@ -81,6 +82,9 @@ namespace numth{
   class GenPrimos
   {
     public:
+
+      GenPrimos();
+
       /** Generación de primo.
        *
        * Se genera un primo de aproximadamente @a bits bits.
@@ -110,6 +114,11 @@ namespace numth{
       virtual Z leerPrimoFuerte(size_t bits);
 
       virtual ~GenPrimos(){}
+
+      virtual void setRandomSeed(const Z& seed); 
+
+    private:
+      RandomRapidoDFL rnd_;
   };
   typedef GenPrimos GenPrimosDFL;
 

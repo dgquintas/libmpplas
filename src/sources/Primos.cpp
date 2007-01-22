@@ -210,14 +210,20 @@ namespace numth{
 
 ////////////////////////////////////////////////
 
+  GenPrimos::GenPrimos()
+  {}
+
+  void GenPrimos::setRandomSeed(const Z& seed)
+  {
+    rnd_.ponerSemilla(seed);
+  }
 
   Z GenPrimos::leerPrimoProb(size_t bits)
   {
     Funciones funcs;
     TestPrimoProb* test = funcs.getTestPrimoProb();
-    RandomRapido* rnd = funcs.getRandomRapido();
 
-    Z n(rnd->leerBits(bits));
+    Z n(rnd_.leerBits(bits));
 
     //poner a 1 los bits más y menos significativos 
     //FIXME: poner a 1 el bit mas significativo hace que el nº
@@ -343,8 +349,9 @@ namespace numth{
     r++;
     t <<= 1;
 
-    while( !testPrim->esPrimo(r) )
+    while( !testPrim->esPrimo(r) ){
       r += t; //este "t" es el doble del "t" inicial
+    }
 
     Z p,p0;
     p0 = funcs.getPotModular()->potModular(s,r-(Cifra)2, r);
@@ -352,8 +359,9 @@ namespace numth{
     
     Z dosRS = r*s; dosRS <<= 1;
     p = p0; p += dosRS;
-    while( !testPrim->esPrimo(p) )
+    while( !testPrim->esPrimo(p) ){
       p += dosRS;
+    }
 
     return p;
   }

@@ -64,8 +64,8 @@ void KernelTest::testSubx(){
   CPPUNIT_ASSERT_EQUAL( zero, cpu_.Subx(three, three) );
   CPPUNIT_ASSERT_EQUAL( zero, cpu_.getOverflow() );
   
-  CPPUNIT_ASSERT_EQUAL( (Cifra)(Constantes::CIFRASIGNO_MAX)+1, cpu_.Sub(Constantes::CIFRA_MAX, (Cifra)Constantes::CIFRASIGNO_MAX) );
-  CPPUNIT_ASSERT_EQUAL( zero, cpu_.getOverflow() );
+//  CPPUNIT_ASSERT_EQUAL( (Cifra)(Constantes::CIFRASIGNO_MAX)+1, cpu_.Sub(Constantes::CIFRA_MAX, (Cifra)Constantes::CIFRASIGNO_MAX) );
+//  CPPUNIT_ASSERT_EQUAL( zero, cpu_.getOverflow() );
 
   CPPUNIT_ASSERT_EQUAL( Constantes::CIFRA_MAX, cpu_.Sub(zero, one) );
   CPPUNIT_ASSERT_EQUAL( one, cpu_.getOverflow() );

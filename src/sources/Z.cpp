@@ -26,6 +26,8 @@ namespace numth{
   size_t Z::precisionSalida_ = 0;
   vCPUVectorial cpuVectorial_(NUM_CPUS);
 
+  Z Z::Zero = Z::convertir((Cifra)0);
+
   // implementacion constructores
   Z::Z()
     : coefPoliB_(1,(Cifra)0), signo_(1)

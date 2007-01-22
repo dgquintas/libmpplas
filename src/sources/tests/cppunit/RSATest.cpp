@@ -32,15 +32,19 @@ void RSATest::testRSA(){
   RandomRapido* genRandom = funcs.getRandomRapido();
   //idem para el generador de primos
   GenPrimos* genPrimos = funcs.getGenPrimos();
-  
+  genPrimos->setRandomSeed(Z::convertir((Cifra)123));
   //se declaran 4 numeros enteros. 
   Z p,q,n,phi; 
  
-  size_t tamPrimos = 512;
+  size_t tamPrimos = 1024;
   
+  const clock_t t1 = clock();
   // cogemos los primos... del tamaño en bits que queramos
   p = genPrimos->leerPrimoProb(tamPrimos);
   q = genPrimos->leerPrimoProb(tamPrimos);
+
+  cout << p << endl;
+  cout << q << endl;
 
   //se sigue con las operaciones propias del RSA
   n = p*q;
@@ -55,7 +59,6 @@ void RSATest::testRSA(){
     e = genRandom->leerEntero(n);
   } while( !(funcs.getGCD()->gcd(e,phi).esUno()) );
 
-  const clock_t t1 = clock();
   //y la clave de desencriptacion la inversa de "e" modulo "phi"
   d = funcs.getPotModular()->inversa(e,phi);
   

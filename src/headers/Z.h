@@ -1151,6 +1151,9 @@ namespace numth
         { precisionSalida_ = nueva; return;}
 
 
+      /** TODO */
+      static Z Zero;
+
     protected:
       Z( const CifraSigno ); /**< construccion desde simple precision */
       Z( const Cifra ); /**< construccion desde 'token' básico */

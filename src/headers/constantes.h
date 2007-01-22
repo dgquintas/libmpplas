@@ -63,22 +63,22 @@ namespace numth{
 
 
     /** Bits en mantisa de un double */
-    static const unsigned long BITS_EN_DOUBLE = std::numeric_limits<double>::digits;
+    static const int BITS_EN_DOUBLE = std::numeric_limits<double>::digits;
 
     /** Bits en un unsigned long */
-    static const unsigned long BITS_EN_ULONG = std::numeric_limits<unsigned long>::digits;
+    static const int BITS_EN_ULONG = std::numeric_limits<unsigned long>::digits;
 
     /** Bits en un Cifra */
-    static const unsigned long BITS_EN_CIFRA = std::numeric_limits<Cifra>::digits;
+    static const int BITS_EN_CIFRA = std::numeric_limits<Cifra>::digits;
 
     /** Bits in half a Cifra */
-    static const unsigned long BITS_IN_HALFCIFRA = std::numeric_limits<Cifra>::digits >> 1;
+    static const int BITS_IN_HALFCIFRA = std::numeric_limits<Cifra>::digits >> 1;
 
     /** Bits en un CifraSigno */
-    static const unsigned long BITS_EN_CIFRASIGNO = std::numeric_limits<CifraSigno>::digits;
+    static const int BITS_EN_CIFRASIGNO = std::numeric_limits<CifraSigno>::digits;
 
     /** Bytes en un Cifra */
-    static const unsigned long BYTES_EN_CIFRA = BITS_EN_CIFRA >> 3;
+    static const int BYTES_EN_CIFRA = BITS_EN_CIFRA >> 3;
 
 
     /** Maximo valor de una Cifra */
@@ -106,28 +106,31 @@ namespace numth{
 #undef LONG_MAX
 #endif
     /** Maximo valor de un long */
-    static const unsigned long LONG_MAX = std::numeric_limits<long>::max();
+    static const long LONG_MAX = std::numeric_limits<long>::max();
 
+#ifdef SIZE_T_MAX
+#undef SIZE_T_MAX
+#endif
     /* Maximo valor de un size_t */
-    static const unsigned long SIZE_T_MAX = std::numeric_limits<size_t>::max();
+    static const size_t SIZE_T_MAX = std::numeric_limits<size_t>::max();
 
     /** Mayor 'n' tal que \f$10^n \leq 2^{base}\f$.
      * 
     * Es decir, el número de cifras decimales que "caben" en un 'Cifra'
     * para \f$ \lfloor\log_{10} 2^{32}\rfloor = 9 \f$ */
-    static const unsigned long MAX_EXP10_CIFRA = std::numeric_limits<Cifra>::digits10;
+    static const int MAX_EXP10_CIFRA = std::numeric_limits<Cifra>::digits10;
  
     /** Mayor 'n' tal que \f$10^n \leq 2^{base}\f$.
      * 
     * Es decir, el número de cifras decimales que "caben" en un 'CifraSigno'
     * para \f$ \lfloor\log_{10} 2^{31}\rfloor = 9 \f$ */
-    static const unsigned long MAX_EXP10_CIFRASIGNO = std::numeric_limits<CifraSigno>::digits10;
+    static const int MAX_EXP10_CIFRASIGNO = std::numeric_limits<CifraSigno>::digits10;
 
     /** Mayor 'n' tal que \f$10^n \leq 2^{base}\f$.
      * 
     * Es decir, el número de cifras decimales que "caben" en un 'Cifra'
     * para \f$ \lfloor\log_{10} 2^{32}\rfloor = 9 \f$ */
-    static const unsigned long MAX_EXP10_ULONG = std::numeric_limits<unsigned long>::digits10;
+    static const int MAX_EXP10_ULONG = std::numeric_limits<unsigned long>::digits10;
 
 
     /** Máximo numero de digitos en base 10 representables por un double.
@@ -136,7 +139,7 @@ namespace numth{
     * (se añade un uno ya que hay cierto "margen" para una cifra más;
     * Esto es, el \f$\log_{10}(bits_mantisa)\f$ normalmente tiene cierta parte
     * fraccionaria. */
-    static const unsigned long MAX_EXP10_DOUBLE = std::numeric_limits<double>::digits10;
+    static const int MAX_EXP10_DOUBLE = std::numeric_limits<double>::digits10;
 
 
 

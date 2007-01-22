@@ -94,15 +94,14 @@ if env.GetOption('clean'):
   if os.path.exists(File(env['CONFIG_LOG']).abspath):
     os.remove(File(env['CONFIG_LOG']).abspath)
 else:
-  conf = Configure(env,log_file=env['CONFIG_LOG'],custom_tests =
-{'CheckOpenMP':CheckOpenMP} )
+  conf = Configure(env,log_file=env['CONFIG_LOG'],custom_tests = {'CheckOpenMP':CheckOpenMP} )
   if not conf.CheckType('uint32_t', '#include <stdint.h>\n', 'C++'):
     print 'Could not find C99 type "uint32_t". Exiting...'
     Exit(1)
   if not conf.CheckType('int32_t', '#include <stdint.h>\n', 'C++'):
     print 'Could not find C99 type "int32_t". Exiting...'
     Exit(1)
-  if conf.CheckCXXHeader('omp.h','<>'):
+  if env['enableOpenmp'] and conf.CheckCXXHeader('omp.h','<>'):
     if( env['CXX'][:3] == 'g++' ): #gcc
       tmpEnv = env.Copy()
       env.Append(CPPFLAGS='-fopenmp', LIBS='-lgomp')

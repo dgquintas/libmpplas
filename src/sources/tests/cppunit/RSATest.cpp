@@ -43,9 +43,6 @@ void RSATest::testRSA(){
   p = genPrimos->leerPrimoProb(tamPrimos);
   q = genPrimos->leerPrimoProb(tamPrimos);
 
-  cout << p << endl;
-  cout << q << endl;
-
   //se sigue con las operaciones propias del RSA
   n = p*q;
   phi = (p-(Cifra)1)*(q-(Cifra)1);

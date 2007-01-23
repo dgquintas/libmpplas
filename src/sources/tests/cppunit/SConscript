@@ -9,41 +9,46 @@ Import('myenv')
 
 def CheckCppunit(context):
   context.Message('Checking for Cppunit... ')
-  ret = context.TryAction( Action('cppunit-config --libs') )
+  cppUnitFullPath = myenv.WhereIs('cppunit-config');
+  ret = context.TryAction( Action(cppUnitFullPath + ' --libs') )
   context.Result(ret[0])
   return ret[0]
 
+everythingOK = True
+myenv.Append(CPPPATH = '/afs/cern.ch/user/d/dgquinta/include')
+
 if not myenv.GetOption('clean'):
   conf = Configure(myenv, log_file=myenv['CONFIG_LOG'], custom_tests = {'CheckCppunit':CheckCppunit} )
+  
   if not conf.CheckCppunit():
-    print 'Cppunit is not installed. Exiting...'
-    Exit(1)
-  if not conf.CheckHeader('pari/pari.h'):
-    print 'Libpari develoment libraries are not installed. Exiting...'
-    Exit(1)
+    print 'Cppunit is not installed. '
+    everythingOK=False
+  if not conf.CheckCXXHeader('pari/pari.h'):
+    print 'Libpari develoment libraries are not installed.'
+    everythingOK=False
   myenv = conf.Finish()
 
-myenv.ParseConfig('cppunit-config --libs')
-myenv.Append(LIBS = '-lpari')
-myenv.Append(LIBS = ['qt-mt', 'pthread', 'm', 'X11', 'Xext','qttestrunner'])
-myenv.Append(CPPPATH = '/usr/include/qt3')
-#myenv.Replace(CCFLAGS = '-O0 -ggdb3') #FIXME
+if everythingOK:
+  myenv.ParseConfig('cppunit-config --libs')
+  myenv.Append(LIBS = '-lpari')
+ # myenv.Append(LIBS = ['qt-mt', 'pthread', 'm', 'X11', 'Xext','qttestrunner'])
+  #myenv.Append(CPPPATH = '/usr/include/qt3')
+  #myenv.Replace(CCFLAGS = '-O0 -ggdb3') #FIXME
 
-files = Split("""
-    ZTest.cpp
-    KernelTest.cpp
-    OpenMPTest.cpp
-    Z_nTest.cpp
-    FunctionsTest.cpp
-    RandomTest.cpp
-    RSATest.cpp
-    main.cpp
-    """)
+  files = Split("""
+      ZTest.cpp
+      KernelTest.cpp
+      OpenMPTest.cpp
+      Z_nTest.cpp
+      FunctionsTest.cpp
+      RandomTest.cpp
+      RSATest.cpp
+      main.cpp
+      """)
 
-
-cppunitTests = myenv.Program('unitTests', files)
-myenv.Install(myenv['INSTALL_DIR_TESTS'], cppunitTests)
-Alias('tests', cppunitTests)
-#Alias('tests', myenv['INSTALL_DIR_TESTS'])
-Alias('all', cppunitTests)
-Alias('install', myenv['INSTALL_DIR_TESTS'])
+  cppunitTests = myenv.Program('unitTests', files)
+  myenv.Install(myenv['INSTALL_DIR_TESTS'], cppunitTests)
+  Alias('tests', cppunitTests)
+  #Alias('tests', myenv['INSTALL_DIR_TESTS'])
+  Alias('all', cppunitTests)
+  Alias('install', myenv['INSTALL_DIR_TESTS'])

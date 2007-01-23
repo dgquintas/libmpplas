@@ -1,4 +1,4 @@
-  /* 
+/* 
  * $Id$ 
  */
 
@@ -25,11 +25,10 @@ namespace numth{
 
   /*** OPERACIONES BASICAS EN VECTORES UNSIGNED ***/
   /*** DESPLAZAMIENTO ***/
-  void vCPUVectorial::lShift(numth::MiVec <Cifra>& aV, size_t n)
+  void vCPUVectorial::lShift(numth::MiVec <Cifra>& a, size_t n)
   {
-    if( (aV.size() == 1) && (aV[0] == 0) ) {
+    if( (a.size() == 1) && (a[0] == 0) ) 
       return;
-    }
     
     unsigned long componentes = n / Constantes::BITS_EN_CIFRA;
     unsigned long fraccion = n % Constantes::BITS_EN_CIFRA;
@@ -40,15 +39,13 @@ namespace numth{
     //    //en el principio
     //    a.insert(a.begin(), 0);
     //  }
-    aV.insert(aV.begin(), componentes, 0);
+    a.insert(a.begin(), componentes, 0);
 
     vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU();
 
     if(fraccion){
-      aV.push_back(0);
-
-      Cifra* a = &aV[0];
-      for( size_t i = aV.size() - 2;  ; i--){
+      a.push_back(0);
+      for( unsigned long i = a.size() - 2;  ; i--){
         a[i] = cpuBasica_.Shiftl(a[i],fraccion);
         //      a[i+1] = Add(a[i+1], resto);
         a[i+1] |= cpuBasica_.resto;
@@ -61,43 +58,40 @@ namespace numth{
 //    no tiene sentido limpiar ceros, en un desplazamiento a la
 //    izquierda nunca se van a generar, salvo quizas 1
 
-    if( aV.back() == 0 ){
-      aV.pop_back();
-    }
+    if( a.back() == 0 )
+      a.pop_back();
 
     return;
   }
 
-  void vCPUVectorial::rShift(numth::MiVec <Cifra> &aV, size_t n)
+  void vCPUVectorial::rShift(numth::MiVec <Cifra> &a, size_t n)
   {
-    if( (aV.size() == 1) && (aV[0] == 0) ) 
+    if( (a.size() == 1) && (a[0] == 0) ) 
       return;
 
-    size_t componentes = n / Constantes::BITS_EN_CIFRA;
-    size_t fraccion = n % Constantes::BITS_EN_CIFRA;
+    unsigned long componentes = n / Constantes::BITS_EN_CIFRA;
+    unsigned long fraccion = n % Constantes::BITS_EN_CIFRA;
 
-    for(size_t i=0; i < componentes; i++){
+    for(unsigned long i=0; i < componentes; i++){
       //desplazamos a la derecha componente a componente
       //o lo que es lo mismo, se inserta una componente toda ceros
       //en el principio y se borra la comp. del final
-      aV.erase(aV.begin());
-      aV.push_back(0);
+      a.erase(a.begin());
+      a.push_back(0);
     }
 
     vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
 
-    Cifra* a = &aV[0];
     if(fraccion){
       a[0] = cpuBasica_.Shiftlr(a[0], fraccion);
-      const size_t aSize = aV.size();
-      for(size_t i = 1; i < aSize ; i++){
+      for(unsigned long i = 1; i < a.size() ; i++){
         a[i] = cpuBasica_.Shiftlr(a[i], n);
         //      a[i-1] = Add(a[i-1],resto);
         a[i-1] |= cpuBasica_.resto;
       }
     }
 
-    limpiarCeros(aV);
+    limpiarCeros(a);
     return;
   }
 
@@ -157,118 +151,99 @@ namespace numth{
   }
 
   /*** COMPARACION ***/
-  bool vCPUVectorial::mayorque(numth::MiVec<Cifra> aV, numth::MiVec<Cifra> bV, bool limpiar) 
+  bool vCPUVectorial::mayorque(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar) 
   {
     if(limpiar){
-      limpiarCeros(aV);
-      limpiarCeros(bV);
+      limpiarCeros(a);
+      limpiarCeros(b);
     }
 
-    size_t tamA = aV.size() -1 ;
-    size_t tamB = bV.size() -1 ;
+    size_t tamA = a.size() -1 ;
+    size_t tamB = b.size() -1 ;
 
-    if( tamA > tamB ){
+    if( tamA > tamB )
       return true;
-    }
 
     // tamA <= tamB
-    if (tamA < tamB){
+    if (tamA < tamB)
       return false;
-    }
 
-    Cifra* a = &aV[0];
-    Cifra* b = &bV[0];
     for(; ; tamA--, tamB--){// tamA == tamB
-      assert( (tamA < aV.size()) && (tamB < bV.size()) );
-      if( a[tamA] > b[tamB] ){
+      assert( (tamA < a.size()) && (tamB < b.size()) );
+      if( a[tamA] > b[tamB] )
         return true;
-      }
 
       // a[tamA] <= b[tamB]
-      if( a[tamA] < b[tamB] ){
+      if( a[tamA] < b[tamB] )
         return false;
-      }
 
       // "n�" cifra tambien es igual, iterar
-      if( tamA == 0){
+      if( tamA == 0)
         break;
-      }
     } 
 
     return false; //son iguales
   }
 
-  bool vCPUVectorial::menorque(numth::MiVec<Cifra> aV, numth::MiVec<Cifra> bV, bool limpiar ) 
+  bool vCPUVectorial::menorque(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar ) 
   {
     if(limpiar){
-      limpiarCeros(aV);
-      limpiarCeros(bV);
+      limpiarCeros(a);
+      limpiarCeros(b);
     }
 
-    assert(aV.size() > 0);
-    assert(bV.size() > 0);
-    size_t tamA = aV.size() -1 ;
-    size_t tamB = bV.size() -1 ;
+    assert(a.size() > 0);
+    assert(b.size() > 0);
+    size_t tamA = a.size() -1 ;
+    size_t tamB = b.size() -1 ;
 
-    if( tamA > tamB ){
+    if( tamA > tamB )
       return false;
-    }
 
     // tamA <= tamB
-    if (tamA < tamB){
+    if (tamA < tamB)
       return true;
-    }
 
     // tamA == tamB
-    Cifra* a = &aV[0];
-    Cifra* b = &bV[0];
     for(; ; tamA--, tamB--){
-      assert( (tamA < aV.size()) && (tamB < bV.size()) );
-      if( a[tamA] > b[tamB] ){
+      assert( (tamA < a.size()) && (tamB < b.size()) );
+      if( a[tamA] > b[tamB] )
         return false;
-      }
 
       // a[tamA] <= b[tamB]
-      if( a[tamA] < b[tamB] ){
+      if( a[tamA] < b[tamB] )
         return true;
-      }
 
       // "2�" cifra tambien es igual, iterar
-      if( tamA == 0 ){
+      if( tamA == 0 )
         break;
-      }
     } 
 
     return false; //son iguales
   }
 
-  bool vCPUVectorial::igual(numth::MiVec<Cifra> aV, numth::MiVec<Cifra> bV, bool limpiar ) 
+  bool vCPUVectorial::igual(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar ) 
   {
     if(limpiar){
-      limpiarCeros(aV);
-      limpiarCeros(bV);
+      limpiarCeros(a);
+      limpiarCeros(b);
     }
-    assert(aV.size() > 0);
-    assert(bV.size() > 0);
-    size_t tamA = aV.size()-1;
-    size_t tamB = bV.size()-1;
+    assert(a.size() > 0);
+    assert(b.size() > 0);
+    size_t tamA = a.size()-1;
+    size_t tamB = b.size()-1;
 
-    if( tamA != tamB ){
+    if( tamA != tamB )
       return false;
-    }
 
     // tamA == tamB
-    Cifra* a = &aV[0];
-    Cifra* b = &bV[0];
     for(; ; tamA--, tamB--){
-      assert( (tamA < aV.size()) && (tamB < bV.size()) );
-      if( a[tamA] != b[tamB] ){
+      assert( (tamA < a.size()) && (tamB < b.size()) );
+      if( a[tamA] != b[tamB] )
         return false;
-      }
 
-      if(tamA == 0){
+      if(tamA == 0)
         break;
-      }
     }
 
     return true;
@@ -276,63 +251,50 @@ namespace numth{
 
   bool vCPUVectorial::mayorque(numth::MiVec<Cifra> vec, Cifra num, bool limpiar ) 
   {
-    if(limpiar){
+    if(limpiar)
       limpiarCeros(vec);
-    }
 
     assert(vec.size() > 0);
-    if( vec.size() > 1 ){
+    if( vec.size() > 1 )
       return true;
-    }
-    else{ // => vec.size() == 1
+    else // => vec.size() == 1
       return (vec[0] > num);
-    }
   }
 
   bool vCPUVectorial::menorque(numth::MiVec<Cifra> vec, Cifra num, bool limpiar ) 
   {
-    if(limpiar){
+    if(limpiar)
       limpiarCeros(vec);
-    }
 
     assert(vec.size() > 0);
-    if( vec.size() > 1 ){
+    if( vec.size() > 1 )
       return false;
-    }
-    else{ // => vec.size() == 1
+    else // => vec.size() == 1
       return (vec[0] < num);
-    }
   }
 
   bool vCPUVectorial::igual(numth::MiVec<Cifra> vec, Cifra num, bool limpiar )  
   {
-    if(limpiar){
+    if(limpiar)
       limpiarCeros(vec);
-    }
 
     assert(vec.size() > 0);
-    if( vec.size() > 1 ){
+    if( vec.size() > 1 )
       return false;
-    }
-    else{ // => vec.size() == 1
+    else // => vec.size() == 1
       return (vec[0] == num);
-    }
   }
 
 
   void vCPUVectorial::limpiarCeros(numth::MiVec<Cifra> &vec) throw (Errores::NumeroVacio)
   {
-    if( vec.size() == 0 ){
+    if( vec.size() == 0 )
       throw Errores::NumeroVacio();
-    }
-    for(size_t i = vec.size(); i > 1; i--){
-      if( (vec.back() == 0) ){
+    for(size_t i = vec.size(); i > 1; i--)
+      if( (vec.back() == 0) )
         vec.pop_back();
-      }
-      else{
+      else
         break;
-      }
-    }
 
     return;
   }
@@ -340,57 +302,54 @@ namespace numth{
   numth::MiVec<Cifra> 
     vCPUVectorial::sumaMP(const numth::MiVec<Cifra>& a, const numth::MiVec<Cifra>& b) 
     {
-      const Cifra *mayor;
-      const Cifra *menor;
+      const numth::MiVec<Cifra> *mayor;
+      const numth::MiVec<Cifra> *menor;
 
       size_t tamA = a.size();
       size_t tamB = b.size();
 
       if(tamA < tamB){
-        const size_t tmp = tamA;
-        mayor = &b[0];
-        tamA = tamB;
-        menor = &a[0];
-        tamB = tmp;
+        mayor = &b;
+        menor = &a;
+
+        tamA = mayor->size();
+        tamB = menor->size();
       }
       else{
-        mayor = &a[0];
-        menor = &b[0];
+        mayor = &a;
+        menor = &b;
       }
 
       // el vector "a" siempre sera el grande => tamA el tam. mayor
 
-      numth::MiVec<Cifra> cV(tamA + 1, 0); // +1 por el carry posible
-      Cifra* c = &cV[0];
+      numth::MiVec<Cifra> c(tamA + 1, 0); // +1 por el carry posible
 
       vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       size_t i;
       cpuBasica_.overflow = 0;
       for(i = 0; i < tamB; i++){
-        c[i]= cpuBasica_.Addx(mayor[i],menor[i]);
+        c[i]= cpuBasica_.Addx((*mayor)[i],(*menor)[i]);
         // el propio "loop" del n� del desbordarse es 
         // equivalente al modulo. FIXME: no te fies de
         // esto
       }
 
       for(; i < tamA; i++)
-        c[i] = cpuBasica_.Addx(mayor[i],0);
+        c[i] = cpuBasica_.Addx((*mayor)[i],0);
 
-      if( i < cV.size() )
+      if( i < c.size() )
         c[i] = cpuBasica_.overflow;
 
-      limpiarCeros(cV);
+      limpiarCeros(c);
 
-      return cV;
+      return c;
     }
   numth::MiVec<Cifra> 
-    vCPUVectorial::sumaMP(const numth::MiVec<Cifra>& aV, const Cifra b) 
+    vCPUVectorial::sumaMP(const numth::MiVec<Cifra>& a, const Cifra b) 
     {
-      size_t tamA = aV.size();
-      const Cifra* a = &aV[0];
+      size_t tamA = a.size();
 
-      numth::MiVec<Cifra> cV(tamA + 1, 0); // +1 por el carry posible
-      Cifra* c = &cV[0];
+      numth::MiVec<Cifra> c(tamA + 1, 0); // +1 por el carry posible
 
       size_t i;
 
@@ -401,33 +360,28 @@ namespace numth{
       for(i=1; i < tamA; i++)
         c[i] = cpuBasica_.Addx(a[i],0);
 
-      if( i < cV.size() )
+      if( i < c.size() )
         c[i] = cpuBasica_.overflow;
 
-      limpiarCeros(cV);
+      limpiarCeros(c);
 
-      return cV;
+      return c;
     }
 
   numth::MiVec<Cifra> 
-    vCPUVectorial::restaMP(const numth::MiVec<Cifra>&aV, const numth::MiVec<Cifra>& bV) 
+    vCPUVectorial::restaMP(const numth::MiVec<Cifra>&a, const numth::MiVec<Cifra>& b) 
     {
       /* PRECONDICION:
        * el n� que representa "a" deber ser >= que el n� q rep. "b"
        */
 
-      size_t tamA = aV.size();
-      size_t tamB = bV.size();
+      size_t tamA = a.size();
+      size_t tamB = b.size();
 
-      if( menorque(aV,bV) ){ // a < b
+      if( menorque(a,b) ) // a < b
         throw Errores::RestaNegativa();
-      }
 
-      numth::MiVec<Cifra> cV(tamA,0);
-      Cifra* c = &cV[0];
-
-      const Cifra* a = &aV[0];
-      const Cifra* b = &bV[0];
+      numth::MiVec<Cifra> c(tamA,0);
 
       vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       cpuBasica_.overflow = 0;
@@ -439,80 +393,76 @@ namespace numth{
         c[i] = cpuBasica_.Subx(a[i],0);
 
 
-      limpiarCeros(cV);
+      limpiarCeros(c);
 
-      return cV;
+      return c;
     }
   numth::MiVec<Cifra> 
-    vCPUVectorial::restaMP(const numth::MiVec<Cifra>&aV, const Cifra b) 
+    vCPUVectorial::restaMP(const numth::MiVec<Cifra>&a, const Cifra b) 
     {
-      size_t tamA = aV.size();
+      size_t tamA = a.size();
 
-      numth::MiVec<Cifra> cV(tamA,0);
-      Cifra* c = &cV[0];
+      numth::MiVec<Cifra> c(tamA,0);
 
       vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       cpuBasica_.overflow = 0;
       size_t i;
-      c[0] = cpuBasica_.Subx(aV[0],b);
+      c[0] = cpuBasica_.Subx(a[0],b);
 
       for(i=1; i < tamA; i++)
-        c[i] = cpuBasica_.Subx(aV[i],0);
+        c[i] = cpuBasica_.Subx(a[i],0);
 
-      limpiarCeros(cV);
+      limpiarCeros(c);
 
-      return cV;
+      return c;
     }
   numth::MiVec<Cifra> 
-    vCPUVectorial::restaMP(const Cifra a, const numth::MiVec<Cifra>& bV) 
+    vCPUVectorial::restaMP(const Cifra a, const numth::MiVec<Cifra>& b) 
     {
-      assert( bV[0] <= a ); //FIXME
+      assert( b[0] <= a ); 
 
       vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
-      numth::MiVec<Cifra> cV(1);
-      cV[0] = cpuBasica_.Sub(a,bV[0]);
+      numth::MiVec<Cifra> c(1);
+      c[0] = cpuBasica_.Sub(a,b[0]);
 
-      limpiarCeros(cV);
+      limpiarCeros(c);
 
-      return cV;
+      return c;
     }
 
   numth::MiVec<Cifra> 
-    vCPUVectorial::multMP(const numth::MiVec<Cifra>& aV, const numth::MiVec<Cifra>& bV) 
+    vCPUVectorial::multMP(const numth::MiVec<Cifra>& a, const numth::MiVec<Cifra>& b) 
     {
       Cifra v, u, c;
 
-      size_t tamA = aV.size();
-      size_t tamB = bV.size();
+      size_t tamA = a.size();
+      size_t tamB = b.size();
       
-      numth::MiVec<Cifra> wV(tamA + tamB, 0);
+      numth::MiVec<Cifra> w(tamA + tamB, 0);
 
 //      if( false ){ // FIXME: se usa para probar karatsuba
       if( std::max(tamA, tamB) >= Constantes::UMBRAL_KARATSUBA ){ // FIXME:idem
         if ( std::max(tamA, tamB) / std::min(tamA, tamB) < 2 ) {
           if( tamA < tamB ){
-            MiVec<Cifra> aBis(aV);
+            MiVec<Cifra> aBis(a);
             aBis.resize(tamB, 0);
-            karatsuba(wV, aBis,bV);
-            return wV;
+            karatsuba(w, aBis,b);
+            return w;
           }
           else if ( tamA > tamB ){ 
-            MiVec<Cifra> bBis(bV);
+            MiVec<Cifra> bBis(b);
             bBis.resize(tamA, 0);
-            karatsuba(wV, aV,bBis);
-            return wV;
+            karatsuba(w, a,bBis);
+            return w;
           }
           else{ //igual tama�o
-            karatsuba(wV, aV,bV);
-            return wV;
+            karatsuba(w, a,b);
+            return w;
           }
         }
       }
 
       vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
-      const Cifra* a = &aV[0];
-      const Cifra* b = &bV[0];
-      Cifra* w = &wV[0];
       for(size_t i=0; i < tamB; i++){
         c = 0;
         // esta "iteracion particular de j=0" se pone aqui
@@ -545,19 +495,17 @@ namespace numth{
         w[i+tamA] = u; //(1) (ver parrafo anterior)
       }
 
-      limpiarCeros(wV);
+      limpiarCeros(w);
 
-      return wV;
+      return w;
     }
 
   numth::MiVec<Cifra> 
-    vCPUVectorial::multMP(const numth::MiVec<Cifra>& aV, const Cifra b ) 
+    vCPUVectorial::multMP(const numth::MiVec<Cifra>& a, const Cifra b ) 
     {
-      unsigned int tamA = aV.size();
-      const Cifra* a = &aV[0];
+      unsigned int tamA = a.size();
 
-      numth::MiVec<Cifra> cV(tamA + 1, 0);
-      Cifra* c = &cV[0];
+      numth::MiVec<Cifra> c(tamA + 1, 0);
 
       vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       cpuBasica_.resto = 0;
@@ -568,9 +516,9 @@ namespace numth{
       // i == tamA
       c[i] = cpuBasica_.Add(c[i], cpuBasica_.resto);
 
-      limpiarCeros(cV);
+      limpiarCeros(c);
 
-      return cV;
+      return c;
     }
 
   void vCPUVectorial::cuadKaratsuba(MiVec<Cifra>& resultado, 
@@ -626,16 +574,16 @@ namespace numth{
   }
   
   numth::MiVec<Cifra>
-    vCPUVectorial::cuadMP(const numth::MiVec<Cifra>& xV)
+    vCPUVectorial::cuadMP(const numth::MiVec<Cifra>& x)
     {
-      size_t t = xV.size(); //n� de cifras en la base de trabajo de "x"
+      size_t t = x.size(); //n� de cifras en la base de trabajo de "x"
 
-      numth::MiVec<Cifra> wV(2*t,0); //vector de resultado
+      numth::MiVec<Cifra> w(2*t,0); //vector de resultado
 
 //      if( false ){ // FIXME
       if( t > Constantes::UMBRAL_CUAD_KARATSUBA ){ // FIXME
-          cuadKaratsuba(wV,xV);
-          return wV;
+          cuadKaratsuba(w,x);
+          return w;
       }
 
 
@@ -644,8 +592,6 @@ namespace numth{
       //los resultados temporales se expresan como un numero (uA uB v) en la
       //base de trabajo.
 
-      const Cifra* x = &xV[0];
-      Cifra* w = &wV[0];
       for(size_t i = 0; i < t; i++){
         Cifra uA, uB; // partes Alta y Baja de "u"
         Cifra v; // cifra menos significativa del numero de trabajo
@@ -694,35 +640,32 @@ namespace numth{
           //tomamos nota para siguientes iteraciones.
           cA = uA; cB = uB;
         }
-        if( uA ){ //esto NO deberia ser cierto en la ultima iteraci�n, ya que el cuad. 
+        if( uA ) //esto NO deberia ser cierto en la ultima iteraci�n, ya que el cuad. 
           //tiene s�lo el doble de cifras que el n� original
           w[i+1+t] += uA;
-        }
 
         w[i+t] += uB;
       }
 
-      limpiarCeros(wV);
+      limpiarCeros(w);
 
-      return wV;
+      return w;
     }
 
 
   /*         cociente            modulo              */
   std::pair< numth::MiVec<Cifra>, numth::MiVec<Cifra> > 
-    vCPUVectorial::divMP(numth::MiVec<Cifra> aV, numth::MiVec<Cifra> bV)
+    vCPUVectorial::divMP(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b)
     {
       numth::MiVec<Cifra>b2;
       numth::MiVec<Cifra>a2;
 
 
-      if( bV.size() == 1 ){
-        return divMP(aV,bV[0]);
-      }
-      if( bV.size() < 1 ){ // => .size() == 0 //FIXME: Quitar esto al garantizar de alguna 
+      if( b.size() == 1 )
+        return divMP(a,b[0]);
+      if( b.size() < 1 ) // => .size() == 0 //FIXME: Quitar esto al garantizar de alguna 
         //forma q nunca va a ocurrir?
         throw Errores::NumeroVacio();
-      }
 
       //  numth::MiVec<Cifra> a = u;
       //  numth::MiVec<Cifra> b = v;
@@ -731,8 +674,8 @@ namespace numth{
       size_t tamA, tamB;
       Cifra _q;
 
-      tamA = aV.size()-1;
-      tamB = bV.size()-1;
+      tamA = a.size()-1;
+      tamB = b.size()-1;
 
       //D1. NORMALIZAR
 
@@ -740,35 +683,32 @@ namespace numth{
       //=> siempre sera el se�alado por size() - 1 (o deberia serlo)
 
       vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
-      d = cpuBasica_.Bfffo(bV[tamB]); // n� de ceros a la izq
+      d = cpuBasica_.Bfffo(b[tamB]); // n� de ceros a la izq
       // del 1er bit del long 
       // en cuestion 
 
       // multiplicar dividendo y divisor por 2^d
-      if( menorque(aV,bV) ){ // si el dividendo es menor que el divisor...
+      if( menorque(a,b) ) // si el dividendo es menor que el divisor...
         // q = 0, r = a
         return std::pair< numth::MiVec<Cifra>, numth::MiVec<Cifra> >
-          (numth::MiVec<Cifra>(1,0),aV);
-      }
+          (numth::MiVec<Cifra>(1,0),a);
 
-      numth::MiVec<Cifra> qV((tamA - tamB)+1,0);
-      Cifra* q = &qV[0];
+      numth::MiVec<Cifra> q((tamA - tamB)+1,0);
+      numth::MiVec<Cifra> r;
 
-      lShift(aV, d);
-      lShift(bV, d);
+      lShift(a, d);
+      lShift(b, d);
 
-      if(tamA == aV.size()-1)
-        aV.push_back(0); // se ha de introducir un nuevo digito en "a" 
+      if(tamA == a.size()-1)
+        a.push_back(0); // se ha de introducir un nuevo digito en "a" 
       // siempre 
       tamA++;
       // D2
       size_t variacionDividendo; //para actualizar convenientemente la guarda del bucle
-      Cifra* a = &aV[0];
-      Cifra* b = &bV[0];
       for( size_t j = tamA; j > tamB; j-=variacionDividendo){
         //D3
-        assert( ((j+tamB) < aV.size() ) );
-        assert( (tamB < bV.size()) );
+        //assert( ((j+tamB) < a.size() ) ); //FIXME: revisar este aserto
+        assert( (tamB < b.size()) );
         assert(((j+tamB-1) > 0) );
 
         if( a[j] == b[tamB] )
@@ -839,9 +779,9 @@ namespace numth{
         // D4
 
         a2.clear();
-        MiVec<Cifra>::iterator it = aV.begin()+j;
+        MiVec<Cifra>::iterator it = a.begin()+j;
         a2.insert(a2.begin(), it-tamB-1, it+1);
-        b2 = multMP(bV,_q);
+        b2 = multMP(b,_q);
 //        if( j > 1)
 //          b2.insert(b2.begin(), j-1, (Cifra)0);
                   
@@ -855,29 +795,29 @@ namespace numth{
           //siendo habitual, menos comoda) restando 'b*BASE^{j-1}' a 'b2'
           //Teniendo en cuenta que este trozo de codigo rara vez va a
           //ejecutarse, se puede permitir uno esta licencia...
-          b2 = multMP(bV,_q);
+          b2 = multMP(b,_q);
 //          if( j > 1)
 //            b2.insert(b2.begin(), j-1, (Cifra)0);
         }
 
-        variacionDividendo = aV.size();
+        variacionDividendo = a.size();
         a2 = restaMP(a2,b2);
-        aV.erase(it-tamB-1, it+1);
-        aV.insert(it-tamB-1, a2.begin(), a2.end());
-//        aV.resize(tamA+1,(Cifra)0);
-        variacionDividendo -= aV.size();
+        a.erase(it-tamB-1, it+1);
+        a.insert(it-tamB-1, a2.begin(), a2.end());
+//        a.resize(tamA+1,(Cifra)0);
+        variacionDividendo -= a.size();
 
         q[j-tamB-1] = _q;
       }
 
-      rShift(aV,d);
+      rShift(a,d);
 
-      numth::MiVec<Cifra> r = aV;
+      r = a;
 
       limpiarCeros(r);
-      limpiarCeros(qV);
+      limpiarCeros(q);
 
-      return std::pair< numth::MiVec<Cifra>, numth::MiVec<Cifra> >(qV,r);
+      return std::pair< numth::MiVec<Cifra>, numth::MiVec<Cifra> >(q,r);
 
     }
 
@@ -929,16 +869,14 @@ namespace numth{
       P2 = restaMP( x0, x1 );
       negativo = true;
     }
-    else{
+    else
       P2 = restaMP( x1, x0 );
-    }
     if( mayorque(y1,y0) ){
       P2 = multMP( P2, restaMP( y1, y0 ) );
       negativo = !negativo;
     }
-    else{
+    else
       P2 = multMP( P2, restaMP( y0, y1 ) );
-    }
       
     P3 = multMP(x0, y0);
 

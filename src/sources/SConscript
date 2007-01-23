@@ -47,12 +47,15 @@ files = Split("""
     VectorZ.cpp
     """)
 
+env.Append(CCFLAGS = ' -pipe ')
 env.Append(CCFLAGS = ' -O' + env['optLevel'])
 
 if env['enableProf']:
   env['arch'] += 'Prof'
 
-env.Append(CPPDEFINES = {'ARCH': env['arch']})
+
+
+env.Append(CPPDEFINES = [('ARCH', env['arch'])])
 if env['arch'] not in getNativelySupportedArchs():
   print "\nWARNING: the selected architecture (" + env['arch'] + ") is not natively supported by this system"
   for i in xrange(3):
@@ -61,7 +64,10 @@ if env['arch'] not in getNativelySupportedArchs():
     sys.stdout.flush()
   else:
     print ''
-  
+
+if env['enableRelease']:
+  env.Append(CPPDEFINES = ['RELEASE','NDEBUG'])
+ 
 
 #if env['enableExtraOpt']: 
 #  env.Append(CCFLAGS = ' -ffast-math')  #FIXME: esto con icc no chuta

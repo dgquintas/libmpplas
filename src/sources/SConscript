@@ -61,12 +61,12 @@ try:
 
   if env['arch'] not in getNativelySupportedArchs():
     print "\nWARNING: the selected architecture (" + env['arch'] + ") is not natively supported by this system"
-    for i in xrange(3):
-      time.sleep(1)
-      print '.',
-      sys.stdout.flush()
-    else:
-      print ''
+#    for i in xrange(3):
+#      time.sleep(1)
+#      print '.',
+#      sys.stdout.flush()
+#    else:
+#      print ''
 except ImportError:
   print "Platform support checking not supported by the Python installed: " + sys.version
 

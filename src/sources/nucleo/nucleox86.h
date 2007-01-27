@@ -26,18 +26,15 @@
   template<>
     inline Cifra vCPUBasica<Arch::x86>::Add(Cifra arg1, Cifra arg2)
     {
-      Cifra ret; 
-
-
       __asm__ ("xor %[_of], %[_of];"
                "addl %[_arg2], %[_arg1]; "
                "adcl $0, %[_of]; "
-          : "=r" (ret), [_of] "=r" (overflow)
+          : "=r" (arg1), [_of] "=r" (overflow)
           : [_arg1] "0" (arg1), [_arg2] "g" (arg2), "1" (overflow)
           : "cc" /* modificamos eflags */
           );
 
-      return ret; 
+      return arg1; 
     }
 
   /** Suma b�sica extendida de dos Cifras para x86.
@@ -47,17 +44,15 @@
   template<>
     inline Cifra vCPUBasica<Arch::x86>::Addx(Cifra arg1, Cifra arg2) 
     { 
-      Cifra ret; 
-
       __asm__ ("btr $0, %[_of];"
                "adcl %[_arg2], %[_arg1];" 
                "adcl $0, %[_of]; "
-          : "=r" (ret), [_of] "=r" (overflow) 
+          : "=r" (arg1), [_of] "=r" (overflow) 
           : [_arg1] "0" (arg1), [_arg2] "g" (arg2), "1" (overflow) 
           : "cc" /* modificamos eflags */
           );
 
-      return ret; 
+      return arg1; 
     }
 
 
@@ -68,17 +63,15 @@
   template<>
     inline Cifra vCPUBasica<Arch::x86>::Sub(Cifra arg1, Cifra arg2) 
     { 
-      Cifra ret; 
-
       __asm__ ("xor %[_of], %[_of];"
                "subl %[_arg2], %[_arg1];"
                "adcl $0, %[_of]; " 
-          : "=r" (ret), [_of] "=r" (overflow) 
+          : "=r" (arg1), [_of] "=r" (overflow) 
           : [_arg1] "0" (arg1), [_arg2] "g" (arg2)
           : "cc" /* modificamos eflags */
           ); 
 
-      return ret; 
+      return arg1; 
     }
   /** Resta b�sica extendida de dos Cifras para x86.
    *
@@ -87,15 +80,14 @@
   template<>
     inline Cifra vCPUBasica<Arch::x86>::Subx(Cifra arg1, Cifra arg2) 
     { 
-      Cifra ret; 
       __asm__ ("btr $0, %[_of];" /* pone CF al valor del bit 0 de overflow */
                "sbbl %[_arg2], %[_arg1];"
                "adcl $0, %[_of];" 
-          : "=r" (ret), [_of] "=r" (overflow) 
+          : "=r" (arg1), [_of] "=r" (overflow) 
           : [_arg1] "0" (arg1), [_arg2] "g" (arg2), "1" (overflow) 
           : "cc" /* modificamos eflags */
           );
-      return ret; 
+      return arg1; 
     }
 
   /** Producto de dos Cifras para x86.
@@ -105,14 +97,12 @@
   template<>
     inline Cifra vCPUBasica<Arch::x86>::Mul(Cifra arg1,Cifra arg2) 
     { 
-      Cifra ret; 
-
       __asm__ (" mull %[_arg2]" 
-          : "=a" (ret), "=d" (resto) 
+          : "=a" (arg1), "=d" (resto) 
           : [_arg1] "0" (arg1), [_arg2] "rm" (arg2)
           ); 
 
-      return ret; 
+      return arg1; 
     }
 
   /** Producto de dos Cifras con suma para x86.
@@ -122,17 +112,14 @@
   template<>
     inline Cifra vCPUBasica<Arch::x86>::Addmul(Cifra arg1,Cifra arg2) 
     { 
-      Cifra ret; 
-
-
       __asm__ (" mull %[_arg2];"
                "addl %[_restoViejo],%[_ret];" 
                "adcl $0, %%edx;"      
-          : [_ret] "=a" (ret), "=&d" (resto) 
+          : [_ret] "=a" (arg1), "=&d" (resto) 
           : [_arg1] "0" (arg1), [_arg2] "rm" (arg2), [_restoViejo] "g" (resto) 
           ); 
 
-      return ret; 
+      return arg1; 
     }
 
   /** Cociente y resto de dos Cifras para x86. 
@@ -142,13 +129,12 @@
    template<>
     inline Cifra vCPUBasica<Arch::x86>::Div(Cifra arg1, Cifra arg2) 
     { 
-      Cifra ret; 
       __asm__ (" divl %[_arg2]" 
-          : "=a" (ret), "=d" (resto) 
+          : "=a" (arg1), "=d" (resto) 
           : [_arg1] "0" (arg1), [_arg2] "g" (arg2), "1" (resto)
           ); 
 
-      return ret;
+      return arg1;
     }
 
 
@@ -159,16 +145,14 @@
   template<>
     inline Cifra vCPUBasica<Arch::x86>::Shiftl(Cifra arg1,Cifra arg2) 
     { 
-      Cifra ret;
-
       __asm__ ("xor %[_resto], %[_resto];"
                "shldl %%cl, %[_arg1], %[_resto]; "
                "shll %%cl, %[_arg1];"  
-          : "=r" (ret), [_resto] "=r" (resto) 
+          : "=r" (arg1), [_resto] "=r" (resto) 
           : [_arg1] "0" (arg1), "c" (arg2), "1" (resto)
           ); 
 
-      return ret; 
+      return arg1; 
     }
 
   /** Desplazamiento de bits de la derecha para x86.
@@ -178,16 +162,14 @@
   template<>
     inline Cifra vCPUBasica<Arch::x86>::Shiftlr(Cifra arg1,Cifra arg2) 
     { 
-      Cifra ret;
-
       __asm__ ("xor %[_resto], %[_resto];"
                "shrdl %%cl, %[_arg1], %[_resto];"
                "shrl %%cl, %[_arg1]" 
-          : "=r" (ret), [_resto] "=r" (resto) 
+          : "=r" (arg1), [_resto] "=r" (resto) 
           : [_arg1] "0" (arg1), "c" (arg2), "1" (resto)
           ); 
 
-      return ret; 
+      return arg1; 
     }
 
   /** Encabezado de ceros para x86.

@@ -4,4 +4,4 @@ myenv = env.Copy()
 myenv.Append( LIBS = ['numth'] )
 
 Export('myenv')
-SConscript(dirs="cppunit")
+SConscript(dirs="units")

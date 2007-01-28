@@ -24,7 +24,7 @@
 namespace numth{
 
   size_t Z::precisionSalida_ = 0;
-  vCPUVectorial cpuVectorial_(NUM_CPUS);
+  static vCPUVectorial cpuVectorial_(NUM_CPUS);
 
   Z Z::Zero = Z::convertir((Cifra)0);
 

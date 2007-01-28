@@ -37,6 +37,8 @@
 #include <qvaluevector.h>
 #include <utility>
 
+#include <ctime>
+
 #include "QtUnitException.h"
 #include "TestBase.h"
 #include "TestCase.h"
@@ -64,39 +66,41 @@ TestRunner::~TestRunner()
 
 void TestRunner::runTest(const TestBase& rTest)
 {
+  float time = 0.0f;
 	try
 	{
 		rTest.setUp();
-
 		try
 		{
+      clock_t t1 = clock();
 			rTest.run();
-			mpResult->addSuccess(new TestDescription(rTest.testCase().lastFileName(), rTest.testCase().lastLineNumber(), rTest.testFullName()));
+      time = ((float)(clock() - t1))/CLOCKS_PER_SEC;
+			mpResult->addSuccess(new TestDescription(rTest.testCase().lastFileName(), rTest.testCase().lastLineNumber(), rTest.testFullName(),time));
 		}
 		catch (QtUnitException& rException)
 		{
-			mpResult->addFailure(new TestDescription(rTest.testCase().lastFileName(), rTest.testCase().lastLineNumber(), rTest.testFullName(), rException.what(), rTest.sourcePath()));
+			mpResult->addFailure(new TestDescription(rTest.testCase().lastFileName(), rTest.testCase().lastLineNumber(), rTest.testFullName(), time, rException.what(), rTest.sourcePath()));
 		}
 		catch (std::exception& rException)
 		{
-			mpResult->addError(new TestDescription(rTest.testCase().lastFileName(), 0, rTest.testFullName(), rException.what(), rTest.sourcePath()));
+			mpResult->addError(new TestDescription(rTest.testCase().lastFileName(), 0, rTest.testFullName(), time, rException.what(), rTest.sourcePath()));
 		}
 		catch (...)
 		{
-			mpResult->addError(new TestDescription(rTest.testCase().lastFileName(), 0, rTest.testFullName(), trUtf8("<unknown>"), rTest.sourcePath()));
+			mpResult->addError(new TestDescription(rTest.testCase().lastFileName(), 0, rTest.testFullName(), time, trUtf8("<unknown>"), rTest.sourcePath()));
 		}
 	}
 	catch (QtUnitException& rException)
 	{
-		mpResult->addFailure(new TestDescription(rTest.testCase().lastFileName(), rTest.testCase().lastLineNumber(), rTest.testFullName(), rException.what(), rTest.sourcePath()));
+		mpResult->addFailure(new TestDescription(rTest.testCase().lastFileName(), rTest.testCase().lastLineNumber(), rTest.testFullName(), time, rException.what(), rTest.sourcePath()));
 	}
 	catch (std::exception& rException)
 	{
-		mpResult->addError(new TestDescription(rTest.testCase().lastFileName(), 0, rTest.testFullName(), rException.what(), rTest.sourcePath()));
+		mpResult->addError(new TestDescription(rTest.testCase().lastFileName(), 0, rTest.testFullName(), time, rException.what(), rTest.sourcePath()));
 	}
     catch (...)
 	{
-		mpResult->addError(new TestDescription(rTest.testCase().lastFileName(), 0, rTest.testFullName(), trUtf8("setUp() failed"), rTest.sourcePath()));
+		mpResult->addError(new TestDescription(rTest.testCase().lastFileName(), 0, rTest.testFullName(),time, trUtf8("setUp() failed"), rTest.sourcePath()));
     }
 	
 	try
@@ -105,15 +109,15 @@ void TestRunner::runTest(const TestBase& rTest)
 	}
 	catch (QtUnitException& rException)
 	{
-		mpResult->addFailure(new TestDescription(rTest.testCase().lastFileName(), rTest.testCase().lastLineNumber(), rTest.testFullName(), rException.what(), rTest.sourcePath()));
+		mpResult->addFailure(new TestDescription(rTest.testCase().lastFileName(), rTest.testCase().lastLineNumber(), rTest.testFullName(), time,rException.what(), rTest.sourcePath()));
 	}
 	catch (std::exception& rException)
 	{
-		mpResult->addError(new TestDescription(rTest.testCase().lastFileName(), 0, rTest.testFullName(), rException.what(), rTest.sourcePath()));
+		mpResult->addError(new TestDescription(rTest.testCase().lastFileName(), 0, rTest.testFullName(),time, rException.what(), rTest.sourcePath()));
 	}
     catch (...)
 	{
-		mpResult->addError(new TestDescription(rTest.testCase().lastFileName(), 0, rTest.testFullName(), trUtf8("tearDown() failed"), rTest.sourcePath()));
+		mpResult->addError(new TestDescription(rTest.testCase().lastFileName(), 0, rTest.testFullName(), time, trUtf8("tearDown() failed"), rTest.sourcePath()));
     }
 }
 

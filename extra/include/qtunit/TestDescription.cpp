@@ -30,12 +30,18 @@
 
 using namespace com_uwyn_qtunit;
 
-TestDescription::TestDescription(const QString& rFileName, long lineNumber, const QString& rTestName, const QString& rFailedCondition, const QString& rSourcePath) :
+TestDescription::TestDescription(const QString& rFileName, 
+    long lineNumber, 
+    const QString& rTestName, 
+    const float rTime,
+    const QString& rFailedCondition, 
+    const QString& rSourcePath ) :
 	mFileName(rFileName),
 	mLineNumber(lineNumber),
 	mTestName(rTestName),
 	mFailedCondition(rFailedCondition),
-	mSourcePath(rSourcePath)
+	mSourcePath(rSourcePath),
+  mTime(rTime)
 {
 }
 
@@ -92,4 +98,14 @@ void TestDescription::sourcePath(const QString& rSourcePath)
 {
 	mSourcePath = rSourcePath;
 }
+
+const float TestDescription::time() const
+{
+  return mTime;
+}
+
+void TestDescription::time(const float rTime){
+  mTime = rTime;
+}
+
 

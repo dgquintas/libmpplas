@@ -39,32 +39,36 @@
 
 namespace com_uwyn_qtunit
 {
-	class TestDescription
-	{
-		REFERENCEOBJECT (TestDescription)
-	
-	public:
-							TestDescription(const QString& rFileName = QTUNIT_UNKNOWNFILENAME, long lineNumber = QTUNIT_UNKNOWNLINENUMBER, const QString& rTestName = QTUNIT_UNKNOWNTESTNAME, const QString& rFailedCondition = "", const QString& rSourcePath = "");
-		virtual				~TestDescription();
-	
-		const QString&		fileName() const;
-		void				fileName(const QString& rFileName);
-		long				lineNumber() const;
-		void				lineNumber(long lineNumber);
-		const QString&		testFullName() const;
-		void				testFullName(const QString& rTestName);
-		const QString&		failedCondition() const;
-		void				failedCondition(const QString& rFailedCondition);
-		const QString&		sourcePath() const;
-		void				sourcePath(const QString& rSourcePath);
-	
-	private:
-		QString				mFileName;
-		long				mLineNumber;
-		QString				mTestName;
-		QString				mFailedCondition;
-		QString				mSourcePath;
-	};
+  class TestDescription
+  {
+    REFERENCEOBJECT (TestDescription)
+
+    public:
+      TestDescription(const QString& rFileName = QTUNIT_UNKNOWNFILENAME, long lineNumber = QTUNIT_UNKNOWNLINENUMBER, const QString& rTestName = QTUNIT_UNKNOWNTESTNAME, const float rTime = 0.0f, const QString& rFailedCondition = "", const QString& rSourcePath = "");
+      virtual				~TestDescription();
+
+      const QString&		fileName() const;
+      void	fileName(const QString& rFileName);
+      long	lineNumber() const;
+      void	lineNumber(long lineNumber);
+      const QString&		testFullName() const;
+      void	testFullName(const QString& rTestName);
+      const QString&		failedCondition() const;
+      void	failedCondition(const QString& rFailedCondition);
+      const QString&		sourcePath() const;
+      void	sourcePath(const QString& rSourcePath);
+      const float       time() const;
+      void  time(const float time);
+        
+
+    private:
+      QString				mFileName;
+      long				mLineNumber;
+      QString				mTestName;
+      QString				mFailedCondition;
+      QString				mSourcePath;
+      float         mTime;
+  };
 }
 
 #endif

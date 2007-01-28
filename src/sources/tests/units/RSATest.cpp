@@ -7,12 +7,15 @@
 #include "RSATest.h"
 #include "Funciones.h"
 #include "Z.h"
-#include <ctime>
+//#include <ctime>
 
 using namespace std;
 using namespace numth;
+using namespace com_uwyn_qtunit;
 
-CPPUNIT_TEST_SUITE_REGISTRATION( RSATest );
+RSATest::RSATest(){
+  addTest(RSATest, testRSA);
+}
 
 void RSATest::setUp(){
   time_t now = time(NULL);
@@ -38,7 +41,7 @@ void RSATest::testRSA(){
  
   size_t tamPrimos = 1024;
   
-  const clock_t t1 = clock();
+//  const clock_t t1 = clock();
   // cogemos los primos... del tamaño en bits que queramos
   p = genPrimos->leerPrimoProb(tamPrimos);
   q = genPrimos->leerPrimoProb(tamPrimos);
@@ -81,9 +84,9 @@ void RSATest::testRSA(){
   resString.resize(tam);
   mdesc.escribirBytes(resString.begin(), resString.end());
 
-  cout << "(partial) Time for RSATest: " << (clock()-t1)/(float)CLOCKS_PER_SEC << "s. " << endl;
+//  cout << "(partial) Time for RSATest: " << (clock()-t1)/(float)CLOCKS_PER_SEC << "s. " << endl;
 
-  CPPUNIT_ASSERT( sourceString == resString );
+  qassertTrue( sourceString == resString );
 
   return;
 }

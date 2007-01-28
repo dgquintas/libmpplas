@@ -2,7 +2,6 @@
  * $Id$
  */
 
-#include <cppunit/TestCase.h>
 #include <string>
 #include "ZTest.h"
 #include <pari/pari.h>
@@ -11,11 +10,22 @@
 
 using namespace std;
 using namespace numth;
+using namespace com_uwyn_qtunit;
 
-CPPUNIT_TEST_SUITE_REGISTRATION( ZTest );
 
 ZTest::ZTest(){
   pari_init(1000000, 0);
+  addTest(ZTest, testEquality);
+  addTest(ZTest, testAddition);
+  addTest(ZTest, testSubstraction);
+  addTest(ZTest, testMultiplication);
+  addTest(ZTest, testDivision);
+  addTest(ZTest, testModulus);
+  addTest(ZTest, testExponentiation);
+  addTest(ZTest, testSquare);
+  addTest(ZTest, testDivideByZeroThrows);
+  addTest(ZTest, testModulusByZeroThrows);
+  addTest(ZTest, testFactorial);
 }
 
 void ZTest::setUp(){
@@ -33,16 +43,16 @@ void ZTest::tearDown(){
 }
 
 void ZTest::testEquality(){
-  CPPUNIT_ASSERT( uno != cero );
-  CPPUNIT_ASSERT( uno == uno );
+  qassertTrue( uno != cero );
+  qassertTrue( uno == uno );
 
-  CPPUNIT_ASSERT( !(uno == cero) );
-  CPPUNIT_ASSERT( !(uno != uno) );
+  qassertTrue( !(uno == cero) );
+  qassertTrue( !(uno != uno) );
 }
 void ZTest::testAddition(){
-  CPPUNIT_ASSERT( uno + uno == dos );
-  CPPUNIT_ASSERT( uno + cero == uno );
-  CPPUNIT_ASSERT( cero + cero == cero );
+  qassertTrue( uno + uno == dos );
+  qassertTrue( uno + cero == uno );
+  qassertTrue( cero + cero == cero );
 
   Z res = z1 + z2;
    
@@ -54,14 +64,14 @@ void ZTest::testAddition(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+  qassertEquals( pariStr, thisStr );
 
 
 }
 void ZTest::testSubstraction(){
-  CPPUNIT_ASSERT( dos - uno == uno );
-  CPPUNIT_ASSERT( cero - uno == -uno );
-  CPPUNIT_ASSERT( cero - cero == cero );
+  qassertTrue( dos - uno == uno );
+  qassertTrue( cero - uno == -uno );
+  qassertTrue( cero - cero == cero );
 
   Z res = z1 - z2;
    
@@ -73,12 +83,12 @@ void ZTest::testSubstraction(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+  qassertEquals( pariStr, thisStr );
 };
 void ZTest::testMultiplication(){
-  CPPUNIT_ASSERT( dos * uno == dos );
-  CPPUNIT_ASSERT( cero * uno == cero );
-  CPPUNIT_ASSERT( cero * cero == cero );
+  qassertTrue( dos * uno == dos );
+  qassertTrue( cero * uno == cero );
+  qassertTrue( cero * cero == cero );
 
   Z res = z1 * z2;
    
@@ -90,11 +100,11 @@ void ZTest::testMultiplication(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+  qassertEquals( pariStr, thisStr );
 };
 void ZTest::testDivision(){
-  CPPUNIT_ASSERT( dos / uno == dos );
-  CPPUNIT_ASSERT( cero / uno == cero );
+  qassertTrue( dos / uno == dos );
+  qassertTrue( cero / uno == cero );
 
   Z res = z1 / z2;
    
@@ -109,12 +119,12 @@ void ZTest::testDivision(){
   string pariStr(GENtostr( x ));
   string thisStr = res.toString();
 
-  CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+  qassertEquals( pariStr, thisStr );
 };
 
 void ZTest::testModulus(){
-  CPPUNIT_ASSERT( dos % uno == cero );
-  CPPUNIT_ASSERT( uno % dos == uno );
+  qassertTrue( dos % uno == cero );
+  qassertTrue( uno % dos == uno );
 
   Z res = z1 % z2;
    
@@ -126,11 +136,11 @@ void ZTest::testModulus(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+  qassertEquals( pariStr, thisStr );
 };
 void ZTest::testExponentiation(){
-  CPPUNIT_ASSERT( (dos ^ uno) == dos );
-  CPPUNIT_ASSERT( (dos ^ cero) == uno );
+  qassertTrue( (dos ^ uno) == dos );
+  qassertTrue( (dos ^ cero) == uno );
 
   z2  = funcs.getRandomRapido()->leerBits(brand(4,6));
   Z res = (z1 ^ z2) ;
@@ -143,7 +153,7 @@ void ZTest::testExponentiation(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+  qassertEquals( pariStr, thisStr );
 };
 
 void ZTest::testSquare(){
@@ -157,15 +167,29 @@ void ZTest::testSquare(){
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   string thisStr = res.toString();
 
-  CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+  qassertEquals( pariStr, thisStr );
 };
 
 
 void ZTest::testDivideByZeroThrows(){
-  uno / cero;
+  try{
+    uno / cero;
+  } catch (Errores::DivisionPorCero){
+    return;
+  }
+
+  qassertTrue(false);
+
 }
 void ZTest::testModulusByZeroThrows(){
-  uno % cero;
+  try{
+    uno % cero;
+  } catch (Errores::DivisionPorCero){
+    return;
+  }
+
+  qassertTrue(false);
+
 }
 
 
@@ -185,6 +209,6 @@ void ZTest::testFactorial(){
   string thisStr = res.toString();
 
 
-  CPPUNIT_ASSERT_EQUAL( pariStr, thisStr );
+  qassertEquals( pariStr, thisStr );
   
 }

@@ -5,27 +5,26 @@
 #ifndef __RSATEST_H
 #define __RSATEST_H
 
-#include <cppunit/TestFixture.h>
-#include <cppunit/extensions/HelperMacros.h>
 #include <string>
+#include "qtunit/TestCase.h"
 
 using namespace std;
 
-class RSATest : public CppUnit::TestFixture {
+namespace com_uwyn_qtunit{
 
-  CPPUNIT_TEST_SUITE( RSATest );
-    CPPUNIT_TEST( testRSA );
-  CPPUNIT_TEST_SUITE_END();
-  
-  public:
+  class RSATest : public TestCase {
+
+    public:
+    RSATest();
     void setUp();
     void tearDown();
-    
+
+    protected:
     /* The actual tests */
     void testRSA();
-  private:
+    private:
     string sourceString;
     string resString;
-};
-
+  };
+}
 #endif

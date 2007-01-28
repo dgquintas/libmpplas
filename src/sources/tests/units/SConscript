@@ -11,25 +11,23 @@ myenv.Append(CPPPATH = '#/extra/include')
 myenv.Append(CPPPATH = ('#/extra/include' + myenv['ARCH_BITS']))
 myenv.Append(LIBPATH= ('#/extra/lib' + myenv['ARCH_BITS']))
 
-myenv.Append(LIBS = ['-lpari', '-lcppunit', '-ldl'])
-myenv.Append(LIBS = ['qt-mt', 'pthread', 'm', 'X11', 'Xext','qttestrunner'])
+myenv.Append(LIBS = ['qt-mt', 'pthread', 'm', 'X11', 'Xext', 'pari', 'qtunit'])
 myenv.Append(CPPPATH = '/usr/include/qt3')
 #myenv.Replace(CCFLAGS = '-O0 -ggdb3') #FIXME
 
-files = Split("""
-    ZTest.cpp
+moduleFiles = Split("""
     KernelTest.cpp
-    OpenMPTest.cpp
-    Z_nTest.cpp
-    FunctionsTest.cpp
-    RandomTest.cpp
+    ZTest.cpp
     RSATest.cpp
-    main.cpp
+    NumthTestSuite.cpp
+    TestModule.cpp
+    TextRunner.cpp
     """)
 
-cppunitTests = myenv.Program('unitTests', files)
-myenv.Install(myenv['INSTALL_DIR_TESTS'], cppunitTests)
-Alias('tests', cppunitTests)
+textRunner = myenv.Program('textRunner', moduleFiles)
+
+myenv.Install(myenv['INSTALL_DIR_TESTS'], textRunner)
+Alias('tests', textRunner)
 #Alias('tests', myenv['INSTALL_DIR_TESTS'])
-Alias('all', cppunitTests)
+Alias('all', 'tests')
 Alias('install', myenv['INSTALL_DIR_TESTS'])

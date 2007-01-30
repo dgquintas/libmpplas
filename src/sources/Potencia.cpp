@@ -278,12 +278,23 @@ namespace numth{
 
     base->hacerUno();
 
-    for(long i = (e.numBits()-1); i >= 0 ; i--){
+    const int initialBitPos = (e.numBits()-1);
+    int cifraPos = initialBitPos >> Constantes::LOG_2_BITS_EN_CIFRA;
+    Cifra inCifraPosMask = 1;
+    inCifraPosMask <<= ( initialBitPos & ((1<<Constantes::LOG_2_BITS_EN_CIFRA)-1) ); //ie, i % BITS_EN_CIFRA
+    for(int i = initialBitPos; i >= 0 ; i--){
       base->cuadrado(); 
       redbarrett->redBarrett(base, mod, mu);
-      if( (e[(i / Constantes::BITS_EN_CIFRA)] & (1 << (i % Constantes::BITS_EN_CIFRA))) ){ //si el i-esimo bit de "e" es uno...
+      Cifra mask = 1;
+      
+      if( (e[cifraPos] & inCifraPosMask ) ){ //si el i-esimo bit de "e" es uno...
         base->operator*=(valorInicial); 
         redbarrett->redBarrett(base, mod,mu);
+      }
+      inCifraPosMask >>= 1;
+      if( !inCifraPosMask ){
+        cifraPos--;
+        inCifraPosMask = 1; inCifraPosMask <<= (Constantes::BITS_EN_CIFRA -1);
       }
     }
 

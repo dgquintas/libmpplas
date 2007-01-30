@@ -11,7 +11,8 @@
 #include <cstdlib>
 
 #ifndef ARCH
-#define ARCH x86 //arquitectura por omisión
+  #define ARCH x86 //arquitectura por omisión
+  #define ARCHBITS 32
 #endif
 
 namespace numth{
@@ -20,7 +21,13 @@ namespace numth{
    * Representa la base en la cual se trabaja en Z y será el tipo
    * utilizado en todo lugar que haga falta un entero positivo.
    */
+#if ARCHBITS == 64
+  typedef uint64_t Cifra;
+#elif ARCHBITS == 32
   typedef uint32_t Cifra;
+#else 
+  #error Unsupported number of bits ARCHBITS
+#endif
 
   /** Tipo de dato básico auxiliar con signo.
    *
@@ -28,13 +35,21 @@ namespace numth{
    * aquellos lugares en los que tenga sentido trabajar con enteros de
    * precisión simple negativos.
    */
-  typedef int32_t  CifraSigno;
+#if ARCHBITS == 64
+  typedef int64_t CifraSigno;
+#elif ARCHBITS == 32
+  typedef int32_t CifraSigno;
+#else 
+  #error Unsupported number of bits ARCHBITS
+#endif
 
   /** Las arquitecturas soportadas */
   struct Arch {
     enum {
       x86,
       x86Prof,
+      x86_64,
+      x86_64Prof,
       generic,
       ppc
     };
@@ -141,7 +156,11 @@ namespace numth{
     * fraccionaria. */
     static const int MAX_EXP10_DOUBLE = std::numeric_limits<double>::digits10;
 
-
+#if ARCHBITS == 64
+    static const int LOG_2_BITS_EN_CIFRA = 6;
+#elif ARCHBITS == 32
+    static const int LOG_2_BITS_EN_CIFRA = 5;
+#endif
 
     /** Número de cifras en base \f$2^{BITS_EN_CIFRA}\f$ a partir del cual se usa
     * la multiplicacion de Karatsuba */

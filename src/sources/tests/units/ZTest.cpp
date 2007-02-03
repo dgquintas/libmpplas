@@ -32,9 +32,9 @@ void ZTest::setUp(){
   z1 = funcs.getRandomRapido()->leerBits(brand(2000,5000));
   z2 = funcs.getRandomRapido()->leerBits(brand(2000,5000));
 
-  this->uno = Z::convertir(1);
-  this->dos = Z::convertir(2);
-  this->cero= Z::convertir(0);
+  this->uno = Z::convertir((Cifra)1);
+  this->dos = Z::convertir((Cifra)2);
+  this->cero= Z::convertir((Cifra)0);
 
   
 }
@@ -195,7 +195,7 @@ void ZTest::testModulusByZeroThrows(){
 
 
 void ZTest::testFactorial(){
-  Cifra rnd = (funcs.getRandomRapido()->leerCifra()) % (1UL<<10);
+  Cifra rnd = (funcs.getRandomRapido()->leerCifra()) % (1UL<<14);
 
   Z res = Z::convertir(rnd);
 

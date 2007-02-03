@@ -5,7 +5,7 @@ import time, sys, os, shutil
 #############################################################
 def getNativelySupportedArchs():
   natArchs = ['generic']
-  x86ArchMachines = ['i386', 'i486', 'i586', 'i686']
+  x86ArchMachines = ['i386', 'i486', 'i586', 'i686', 'x86_64']
   currentPlatformMachine = platform.machine()
 
   
@@ -47,15 +47,10 @@ files = Split("""
     VectorZ.cpp
     """)
 
-env.Append(CCFLAGS = ' -pipe ')
+env.Append(CCFLAGS = ' -pipe -fno-rtti ')
 env.Append(CCFLAGS = ' -O' + env['optLevel'])
 
-if env['enableProf']:
-  env['arch'] += 'Prof'
-
-
-
-env.Append(CPPDEFINES = [('ARCH', env['arch'])])
+  
 try:
   import platform
 
@@ -67,10 +62,20 @@ try:
       sys.stdout.flush()
     else:
       print ''
-  env['ARCH_BITS'] = platform.architecture()[0][:2]
+  env['SYSTEMBITS'] = platform.architecture()[0][:2]
 
 except ImportError:
   print "Platform support checking not supported by the Python installed: " + sys.version
+  env['SYSTEMBITS'] = "32"
+
+if env['enableProf']:
+  env['arch'] += 'Prof'
+env.Append(CPPDEFINES = [('ARCH', env['arch'])])
+
+if env['arch'][:6] == 'x86_64':
+  env.Append(CPPDEFINES = [('ARCHBITS', '64')])
+else:
+  env.Append(CPPDEFINES = [('ARCHBITS', '32')])
 
 
 if env['enableRelease']:

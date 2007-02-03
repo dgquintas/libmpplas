@@ -8,11 +8,12 @@ import os.path
 Import('myenv')
 
 myenv.Append(CPPPATH = '#/extra/include')
-myenv.Append(CPPPATH = ('#/extra/include' + myenv['ARCH_BITS']))
-myenv.Append(LIBPATH= ('#/extra/lib' + myenv['ARCH_BITS']))
+myenv.Append(CPPPATH = ('#/extra/include' + myenv['SYSTEMBITS']))
+myenv.Append(LIBPATH= ('#/extra/lib' + myenv['SYSTEMBITS']))
 
-myenv.Append(LIBS = ['qt-mt', 'pthread', 'm', 'X11', 'Xext', 'pari', 'qtunit'])
-myenv.Append(CPPPATH = '/usr/include/qt3')
+myenv.Append(LIBS = [ 'pthread', 'm', 'pari', 'qtunit'])
+myenv.Append(CPPPATH = myenv['ENV']['QTDIR']+'/include')
+myenv.Append(LIBPATH = myenv['ENV']['QTDIR']+'/lib')
 #myenv.Replace(CCFLAGS = '-O0 -ggdb3') #FIXME
 
 moduleFiles = Split("""

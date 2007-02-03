@@ -114,7 +114,7 @@ lval  join_ide(vector<lval>::iterator v)
 	{
 		cout << "Undefined variable " << v[0].text << ". Assuming 0\n";
     res.tipo = 'Z';
-		res.entero=Z::convertir((Cifra)0);
+		res.entero.hacerCero();
 	}
 	else{
     if( variables[v[0].text].tipo == 'Z' ){
@@ -456,7 +456,7 @@ lval  join_func(vector<lval>::iterator v)
       throw NumeroParametrosIncorrecto(1,tam);
     if( listaArgs.front().tipo != 'Z' )
       throw TipoParametroIncorrecto(1,'Z');
-    if( funcs.testPrimoProb()->esPrimo(listaArgs.front().entero) )
+    if( funcs.getTestPrimoProb()->esPrimo(listaArgs.front().entero) )
       res.entero.hacerUno();
     else
       res.entero.hacerCero();
@@ -470,7 +470,7 @@ lval  join_func(vector<lval>::iterator v)
       throw NumeroParametrosIncorrecto(1,tam);
     if( listaArgs.front().tipo != 'Z' )
       throw TipoParametroIncorrecto(1,'Z');
-    if( funcs.testPrimoMersenne()->esPrimo(listaArgs.front().entero[0]) )
+    if( funcs.getTestPrimoMersenne()->esPrimo(listaArgs.front().entero[0]) )
       res.entero.hacerUno();
     else
       res.entero.hacerCero();
@@ -485,7 +485,7 @@ lval  join_func(vector<lval>::iterator v)
     if( listaArgs.front().tipo != 'Z' )
       throw TipoParametroIncorrecto(1,'Z');
     
-    res.entero = funcs.randomRapido()->leerBits(listaArgs.front().entero[0]);
+    res.entero = funcs.getRandomRapido()->leerBits(listaArgs.front().entero[0]);
 
     return res;
   }
@@ -497,7 +497,7 @@ lval  join_func(vector<lval>::iterator v)
     if( listaArgs.front().tipo != 'Z' )
       throw TipoParametroIncorrecto(1,'Z');
     
-    res.entero = funcs.randomSeguro()->leerBits(listaArgs.front().entero[0]);
+    res.entero = funcs.getRandomSeguro()->leerBits(listaArgs.front().entero[0]);
 
     return res;
   }
@@ -509,7 +509,7 @@ lval  join_func(vector<lval>::iterator v)
     if( listaArgs.front().tipo != 'Z' )
       throw TipoParametroIncorrecto(1,'Z');
     
-    funcs.randomSeguro()->ponerCalidad(listaArgs.front().entero[0]);
+    funcs.getRandomSeguro()->ponerCalidad(listaArgs.front().entero[0]);
 
     res.entero.hacerUno();
     return res;
@@ -523,7 +523,7 @@ lval  join_func(vector<lval>::iterator v)
     if( listaArgs.front().tipo != 'Z' )
       throw TipoParametroIncorrecto(1,'Z');
     
-    funcs.randomRapido()->ponerSemilla(listaArgs.front().entero);
+    funcs.getRandomRapido()->ponerSemilla(listaArgs.front().entero);
 
     res.entero.hacerUno();
     return res;
@@ -536,7 +536,7 @@ lval  join_func(vector<lval>::iterator v)
     if( listaArgs.front().tipo != 'Z' )
       throw TipoParametroIncorrecto(1,'Z');
     
-    funcs.randomSeguro()->ponerCalidad(listaArgs.front().entero[0]);
+    funcs.getRandomSeguro()->ponerCalidad(listaArgs.front().entero[0]);
 
     res.entero.hacerUno();
     return res;
@@ -549,7 +549,7 @@ lval  join_func(vector<lval>::iterator v)
     if( listaArgs.front().tipo != 'Z' )
       throw TipoParametroIncorrecto(1,'Z');
     
-    res.entero = funcs.genPrimos()->leerPrimoProb(listaArgs.front().entero[0]);
+    res.entero = funcs.getGenPrimos()->leerPrimoProb(listaArgs.front().entero[0]);
 
     return res;
   }
@@ -561,7 +561,7 @@ lval  join_func(vector<lval>::iterator v)
     if( listaArgs.front().tipo != 'Z' )
       throw TipoParametroIncorrecto(1,'Z');
     
-    res.entero = funcs.genPrimos()->siguientePrimoProb(listaArgs.front().entero);
+    res.entero = funcs.getGenPrimos()->siguientePrimoProb(listaArgs.front().entero);
 
     return res;
   }
@@ -573,7 +573,7 @@ lval  join_func(vector<lval>::iterator v)
     if( listaArgs.front().tipo != 'Z' )
       throw TipoParametroIncorrecto(1,'Z');
     
-    res.entero = funcs.genPrimos()->leerPrimoFuerte(listaArgs.front().entero[0]);
+    res.entero = funcs.getGenPrimos()->leerPrimoFuerte(listaArgs.front().entero[0]);
 
     return res;
   }
@@ -585,7 +585,7 @@ lval  join_func(vector<lval>::iterator v)
     if( listaArgs.front().tipo != 'Z' )
       throw TipoParametroIncorrecto(1,'Z');
     
-    funcs.testPrimoProb()->ponerIteraciones(listaArgs.front().entero[0]);
+    funcs.getTestPrimoProb()->ponerIteraciones(listaArgs.front().entero[0]);
 
     return res;
   }
@@ -607,7 +607,7 @@ lval  join_func(vector<lval>::iterator v)
     Z base = (*it).entero; it++;
     Z exp = (*it).entero; it++;
     Z mod = (*it).entero; 
-    funcs.potModular()->potModular(&base, exp, mod);
+    funcs.getPotModular()->potModular(&base, exp, mod);
 
     res.entero = base;
 
@@ -630,7 +630,7 @@ lval  join_func(vector<lval>::iterator v)
     it = listaArgs.begin();
     Z a = (*it).entero; it++;
     Z b = (*it).entero; 
-    res.entero = funcs.gcd()->gcd(a,b);
+    res.entero = funcs.getGCD()->gcd(a,b);
 
     return res;
   }
@@ -651,7 +651,7 @@ lval  join_func(vector<lval>::iterator v)
     it = listaArgs.begin();
     Z a = (*it).entero; it++;
     Z b = (*it).entero; 
-    res.entero = funcs.lcm()->lcm(a,b);
+    res.entero = funcs.getLCM()->lcm(a,b);
 
     return res;
   }
@@ -672,7 +672,7 @@ lval  join_func(vector<lval>::iterator v)
     it = listaArgs.begin();
     Z a = (*it).entero; it++;
     Z b = (*it).entero; 
-    res.entero = funcs.simboloKronecker()->simboloKronecker(a,b);
+    res.entero = funcs.getKroneckerSymbol()->simboloKronecker(a,b);
 
     return res;
   }
@@ -693,7 +693,7 @@ lval  join_func(vector<lval>::iterator v)
     it = listaArgs.begin();
     Z a = (*it).entero; it++;
     Z b = (*it).entero; 
-    res.entero = funcs.simboloJacobi()->simboloJacobi(a,b);
+    res.entero = funcs.getJacobiSymbol()->simboloJacobi(a,b);
 
     return res;
   }
@@ -714,7 +714,7 @@ lval  join_func(vector<lval>::iterator v)
     it = listaArgs.begin();
     Z a = (*it).entero; it++;
     Z b = (*it).entero; 
-    res.entero = funcs.simboloLegendre()->simboloLegendre(a,b);
+    res.entero = funcs.getLegendreSymbol()->simboloLegendre(a,b);
 
     return res;
   }
@@ -747,7 +747,7 @@ lval  join_func(vector<lval>::iterator v)
       y.push_back(it2->entero);
     }
       
-    res.entero = funcs.crt()->crt(m,y);
+    res.entero = funcs.getCRT()->crt(m,y);
 
     return res;
   }
@@ -794,7 +794,7 @@ lval  join_func(vector<lval>::iterator v)
     Z b = (*it).entero; it++;
     Z c = (*it).entero;
     
-    funcs.potModular()->potModular(&res.entero, b, c);
+    funcs.getPotModular()->potModular(&res.entero, b, c);
     return res;
   }
   if( v[0].text == "factoriza" ){
@@ -806,7 +806,7 @@ lval  join_func(vector<lval>::iterator v)
       throw TipoParametroIncorrecto(1,'Z');
     
     MiVec<Z> factores;
-    factores = funcs.factoriza()->factoriza(listaArgs.front().entero);
+    factores = funcs.getFactoriza()->factoriza(listaArgs.front().entero);
    
     lval elemento;
     for(size_t i=0; i < factores.size(); i++){
@@ -825,7 +825,7 @@ lval  join_func(vector<lval>::iterator v)
     if( listaArgs.front().tipo != 'R' )
       listaArgs.front().real = R::convertir(listaArgs.front().entero);
     
-    res.real = funcs.exponencial()->exponencial(listaArgs.front().real);
+    res.real = funcs.getExponencial()->exponencial(listaArgs.front().real);
     return res;
   }
  
@@ -837,7 +837,7 @@ lval  join_func(vector<lval>::iterator v)
     if( listaArgs.front().tipo != 'R' )
       listaArgs.front().real = R::convertir(listaArgs.front().entero);
     
-    res.real = funcs.ln()->ln(listaArgs.front().real);
+    res.real = funcs.getLn()->ln(listaArgs.front().real);
     return res;
   }
   if( v[0].text == "cos" ){
@@ -848,7 +848,7 @@ lval  join_func(vector<lval>::iterator v)
     if( listaArgs.front().tipo != 'R' )
       listaArgs.front().real = R::convertir(listaArgs.front().entero);
     
-    res.real = funcs.coseno()->coseno(listaArgs.front().real);
+    res.real = funcs.getCoseno()->coseno(listaArgs.front().real);
     return res;
   }
   if( v[0].text == "sen" ){
@@ -859,7 +859,7 @@ lval  join_func(vector<lval>::iterator v)
     if( listaArgs.front().tipo != 'R' )
       listaArgs.front().real = R::convertir(listaArgs.front().entero);
     
-    res.real = funcs.seno()->seno(listaArgs.front().real);
+    res.real = funcs.getSeno()->seno(listaArgs.front().real);
     return res;
   }
 
@@ -867,14 +867,14 @@ lval  join_func(vector<lval>::iterator v)
     res.tipo = 'R';
     size_t tam = listaArgs.size();
     if( tam == 0 ){
-      res.real = funcs.pi()->pi();
+      res.real = funcs.getPi()->pi();
       return res;
     }
     else if (tam == 1){
       if( listaArgs.front().tipo != 'Z' )
         throw TipoParametroIncorrecto(1,'Z');
 
-      res.real = funcs.pi()->pi(listaArgs.front().entero[0]);
+      res.real = funcs.getPi()->pi(listaArgs.front().entero[0]);
       return res;
 
     }

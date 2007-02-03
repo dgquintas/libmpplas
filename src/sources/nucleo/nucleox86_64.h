@@ -63,11 +63,11 @@
   template<>
     inline Cifra vCPUBasica<Arch::x86_64>::Sub(Cifra arg1, Cifra arg2) 
     { 
-      __asm__ ("xorq %[_of], %[_of];"
+      __asm__  ("xorq %[_of], %[_of];"
                "subq %[_arg2], %[_arg1];"
                "adcq $0, %[_of]; " 
           : "=r" (arg1), [_of] "=r" (overflow) 
-          : [_arg1] "0" (arg1), [_arg2] "r" (arg2)
+          : [_arg1] "0" (arg1), [_arg2] "rm" (arg2)
           : "cc" /* modificamos eflags */
           ); 
 
@@ -80,11 +80,11 @@
   template<>
     inline Cifra vCPUBasica<Arch::x86_64>::Subx(Cifra arg1, Cifra arg2) 
     { 
-      __asm__ ("btrq $0, %[_of];" /* pone CF al valor del bit 0 de overflow */
+      __asm__  ("btrq $0, %[_of];" /* pone CF al valor del bit 0 de overflow */
                "sbbq %[_arg2], %[_arg1];"
                "adcq $0, %[_of];" 
           : "=r" (arg1), [_of] "=r" (overflow) 
-          : [_arg1] "0" (arg1), [_arg2] "r" (arg2), "1" (overflow) 
+          : [_arg1] "0" (arg1), [_arg2] "rm" (arg2), "1" (overflow) 
           : "cc" /* modificamos eflags */
           );
       return arg1; 

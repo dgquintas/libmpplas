@@ -2,7 +2,6 @@
  * $Id$
  */
 
-#include <cppunit/TestCase.h>
 #include <string>
 #include "KernelTest.h"
 
@@ -57,7 +56,7 @@ void KernelTest::testAddx(){
 
 }
 
-void KernelTest::testSub(){
+void KernelTest::testSub(){ 
   qassertTrue( one == cpu_.Sub(three, two) );
   qassertTrue( zero == cpu_.getOverflow() );
 

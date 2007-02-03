@@ -2,7 +2,6 @@
  * $Id $
  */
 
-#include <cppunit/TestCase.h>
 #include <string>
 #include "RSATest.h"
 #include "Funciones.h"

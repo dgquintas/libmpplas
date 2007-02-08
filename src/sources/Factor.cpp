@@ -338,8 +338,8 @@ namespace numth{
     Z mu = reduccion->precomputaciones(*n);
     GCD* gcd;funcs->getFunc(gcd);
     TestPrimoProb* test; funcs->getFunc(test);
-    Z a(2);
-    Z b(2);
+    Z a((Cifra)2);
+    Z b((Cifra)2);
     Z d;
 //    size_t numFactoresIni = factores->size();
 
@@ -519,7 +519,7 @@ namespace numth{
     //pag. 364 Knuth
     
     if( n->esUno() ){
-      factores->push_back( Z(1) );
+      factores->push_back( Z((Cifra)1) );
       return true;
     }
 
@@ -529,7 +529,7 @@ namespace numth{
     size_t doses = n->numDoses();
     if(doses){
       (*n) >>= doses;
-      factores->insert(factores->end(), doses, Z(2));
+      factores->insert(factores->end(), doses, Z((Cifra)2));
     }
 
     Z q,r;

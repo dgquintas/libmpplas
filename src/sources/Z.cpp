@@ -29,7 +29,7 @@ namespace numth{
   size_t Z::precisionSalida_ = 0;
   static vCPUVectorial cpuVectorial_(NUM_CPUS);
 
-  Z Z::Zero(0);
+  Z Z::Zero((Cifra)0);
 
   // implementacion constructores
   Z::Z()
@@ -1392,7 +1392,7 @@ namespace numth{
     GCD* gcd; funcs->getFunc(gcd);
     
     if( this->esPar() )
-      p = Z(2);
+      p = Z((Cifra)2);
     else{
       q = (*this);
       while(true){

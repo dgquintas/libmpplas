@@ -199,7 +199,7 @@ namespace numth{
     if( !primTest->esPrimo(Z(p)) )
       return false;
     
-    Z s(4);
+    Z s((Cifra)4);
     
     for(CifraSigno i = 3; i <= p; i++){
       s.cuadrado(); 
@@ -290,7 +290,7 @@ namespace numth{
 
     //caso especial
     if( comienzo == (Cifra)2 )
-      return Z(3);
+      return Z((Cifra)3);
     
     Z n = comienzo;
     if( comienzo.esPar() ){

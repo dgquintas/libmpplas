@@ -97,7 +97,7 @@ namespace numth{
               //seria igual a la base y dado que uPrima / vPrima es 
               //siempre < base, es imposible que sean  iguales 
             else{
-              Z uZ = Z::convertir(Constantes::CIFRA_MAX); uZ++;
+              Z uZ = Z(Constantes::CIFRA_MAX); uZ++;
               q2 = (uZ/vPrimaSegunda)[0]; /* el resultado de esa div sera siempre < base
                                              ya que uZ == base y vPrimaSegunda > 1 */
             }

@@ -163,25 +163,28 @@ namespace numth{
 
   R SenFase::seno(const R& x)
   {
-    Funciones funcs;
+    Funciones *funcs = Funciones::getInstance();
+    Pi* pi; funcs->getFunc(pi);
 
-    R piMedios = funcs.getPi()->pi();
+    R piMedios = pi->pi();
     piMedios >>= 1;
 
     //FIXME: esto es una mierda que te cagas de ineficiente
-    return funcs.getCoseno()->coseno(piMedios - x);
+    Coseno* cos; funcs->getFunc(cos);
+    return cos->coseno(piMedios - x);
   }
     
 
 
   R CosTaylor::coseno(const R& x)
   {
-    Funciones funcs;
- 
+    Funciones *funcs = Funciones::getInstance();
+    Pi* pi; funcs->getFunc(pi);
+
     size_t precVieja = R::precision();
     R::precision(2*precVieja);
     
-    R DosPi = (funcs.getPi()->pi());
+    R DosPi = (pi->pi());
     DosPi <<= 1;
 //    cout << DosPi << endl;
     Z cociente = (x / DosPi).floor();
@@ -245,8 +248,8 @@ namespace numth{
     // less than 1.
     
     R result; 
-    Funciones funcs;
-    ArcoTangente *arctan = funcs.getArcotangente();
+    Funciones *funcs = Funciones::getInstance();
+    ArcoTangente *arctan; funcs->getFunc(arctan);
     size_t precisionVieja=0;
     if( prec ){
       precisionVieja = R::precision();

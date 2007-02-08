@@ -5,6 +5,7 @@
 #include "R.h"
 #include <inttypes.h>
 #include "Funciones.h" 
+#include "Potencia.h"
 
 namespace numth{
 
@@ -48,16 +49,14 @@ namespace numth{
   } 
 
   R::R(const CifraSigno otro)
-    : exponente_(0)
+    : exponente_(0), mantisa_(otro)
   {
-    mantisa_ = Z::convertir(otro);
     normalizar();
   }
 
   R::R(const Cifra otro)
-    : exponente_(0)
+    : exponente_(0), mantisa_(otro)
   {
-    mantisa_ = Z::convertir(otro);
     normalizar();
   }
 
@@ -88,7 +87,7 @@ namespace numth{
     Cifra sueloEnteroAlto = 0;
     Cifra sueloDecimal1 = 0;
     Cifra sueloDecimal2;
-    Cifra potenciaInicial = (Cifra)pow(10,Constantes::MAX_EXP10_CIFRA);
+    Cifra potenciaInicial = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
     Cifra potenciaFinal;
     bool negativo = false;
     size_t cifrasEnteras = 0;
@@ -112,10 +111,10 @@ namespace numth{
 
     otro -= suelo;
 
-    long cifrasRestantes = (Constantes::MAX_EXP10_DOUBLE+2)-cifrasEnteras;
+    int cifrasRestantes = (Constantes::MAX_EXP10_DOUBLE+2)-cifrasEnteras;
 
     if( cifrasRestantes > (long)Constantes::MAX_EXP10_CIFRA ){
-      potenciaFinal = (Cifra)pow(10,Constantes::MAX_EXP10_CIFRA);
+      potenciaFinal = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
       otro *= potenciaFinal;
       suelo = std::floor(otro);
       otro -= suelo;
@@ -124,7 +123,7 @@ namespace numth{
       cifrasRestantes -= Constantes::MAX_EXP10_CIFRA;
     }
 
-    potenciaFinal = (Cifra)pow(10,cifrasRestantes);
+    potenciaFinal = (Cifra)pow(10.0,cifrasRestantes);
     otro *= potenciaFinal;
     suelo = std::floor(otro);
     sueloDecimal2 = (Cifra)suelo;
@@ -376,9 +375,10 @@ namespace numth{
     //  mantisa_ ^= exponente;
     //  exponente_ *= exponente;
 
-    Funciones funcs;
-
-    funcs.getPotenciaR()->potenciaR(this, exponente);
+    Funciones *funcs = Funciones::getInstance();
+    PotenciaR *potR; funcs->getFunc(potR);
+      
+    potR->potenciaR(this, exponente);
 
     normalizar();
 
@@ -903,7 +903,7 @@ namespace numth{
       std::string entrada;
       Cifra num;
       char *error;
-      Cifra potenciaInicial = (Cifra)pow(10,Constantes::MAX_EXP10_CIFRA);
+      Cifra potenciaInicial = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
       bool negativo = false;
 
       numero = (Cifra)0;
@@ -915,15 +915,15 @@ namespace numth{
 
       size_t posPunto = entrada.find_first_of('.');
       std::string parteEntera = entrada.substr(0,posPunto);
-      Z entero = Z::convertir(parteEntera.c_str());
+      Z entero(parteEntera.c_str());
       if(entero.signo() < 0)
         negativo = true;
 
 
       if(posPunto != std::string::npos){ //hay punto
         std::string parteFrac = entrada.substr(posPunto+1);
-        size_t tam = parteFrac.size();
-        Cifra potenciaFinal = (Cifra)pow(10,tam % Constantes::MAX_EXP10_CIFRA);
+        int tam = parteFrac.size();
+        Cifra potenciaFinal = (Cifra)pow(10.0,tam % Constantes::MAX_EXP10_CIFRA);
 
         for(long i = tam-Constantes::MAX_EXP10_CIFRA; i >= 0 ; i -= Constantes::MAX_EXP10_CIFRA){
           num = strtoul((parteFrac.substr(i, Constantes::MAX_EXP10_CIFRA)).c_str(), &error, 10);

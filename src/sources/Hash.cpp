@@ -29,7 +29,7 @@ namespace numth{
     std::ostringstream cadStream;
     cadStream << resumen_[0] << resumen_[1] << resumen_[2] << resumen_[3];
     std::string cadena = cadStream.str();
-    Z temp(Z::convertir(cadena.c_str()));
+    Z temp(cadena.c_str());
 
     return temp;
   }

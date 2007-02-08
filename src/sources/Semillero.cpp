@@ -6,6 +6,7 @@
 #include "Funciones.h"
 #include "constantes.h"
 #include "err.h"
+#include "Hash.h"
 #include <ctime>
 #include <fstream>
 #ifdef __WIN32__
@@ -32,8 +33,8 @@ namespace numth{
   
   Z Semillero::leerSemilla(size_t numBytes)
   {
-    Funciones funcs;
-    Hash* hash = funcs.getHash();
+    Funciones *funcs = Funciones::getInstance();
+    Hash* hash; funcs->getFunc(hash);
     static size_t contador = 0;
 //    datosRnd_.resize( hash->numBitsResumen() >> 3);
     

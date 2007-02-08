@@ -13,6 +13,9 @@
 #include <string>
 #include <utility>
 #include "mp.h"
+#include "Potencia.h"
+#include "Primos.h"
+#include "GCD.h"
 
 #ifdef _OPENMP
   #include <omp.h>
@@ -26,7 +29,7 @@ namespace numth{
   size_t Z::precisionSalida_ = 0;
   static vCPUVectorial cpuVectorial_(NUM_CPUS);
 
-  Z Z::Zero = Z::convertir((Cifra)0);
+  Z Z::Zero(0);
 
   // implementacion constructores
   Z::Z()
@@ -37,31 +40,31 @@ namespace numth{
     : coefPoliB_(otro.coefPoliB_), signo_(otro.signo_)
     {}
 
-  Z Z::convertir(const Cifra origen)
-  {
-    Z temp(origen);
-    return temp;
-  }
-
-  Z Z::convertir(const CifraSigno origen)
-  {
-    Z temp(origen);
-    return temp;
-  }
-
-  Z Z::convertir(const char* origen) throw (Errores::Sintactico)
-  {
-    Z temp(origen);
-    return temp;
-  }
-
-
-  Z Z::convertir(const double origen)
-  {
-    Z temp(origen);
-    return temp;
-  }
-
+//  Z Z::convertir(const Cifra origen)
+//  {
+//    Z temp(origen);
+//    return temp;
+//  }
+//
+//  Z Z::convertir(const CifraSigno origen)
+//  {
+//    Z temp(origen);
+//    return temp;
+//  }
+//
+//  Z Z::convertir(const char* origen) throw (Errores::Sintactico)
+//  {
+//    Z temp(origen);
+//    return temp;
+//  }
+//
+//
+//  Z Z::convertir(const double origen)
+//  {
+//    Z temp(origen);
+//    return temp;
+//  }
+//
   Z Z::convertir(const MiVec<Cifra>& vec)
   {
     Z temp; temp.coefPoliB_ = vec;
@@ -113,7 +116,13 @@ namespace numth{
     operator>>(flujoEntrada,*this);
     return;
   }
-
+ 
+  Z::Z(const MiVec<Cifra>& vec)
+    : coefPoliB_(vec)
+  {
+    signo_ = 1;
+    this->limpiarCeros();
+  }
 
   Z::~Z()
   {
@@ -894,7 +903,7 @@ namespace numth{
     if( divisorSigned == 0 )
       throw Errores::DivisionPorCero();
 
-    this->operator%=(Z::convertir(divisorSigned));
+    this->operator%=(Z(divisorSigned));
 
     //  Cifra divisor;
     //  if( divisorSigned >= 0 )
@@ -1069,7 +1078,7 @@ namespace numth{
     if( corto == 0 )
       throw Errores::DivisionPorCero();
 
-    this->operator%=(Z::convertir(corto));
+    this->operator%=(Z(corto));
 
     //  Cifra cortoCifra;
     //  cortoCifra = (Cifra)corto;
@@ -1121,8 +1130,9 @@ namespace numth{
 
   Z& Z::operator^=(const Cifra e)
   {
-    Funciones funcs;
-    funcs.getPotencia()->potencia(this, e);
+    Funciones *funcs = Funciones::getInstance();
+    Potencia* p; funcs->getFunc(p);
+    p->potencia(this, e);
 
     return *this; 
 
@@ -1377,20 +1387,22 @@ namespace numth{
     //cohen p 42
     Z p,q;
     Z a;
-    Funciones funcs;
+    Funciones *funcs = Funciones::getInstance();
+    TestPrimoProb* primTest; funcs->getFunc(primTest);
+    GCD* gcd; funcs->getFunc(gcd);
     
     if( this->esPar() )
-      p = Z::convertir((Cifra)2);
+      p = Z(2);
     else{
       q = (*this);
       while(true){
-        if(funcs.getTestPrimoProb()->esPrimo(q, &a)){
+        if(primTest->esPrimo(q, &a)){
           p = q;
           break;
         }
         else{
           Z d;
-          d = funcs.getGCD()->gcd((a^q)-a,q);
+          d = gcd->gcd((a^q)-a,q);
           if( d.esUno() || (d == q) ){
             primo->hacerCero();
             return false;
@@ -1468,7 +1480,7 @@ namespace numth{
       }
 
       if( Z::precisionSalida_ == 0){ //sin limitacion
-        Cifra potenciaInicial = (Cifra)pow(10,Constantes::MAX_EXP10_CIFRA);
+        Cifra potenciaInicial = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
         while( num.longitud() > 1 ){
           resto = (num % potenciaInicial)[0]; 
           num /= potenciaInicial; 
@@ -1558,7 +1570,7 @@ namespace numth{
       Cifra num;
       char *error;
       char temp;
-      Cifra potenciaInicial = (Cifra)pow(10,Constantes::MAX_EXP10_CIFRA);
+      Cifra potenciaInicial = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
 
       numero = 0L;
 
@@ -1580,7 +1592,7 @@ namespace numth{
       else if ((temp < '0') || (temp > '9') )
         throw Errores::SimboloInvalido(temp);
 
-      unsigned long tam = entrada.size();
+      int tam = entrada.size();
 
       if( tam % Constantes::MAX_EXP10_CIFRA ){
         std::string tmpSubstr = entrada.substr(0, tam % Constantes::MAX_EXP10_CIFRA);
@@ -1731,7 +1743,7 @@ namespace numth{
     if( largo.esCero() )
       throw Errores::DivisionPorCero();
 
-    return ( Z::convertir(corto) / largo );
+    return ( Z(corto) / largo );
 
     //  if( largo > corto) {
     //    Z cero;
@@ -1760,7 +1772,7 @@ namespace numth{
     if( largo.esCero() )
       throw Errores::DivisionPorCero();
 
-    return( (Z::convertir(corto) % largo ) );
+    return( (Z(corto) % largo ) );
   }
 
   Z operator&(const CifraSigno corto, Z largo)
@@ -1860,7 +1872,7 @@ namespace numth{
     }
     else 
       if( largo < corto ){
-        return Z::convertir(corto / (largo[0]));
+        return Z(corto / (largo[0]));
       }
       else{ //iguales
         Z uno;
@@ -1875,11 +1887,11 @@ namespace numth{
       throw Errores::DivisionPorCero();
 
     if( largo > corto ){
-      return Z::convertir(corto);
+      return Z(corto);
     }
     else 
       if( largo < corto ){
-        return Z::convertir(corto % (largo[0]));
+        return Z(corto % (largo[0]));
       }
       else{ //iguales
         Z cero;

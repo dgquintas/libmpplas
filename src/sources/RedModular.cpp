@@ -4,6 +4,7 @@
 
 #include "RedModular.h"
 #include "Funciones.h"
+#include "Potencia.h"
 #include <algorithm>
 
 namespace numth{
@@ -89,11 +90,12 @@ namespace numth{
 
   Z RedMontgomery::precomputaciones(const Z& modulo)
   {
-    Funciones funcs;
+    Funciones *funcs = Funciones::getInstance();
     Z modPrima;
     
     modPrima.potenciaBase(1);
-    modPrima -= funcs.getPotModular()->inversa(modulo, modPrima); // modPrima = -mod^{-1} (mod base)
+    PotModular* potMod; funcs->getFunc(potMod);
+    modPrima -= potMod->inversa(modulo, modPrima); // modPrima = -mod^{-1} (mod base)
 
     return modPrima;
   }

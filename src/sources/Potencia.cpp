@@ -4,9 +4,15 @@
 
 
 #include "Potencia.h"
-#include "Funciones.h"
+#include "RedModular.h"
+#include "Potencia.h"
+#include "GCD.h"
 
 namespace numth{
+
+  Potencia::Potencia()
+    : funcs(Funciones::getInstance())
+  {}
 
   Z Potencia::potencia(Z base, CifraSigno exp)
   {
@@ -14,22 +20,24 @@ namespace numth{
     return base;
   }
 
+
+
+  PotModular::PotModular()
+    : funcs(Funciones::getInstance())
+  {}
+
   Z PotModular::potModular(Z base, const Z& exp, const Z& mod)
   {
     this->potModular(&base, exp, mod);
     return base;
   }
-
-
-
-  
   Z PotModular::inversa(const Z& base, const Z& mod)
   {
-    Funciones funcs;
 
     Z inv;
     Z temp;
-    if( !(funcs.getGCDExt()->gcdext(base, mod, inv, temp)).esUno() )
+    GCDExt *gcdext; funcs->getFunc(gcdext);
+    if( !(gcdext->gcdext(base, mod, inv, temp)).esUno() )
       throw Errores::ElementoNoInvertible();
 
     if( inv.signo() < 0 )
@@ -54,7 +62,7 @@ namespace numth{
     }
 
     Cifra k;
-    size_t n = Z::convertir(e).numBits();
+    size_t n = Z(e).numBits(); //FIXME: que es esta chapuza? e es un tipo simple!
 
     //ver pagina 11 Cohen
     if( n <= 8 )
@@ -83,7 +91,7 @@ namespace numth{
 
     //  Z A; A.hacerUno();
     base->hacerUno();  
-    long i = Z::convertir(e).numBits() - 1; // -1 por considerar el 0
+    long i = Z(e).numBits() - 1; // -1 por considerar el 0
     while(i >= 0){
       if( (e & (0x1 << i )) == 0 ){ // ¿ i-esimo bit == 0?
         base->cuadrado();
@@ -170,10 +178,9 @@ namespace numth{
 
   void PotMontgomery::potModular(Z* base, const Z& e, const Z& mod)
   {
-    Funciones funcs;
-    
-    if( base == NULL )
+    if( base == NULL ){
       throw Errores::PunteroNulo();
+    }
     
     if( mod.esImpar()){ //modulo impar => montgomery
       Z R;  R.potenciaBase(mod.longitud());     
@@ -187,7 +194,8 @@ namespace numth{
       Z modPrima; 
 
       // modPrima = -mod^{-1} (mod base)
-      modPrima = funcs.getMontgomeryReduction()->precomputaciones(mod); 
+      RedMontgomery *rm; funcs->getFunc(rm);
+      modPrima = rm->precomputaciones(mod); 
       
       Z xTilde(*base);
       montgomeryMult(&xTilde, R2,mod,modPrima ); // R2 = R^{2} mod n
@@ -240,10 +248,10 @@ namespace numth{
   {
     //utilizar el metodo "clasico" (no modular) para cuadrado y luego
     //reducir con el metodo de reduccion de montgomery
-    Funciones funcs;
     
     x->cuadrado();
-    funcs.getMontgomeryReduction()->redMontgomery(x,mod, modPrima);
+    RedMontgomery* rm; funcs->getFunc(rm);
+    rm->redMontgomery(x,mod, modPrima);
 
     return; 
     
@@ -251,17 +259,14 @@ namespace numth{
   }
 
 
-
-
-
-  
+ ///////////////////////////////////
+ 
   void ClasicoConBarrett::potModular(Z* base, const Z& exp, const Z& mod)
   {
     if( base == NULL )
       throw Errores::PunteroNulo();
 
-    Funciones funcs;
-    RedBarrett* redbarrett = funcs.getBarrettReduction();
+    RedBarrett* redbarrett; funcs->getFunc(redbarrett);
     bool eNegativo = false;
     base->operator%=(mod);
     Z mu = redbarrett->precomputaciones(mod);
@@ -285,7 +290,6 @@ namespace numth{
     for(int i = initialBitPos; i >= 0 ; i--){
       base->cuadrado(); 
       redbarrett->redBarrett(base, mod, mu);
-      Cifra mask = 1;
       
       if( (e[cifraPos] & inCifraPosMask ) ){ //si el i-esimo bit de "e" es uno...
         base->operator*=(valorInicial); 
@@ -319,7 +323,7 @@ namespace numth{
     }
 
     Cifra k;
-    size_t n = Z::convertir(e).numBits();
+    size_t n = Z(e).numBits();
 
     //ver pagina 11 Cohen
     if( n <= 8 )
@@ -348,7 +352,7 @@ namespace numth{
 
     //  Z A; A.hacerUno();
     base->hacerUno();  
-    long i = Z::convertir(e).numBits() - 1; // -1 por considerar el 0
+    long i = Z(e).numBits() - 1; // -1 por considerar el 0
     while(i >= 0){
       if( (e & (0x1 << i )) == 0 ){ // ¿ i-esimo bit == 0?
         base->cuadrado();

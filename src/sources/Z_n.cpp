@@ -4,7 +4,9 @@
 
 #include "Z_n.h"
 #include "Funciones.h"
+#include "Potencia.h"
 #include <algorithm>
+
 
 namespace numth{
 
@@ -17,21 +19,20 @@ namespace numth{
       }
     }
 
-  Z_n::Z_n(const Cifra mod)
-    : Z()
+  Z_n::Z_n(Cifra mod)
+    : Z(), n_(mod)
     {
-      n_ = Z::convertir(mod);
+//      n_ = Z::convertir(mod);
     }
 
 
-  Z_n::Z_n(const CifraSigno mod)
+  Z_n::Z_n(CifraSigno mod)
     : Z()
     {
-      CifraSigno tmp;
       if( mod < 0 ){
-        tmp = -mod;
+        mod *= -1;
       }
-      n_ = Z::convertir(tmp);
+      n_ = Z(mod);
     }
 
   Z_n::Z_n(const Z& num, const Z& mod, bool reducir)
@@ -46,24 +47,19 @@ namespace numth{
         this->operator%=(n_);
     }
 
-  Z_n::Z_n(const Z& num, const Cifra mod, bool reducir)
-    : Z(num)
+  Z_n::Z_n(const Z& num, Cifra mod, bool reducir)
+    : Z(num), n_(mod)
     {
 
-      n_ = Z::convertir(mod);
-      if( n_.esNegativo() ){
-        n_.cambiarSigno();
-      }
-
-      if( reducir )
+      if( reducir ){
         Z::operator%=(n_);
+      }
     }
 
 
-  Z_n::Z_n(const Z& num, const CifraSigno mod, bool reducir)
-    : Z(num)
+  Z_n::Z_n(const Z& num, CifraSigno mod, bool reducir)
+    : Z(num), n_(mod)
     {
-      n_ = Z::convertir(mod);
       if( n_.esNegativo() ){
         n_.cambiarSigno();
       }
@@ -128,9 +124,9 @@ namespace numth{
   Z_n& Z_n::operator/=(const Z& der)
   {
     Z_n inv(n_);
-    Funciones funcs;
-
-    inv = Z_n(funcs.getPotModular()->inversa(der, n_), n_, false);
+    Funciones *funcs = Funciones::getInstance();
+    PotModular *potMod; funcs->getFunc(potMod);
+    inv = Z_n(potMod->inversa(der, n_), n_, false);
     operator*=(inv);
 
     return *this;
@@ -179,11 +175,12 @@ namespace numth{
 
   Z_n& Z_n::operator/=(const CifraSigno derC)
   {
-    Z_n derEntero(Z::convertir(derC), n_);
+    Z_n derEntero(Z(derC), n_);
 
-    Funciones funcs;
+    Funciones *funcs = Funciones::getInstance();
 
-    Z_n inv(funcs.getPotModular()->inversa(derEntero, n_), n_, false);
+    PotModular *potMod; funcs->getFunc(potMod);
+    Z_n inv(potMod->inversa(derEntero, n_), n_, false);
 
     operator*=(inv);
 
@@ -231,10 +228,11 @@ namespace numth{
     Cifra der = (derC % n_).toCifra();
 
     Z_n inv(n_);
-    Z derEntero = Z::convertir(der);
+    Z derEntero(der);
 
-    Funciones funcs;
-    inv = Z_n(funcs.getPotModular()->inversa(Z::convertir(der), n_), n_, false);
+    Funciones *funcs = Funciones::getInstance();
+    PotModular *potMod; funcs->getFunc(potMod);
+    inv = Z_n(potMod->inversa(Z(der), n_), n_, false);
     operator*=(inv);
 
     return *this;
@@ -244,27 +242,30 @@ namespace numth{
 
   Z_n& Z_n::operator^=(const Cifra e)
   {
-    Funciones funcs;
+    Funciones *funcs = Funciones::getInstance();
 
-    Z eZ = Z::convertir(e);
-    funcs.getPotModular()->potModular(this, eZ, n_);
+    Z eZ(e);
+    PotModular *potMod; funcs->getFunc(potMod);
+    potMod->potModular(this, eZ, n_);
     return *this;
   }
 
   Z_n& Z_n::operator^=(const CifraSigno e) 
   {
-    Funciones funcs;
+    Funciones *funcs = Funciones::getInstance();
 
-    Z eZ = Z::convertir(e);
-    funcs.getPotModular()->potModular(this, eZ, n_);
+    PotModular *potMod; funcs->getFunc(potMod);
+    Z eZ(e);
+    potMod->potModular(this, eZ, n_);
     return *this;
   }
 
   Z_n& Z_n::operator^=(const Z& e)
   {
-    Funciones funcs;
+    Funciones *funcs = Funciones::getInstance();
 
-    funcs.getPotModular()->potModular(this, e, n_);
+    PotModular *potMod; funcs->getFunc(potMod);
+    potMod->potModular(this, e, n_);
     return *this;
   }
 
@@ -352,13 +353,15 @@ namespace numth{
 
   Z_n operator-(const CifraSigno corto, Z_n largo)
   {
-    Z temp = Z::convertir(corto) % largo.modulo();
+    Z temp(corto);
+    temp %= largo.modulo();
     temp -= largo;
     //largo.cambiarSigno();
     // en Z_n_n el cambio de signo es equivalente a restar el n� a cambiar
     // de signo al modulo
-    if(temp.esNegativo() )
+    if(temp.esNegativo() ){
       temp += largo.modulo();
+    }
 
     return Z_n(temp, largo.modulo(), false);
   }
@@ -371,7 +374,7 @@ namespace numth{
 
   Z_n operator/(const CifraSigno corto, const Z_n& largo)
   {
-    Z_n cortoZn(Z::convertir(corto), largo.modulo() );
+    Z_n cortoZn(Z(corto), largo.modulo() );
 
     cortoZn /= largo;
 
@@ -422,7 +425,8 @@ namespace numth{
 
   Z_n operator-(const Cifra corto, Z_n largo)
   {
-    Z temp = Z::convertir(corto) % largo.modulo();
+    Z temp(corto);
+    temp %= largo.modulo();
     temp -= largo;
     //largo.cambiarSigno();
     // en Z_n_n el cambio de signo es equivalente a restar el n� a cambiar
@@ -444,7 +448,7 @@ namespace numth{
     if( largo.esCero() )
       throw Errores::DivisionPorCero();
 
-    Z_n cortoZ_n(Z_n::convertir(corto), largo.modulo() );
+    Z_n cortoZ_n(Z_n(corto), largo.modulo() );
 
     cortoZ_n /= largo;
 

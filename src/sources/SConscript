@@ -47,7 +47,7 @@ files = Split("""
     VectorZ.cpp
     """)
 
-env.Append(CCFLAGS = ' -pipe -fno-rtti ')
+env.Append(CCFLAGS = ' -pipe ')
 env.Append(CCFLAGS = ' -O' + env['optLevel'])
 
   
@@ -86,7 +86,7 @@ if env['enableRelease']:
 #  env.Append(CCFLAGS = ' -ffast-math')  #FIXME: esto con icc no chuta
 
 if env['enableDebug']:
-  env.Append(CCFLAGS = ' -ggdb3')
+  env.Append(CCFLAGS = ' -g')
 
 if env['enableWarnings']:
   env.Append(CCFLAGS = ' -Wall -W -Werror')

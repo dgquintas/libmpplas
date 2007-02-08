@@ -7,13 +7,16 @@
 #include "Factor.h"
 #include "Funciones.h"
 #include "constantes.h"
+#include "Primos.h"
+#include "GCD.h"
+#include "RedModular.h"
 
 namespace numth{
 
   MiVec<Z> CadenaAlgFactor::factoriza(const Z& n)
   {
-    Funciones funcs;
-    TestPrimoProb* test = funcs.getTestPrimoProb();
+    Funciones* const funcs = Funciones::getInstance();
+    TestPrimoProb* test; funcs->getFunc(test);
     MiVec<Z> factores; factores.clear();
     Trial trial;
     RhoPollard rho;
@@ -330,13 +333,13 @@ namespace numth{
       throw Errores::PunteroNulo();
 
     // pag 91 Menezes
-    Funciones funcs;
-    RedBarrett* reduccion = funcs.getBarrettReduction();
+    Funciones* const funcs = Funciones::getInstance();
+    RedBarrett* reduccion; funcs->getFunc(reduccion);
     Z mu = reduccion->precomputaciones(*n);
-    GCD* gcd = funcs.getGCD();
-    TestPrimoProb* test = funcs.getTestPrimoProb();
-    Z a;
-    Z b;
+    GCD* gcd;funcs->getFunc(gcd);
+    TestPrimoProb* test; funcs->getFunc(test);
+    Z a(2);
+    Z b(2);
     Z d;
 //    size_t numFactoresIni = factores->size();
 
@@ -345,8 +348,6 @@ namespace numth{
       return true;
     }
     size_t iteraciones = 0;
-    a = Z::convertir((Cifra)2); 
-    b = Z::convertir((Cifra)2); 
     while(++iteraciones <= Constantes::COTA_FACTORIZACION_RHO){
       a.cuadrado();
       a++;
@@ -518,7 +519,7 @@ namespace numth{
     //pag. 364 Knuth
     
     if( n->esUno() ){
-      factores->push_back( Z::convertir((Cifra)1) );
+      factores->push_back( Z(1) );
       return true;
     }
 
@@ -528,7 +529,7 @@ namespace numth{
     size_t doses = n->numDoses();
     if(doses){
       (*n) >>= doses;
-      factores->insert(factores->end(), doses, Z::convertir((Cifra)2));
+      factores->insert(factores->end(), doses, Z(2));
     }
 
     Z q,r;
@@ -536,7 +537,7 @@ namespace numth{
     while( i < Constantes::COTA_FACTORIZACION_TRIAL ){
       divMod( *n, Constantes::TABLA_PRIMOS_2000[i], &q, &r );
       if( r.esCero() ){
-        factores->push_back(Z::convertir(Constantes::TABLA_PRIMOS_2000[i]));
+        factores->push_back(Z(Constantes::TABLA_PRIMOS_2000[i]));
         (*n) = q;
         if( n->esUno() ) return true;
       }

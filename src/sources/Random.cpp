@@ -4,6 +4,8 @@
 #include "Random.h"
 #include "Funciones.h"
 #include "Semillero.h"
+#include "Primos.h"
+#include "GCD.h"
 #include <algorithm> //para max()
 
 namespace numth{
@@ -77,7 +79,7 @@ namespace numth{
     
     size_t i;
     for(i = 0 ; i < numCifras-1 ; i++)
-      for(size_t j = 0; j < (Constantes::BYTES_EN_CIFRA); j++){
+      for(int j = 0; j < (Constantes::BYTES_EN_CIFRA); j++){
         vecRandom[i] <<= 8;
         vecRandom[i] |= bytesRand[(i*Constantes::BYTES_EN_CIFRA)+j];
       }
@@ -99,13 +101,13 @@ namespace numth{
       }
     }
     else{
-      for(size_t j = 0; j < (Constantes::BYTES_EN_CIFRA); j++){
+      for(int j = 0; j < (Constantes::BYTES_EN_CIFRA); j++){
         vecRandom[i] <<= 8;
         vecRandom[i] |= bytesRand[(i*Constantes::BYTES_EN_CIFRA)+j];
       }
     }
     
-    return Z::convertir(vecRandom);
+    return Z(vecRandom);
     
   }
 
@@ -131,7 +133,7 @@ namespace numth{
       if ( posSemilla == longSemilla ) 
         posSemilla = 0;
 
-      for(size_t n = 0; n < Constantes::BYTES_EN_CIFRA ; n++){
+      for(int n = 0; n < Constantes::BYTES_EN_CIFRA ; n++){
         k_[m] = semilla_[ posSemilla ] & mascara;
         m++;
         mascara <<= 8;
@@ -212,7 +214,7 @@ namespace numth{
 
     size_t i;
     for(i = 0 ; i < numCifras-1 ; i++)
-      for(size_t j = 0; j < (Constantes::BYTES_EN_CIFRA); j++){
+      for(int j = 0; j < (Constantes::BYTES_EN_CIFRA); j++){
         vecRandom[i] <<= 8;
         vecRandom[i] |= bytesRand[(i*Constantes::BYTES_EN_CIFRA)+j];
       }
@@ -228,13 +230,13 @@ namespace numth{
       vecRandom[i] |= (bytesRand[(i*Constantes::BYTES_EN_CIFRA)+j]) & ((1 << (n % 8))-1);
     }
     else{
-      for(size_t j = 0; j < (Constantes::BYTES_EN_CIFRA); j++){
+      for(int j = 0; j < (Constantes::BYTES_EN_CIFRA); j++){
         vecRandom[i] <<= 8;
         vecRandom[i] |= bytesRand[(i*Constantes::BYTES_EN_CIFRA)+j];
       }
     }
     
-    return Z::convertir(vecRandom);
+    return Z(vecRandom);
     
   }
 
@@ -262,11 +264,11 @@ namespace numth{
   {
     //1º, encontrar 2 primos p y q de Blum ( p = 3 (mod 4) <=>
     // (-1/p) == -1 
-    Funciones funcs;
-    GenPrimos* gprimos = funcs.getGenPrimos();
-//    SimboloLegendre* slegendre = funcs.simboloLegendre();
-    GCD* gcd = funcs.getGCD();
-    RandomRapido* rnd = funcs.getRandomRapido();
+    Funciones *funcs = Funciones::getInstance();
+    GenPrimos* gprimos; funcs->getFunc(gprimos);
+//    SimboloLegendre* slegendre = funcs->simboloLegendre();
+    GCD* gcd; funcs->getFunc(gcd);
+    RandomRapido* rnd; funcs->getFunc(rnd);
  
     Z p,q;
     Z menosUno; menosUno.hacerUno(); menosUno.hacerNegativo();

@@ -6,13 +6,14 @@
 #include "CRT.h"
 #include "Funciones.h"
 #include "RedModular.h"
+#include "Potencia.h"
 
 namespace numth{
   
   Z CRTGarner::crt(MiVec<Z> y, MiVec<Z> m)
   {
-    Funciones funcs;
-    PotModular* potModular = funcs.getPotModular();
+    Funciones* const funcs = Funciones::getInstance();
+    PotModular* potModular; funcs->getFunc(potModular);
     size_t t = y.size();
     MiVec<Z> C(t);
     Z x, u;

@@ -12,8 +12,9 @@ namespace numth{
     // NO se comprueba la primalidad de "p" por
     // cuestiones de eficiencia
     
-    Funciones funcs;
-    return funcs.getJacobiSymbol()->simboloJacobi(a,p);
+    Funciones *funcs = Funciones::getInstance();
+    SimboloJacobi *sJacobi; funcs->getFunc(sJacobi);
+    return sJacobi->simboloJacobi(a,p);
   }
 
   
@@ -22,9 +23,10 @@ namespace numth{
     if( b.esPar() )
       throw Errores::ParEnSimboloJacobi();
    
-    Funciones funcs;
+    Funciones *funcs = Funciones::getInstance();
     
-    return funcs.getKroneckerSymbol()->simboloKronecker(a,b);
+    SimboloKronecker *sKronecker; funcs->getFunc(sKronecker);
+    return sKronecker->simboloKronecker(a,b);
   }
     
   SKroneckerCohen::SKroneckerCohen(void)
@@ -97,7 +99,7 @@ namespace numth{
     }
     // a es cero
     if ( b.esUno() )
-      return Z::convertir(k);
+      return Z(k);
     else // b > 1 , ya que b en este punto es impar y > 0 (cohen p. 29)
       return cero;
   }

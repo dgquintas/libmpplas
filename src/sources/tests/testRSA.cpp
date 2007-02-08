@@ -2,6 +2,8 @@
 #include "Random.h"
 #include "Primos.h"
 #include "Funciones.h"
+#include "GCD.h"
+#include "Potencia.h"
 #include <iostream>
 #include <string>
 
@@ -11,17 +13,18 @@ using namespace numth;
 int main()
 {
   // objeto que aglutina las funciones 
-  Funciones funcs;
+  Funciones *funcs = Funciones::getInstance();
 //  PotMontgomery *pm = new PotMontgomery();
 //  funcs.ponerPotModular(pm);
 
   //esto no es estrictamente necesario: para acceder de forma resumida
   //al generador del numeros aleatorios en cuestion
-  RandomRapido* genRandom = funcs.getRandomRapido();
+  RandomRapido* genRandom; funcs->getFunc(genRandom);
   genRandom->ponerSemilla(Z::convertir("34"));
   //idem para el generador de primos
-  GenPrimos* genPrimos = funcs.getGenPrimos();
-  
+  GenPrimos* genPrimos; funcs->getFunc(genPrimos);
+  genPrimos->setRandomSeed(Z::convertir((Cifra)123));
+
   //se declaran 4 numeros enteros. 
   Z p,q,n,phi; 
  
@@ -48,12 +51,14 @@ int main()
  
   //se busca una clave de encriptacion coprima con phi, como define
   //el algoritmo
+  GCD*gcd; funcs->getFunc(gcd);
+  PotModular* potMod; funcs->getFunc(potMod);
   do{
     e = genRandom->leerEntero(n);
-  } while( !(funcs.getGCD()->gcd(e,phi).esUno()) );
+  } while( !(gcd->gcd(e,phi).esUno()) );
 
   //y la clave de desencriptacion la inversa de "e" modulo "phi"
-  d = funcs.getPotModular()->inversa(e,phi);
+  d = potMod->inversa(e,phi);
   
   
   cout << "Clave encript.: " << e << endl;
@@ -76,14 +81,14 @@ int main()
 
   // se encripta con la exponenciacion modular 
   Z c;
-  c = funcs.getPotModular()->potModular(m,e,n);
+  c = potMod->potModular(m,e,n);
   
   
   cout << "Mensaje encriptado: " << c << endl;
 
   // y el entero que representa el mensaje desencriptado
   Z mdesc;
-  mdesc = funcs.getPotModular()->potModular(c,d,n);
+  mdesc = potMod->potModular(c,d,n);
   
   cout << "Mensaje desencriptado: " << mdesc << endl;
   

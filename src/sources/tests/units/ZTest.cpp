@@ -13,8 +13,13 @@ using namespace numth;
 using namespace com_uwyn_qtunit;
 
 
-ZTest::ZTest(){
+ZTest::ZTest()
+  : funcs(Funciones::getInstance()), uno(1), dos(2), cero(0)
+{
   pari_init(1000000, 0);
+  
+  funcs->getFunc(rnd);
+
   addTest(ZTest, testEquality);
   addTest(ZTest, testAddition);
   addTest(ZTest, testSubstraction);
@@ -29,12 +34,13 @@ ZTest::ZTest(){
 }
 
 void ZTest::setUp(){
-  z1 = funcs.getRandomRapido()->leerBits(brand(2000,5000));
-  z2 = funcs.getRandomRapido()->leerBits(brand(2000,5000));
 
-  this->uno = Z::convertir((Cifra)1);
-  this->dos = Z::convertir((Cifra)2);
-  this->cero= Z::convertir((Cifra)0);
+  z1 = rnd->leerBits(brand(2000,5000));
+  z2 = rnd->leerBits(brand(2000,5000));
+
+//  this->uno = Z::convertir((Cifra)1);
+//  this->dos = Z::convertir((Cifra)2);
+//  this->cero= Z::convertir((Cifra)0);
 
   
 }
@@ -142,7 +148,7 @@ void ZTest::testExponentiation(){
   qassertTrue( (dos ^ uno) == dos );
   qassertTrue( (dos ^ cero) == uno );
 
-  z2  = funcs.getRandomRapido()->leerBits(brand(4,6));
+  z2  = rnd->leerBits(brand(4,6));
   Z res = (z1 ^ z2) ;
    
   string tmp;
@@ -195,9 +201,9 @@ void ZTest::testModulusByZeroThrows(){
 
 
 void ZTest::testFactorial(){
-  Cifra rnd = (funcs.getRandomRapido()->leerCifra()) % (1UL<<14);
+  Cifra rand = (rnd->leerCifra()) % (1UL<<14);
 
-  Z res = Z::convertir(rnd);
+  Z res(rand);
 
   string tmp;
   tmp += res.toString();

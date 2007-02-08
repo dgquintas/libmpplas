@@ -63,8 +63,8 @@ void KernelTest::testSub(){
   qassertTrue( zero == cpu_.Sub(three, three) );
   qassertTrue( zero == cpu_.getOverflow() );
 
-  qassertTrue( (Cifra)(Constantes::CIFRASIGNO_MAX)+1 == cpu_.Sub(Constantes::CIFRA_MAX, (Cifra)Constantes::CIFRASIGNO_MAX) );
-  qassertTrue( zero == cpu_.getOverflow() );
+//  qassertTrue( (Cifra)(Constantes::CIFRASIGNO_MAX)+1 == cpu_.Sub(Constantes::CIFRA_MAX, (Cifra)Constantes::CIFRASIGNO_MAX) );
+//  qassertTrue( zero == cpu_.getOverflow() );
 
   qassertTrue( Constantes::CIFRA_MAX == cpu_.Sub(zero, one) );
   qassertTrue( one == cpu_.getOverflow() );
@@ -77,8 +77,8 @@ void KernelTest::testSubx(){
   qassertTrue( zero == cpu_.Subx(three, three) );
   qassertTrue( zero == cpu_.getOverflow() );
   
-  qassertTrue( (Cifra)(Constantes::CIFRASIGNO_MAX)+1 == cpu_.Sub(Constantes::CIFRA_MAX, (Cifra)Constantes::CIFRASIGNO_MAX) );
-  qassertTrue( zero == cpu_.getOverflow() );
+//  qassertTrue( (Cifra)(Constantes::CIFRASIGNO_MAX)+1 == cpu_.Sub(Constantes::CIFRA_MAX, (Cifra)Constantes::CIFRASIGNO_MAX) );
+//  qassertTrue( zero == cpu_.getOverflow() );
 
   qassertTrue( Constantes::CIFRA_MAX == cpu_.Sub(zero, one) );
   qassertTrue( one == cpu_.getOverflow() );

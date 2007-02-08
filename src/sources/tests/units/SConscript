@@ -12,6 +12,9 @@ myenv.Append(CPPPATH = ('#/extra/include' + myenv['SYSTEMBITS']))
 myenv.Append(LIBPATH= ('#/extra/lib' + myenv['SYSTEMBITS']))
 
 myenv.Append(LIBS = [ 'pthread', 'm', 'pari', 'qtunit'])
+if not myenv['ENV'].has_key('QTDIR'):
+  print "Cannot build test suite without a properly configured $QTDIR"
+  Exit(1) 
 myenv.Append(CPPPATH = myenv['ENV']['QTDIR']+'/include')
 myenv.Append(LIBPATH = myenv['ENV']['QTDIR']+'/lib')
 #myenv.Replace(CCFLAGS = '-O0 -ggdb3') #FIXME
@@ -19,6 +22,7 @@ myenv.Append(LIBPATH = myenv['ENV']['QTDIR']+'/lib')
 moduleFiles = Split("""
     KernelTest.cpp
     ZTest.cpp
+    Z_nTest.cpp
     RSATest.cpp
     NumthTestSuite.cpp
     TestModule.cpp
@@ -26,9 +30,12 @@ moduleFiles = Split("""
     """)
 
 textRunner = myenv.Program('textRunner', moduleFiles)
+module = myenv.SharedLibrary('testsmodule', moduleFiles)
 
 myenv.Install(myenv['INSTALL_DIR_TESTS'], textRunner)
+myenv.Install(myenv['INSTALL_DIR_TESTS'], module)
 Alias('tests', textRunner)
+Alias('tests', module)
 #Alias('tests', myenv['INSTALL_DIR_TESTS'])
 Alias('all', 'tests')
 Alias('install', myenv['INSTALL_DIR_TESTS'])

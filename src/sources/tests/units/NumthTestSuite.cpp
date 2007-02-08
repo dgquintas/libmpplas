@@ -12,5 +12,6 @@ NumthTestSuite::NumthTestSuite()
 {
   addTestUnit(kernelTest_);
 	addTestUnit(zTest_);
+	addTestUnit(z_nTest_);
   addTestUnit(rsaTest_);
 }

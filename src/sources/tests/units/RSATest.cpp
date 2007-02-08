@@ -6,6 +6,10 @@
 #include "RSATest.h"
 #include "Funciones.h"
 #include "Z.h"
+#include "Random.h"
+#include "Primos.h"
+#include "GCD.h"
+#include "Potencia.h"
 //#include <ctime>
 
 using namespace std;
@@ -26,15 +30,13 @@ void RSATest::tearDown(){
 
 void RSATest::testRSA(){
 
-  Funciones funcs;
+  Funciones* const funcs = Funciones::getInstance();
+  RandomRapido* genRandom;
+  GenPrimos* genPrimos;
+  funcs->getFunc(genRandom);
+  funcs->getFunc(genPrimos);
 
-
-  //esto no es estrictamente necesario: para acceder de forma resumida
-  //al generador del numeros aleatorios en cuestion
-  RandomRapido* genRandom = funcs.getRandomRapido();
-  //idem para el generador de primos
-  GenPrimos* genPrimos = funcs.getGenPrimos();
-  genPrimos->setRandomSeed(Z::convertir((Cifra)123));
+  genPrimos->setRandomSeed(123);
   //se declaran 4 numeros enteros. 
   Z p,q,n,phi; 
  
@@ -54,12 +56,14 @@ void RSATest::testRSA(){
  
   //se busca una clave de encriptacion coprima con phi, como define
   //el algoritmo
+  GCD* gcd; funcs->getFunc(gcd);
+  PotModular* potMod; funcs->getFunc(potMod);
   do{
     e = genRandom->leerEntero(n);
-  } while( !(funcs.getGCD()->gcd(e,phi).esUno()) );
+  } while( !(gcd->gcd(e,phi).esUno()) );
 
   //y la clave de desencriptacion la inversa de "e" modulo "phi"
-  d = funcs.getPotModular()->inversa(e,phi);
+  d = potMod->inversa(e,phi);
   
   // y se lee lo que se quiere encriptar.
   // OJO!! no meter mas bits que la longitud de n. Obviamente 
@@ -73,11 +77,11 @@ void RSATest::testRSA(){
 
   // se encripta con la exponenciacion modular 
   Z c;
-  c = funcs.getPotModular()->potModular(m,e,n);
+  c = potMod->potModular(m,e,n);
  
   // y el entero que representa el mensaje desencriptado
   Z mdesc;
-  mdesc = funcs.getPotModular()->potModular(c,d,n);
+  mdesc = potMod->potModular(c,d,n);
   
   size_t tam = (mdesc.numBits() >> 3)+1;
   resString.resize(tam);

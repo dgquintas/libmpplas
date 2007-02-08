@@ -6,9 +6,12 @@
 #define __CRT_H
 
 #include "Z.h"
+#include "AbstractMethod.h"
 
 namespace numth{
-   
+  
+  class CRTGarner;
+
   /** Interfaz para implementaciones para el cálculo del Teorema del
    * Resto Chino (CRT de sus siglas en inglés).
    *
@@ -16,7 +19,7 @@ namespace numth{
    * Chino.
    * 
    */
-  class CRT{
+  class CRT : public AbstractMethod {
     public:
       /** Cálculo del Teorema del Resto Chino.
        *
@@ -30,6 +33,8 @@ namespace numth{
       virtual Z crt(MiVec<Z> y, MiVec<Z> m) = 0;
 
       virtual ~CRT(){}
+
+      typedef CRTGarner DFL;
   };
 
 
@@ -48,7 +53,6 @@ namespace numth{
 
       virtual ~CRTGarner(){}
   };
-  typedef CRTGarner CRTDFL;
 
 }
 

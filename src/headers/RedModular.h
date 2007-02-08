@@ -6,6 +6,7 @@
 #define __REDMODULAR_H
 
 #include "Z.h"
+#include "AbstractMethod.h"
 
 namespace numth{
 
@@ -29,7 +30,7 @@ namespace numth{
    /** Clase base de algoritmos que implementen la reducción de
     * Barrett.
    */
-  class RedBarrett 
+  class RedBarrett  : public AbstractMethod
   {
     public:
       /** Reducción de Barrett.
@@ -51,17 +52,19 @@ namespace numth{
       virtual Z precomputaciones(const Z& modulo);
       
       virtual ~RedBarrett() {}
+
+
+      typedef RedBarrett DFL;
 //      
 //    private:
 //      Z mod_;
 //      Z mu_;
   };
-  typedef RedBarrett RedBarrettDFL;
  
   /** Clase base de algoritmos que implementen la reducción de
     * Barrett.
    */
-  class RedMontgomery  
+  class RedMontgomery  : public AbstractMethod
   {
     public:
        /** Reducción de Montgomery.
@@ -82,12 +85,14 @@ namespace numth{
      virtual Z precomputaciones(const Z& modulo);
 
      virtual ~RedMontgomery() {}
+
+
+     typedef RedMontgomery DFL;
 //      
 //    private:
 //      Z mod_;
 //      Z modPrima_;
   };
-  typedef RedMontgomery RedMontgomeryDFL;
   
 
    /** Clase base de algoritmos que implementan reducción especial.
@@ -96,7 +101,7 @@ namespace numth{
     * La redución especial referida es aquella para la cual el módulo
     * tiene la forma \f$BASE^t - c\f$  con   \f$ \log_2(c) < t \f$.
    */
-  class RedModularALaMersenne // mod ~ BASE^t - c    ( lg_2(c) < t )
+  class RedModularALaMersenne : public AbstractMethod // mod ~ BASE^t - c    ( lg_2(c) < t ) 
   {
     public:
        /** Reducción especial.
@@ -116,8 +121,10 @@ namespace numth{
       virtual void redModularALaMersenne(Z* num, const CifraSigno t, const CifraSigno c);
 
       virtual ~RedModularALaMersenne(){}
+
+
+      typedef RedModularALaMersenne DFL;
   };
-  typedef RedModularALaMersenne RedModularALaMersenneDFL;
 
 }
 

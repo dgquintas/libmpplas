@@ -6,13 +6,17 @@
 #define __SIMBOLOSLEGENDRE_H
 
 #include "Z.h"
+#include "AbstractMethod.h"
 
 namespace numth{
 
+  class SLegendreViaJacobi;
+  class SJacobiViaKronecker;
+  class SKroneckerCohen;
   /** Interfaz para algoritmos que implementen el cálculo del símbolo
    * de Legendre.
    */
-  class SimboloLegendre
+  class SimboloLegendre : public AbstractMethod
   {
     public:
       /** Cálculo del símbolo de Legendre.
@@ -30,12 +34,14 @@ namespace numth{
       virtual Z simboloLegendre( Z a,  Z p) = 0;
 
       virtual ~SimboloLegendre(){}
+
+      typedef SLegendreViaJacobi DFL;
   };
 
    /** Interfaz para algoritmos que implementen el cálculo del símbolo
    * de Jacobi.
    */
-class SimboloJacobi
+class SimboloJacobi : public AbstractMethod
   {
     public:
       /** Cálculo del símbolo de Jacobi.
@@ -51,13 +57,15 @@ class SimboloJacobi
       virtual Z simboloJacobi( Z a,  Z b) = 0;
 
       virtual ~SimboloJacobi(){}
+  
+      typedef SJacobiViaKronecker DFL;
   };
  
   
    /** Interfaz para algoritmos que implementen el cálculo del símbolo
    * de Kronecker.
    */
- class SimboloKronecker
+ class SimboloKronecker : public AbstractMethod
   {
     public:
       /** Cálculo del símbolo de Kronecker.
@@ -70,6 +78,8 @@ class SimboloJacobi
       virtual Z simboloKronecker( Z a,  Z b) = 0;
 
       virtual ~SimboloKronecker(){}
+  
+      typedef SKroneckerCohen DFL;
   };
 
   /* IMPLEMENTACIONES */
@@ -81,7 +91,6 @@ class SimboloJacobi
     public:
       Z simboloLegendre(Z a, Z p);
   };
-  typedef SLegendreViaJacobi SimboloLegendreDFL;
   
    /** Implementación del símbolo de Jacobi vía el símbolo de
     * Kronecker
@@ -91,7 +100,6 @@ class SimboloJacobi
     public:
       Z simboloJacobi(Z a, Z b);
   };
-  typedef SJacobiViaKronecker SimboloJacobiDFL;
   
   
   /** Implementación del símbolo de Kronecker segun Cohen.
@@ -109,7 +117,6 @@ class SimboloJacobi
       CifraSigno tabla[8];
 
   };
-  typedef SKroneckerCohen SimboloKroneckerDFL;
 
       
   

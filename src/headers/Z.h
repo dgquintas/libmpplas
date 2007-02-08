@@ -30,6 +30,13 @@ namespace numth
       Z( const Z& otro); /**< Constructor de copia.
                            @param otro Entero a copiar. */
 
+      Z( const CifraSigno ); /**< construccion desde simple precision */
+      Z( const Cifra ); /**< construccion desde 'token' básico */
+      Z( const double ); /**< construccion desde double  */
+      Z( const char* ); /**< construccion desde cadena de caracteres */
+
+      Z( const MiVec<Cifra>& vec);
+
       ////////////////////////////////
       //   OPERADORES DE CONVERSION //
       ////////////////////////////////
@@ -1155,10 +1162,6 @@ namespace numth
       static Z Zero;
 
     protected:
-      Z( const CifraSigno ); /**< construccion desde simple precision */
-      Z( const Cifra ); /**< construccion desde 'token' básico */
-      Z( const double ); /**< construccion desde double  */
-      Z( const char* ); /**< construccion desde cadena de caracteres */
 
       /** Vector de coeficientes del polinomio que representa el número en base B */
       numth::MiVec<Cifra> coefPoliB_; 

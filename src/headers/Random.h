@@ -8,16 +8,21 @@
 #include "MiVec.h"
 #include "Z.h"
 #include "constantes.h"
+#include "AbstractMethod.h"
 #include <cassert>
 
 namespace numth{
  
+  class NumThRC4Gen ;
+  class BBSGen;
+  class FIPS_140_1 ;
+
   /** Interfaz para la generación de números aleatorios.
    *
    * Clase base para métodos de generación de números aleatorios.
    * 
    */
-  class Random
+  class Random : public AbstractMethod
   {
     public:
       /** Obtención de un número determinado de bits aleatorios.
@@ -53,6 +58,9 @@ namespace numth{
       virtual Z leerEntero(Z cota);
 
       virtual ~Random() {}
+
+
+      typedef NumThRC4Gen DFL;
   };
  
   /** Interfaz para la generación rápida de números aleatorios.
@@ -73,6 +81,9 @@ namespace numth{
        *
        */
       virtual void ponerSemilla(const Z& semilla) = 0;
+
+
+      typedef NumThRC4Gen DFL;
   };
    
   /** Interfaz para la generación de números aleatorios
@@ -101,6 +112,9 @@ namespace numth{
        *
        */
       virtual void ponerCalidad(size_t n) = 0;
+
+
+      typedef BBSGen DFL;
   };
 
   /** Interfaz para los algoritmos que implementen tests de
@@ -109,7 +123,7 @@ namespace numth{
    * Clase base para los algoritmos que implementen tests de
    * aleatoreidad.
    */
-  class PruebaRandom
+  class PruebaRandom : public AbstractMethod
   {
     public:
       /** Determinar si un generador de números pseudoaleatorios supera el tests.
@@ -123,6 +137,9 @@ namespace numth{
       virtual bool pruebaRandom(Random& generadorRandom) = 0;
 
       virtual ~PruebaRandom() {}
+
+
+      typedef FIPS_140_1 DFL;
   };
   
   /* IMPLEMENTACIONES */
@@ -151,8 +168,6 @@ namespace numth{
       Z semilla_;
       void inicializar_(void);
   };
-  typedef NumThRC4Gen RandomRapidoDFL;
-  typedef NumThRC4Gen RandomDFL;
 
   /** Algoritmo para la generación rápida de números
    * pseudoaleatorios mediante congruencias lineales.
@@ -208,7 +223,6 @@ namespace numth{
 
       void inicializar_(void);
   };
-  typedef BBSGen RandomSeguroDFL;
   
 
 
@@ -232,7 +246,6 @@ namespace numth{
       size_t runTests_(Z muestraLocal, size_t* bloques, size_t* huecos);
 
   };
-  typedef FIPS_140_1 PruebaRandomDFL;
   
 }
 #endif

@@ -5,15 +5,23 @@
 #define __TRANSCENDENTES_H
 
 #include "R.h"
+#include "AbstractMethod.h"
 
 namespace numth{
 
-  
+  class ExpTaylor;
+  class LnTaylor;
+  class CosTaylor;
+  class SenFase;
+  class ATanTaylor;
+  class PiMachin;
+
+
   /** Interfaz para la exponencial ( e^x ) en los reales.
    *
    * Clase base para métodos de exponencial de reales (esto es,
    * \f$ e^x \f$, con \f$ e \f$ la base de los logaritmos naturales) */
-  class Exponencial
+  class Exponencial : public AbstractMethod
   {
     public:
       /** Exponenciación (\f$ e^x \f$) en los reales 
@@ -29,54 +37,66 @@ namespace numth{
       virtual R exponencial(const R& x) = 0;
 
       virtual ~Exponencial(){}
+  
+      typedef ExpTaylor DFL;
   };
 
-  class Ln
+  class Ln: public AbstractMethod
   {
     public:
       virtual R ln(const R& x) = 0;
 
       virtual ~Ln(){}
+  
+      typedef LnTaylor DFL;
   };
 
-  class Seno
+  class Seno: public AbstractMethod
   {
     public:
       virtual R seno(const R& x) = 0;
 
       virtual ~Seno(){}
+  
+      typedef SenFase DFL;
   };
 
-  class Coseno
+  class Coseno: public AbstractMethod
   {
     public:
       virtual R coseno(const R& x) = 0;
 
       virtual ~Coseno(){}
+  
+      typedef CosTaylor DFL;
   };
  
-  class Tangente
+  class Tangente: public AbstractMethod
   {
     public:
       virtual R tangente(const R& x) = 0;
 
       virtual ~Tangente(){}
+  
   };
 
-  class ArcoTangente
+  class ArcoTangente: public AbstractMethod
   {
     public:
       virtual R arcotangente(const R& x) = 0;
 
       virtual ~ArcoTangente(){}
+      typedef ATanTaylor DFL;
   };
  
-  class Pi
+  class Pi: public AbstractMethod
   {
     public:
       virtual R pi(size_t prec = 0) = 0;
 
       virtual ~Pi(){}
+  
+      typedef PiMachin DFL;
   };
 
 
@@ -98,7 +118,6 @@ namespace numth{
       R e(void);
       
   };
-  typedef ExpTaylor ExponencialDFL;
  
   /** Implementation of the natural logarithm function by means of the 
    * Taylor/McLaurin series expansion (and some other "tricks").
@@ -126,7 +145,6 @@ namespace numth{
       R ln2(void);
 
   };
-  typedef LnTaylor LnDFL;
   
 
   /** Cálculo del seno utilizando el desplazamiento de fase respecto
@@ -143,7 +161,6 @@ namespace numth{
       virtual R seno(const R& x);
 
   };
-  typedef SenFase SenoDFL;
 
   
 
@@ -154,7 +171,6 @@ namespace numth{
       virtual R coseno(const R& x);
 
   };
-  typedef CosTaylor CosenoDFL;
 
   
    /**            */
@@ -164,7 +180,6 @@ namespace numth{
       virtual R arcotangente(const R& x);
 
   };
-  typedef ATanTaylor ArcoTangenteDFL;
  
   /** Calculation of \f$ \pi \f$ by means of the Machin's formula:
    * \f$ \pi/4 = 4 \arctan(1/5) - \arctan(1/239) \f$ */
@@ -177,7 +192,7 @@ namespace numth{
        * used. */
       virtual R pi(const size_t prec = 0);
   };
-  typedef PiMachin PiDFL;
+
 
 }
 

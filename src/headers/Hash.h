@@ -7,15 +7,18 @@
 
 #include "Z.h"
 #include "MiVec.h"
+#include "AbstractMethod.h"
 
 namespace numth{
+
+  class MD5;
 
   /** Interfaz para funciones hash.
    *
    * Clase base para algoritmos que implementen funciones hash.
    * 
    */
-  class Hash
+  class Hash : public AbstractMethod
   {
     public:
       /** Inicializar la función hash. 
@@ -84,6 +87,8 @@ namespace numth{
       virtual size_t numBitsResumen(void) const = 0;
 
       virtual ~Hash(){}
+
+      typedef MD5 DFL;
   };
 
   /** Implementación de la función hash MD5. 
@@ -159,7 +164,6 @@ namespace numth{
 
 
   };
-  typedef MD5 HashDFL;
 
       
 }

@@ -24,12 +24,12 @@ namespace numth{
        *
        * @param mod Cifra representando el módulo reductor.
        */
-     Z_n( const Cifra mod);
+     Z_n( Cifra mod);
        /** Constructor de \f$Z_n\f$ dado \f$n\f$.
        *
        * @param mod CifraSigno representando el módulo reductor.
        */
-     Z_n( const CifraSigno mod);
+     Z_n( CifraSigno mod);
       
        /** Constructor de \f$Z_n\f$ a partir de un entero y \f$n\f$.
        *
@@ -50,7 +50,7 @@ namespace numth{
        * paso de reducción. Por omisión se considera "true".
        *
        */
-     Z_n( const Z& num, const Cifra mod, bool reducir=true);
+     Z_n( const Z& num, Cifra mod, bool reducir=true);
         /** Constructor de \f$Z_n\f$ a partir de un entero y \f$n\f$.
        *
        * @param num Entero a introducir, tras reducirlo módulo \f$n\f$
@@ -60,7 +60,7 @@ namespace numth{
        * paso de reducción. Por omisión se considera "true".
        *
        */
-     Z_n( const Z& num, const CifraSigno mod, bool reducir=true);
+     Z_n( const Z& num, CifraSigno mod, bool reducir=true);
       
        /** Constructor de copia de \f$Z_n\f$.
        *

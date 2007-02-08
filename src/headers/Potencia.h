@@ -7,8 +7,16 @@
 
 #include "R.h"
 #include "Z.h"
+#include "AbstractMethod.h"
+#include "Funciones.h"
 
 namespace numth{
+
+  class PotVentanaDeslizante;
+  class PotVentanaDeslizanteR;
+  class PotRightLeft;
+  class PotMontgomery;
+  class ClasicoConBarrett;
 
   // la razon de que el exponente se considere con signo pese a no
   // poder realizarse exponenciaciones negativas en enteros es para
@@ -20,9 +28,12 @@ namespace numth{
    * enteros.
    * 
    */
-  class Potencia
+  class Potencia :  public AbstractMethod
   {
     public:
+
+      Potencia();
+
       /** Potenciación "in-situ".
        *
        * Realizar una potenciación "in-situ". Es ligeramente más
@@ -66,16 +77,24 @@ namespace numth{
       Z potencia(Z base,  CifraSigno exp); 
 
       virtual ~Potencia(){}
+
+
+      typedef PotVentanaDeslizante DFL;
+
+    protected:
+      Funciones* const funcs;
   };
  
 
-  class PotenciaR
+  class PotenciaR : public AbstractMethod
   {
     public:
       virtual void potenciaR(R* base,  CifraSigno exp) = 0; 
       R potenciaR(R base,  CifraSigno exp); 
 
       virtual ~PotenciaR(){}
+
+      typedef PotVentanaDeslizanteR DFL;
   };
   
   
@@ -85,9 +104,12 @@ namespace numth{
    * modular sobre enteros.
    * 
    */
-  class PotModular
+  class PotModular : public AbstractMethod
   {
     public:
+
+      PotModular();
+
        /** Potenciación modular "in-situ".
        *
        * Realizar una potenciación modular "in-situ". Es ligeramente más
@@ -139,6 +161,12 @@ namespace numth{
       Z inversa(const Z& base, const Z& mod);
 
       virtual ~PotModular(){}
+
+      typedef ClasicoConBarrett DFL;
+    
+    protected:
+      Funciones* const funcs;
+
   };
 
 
@@ -158,7 +186,6 @@ namespace numth{
 
       virtual ~PotVentanaDeslizante(){}
   };
-  typedef PotVentanaDeslizante PotenciaDFL;
 
  
   
@@ -169,7 +196,6 @@ namespace numth{
 
       virtual ~PotVentanaDeslizanteR(){}
   };
-  typedef PotVentanaDeslizanteR PotenciaRDFL;
 
   
   /** Potenciación entera mediante el algoritmo "Derecha a izquierda".
@@ -221,8 +247,8 @@ namespace numth{
       virtual void potModular(Z* base, const Z& exp, const Z& mod); 
 
       virtual ~ClasicoConBarrett(){}
+
   };
-  typedef ClasicoConBarrett PotModularDFL;
 };
 
     

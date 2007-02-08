@@ -6,8 +6,11 @@
 #define __FACTOR_H
 
 #include "Z.h"
+#include "AbstractMethod.h"
 
 namespace numth{
+
+  class CadenaAlgFactor;
 
   /** Interfaz para la factorización de enteros
    *
@@ -15,7 +18,7 @@ namespace numth{
    *  factores primos.
    *
    */
-  class Factoriza
+  class Factoriza : public AbstractMethod
   {
     public:
       /** Determinación de los factores primos de un entero.
@@ -33,6 +36,9 @@ namespace numth{
       virtual MiVec<Z> factoriza(const Z& num) = 0;
     
       virtual ~Factoriza(){}
+
+
+      typedef CadenaAlgFactor DFL;
   };
   
   /** Interfaz para algoritmos de obtención de divisores no triviales.
@@ -42,7 +48,7 @@ namespace numth{
    *  factorización completa del mismo ni tampoco factores primos.
    *
    */ 
-  class FactorZ
+  class FactorZ 
   {
     public:
       /** Obtención de factores no triviales.
@@ -81,7 +87,6 @@ namespace numth{
 
       virtual ~CadenaAlgFactor(){}
   };
-  typedef CadenaAlgFactor FactorizaDFL;
 
 
 //  /** Algoritmo de factorización por TODO

@@ -6,17 +6,24 @@
 #define __LCM_H
 
 #include "Z.h"
+#include "AbstractMethod.h"
 
 namespace numth{
+
+  class LCMViaGCD;
+
    /** Interfaz para la función del mínimo común múltiplo. 
    * 
    * Clase base para algoritmos que implementen el cálculo del
    * mínimo común múltiplo.
    * 
    */
- class LCM
+ class LCM : public AbstractMethod
   {
     public:
+
+      LCM();
+
       /** Mínimo común múltiplo.
        *
        * Realiza el cálculo del mínimo común múltiplo de dos enteros.
@@ -52,6 +59,12 @@ namespace numth{
 
 
       virtual ~LCM(){}
+
+
+      typedef LCMViaGCD DFL;
+
+    protected:
+      Funciones* const funcs;
   };
 
   
@@ -69,7 +82,6 @@ namespace numth{
       using LCM::lcm;
       virtual Z lcm(Z u, Z v);
   };
-  typedef LCMViaGCD LCMDFL;
   
 }
 

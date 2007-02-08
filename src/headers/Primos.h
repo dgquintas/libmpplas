@@ -7,8 +7,12 @@
 
 #include "Z.h"
 #include "Random.h"
+#include "AbstractMethod.h"
 
 namespace numth{
+
+  class RabinMiller;
+  class TMersenneLucasLehmer;
   
   /** Interfaz para tests probabilísticos de primalidad (tests de
    * composición).
@@ -16,7 +20,7 @@ namespace numth{
    * Clase base para algoritmos que implementen tests de composición.
    * 
    */
-  class TestPrimoProb
+  class TestPrimoProb : public AbstractMethod
   {
     public:
       /** Determinación de primalidad.
@@ -47,6 +51,9 @@ namespace numth{
       virtual void ponerIteraciones(size_t iteraciones) = 0;
 
       virtual ~TestPrimoProb(){}
+
+
+      typedef RabinMiller DFL;
   };
  
   /** Interfaz para tests de primalidad para primos de Mersenne.
@@ -55,7 +62,7 @@ namespace numth{
    * para primos de Mersenne (números de la forma \f$2^{p} -1\f$).
    * 
    */
-  class TestPrimoMersenne
+  class TestPrimoMersenne : public AbstractMethod
   {
     public:
       /** Determinación de primalidad para primos de Mersenne.
@@ -71,6 +78,7 @@ namespace numth{
 
       virtual ~TestPrimoMersenne(){}
 
+      typedef TMersenneLucasLehmer DFL;
   };
  
   /** Interfaz la generación de primos.
@@ -79,7 +87,7 @@ namespace numth{
    * de primos.
    * 
    */
-  class GenPrimos
+  class GenPrimos : public AbstractMethod
   {
     public:
 
@@ -117,10 +125,12 @@ namespace numth{
 
       virtual void setRandomSeed(const Z& seed); 
 
+
+      typedef GenPrimos DFL;
+
     private:
-      RandomRapidoDFL rnd_;
+      RandomRapido* _rnd;
   };
-  typedef GenPrimos GenPrimosDFL;
 
 
   /* IMPLEMENTACIONES */
@@ -146,7 +156,6 @@ namespace numth{
     private:
       size_t iteraciones_;
   };
-  typedef RabinMiller TestPrimoProbDFL;
   
    /** Test de primalidad para primos de Mersenne de Lucas-Lehmer.
    *
@@ -161,7 +170,6 @@ namespace numth{
 
       virtual ~TMersenneLucasLehmer(){}
   };
-  typedef TMersenneLucasLehmer TestPrimoMersenneDFL;
 
 
 }

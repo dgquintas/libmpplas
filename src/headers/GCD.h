@@ -6,15 +6,20 @@
 #define __GCD_H
 
 #include "Z.h"
+#include "AbstractMethod.h"
 
 namespace numth{
+
+  class GCDLehmer;
+  class GCDExtBinario;
+
   /** Interfaz para la función del máximo común divisor. 
    * 
    * Clase base para algoritmos que implementen el cálculo del
    * máximo común divisor.
    * 
    */
-  class GCD 
+  class GCD  : public AbstractMethod
   {
     public:
       /** Máximo común divisor.
@@ -57,6 +62,8 @@ namespace numth{
       virtual Z gcd(Z u, CifraSigno v ); 
 
       virtual ~GCD(){}
+
+      typedef GCDLehmer DFL;
   };
  
   /** Interfaz para la versión extendida del máximo común divisor. 
@@ -67,7 +74,7 @@ namespace numth{
    * ecuación \f$d = Ca + Db\f$ para \f$d = \gcd(a,b)\f$.
    * 
    */
-  class GCDExt
+  class GCDExt : public AbstractMethod
   {
     public:
       /** Cálculo del máximo común divisor y coeficientes.
@@ -80,6 +87,8 @@ namespace numth{
       virtual Z gcdext(Z x, Z y, Z& C, Z& D) = 0;
 
       virtual ~GCDExt(){}
+
+      typedef GCDExtBinario DFL;
   };
 
 
@@ -98,7 +107,6 @@ namespace numth{
 
       virtual ~GCDLehmer(){}
   };
-  typedef GCDLehmer GCDDFL;
 
   /** Cálculo del máximo común divisor extendido por el método binario.
    *
@@ -115,7 +123,6 @@ namespace numth{
       virtual ~GCDExtBinario(){}
       
   };
-  typedef GCDExtBinario GCDExtDFL;
 }
 
       

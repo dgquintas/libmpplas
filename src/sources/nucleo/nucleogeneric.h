@@ -200,7 +200,7 @@ inline Cifra LOWHALF(Cifra x) { return (x & Constantes::MASK_CIFRALOW); }
           return res -2 ;
         case 1:
           return res - 1;
-        case 0:
+        default: // case 0: written this way to avoid compiler warnings
           return res ;
       }
     }

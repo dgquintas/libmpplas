@@ -14,7 +14,7 @@ using namespace com_uwyn_qtunit;
 
 
 ZTest::ZTest()
-  : funcs(Funciones::getInstance()), uno(1), dos(2), cero(0)
+  : funcs(Funciones::getInstance()), uno((Cifra)1), dos((Cifra)2), cero((Cifra)0)
 {
   pari_init(1000000, 0);
   

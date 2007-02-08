@@ -36,7 +36,7 @@ void RSATest::testRSA(){
   funcs->getFunc(genRandom);
   funcs->getFunc(genPrimos);
 
-  genPrimos->setRandomSeed(123);
+  genPrimos->setRandomSeed((Cifra)123);
   //se declaran 4 numeros enteros. 
   Z p,q,n,phi; 
  

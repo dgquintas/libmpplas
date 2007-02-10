@@ -7,7 +7,7 @@ opts.AddOptions(
                 allowed_values=('0','1','2','3','s')),
     
     EnumOption('arch', 'Target architecture', 'x86',
-                allowed_values=('generic','x86','ppc','x86_64')),
+                allowed_values=('generic','x86','x86Prof','ppc','x86_64','x86_64Prof')),
     
     BoolOption('enableProf','Use the profiling version of the kernel', 0),
    # BoolOption('enableExtraOpt', 'Use extra optimization flags', 1),

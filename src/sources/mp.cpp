@@ -4,6 +4,7 @@
 
 #include "mp.h"
 #include <algorithm>
+#include <utility>
 #ifdef _OPENMP
   #include <omp.h>
   #define GET_BASIC_CPU() basicCPUs_[omp_get_thread_num()]
@@ -158,31 +159,23 @@ namespace numth{
       limpiarCeros(b);
     }
 
-    size_t tamA = a.size() -1 ;
-    size_t tamB = b.size() -1 ;
-
-    if( tamA > tamB )
+    if( a.size() > b.size() ){
       return true;
-
-    // tamA <= tamB
-    if (tamA < tamB)
-      return false;
-
-    for(; ; tamA--, tamB--){// tamA == tamB
-      assert( (tamA < a.size()) && (tamB < b.size()) );
-      if( a[tamA] > b[tamB] )
-        return true;
-
-      // a[tamA] <= b[tamB]
-      if( a[tamA] < b[tamB] )
+    }
+    else{
+      if( b.size() > a.size() ){
         return false;
-
-      // "n�" cifra tambien es igual, iterar
-      if( tamA == 0)
-        break;
-    } 
-
-    return false; //son iguales
+      }
+      else{ //equal size
+        typedef numth::MiVec<Cifra>::const_reverse_iterator It ;
+        std::pair<It, It> p = mismatch(a.rbegin(), a.rend(), b.rbegin());
+        if(*(p.first) > *(p.second)){
+          return true; 
+        }else{
+          return false;
+        }
+      }
+    }
   }
 
   bool vCPUVectorial::menorque(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar ) 
@@ -192,34 +185,23 @@ namespace numth{
       limpiarCeros(b);
     }
 
-    assert(a.size() > 0);
-    assert(b.size() > 0);
-    size_t tamA = a.size() -1 ;
-    size_t tamB = b.size() -1 ;
-
-    if( tamA > tamB )
+    if( a.size() > b.size() ){
       return false;
-
-    // tamA <= tamB
-    if (tamA < tamB)
-      return true;
-
-    // tamA == tamB
-    for(; ; tamA--, tamB--){
-      assert( (tamA < a.size()) && (tamB < b.size()) );
-      if( a[tamA] > b[tamB] )
-        return false;
-
-      // a[tamA] <= b[tamB]
-      if( a[tamA] < b[tamB] )
+    }
+    else{
+      if( b.size() > a.size() ){
         return true;
-
-      // "2�" cifra tambien es igual, iterar
-      if( tamA == 0 )
-        break;
-    } 
-
-    return false; //son iguales
+      }
+      else{ //equal size
+        typedef numth::MiVec<Cifra>::const_reverse_iterator It ;
+        std::pair<It, It> p = mismatch(a.rbegin(), a.rend(), b.rbegin());
+        if(*(p.first) < *(p.second)){
+          return true; 
+        }else{
+          return false;
+        }
+      }
+    }
   }
 
   bool vCPUVectorial::igual(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar ) 
@@ -228,43 +210,36 @@ namespace numth{
       limpiarCeros(a);
       limpiarCeros(b);
     }
-    assert(a.size() > 0);
-    assert(b.size() > 0);
-    size_t tamA = a.size()-1;
-    size_t tamB = b.size()-1;
-
-    if( tamA != tamB )
+  
+    if( a.size() != b.size()){
       return false;
-
-    // tamA == tamB
-    for(; ; tamA--, tamB--){
-      assert( (tamA < a.size()) && (tamB < b.size()) );
-      if( a[tamA] != b[tamB] )
-        return false;
-
-      if(tamA == 0)
-        break;
+    }
+    else{ //equal size
+      return equal(a.begin(), a.end(), b.begin());
     }
 
-    return true;
   }
 
   bool vCPUVectorial::mayorque(numth::MiVec<Cifra> vec, Cifra num, bool limpiar ) 
   {
-    if(limpiar)
+    if(limpiar){
       limpiarCeros(vec);
+    }
 
     assert(vec.size() > 0);
-    if( vec.size() > 1 )
+    if( vec.size() > 1 ){
       return true;
-    else // => vec.size() == 1
+    }
+    else{ // => vec.size() == 1
       return (vec[0] > num);
+    }
   }
 
   bool vCPUVectorial::menorque(numth::MiVec<Cifra> vec, Cifra num, bool limpiar ) 
   {
-    if(limpiar)
+    if(limpiar){
       limpiarCeros(vec);
+    }
 
     assert(vec.size() > 0);
     if( vec.size() > 1 )
@@ -286,16 +261,14 @@ namespace numth{
   }
 
 
-  void vCPUVectorial::limpiarCeros(numth::MiVec<Cifra> &vec) throw (Errores::NumeroVacio)
+  void vCPUVectorial::limpiarCeros(numth::MiVec<Cifra> &vec) throw()
   {
-    if( vec.size() == 0 )
-      throw Errores::NumeroVacio();
-    for(size_t i = vec.size(); i > 1; i--)
-      if( (vec.back() == 0) )
-        vec.pop_back();
-      else
-        break;
-
+    numth::MiVec<Cifra>::iterator it;
+    for( it = vec.end()-1; 
+        (it != vec.begin()) && ( !(*it) )  ; 
+        it--) ;
+    vec.erase(it+1, vec.end());
+      
     return;
   }
   /*** OPERADORES ARITMETICOS ***/
@@ -435,14 +408,13 @@ namespace numth{
     {
       Cifra v, u, c;
 
-      size_t tamA = a.size();
-      size_t tamB = b.size();
+     const size_t tamA = a.size();
+     const size_t tamB = b.size();
       
       numth::MiVec<Cifra> w(tamA + tamB, 0);
-
-//      if( false ){ // FIXME: se usa para probar karatsuba
-      if( std::max(tamA, tamB) >= Constantes::UMBRAL_KARATSUBA ){ // FIXME:idem
-        if ( std::max(tamA, tamB) / std::min(tamA, tamB) < 2 ) { //FIXME: esto se puede optimizar
+      const size_t maxSize = tamA > tamB? tamA : tamB;
+      if( maxSize >= Constantes::UMBRAL_KARATSUBA ){ 
+        if ( maxSize  < 2 * std::min(tamA, tamB)) { //if the bigger factor is less than twice the size of the other
           if( tamA < tamB ){
             MiVec<Cifra> aBis(a);
             aBis.resize(tamB, 0);
@@ -530,7 +502,7 @@ namespace numth{
      */
      
     
-    size_t m = x.size() >> 1; 
+    const size_t m = x.size() >> 1; 
     
     MiVec<Cifra> x0; x0.insert(x0.begin(), x.begin(), x.begin()+m);
     MiVec<Cifra> x1; x1.insert(x1.begin(), x.begin()+m, x.end());

@@ -75,7 +75,7 @@ namespace numth{
     /** Calculo eficiente del cuadrado. */
     MiVec<Cifra> cuadMP(const numth::MiVec<Cifra>& x);
 
-    void limpiarCeros(numth::MiVec<Cifra>&) throw (Errores::NumeroVacio);
+    void limpiarCeros(numth::MiVec<Cifra>&) throw();
 
     protected:
     void karatsuba(MiVec<Cifra>& resultado, const MiVec<Cifra>& x, const MiVec<Cifra>& y);

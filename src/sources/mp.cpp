@@ -836,8 +836,12 @@ namespace numth{
     MiVec<Cifra> P1, P2, P3;
 
     bool negativo = false;
+#pragma omp parallel sections
+    {
+#pragma omp section
     P1 = multMP(x1,y1);
-    
+#pragma omp section
+    {
     if( mayorque(x0,x1) ){
       P2 = restaMP( x0, x1 );
       negativo = true;
@@ -850,9 +854,10 @@ namespace numth{
     }
     else
       P2 = multMP( P2, restaMP( y0, y1 ) );
-      
+    }
+#pragma omp section
     P3 = multMP(x0, y0);
-
+  }
     MiVec<Cifra> S11, S12, S2, S31; //, S32;
     S11 = P1;
     size_t shifting = Constantes::BITS_EN_CIFRA*m;

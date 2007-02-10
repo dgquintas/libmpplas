@@ -493,8 +493,7 @@ namespace numth{
       return c;
     }
 
-  void vCPUVectorial::cuadKaratsuba(MiVec<Cifra>& resultado, 
-      const MiVec<Cifra>& x)
+  void vCPUVectorial::cuadKaratsuba(MiVec<Cifra>& resultado, const MiVec<Cifra>& x)
   {
     /* x^2 = (b^2+b)*x1^2 - b*(x1-x0)^2 + (b+1)*x0^2 
      *               ^^^^     ^^^^^^^^^         ^^^^
@@ -514,26 +513,30 @@ namespace numth{
  
     // esta parafernalia es debida a que en restaMP el
     // minuendo debe ser >= que el sustraendo
-    if( mayorque(x0,x1) )
+    if( mayorque(x0,x1) ){
       P2 = restaMP( x0, x1 );
-    else
+    }
+    else{
       P2 = restaMP( x1, x0 );
+    }
     P2 = cuadMP(P2);
       
     P3 = cuadMP(x0);
 
     MiVec<Cifra> S11, S12, S2, S31; //, S32;
     S11 = P1;
-    lShift(S11, 2*Constantes::BITS_EN_CIFRA*m);
+
+    size_t shifting = Constantes::BITS_EN_CIFRA*m;
+    lShift(S11, 2*shifting);
     
     S12 = P1;
-    lShift(S12, Constantes::BITS_EN_CIFRA*m);
+    lShift(S12, shifting);
 
     S2 = P2;
-    lShift(S2, Constantes::BITS_EN_CIFRA*m);
+    lShift(S2, shifting);
 
     S31 = P3;
-    lShift(S31, Constantes::BITS_EN_CIFRA*m);
+    lShift(S31, shifting);
     //S32 = P3
     
     resultado = sumaMP(S11, S12);
@@ -552,12 +555,10 @@ namespace numth{
 
       numth::MiVec<Cifra> w(2*t,0); //vector de resultado
 
-//      if( false ){ // FIXME
-      if( t > Constantes::UMBRAL_CUAD_KARATSUBA ){ // FIXME
+      if( t > Constantes::UMBRAL_CUAD_KARATSUBA ){ 
           cuadKaratsuba(w,x);
           return w;
       }
-
 
       vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       
@@ -856,7 +857,7 @@ namespace numth{
     S11 = P1;
     size_t shifting = Constantes::BITS_EN_CIFRA*m;
 
-    lShift(S11, shifting<<1);
+    lShift(S11, shifting*2);
     
     S12 = P1;
     lShift(S12,shifting);

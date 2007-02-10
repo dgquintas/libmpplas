@@ -442,7 +442,7 @@ namespace numth{
 
 //      if( false ){ // FIXME: se usa para probar karatsuba
       if( std::max(tamA, tamB) >= Constantes::UMBRAL_KARATSUBA ){ // FIXME:idem
-        if ( std::max(tamA, tamB) / std::min(tamA, tamB) < 2 ) {
+        if ( std::max(tamA, tamB) / std::min(tamA, tamB) < 2 ) { //FIXME: esto se puede optimizar
           if( tamA < tamB ){
             MiVec<Cifra> aBis(a);
             aBis.resize(tamB, 0);
@@ -882,16 +882,18 @@ namespace numth{
 
     MiVec<Cifra> S11, S12, S2, S31; //, S32;
     S11 = P1;
-    lShift(S11, 2*Constantes::BITS_EN_CIFRA*m);
+    size_t shifting = Constantes::BITS_EN_CIFRA*m;
+
+    lShift(S11, shifting<<1);
     
     S12 = P1;
-    lShift(S12, Constantes::BITS_EN_CIFRA*m);
+    lShift(S12,shifting);
 
     S2 = P2;
-    lShift(S2, Constantes::BITS_EN_CIFRA*m);
+    lShift(S2, shifting);
 
     S31 = P3;
-    lShift(S31, Constantes::BITS_EN_CIFRA*m);
+    lShift(S31,shifting);
     //S32 = P3
     
     resultado = sumaMP(S11, S12);

@@ -30,7 +30,7 @@ int main()
 //    Cifra k = CIFRA_MAX;  
 
   rnd->ponerSemilla("12345");
- for(unsigned long i = 1; i <= 5000; i+=50){
+ for(unsigned long i = 1; i <= 70000; i+=100){
 //    numVec.resize(1000, k);
     
 //    MiVec<uint32_t> res;
@@ -62,8 +62,8 @@ int main()
     gettimeofday(&tpo2, NULL);
 
 //    cout << num << endl;
-    if((tpo2.tv_usec - tpo1.tv_usec) > 0 )
-      cout << i << "\t" <<  (tpo2.tv_usec - tpo1.tv_usec) << endl;
+///    if((tpo2.tv_usec - tpo1.tv_usec) > 0 )
+///      cout << i << "\t" <<  (tpo2.tv_usec - tpo1.tv_usec) << endl;
   }
 //
 

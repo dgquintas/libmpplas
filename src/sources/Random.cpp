@@ -55,7 +55,7 @@ namespace numth{
 
   Z NumThRC4Gen::leerBits(size_t n)
   {
-    size_t n_bytes = (n+7) >> 3;
+    const size_t n_bytes = (n+7) >> 3;
     MiVec<uint8_t> bytesRand(n_bytes);
     
     uint8_t t;
@@ -74,7 +74,7 @@ namespace numth{
       bytesRand[c] = s_[t];
     }
       
-    size_t numCifras = ((n_bytes+(Constantes::BYTES_EN_CIFRA-1)) / Constantes::BYTES_EN_CIFRA); 
+    const size_t numCifras = ((n_bytes+(Constantes::BYTES_EN_CIFRA-1)) / Constantes::BYTES_EN_CIFRA); 
     MiVec<Cifra> vecRandom(numCifras,0);
     
     size_t i;

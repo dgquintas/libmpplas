@@ -55,7 +55,7 @@ namespace numth{
        *  problemas de conversión automática por parte de C++ entre
        *  tipos con y sin signo.
        */
-      virtual void potencia(Z* base,  CifraSigno exp) = 0; 
+      virtual void potencia(Z* const base,  CifraSigno exp) = 0; 
 
       /** Potenciación.
        *
@@ -89,7 +89,7 @@ namespace numth{
   class PotenciaR : public AbstractMethod
   {
     public:
-      virtual void potenciaR(R* base,  CifraSigno exp) = 0; 
+      virtual void potenciaR(R* const base,  CifraSigno exp) = 0; 
       R potenciaR(R base,  CifraSigno exp); 
 
       virtual ~PotenciaR(){}
@@ -128,7 +128,7 @@ namespace numth{
        *
        * @param mod El módulo reductor.
        */
-      virtual void potModular(Z* base, const Z& exp, const Z& mod) = 0; 
+      virtual void potModular(Z* const base, const Z& exp, const Z& mod) = 0; 
   
       /** Potenciación modular.
        *
@@ -182,7 +182,7 @@ namespace numth{
   class PotVentanaDeslizante : public Potencia
   {
     public:
-      virtual void potencia(Z* base,  CifraSigno exp);
+      virtual void potencia(Z* const base,  CifraSigno exp);
 
       virtual ~PotVentanaDeslizante(){}
   };
@@ -192,7 +192,7 @@ namespace numth{
   class PotVentanaDeslizanteR : public PotenciaR
   {
     public:
-      virtual void potenciaR(R* base,  CifraSigno exp);
+      virtual void potenciaR(R* const base,  CifraSigno exp);
 
       virtual ~PotVentanaDeslizanteR(){}
   };
@@ -209,7 +209,7 @@ namespace numth{
   class PotRightLeft : public Potencia
   {
     public:
-      virtual void potencia(Z* base,  CifraSigno exp);
+      virtual void potencia(Z* const base,  CifraSigno exp);
 
       virtual ~PotRightLeft(){}
   };
@@ -225,7 +225,7 @@ namespace numth{
   class PotMontgomery : public PotModular
   {
     public:
-      virtual void potModular(Z* base, const Z& exp, const Z& mod); 
+      virtual void potModular(Z* const base, const Z& exp, const Z& mod); 
 
       virtual ~PotMontgomery(){}
     protected:
@@ -244,7 +244,7 @@ namespace numth{
   class ClasicoConBarrett : public PotModular
   {
     public:
-      virtual void potModular(Z* base, const Z& exp, const Z& mod); 
+      virtual void potModular(Z* const base, const Z& exp, const Z& mod); 
 
       virtual ~ClasicoConBarrett(){}
 

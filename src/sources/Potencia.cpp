@@ -46,10 +46,18 @@ namespace numth{
     return inv;
   }
   
-  void PotVentanaDeslizante::potencia(Z* base, CifraSigno e)
+
+
+
+  ///////////////////////////////////////////////
+
+
+
+  void PotVentanaDeslizante::potencia(Z* const base, CifraSigno e)
   {
-    if( e < 0 )
+    if( e < 0 ){
       throw Errores::ExponenteNegativo();
+    }
 
     if(e == 0){
       base->hacerUno();
@@ -130,7 +138,7 @@ namespace numth{
     return;
   }
   
-  void PotRightLeft::potencia(Z* base, CifraSigno exponente)
+  void PotRightLeft::potencia(Z* const base, CifraSigno exponente)
   {
     if( exponente < 0 )
       throw Errores::ExponenteNegativo();
@@ -176,7 +184,7 @@ namespace numth{
     return;
   }
 
-  void PotMontgomery::potModular(Z* base, const Z& e, const Z& mod)
+  void PotMontgomery::potModular(Z* const base, const Z& e, const Z& mod)
   {
     if( base == NULL ){
       throw Errores::PunteroNulo();
@@ -261,7 +269,7 @@ namespace numth{
 
  ///////////////////////////////////
  
-  void ClasicoConBarrett::potModular(Z* base, const Z& exp, const Z& mod)
+  void ClasicoConBarrett::potModular(Z* const base, const Z& exp, const Z& mod)
   {
     if( base == NULL )
       throw Errores::PunteroNulo();

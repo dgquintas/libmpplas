@@ -233,13 +233,13 @@ namespace numth{
     Z n(_rnd->leerBits(bits));
 
     //poner a 1 los bits más y menos significativos 
-    //FIXME: poner a 1 el bit mas significativo hace que el nº
-    //generado sea siempre > que (2**bits)/2. asi que lo desativo (10/3)
-//    size_t i = bits / BITS_EN_CIFRA;
-//    size_t j = bits % BITS_EN_CIFRA;
-//    Cifra mascara = (1 << j);
+    //poner a 1 el bit mas significativo hace que el nº
+    //generado tenga el numero de bits especificado
+    const size_t i = (bits-1) / Constantes::BITS_EN_CIFRA;
+    const size_t j = (bits-1) % Constantes::BITS_EN_CIFRA;
+    const Cifra mascara = (1U << j);
 
-//    n[i] |= mascara; //el más
+    n[i] |= mascara; //el más
     n[0] |= 0x1;     //el menos
 
 

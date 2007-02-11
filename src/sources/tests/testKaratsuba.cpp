@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include "Funciones.h"
+#include "Random.h"
 
 using namespace std;
 using namespace numth;
@@ -21,13 +22,14 @@ int main()
 //  MiVec<uint8_t> vec;
 //  MiVec<uint8_t> vec2;
   MiVec<Cifra> numVec;
-  Funciones funcs;
+  RandomRapido *rnd = 0; 
+  Funciones::getInstance()->getFunc(rnd);
 
 //  Cifra k = funcs.random()->leerCifra();
 //  cout << k << endl;
 //    Cifra k = CIFRA_MAX;  
 
-  funcs.getRandomRapido()->ponerSemilla(Z::convertir("12345"));
+  rnd->ponerSemilla("12345");
  for(unsigned long i = 1; i <= 5000; i+=50){
 //    numVec.resize(1000, k);
     
@@ -44,8 +46,8 @@ int main()
 
 //    cout << num << endl;
     
-  Z num1 = funcs.getRandomRapido()->leerBits(32*i);
-  Z num2 = funcs.getRandomRapido()->leerBits(32*i);
+  Z num1 = rnd->leerBits(32*i);
+  Z num2 = rnd->leerBits(32*i);
 //  Z num1 = funcs.random()->leerBits(10000000);
 //  cout << num1.longitud() << endl;
 //  cout << num1 << endl;

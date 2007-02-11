@@ -162,20 +162,22 @@ namespace numth{
     if( a.size() > b.size() ){
       return true;
     }
-    else{
-      if( b.size() > a.size() ){
-        return false;
-      }
-      else{ //equal size
-        typedef numth::MiVec<Cifra>::const_reverse_iterator It ;
-        std::pair<It, It> p = mismatch(a.rbegin(), a.rend(), b.rbegin());
-        if(*(p.first) > *(p.second)){
-          return true; 
-        }else{
-          return false;
-        }
-      }
+
+    if( b.size() > a.size() ){
+      return false;
     }
+
+    //equal size
+    typedef numth::MiVec<Cifra>::const_reverse_iterator It ;
+    std::pair<It, It> p = mismatch(a.rbegin(), a.rend(), b.rbegin());
+    if (p.first == a.rend() ){
+      return false; //a and b are equal
+    }
+    if(*(p.first) > *(p.second)){
+      return true; 
+    }
+    return false;
+
   }
 
   bool vCPUVectorial::menorque(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar ) 
@@ -185,23 +187,25 @@ namespace numth{
       limpiarCeros(b);
     }
 
-    if( a.size() > b.size() ){
+    if( a.size() < b.size() ){
+      return true;
+    }
+
+    if( b.size() < a.size() ){
       return false;
     }
-    else{
-      if( b.size() > a.size() ){
-        return true;
-      }
-      else{ //equal size
-        typedef numth::MiVec<Cifra>::const_reverse_iterator It ;
-        std::pair<It, It> p = mismatch(a.rbegin(), a.rend(), b.rbegin());
-        if(*(p.first) < *(p.second)){
-          return true; 
-        }else{
-          return false;
-        }
-      }
+
+    //equal size
+    typedef numth::MiVec<Cifra>::const_reverse_iterator It ;
+    std::pair<It, It> p = mismatch(a.rbegin(), a.rend(), b.rbegin());
+    if (p.first == a.rend() ){
+      return false; //a and b are equal
     }
+    if(*(p.first) < *(p.second)){
+      return true; 
+    }
+    return false;
+
   }
 
   bool vCPUVectorial::igual(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar ) 
@@ -351,8 +355,9 @@ namespace numth{
       size_t tamA = a.size();
       size_t tamB = b.size();
 
-      if( menorque(a,b) ) // a < b
+      if( menorque(a,b) ){ // a < b
         throw Errores::RestaNegativa();
+      }
 
       numth::MiVec<Cifra> c(tamA,0);
 

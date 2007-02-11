@@ -89,7 +89,7 @@ if env['enableDebug']:
   env.Append(CCFLAGS = ' -g')
 
 if env['enableWarnings']:
-  env.Append(CCFLAGS = ' -Wall -W -Werror')
+  env.Append(CCFLAGS = ' -Wall -W')
 #options processing ends
 
 def CheckOpenMP(context):

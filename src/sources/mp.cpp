@@ -168,7 +168,7 @@ namespace numth{
     }
 
     //equal size
-    typedef numth::MiVec<Cifra>::const_reverse_iterator It ;
+    typedef numth::MiVec<Cifra>::reverse_iterator It ;
     std::pair<It, It> p = mismatch(a.rbegin(), a.rend(), b.rbegin());
     if (p.first == a.rend() ){
       return false; //a and b are equal
@@ -196,7 +196,7 @@ namespace numth{
     }
 
     //equal size
-    typedef numth::MiVec<Cifra>::const_reverse_iterator It ;
+    typedef numth::MiVec<Cifra>::reverse_iterator It ;
     std::pair<It, It> p = mismatch(a.rbegin(), a.rend(), b.rbegin());
     if (p.first == a.rend() ){
       return false; //a and b are equal
@@ -512,43 +512,51 @@ namespace numth{
     MiVec<Cifra> x1; x1.insert(x1.begin(), x.begin()+m, x.end());
     limpiarCeros(x0); limpiarCeros(x1);
     
+    const size_t shifting = Constantes::BITS_EN_CIFRA*m;
     MiVec<Cifra> P1, P2, P3;
+    MiVec<Cifra> S11/*, S12, S2*/, S31; //, S32;
 
-    P1 = cuadMP(x1);
- 
-    // esta parafernalia es debida a que en restaMP el
-    // minuendo debe ser >= que el sustraendo
-    if( mayorque(x0,x1) ){
-      P2 = restaMP( x0, x1 );
+#pragma omp parallel sections
+    {
+#pragma omp section
+      { 
+        P1 = cuadMP(x1);
+        S11 = P1;
+        lShift(S11, 2*shifting);
+        //    S12 = P1;
+        lShift(P1, shifting);
+      }
+#pragma omp section
+      {
+        // esta parafernalia es debida a que en restaMP el
+        // minuendo debe ser >= que el sustraendo
+        if( mayorque(x0,x1) ){
+          P2 = restaMP( x0, x1 );
+        }
+        else{
+          P2 = restaMP( x1, x0 );
+        }
+        P2 = cuadMP(P2);
+
+        //    S2 = P2;
+        lShift(P2, shifting);
+
+      }
+#pragma omp section
+      {
+        P3 = cuadMP(x0);
+        S31 = P3;
+        lShift(S31, shifting);
+        //S32 = P3
+      }
     }
-    else{
-      P2 = restaMP( x1, x0 );
-    }
-    P2 = cuadMP(P2);
-      
-    P3 = cuadMP(x0);
 
-    MiVec<Cifra> S11, S12, S2, S31; //, S32;
-    S11 = P1;
-
-    size_t shifting = Constantes::BITS_EN_CIFRA*m;
-    lShift(S11, 2*shifting);
-    
-    S12 = P1;
-    lShift(S12, shifting);
-
-    S2 = P2;
-    lShift(S2, shifting);
-
-    S31 = P3;
-    lShift(S31, shifting);
-    //S32 = P3
-    
-    resultado = sumaMP(S11, S12);
+  
+    resultado = sumaMP(S11, P1);
     resultado = sumaMP(resultado, S31);
     resultado = sumaMP(resultado, P3);
 
-    resultado = restaMP(resultado, S2);
+    resultado = restaMP(resultado, P2);
     
     return ;
   }
@@ -839,56 +847,64 @@ namespace numth{
     limpiarCeros(x0); limpiarCeros(x1);
     limpiarCeros(y0); limpiarCeros(y1);
     MiVec<Cifra> P1, P2, P3;
+    MiVec<Cifra> S11/*, S12, S2*/, S31; //, S32;
+    const size_t shifting = Constantes::BITS_EN_CIFRA*m;
 
     bool negativo = false;
 #pragma omp parallel sections
     {
 #pragma omp section
-    P1 = multMP(x1,y1);
+      {
+        P1 = multMP(x1,y1); 
+        S11 = P1;
+
+        lShift(S11, shifting*2);
+
+        //    S12 = P1;
+        lShift(P1,shifting);
+      }
 #pragma omp section
-    {
-    if( mayorque(x0,x1) ){
-      P2 = restaMP( x0, x1 );
-      negativo = true;
-    }
-    else
-      P2 = restaMP( x1, x0 );
-    if( mayorque(y1,y0) ){
-      P2 = multMP( P2, restaMP( y1, y0 ) );
-      negativo = !negativo;
-    }
-    else
-      P2 = multMP( P2, restaMP( y0, y1 ) );
-    }
+      {
+        if( mayorque(x0,x1) ){
+          P2 = restaMP( x0, x1 );
+          negativo = true;
+        }
+        else{
+          P2 = restaMP( x1, x0 );
+        }
+        if( mayorque(y1,y0) ){
+          P2 = multMP( P2, restaMP( y1, y0 ) );
+          negativo = !negativo;
+        }
+        else{
+          P2 = multMP( P2, restaMP( y0, y1 ) );
+        }
+
+        //    S2 = P2;
+        lShift(P2, shifting);
+
+      }
 #pragma omp section
-    P3 = multMP(x0, y0);
+      {
+        P3 = multMP(x0, y0);
+        S31 = P3;
+        lShift(S31,shifting);
+        //S32 = P3
+      }
   }
-    MiVec<Cifra> S11, S12, S2, S31; //, S32;
-    S11 = P1;
-    size_t shifting = Constantes::BITS_EN_CIFRA*m;
 
-    lShift(S11, shifting*2);
+
     
-    S12 = P1;
-    lShift(S12,shifting);
-
-    S2 = P2;
-    lShift(S2, shifting);
-
-    S31 = P3;
-    lShift(S31,shifting);
-    //S32 = P3
-    
-    resultado = sumaMP(S11, S12);
+    resultado = sumaMP(S11, P1);
     resultado = sumaMP(resultado, S31);
     resultado = sumaMP(resultado, P3);
-    
+   
     if(negativo){
       assert( !mayorque(S2, resultado) );
-      resultado = restaMP(resultado, S2);
+      resultado = restaMP(resultado, P2);
     }
     else
-      resultado = sumaMP(resultado, S2);
+      resultado = sumaMP(resultado, P2);
 
     return ;
   }

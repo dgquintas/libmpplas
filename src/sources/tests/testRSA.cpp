@@ -20,10 +20,10 @@ int main()
   //esto no es estrictamente necesario: para acceder de forma resumida
   //al generador del numeros aleatorios en cuestion
   RandomRapido* genRandom; funcs->getFunc(genRandom);
-  genRandom->ponerSemilla(Z::convertir("34"));
+  genRandom->ponerSemilla("34");
   //idem para el generador de primos
   GenPrimos* genPrimos; funcs->getFunc(genPrimos);
-  genPrimos->setRandomSeed(Z::convertir((Cifra)123));
+  genPrimos->setRandomSeed((Cifra)123);
 
   //se declaran 4 numeros enteros. 
   Z p,q,n,phi; 

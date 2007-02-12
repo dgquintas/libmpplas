@@ -17,7 +17,7 @@ int main()
   RandomRapido *rnd = 0; 
   Funciones::getInstance()->getFunc(rnd);
   rnd->ponerSemilla("12345");
-  vector<uint64_t> v(4001,0);
+  vector<double> v;
   
 
   uint64_t t0,t1,oh;
@@ -28,32 +28,31 @@ int main()
 
 
 
-  for(int i = 1; i <= 4000; i+=1){
+  for(int i = 1; i <= 400; i+=1){
     Z num1 = rnd->leerBits(Constantes::BITS_EN_CIFRA * i);
-    Z num2 = rnd->leerBits(Constantes::BITS_EN_CIFRA * i);
   
-    asm ("cpuid;" : : :"%eax", "%edx");
-    rdtscll(t0);
-    num1 *= num2;
-    asm ("cpuid;" : : :"%eax", "%edx");
-    rdtscll(t1);
-    
-    uint64_t res = t1-t0-oh;
+    double res;
+    for(int j=0; j<3; j++){
+      asm ("cpuid;" : : :"%eax", "%edx");
+      rdtscll(t0);
+      num1.cuadrado();
+      asm ("cpuid;" : : :"%eax", "%edx");
+      rdtscll(t1);
 
-    if( res < 1844069416541800 )
-      v[i] =  res;
+      res = t1-t0-oh;
+    }
+    res /= 3.0;
+
+    v.push_back(res);
 
   }
 
-  for(int i = 0; i < 4001; i++){
+  for(int i = 0; i < v.size(); i++){
     cout << i << "\t" <<  v[i] << endl;
   }
 
     cout << endl << endl;
 
-//  for(int i = 1; i <= 128; i++){
-//    cout << i << "\t" <<  3*v[i/2] << endl;
-//  }
 
   return 0;
 }

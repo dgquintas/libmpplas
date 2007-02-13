@@ -8,6 +8,10 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <exception>
+
+//FIXME
+#define _(STRING) STRING
 
 namespace numth{
   /** Espacio de nombres contenedor del mecanismo de errores. */
@@ -15,29 +19,20 @@ namespace numth{
     // Tipos báicos
     /** Clase base de todas las excepciones (errores) que comprende
      * la librería. */
-    class Excepcion
-    {
-      public:
-        /** Información sobre el error.
-         * 
-         * @return Un vector de caracteres con un mensaje explicativo
-         * del error en cuestión.
-         */
-        virtual const char* info(void) const = 0;
-        virtual ~Excepcion(){};
-    };
+    class NumthExcepcion: public std::exception 
+    {};
       
     /** Clase base para errores de tipo aritméico.
      *
      * Ejemplo clásico: la división por cero.
      * 
      * */
-    class Aritmetico : public Excepcion
+    class Aritmetico : public NumthException
     {
       public:
-      virtual const char* info(void) const 
+      virtual const char* what(void) const 
       {
-        return "Error aritmético indeterminado";
+        return _("Undefined arithmetic error");
       }
     };
 
@@ -47,12 +42,12 @@ namespace numth{
      * de entrada ">>".
      * 
      */
-    class Sintactico : public Excepcion
+    class Sintactico : public NumthException
     {
       public:
-      virtual const char* info(void) const 
+      virtual const char* what(void) const 
       {
-        return "Error sintáctico indeterminado";
+        return _("Undefined sintactic error");
       }
     };
 
@@ -61,24 +56,26 @@ namespace numth{
      * Por ejemplo al detectar un puntero inválido, intento de acceso
      * a una posición de memoria no reservada, etc.
      * */
-    class Interno : public Excepcion
+    class Interno : public NumthException
     {
       public:
-        virtual const char* info(void) const
+        virtual const char* what(void) const
         {
-          return "Error interno indeterminado";
+          return _("Undefined internal error");
         }
     };
 
+
+    ////////////////////////////////////////////////////////////////////////////////////
 
     // Tipos derivados
     /** Error de división por cero */
     class DivisionPorCero : public Aritmetico
     {
       public:
-      virtual const char* info(void) const 
+      virtual const char* what(void) const 
       { 
-        return "Se ha producido una división por cero";
+        return _("Division by zero");
       }
     };
 
@@ -86,9 +83,9 @@ namespace numth{
     class RestaNegativa : public Aritmetico
     {
       public:
-      virtual const char* info(void) const
+      virtual const char* what(void) const
       {
-        return "Sustraendo mayor que minuendo en resta sin signo a nivel MP";
+        return _("Subtrahend is greater than the minuend at unsigned subtraction");
       }
     };
 
@@ -96,7 +93,7 @@ namespace numth{
     class ElementoNoInvertible : public Aritmetico
     {
       public:
-      virtual const char* info(void) const
+      virtual const char* what(void) const
       {
          return "Intento de inversión inválido";
       }
@@ -106,7 +103,7 @@ namespace numth{
     class ExponenteNegativo : public Aritmetico
     {
       public:
-      virtual const char* info(void) const
+      virtual const char* what(void) const
       {
          return "Exponente negativo en elemento no invertible";
       }
@@ -116,7 +113,7 @@ namespace numth{
     class ParEnSimboloJacobi : public Aritmetico
     {
       public:
-      virtual const char* info(void) const
+      virtual const char* what(void) const
       {
          return "Segundo argumento del Simbolo de Jacobi par";
       }
@@ -126,7 +123,7 @@ namespace numth{
     class ModuloParEnMontgomery : public Aritmetico
     {
       public:
-      virtual const char* info(void) const
+      virtual const char* what(void) const
       {
          return "Modulo par en exponenciación de Montgomery";
       }
@@ -136,7 +133,7 @@ namespace numth{
     class LogaritmoDeCero : public Aritmetico
     {
       public:
-      virtual const char* info(void) const
+      virtual const char* what(void) const
       {
          return "Intento de cálculo del logaritmo de cero";
       }
@@ -152,7 +149,7 @@ namespace numth{
       
       public:
         SimboloInvalido(char c) : simbolo_(c){}
-        virtual const char* info(void) const 
+        virtual const char* what(void) const 
         { 
           std::string msg("Simbolo inválido: ");
           msg += simbolo_;
@@ -164,7 +161,7 @@ namespace numth{
      * el cero)*/
     class NumeroVacio : public Interno
     {
-      virtual const char* info(void) const
+      virtual const char* what(void) const
       {
          return "Polinomio representante del nmero de longitud 0";
       }
@@ -173,7 +170,7 @@ namespace numth{
     /** Signo inválido */
     class SignoInvalido : public Interno
     {
-      virtual const char* info(void) const
+      virtual const char* what(void) const
       {
          return "Signo incorrecto";
       }
@@ -183,7 +180,7 @@ namespace numth{
     /** Uso de un nmero demasiado grande para el contexto */
     class DemasiadoGrande : public Interno
     {
-      virtual const char* info(void) const
+      virtual const char* what(void) const
       {
          return "Nmero demasiado grande";
       }
@@ -193,7 +190,7 @@ namespace numth{
      * */
     class ArchNoProfiling : public Interno
     {
-      virtual const char* info(void) const
+      virtual const char* what(void) const
       {
          return "Arquitectura actual no soporta operaciones de perfilado";
       }
@@ -203,7 +200,7 @@ namespace numth{
     /** Error en el proceso de perfilado */
     class ErrorPerfilado : public Interno
     {
-      virtual const char* info(void) const
+      virtual const char* what(void) const
       {
          return "Error de perfilado";
       }
@@ -213,7 +210,7 @@ namespace numth{
     /** Error al acceder a la fuente de entropía */
     class FuenteEntropiaInvalida : public Interno
     {
-      virtual const char* info(void) const
+      virtual const char* what(void) const
       {
          return "Error al acceder a la fuente de entropía";
       }
@@ -223,7 +220,7 @@ namespace numth{
     /** Intento de desreferenciar un puntero nulo */
     class PunteroNulo : public Interno
     {
-      virtual const char* info(void) const
+      virtual const char* what(void) const
       {
          return "Se ha proporcionado un puntero nulo donde no se admite";
       }
@@ -232,7 +229,7 @@ namespace numth{
     /** Exponente de reales desbordado */
     class OverflowExpReales : public Interno
     {
-      virtual const char* info(void) const
+      virtual const char* what(void) const
       {
          return "El exponente de la representación de reales se ha desbordado";
       }
@@ -241,7 +238,7 @@ namespace numth{
     /** Función no implementada */
     class NoImplementado : public Interno
     {
-      virtual const char* info(void) const
+      virtual const char* what(void) const
       {
          return "Función an no implementada";
       }

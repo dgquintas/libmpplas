@@ -220,8 +220,9 @@ namespace numth{
 
       montgomeryMult(base,uno,mod, modPrima);
     }
-    else //modulo par => No puede aplicarse Montgomery
+    else{ //modulo par => No puede aplicarse Montgomery
       throw Errores::ModuloParEnMontgomery();
+    }
     
     return;
   }
@@ -271,8 +272,9 @@ namespace numth{
  
   void ClasicoConBarrett::potModular(Z* const base, const Z& exp, const Z& mod)
   {
-    if( base == NULL )
+    if( base == NULL ){
       throw Errores::PunteroNulo();
+    }
 
     RedBarrett* redbarrett; funcs->getFunc(redbarrett);
     bool eNegativo = false;

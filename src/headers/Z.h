@@ -83,7 +83,7 @@ namespace numth
        *
        *  @return El entero correspondiente a la conversión.
        */
-      static Z convertir(const char* cadena) throw(Errores::Sintactico);
+      static Z convertir(const char* cadena) throw(Errores::Sintactic);
 
 
       /** Función de conversión de tipo double a Z (entero).
@@ -1182,7 +1182,7 @@ namespace numth
       /** Operador de salida del número */
       friend std::ostream& operator<<(std::ostream&, Z);
       /** Operador obtencion del número */
-      friend std::istream& operator>>(std::istream&, Z&) throw (Errores::Sintactico);
+      friend std::istream& operator>>(std::istream&, Z&) throw (Errores::Sintactic);
 
       /** Funciones (procedimientos) para el calculo simultaneao de cociente y módulo.
        *

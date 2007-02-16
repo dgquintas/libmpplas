@@ -2,19 +2,16 @@
  * $Id$
  */
 
-/********************** Vector.h ************************************
- *                                                                  *
- * *****************************************************************/
-
 
 #ifndef __VECTOR_H
 #define __VECTOR_H
 
 #include <vector>
+#include <algorithm>
 
 namespace numth
 {
-  template<class T>
+  template<typename T>
     class Vector : public std::vector<T>
     {
       public:
@@ -29,6 +26,9 @@ namespace numth
           std::vector<T>::operator=((std::vector<T>)rhs);
           return *this;
         }
+
+        bool operator==(const Vector<T>& rhs) const;
+
 #ifndef RELEASE
         T& operator[](size_t i){ return this->at(i);}
         const T& operator[](size_t i) const { return this->at(i); }
@@ -57,6 +57,18 @@ namespace numth
     Vector<T>::Vector(const std::vector<T>& rhs)
     : std::vector<T>(rhs)
     {}
+
+  template<class T>
+    bool Vector<T>::operator==(const Vector<T>& rhs) const
+    {
+      if( this->size() != rhs.size() ){
+        return false;
+      }
+      else{ //equal dimensions
+        return std::equal(this->begin(), this->end(), rhs.begin());
+      }
+    }
+
 
 }
 

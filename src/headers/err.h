@@ -19,7 +19,7 @@ namespace numth{
     // Tipos báicos
     /** Clase base de todas las excepciones (errores) que comprende
      * la librería. */
-    class NumthExcepcion: public std::exception 
+    class NumthException: public std::exception 
     {};
       
     /** Clase base para errores de tipo aritméico.
@@ -30,7 +30,7 @@ namespace numth{
     class Aritmetico : public NumthException
     {
       public:
-      virtual const char* what(void) const 
+      virtual const char* what(void) const throw()
       {
         return _("Undefined arithmetic error");
       }
@@ -42,10 +42,10 @@ namespace numth{
      * de entrada ">>".
      * 
      */
-    class Sintactico : public NumthException
+    class Sintactic : public NumthException
     {
       public:
-      virtual const char* what(void) const 
+      virtual const char* what(void) const throw() 
       {
         return _("Undefined sintactic error");
       }
@@ -59,7 +59,7 @@ namespace numth{
     class Interno : public NumthException
     {
       public:
-        virtual const char* what(void) const
+        virtual const char* what(void) const throw()
         {
           return _("Undefined internal error");
         }
@@ -73,7 +73,7 @@ namespace numth{
     class DivisionPorCero : public Aritmetico
     {
       public:
-      virtual const char* what(void) const 
+      virtual const char* what(void) const throw() 
       { 
         return _("Division by zero");
       }
@@ -83,7 +83,7 @@ namespace numth{
     class RestaNegativa : public Aritmetico
     {
       public:
-      virtual const char* what(void) const
+      virtual const char* what(void) const throw()
       {
         return _("Subtrahend is greater than the minuend at unsigned subtraction");
       }
@@ -93,9 +93,9 @@ namespace numth{
     class ElementoNoInvertible : public Aritmetico
     {
       public:
-      virtual const char* what(void) const
+      virtual const char* what(void) const throw()
       {
-         return "Intento de inversión inválido";
+         return _("Invalid inversion");
       }
     };
 
@@ -103,9 +103,9 @@ namespace numth{
     class ExponenteNegativo : public Aritmetico
     {
       public:
-      virtual const char* what(void) const
+      virtual const char* what(void) const throw()
       {
-         return "Exponente negativo en elemento no invertible";
+         return _("Negative exponent on a non-invertible element");
       }
     };
 
@@ -113,9 +113,9 @@ namespace numth{
     class ParEnSimboloJacobi : public Aritmetico
     {
       public:
-      virtual const char* what(void) const
+      virtual const char* what(void) const throw()
       {
-         return "Segundo argumento del Simbolo de Jacobi par";
+         return _("Even element as second argument of a Jacoby Symbol");
       }
     };
 
@@ -123,9 +123,9 @@ namespace numth{
     class ModuloParEnMontgomery : public Aritmetico
     {
       public:
-      virtual const char* what(void) const
+      virtual const char* what(void) const throw()
       {
-         return "Modulo par en exponenciación de Montgomery";
+         return _("Even modulus on Montgomery exponentiation"); 
       }
     };
 
@@ -133,9 +133,9 @@ namespace numth{
     class LogaritmoDeCero : public Aritmetico
     {
       public:
-      virtual const char* what(void) const
+      virtual const char* what(void) const throw()
       {
-         return "Intento de cálculo del logaritmo de cero";
+         return _("Calculation of the logarithm of zero");
       }
     };
 
@@ -143,36 +143,26 @@ namespace numth{
 
 
     /** Detectado símbolo inválido en la lectura de un nmero */
-    class SimboloInvalido : public Sintactico
+    class SimboloInvalido : public Sintactic
     {
       char simbolo_;
       
       public:
         SimboloInvalido(char c) : simbolo_(c){}
-        virtual const char* what(void) const 
+        virtual const char* what(void) const throw() 
         { 
-          std::string msg("Simbolo inválido: ");
+          std::string msg( _("Invalid symbol: ") );
           msg += simbolo_;
           return msg.c_str();
         }
     };
 
-    /** Nmero sin longitud alguna (al menos tendria que ser 1, para
-     * el cero)*/
-    class NumeroVacio : public Interno
-    {
-      virtual const char* what(void) const
-      {
-         return "Polinomio representante del nmero de longitud 0";
-      }
-    };
-
     /** Signo inválido */
     class SignoInvalido : public Interno
     {
-      virtual const char* what(void) const
+      virtual const char* what(void) const throw()
       {
-         return "Signo incorrecto";
+         return _("Incorrect sign");
       }
 
     };
@@ -180,9 +170,9 @@ namespace numth{
     /** Uso de un nmero demasiado grande para el contexto */
     class DemasiadoGrande : public Interno
     {
-      virtual const char* what(void) const
+      virtual const char* what(void) const throw()
       {
-         return "Nmero demasiado grande";
+         return _("Number too big");
       }
     };
 
@@ -190,9 +180,9 @@ namespace numth{
      * */
     class ArchNoProfiling : public Interno
     {
-      virtual const char* what(void) const
+      virtual const char* what(void) const throw()
       {
-         return "Arquitectura actual no soporta operaciones de perfilado";
+         return _("The current architecture does not support profiling");
       }
     };
 
@@ -200,9 +190,9 @@ namespace numth{
     /** Error en el proceso de perfilado */
     class ErrorPerfilado : public Interno
     {
-      virtual const char* what(void) const
+      virtual const char* what(void) const throw()
       {
-         return "Error de perfilado";
+         return _("Profiling error");
       }
     };
 
@@ -210,9 +200,9 @@ namespace numth{
     /** Error al acceder a la fuente de entropía */
     class FuenteEntropiaInvalida : public Interno
     {
-      virtual const char* what(void) const
+      virtual const char* what(void) const throw()
       {
-         return "Error al acceder a la fuente de entropía";
+         return _("Error while accessing the entropy source");
       }
     };
 
@@ -220,27 +210,27 @@ namespace numth{
     /** Intento de desreferenciar un puntero nulo */
     class PunteroNulo : public Interno
     {
-      virtual const char* what(void) const
+      virtual const char* what(void) const throw()
       {
-         return "Se ha proporcionado un puntero nulo donde no se admite";
+         return _("Null pointer error");
       }
     };
 
     /** Exponente de reales desbordado */
     class OverflowExpReales : public Interno
     {
-      virtual const char* what(void) const
+      virtual const char* what(void) const throw()
       {
-         return "El exponente de la representación de reales se ha desbordado";
+         return _("The exponent for floating-point exp. overflowed");
       }
     };
  
     /** Función no implementada */
     class NoImplementado : public Interno
     {
-      virtual const char* what(void) const
+      virtual const char* what(void) const throw()
       {
-         return "Función an no implementada";
+         return _("Feature not implemented");
       }
     };
 

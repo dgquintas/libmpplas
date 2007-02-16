@@ -658,7 +658,7 @@ namespace numth
     /** Operador de salida del número */
     friend std::ostream& operator<<(std::ostream&, R);
     /** Operador obtencion del número */
-    friend std::istream& operator>>(std::istream&, R&);
+    friend std::istream& operator>>(std::istream&, R&) throw(Errores::Sintactic);
 
   };
 }

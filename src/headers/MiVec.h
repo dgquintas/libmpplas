@@ -40,7 +40,7 @@ namespace numth{
          * @param i La posición del vector a la que acceder.
          * @return Referencia al @a i -ésimo elemento del vector.
          * */
-        T& operator[](size_t i){ return this->at(i);}
+  //      T& operator[](size_t i){ return this->at(i);}
          /** Operador de acceso constante.
          *
          * Acceso al elemento @a i del vector. Si tal posición no
@@ -52,7 +52,7 @@ namespace numth{
          * @return Referencia constante al @a i -ésimo elemento del vector.
          * 
          */
-       const T& operator[](size_t i) const { return this->at(i); }
+ //      const T& operator[](size_t i) const { return this->at(i); }
 #endif
 
     };

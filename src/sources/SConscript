@@ -13,7 +13,7 @@ def getNativelySupportedArchs():
     natArchs.append('x86')
     if currentPlatformMachine == 'x86_64':
       natArchs.append('x86_64')
-  elif currentPlatformMachine == 'ppc':
+  elif currentPlatformMachine == 'Power Macintosh':
     natArchs.append('ppc')
 
   return tuple(natArchs)
@@ -45,6 +45,7 @@ files = Split("""
     Z.cpp
     Z_n.cpp
     VectorZ.cpp
+    MatrixZ.cpp
     """)
 
 env.Append(CCFLAGS = ' -pipe ')

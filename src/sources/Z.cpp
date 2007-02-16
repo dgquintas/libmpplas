@@ -1564,7 +1564,7 @@ namespace numth{
     }
 
   std::istream& 
-    operator>>(std::istream& is, Z& numero) throw(Errores::Sintactico)
+    operator>>(std::istream& is, Z& numero) throw(Errores::Sintactic)
     {
       std::string entrada;
       Cifra num;
@@ -1597,8 +1597,9 @@ namespace numth{
       if( tam % Constantes::MAX_EXP10_CIFRA ){
         std::string tmpSubstr = entrada.substr(0, tam % Constantes::MAX_EXP10_CIFRA);
         num = strtoul(tmpSubstr.c_str(), &error, 10);
-        if(*error != '\0')
-          throw Errores::Sintactico();
+        if(*error != '\0'){
+          throw Errores::Sintactic();
+        }
 
         numero = num;
         if( tam > Constantes::MAX_EXP10_CIFRA )
@@ -1612,8 +1613,9 @@ namespace numth{
 
           std::string tmpSubstr = entrada.substr(i,Constantes::MAX_EXP10_CIFRA);
           num = strtoul(tmpSubstr.c_str(), &error, 10);
-          if(*error != '\0')
-            throw Errores::Sintactico();
+          if(*error != '\0'){
+            throw Errores::Sintactic();
+          }
 
           numero += num; 
           numero *= potenciaInicial; 
@@ -1623,15 +1625,17 @@ namespace numth{
         assert(tam >= Constantes::MAX_EXP10_CIFRA ); //FIXME
         std::string tmpSubstr = entrada.substr(tam-Constantes::MAX_EXP10_CIFRA,Constantes::MAX_EXP10_CIFRA);
         num = strtoul(tmpSubstr.c_str(), &error, 10);
-        if(*error != '\0')
-          throw Errores::Sintactico();
+        if(*error != '\0'){
+          throw Errores::Sintactic();
+        }
 
         numero += num; 
       }
       else{ // tam <= Constantes::MAX_EXP10_CIFRA => todo cabe en uno
         num = strtoul(entrada.c_str(), &error, 10);
-        if(*error != '\0')
-          throw Errores::Sintactico();
+        if(*error != '\0'){
+          throw Errores::Sintactic();
+        }
 
         numero = num; 
       }

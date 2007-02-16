@@ -898,7 +898,7 @@ namespace numth{
 
 
   std::istream& 
-    operator>>(std::istream& in, R& numero)
+    operator>>(std::istream& in, R& numero) throw(Errores::Sintactic)
     {
       std::string entrada;
       Cifra num;
@@ -927,15 +927,17 @@ namespace numth{
 
         for(long i = tam-Constantes::MAX_EXP10_CIFRA; i >= 0 ; i -= Constantes::MAX_EXP10_CIFRA){
           num = strtoul((parteFrac.substr(i, Constantes::MAX_EXP10_CIFRA)).c_str(), &error, 10);
-          if(*error != '\0')
-            throw Errores::Sintactico();
+          if(*error != '\0'){
+            throw Errores::Sintactic();
+          }
           numero += num;
           numero /= potenciaInicial;
         }
         //ultima cifra
         num = strtoul((parteFrac.substr(0,tam % Constantes::MAX_EXP10_CIFRA)).c_str(), &error, 10);
-        if(*error != '\0')
-          throw Errores::Sintactico();
+        if(*error != '\0'){
+          throw Errores::Sintactic();
+        }
         numero += num;
         numero /= potenciaFinal;
       }

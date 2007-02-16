@@ -649,10 +649,7 @@ namespace numth{
 
       if( b.size() == 1 )
         return divMP(a,b[0]);
-      if( b.size() < 1 ) // => .size() == 0 //FIXME: Quitar esto al garantizar de alguna 
-        //forma q nunca va a ocurrir?
-        throw Errores::NumeroVacio();
-
+      assert( b.size() > 0 ); 
       //  numth::MiVec<Cifra> a = u;
       //  numth::MiVec<Cifra> b = v;
 
@@ -900,7 +897,7 @@ namespace numth{
     resultado = sumaMP(resultado, P3);
    
     if(negativo){
-      assert( !mayorque(S2, resultado) );
+      assert( !mayorque(P2, resultado) );
       resultado = restaMP(resultado, P2);
     }
     else

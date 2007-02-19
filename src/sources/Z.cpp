@@ -2,8 +2,6 @@
  * $Id$
  */
 
-#include "Z.h"
-#include "Funciones.h"
 #include <cstring>
 #include <sstream>
 #include <stack>
@@ -12,6 +10,11 @@
 #include <cmath>
 #include <string>
 #include <utility>
+#include <iomanip>
+
+
+#include "Z.h"
+#include "Funciones.h"
 #include "mp.h"
 #include "Potencia.h"
 #include "Primos.h"
@@ -1140,8 +1143,9 @@ namespace numth{
 
   Z& Z::operator^=(const Z& exp)
   {
-    if( exp.longitud() > 1 )
+    if( exp.longitud() > 1 ){
       throw Errores::DemasiadoGrande();
+    }
 
     Cifra exponente = exp[0];
 
@@ -1150,8 +1154,9 @@ namespace numth{
 
   Z& Z::operator^=(const CifraSigno exp)
   {
-    if( exp < 0 )
+    if( exp < 0 ){
       throw Errores::ExponenteNegativo();
+    }
 
     return operator^=((Cifra)labs(exp));
   }
@@ -1460,7 +1465,7 @@ namespace numth{
   }
 
 
-  std::string Z::toString(void){
+  std::string Z::toString(void) const {
     std::ostringstream oss;
     oss << *this;
 
@@ -1469,13 +1474,15 @@ namespace numth{
 
   /******************************/
   std::ostream& 
-    operator<<(std::ostream& out, Z num)
+    operator<<(std::ostream& out, Z num) 
     {
       std::stack<Cifra> pila;  
       Cifra resto;
+      std::ostringstream oss;
+
 
       if( num.signo_ < 0 ){
-        out << "-";
+        oss << "-";
         num.hacerPositivo();
       }
 
@@ -1488,11 +1495,11 @@ namespace numth{
         }
 
         //"num" es ahora la primera cifra del n� en base 10^{Constantes::MAX_EXP10_CIFRA}
-        out << num[0];
+        
+        oss << num[0];
+
         while( !pila.empty() ){
-          out.width(Constantes::MAX_EXP10_CIFRA);
-          out.fill('0');
-          out  << pila.top();
+          oss << std::setfill('0') << setw(Constantes::MAX_EXP10_CIFRA) <<  pila.top();
           pila.pop();
         }
       }
@@ -1500,8 +1507,9 @@ namespace numth{
         size_t digitos10 = (size_t)ceil(num.numBits() * Constantes::LOG_10_2);
         size_t digitos10Mostrados = 0;
 
-        if(num.esCero())
-          out << "0";
+        if(num.esCero()){
+          oss << "0";
+        }
         else{
           Cifra potenciaInicial = (Cifra)10;
           while( !num.esCero() ){
@@ -1512,18 +1520,18 @@ namespace numth{
           }
           if( Z::precisionSalida_ < digitos10 )
             //si se sacan menos digitos de los que hay...
-            out << "~" ;
+            oss << "~" ;
 
           //"num" es ahora la primera cifra del n� en base 10
-          //    out << num[0];
+          //    oss << num[0];
           //    digitos10Mostrados++;
           while( (!pila.empty()) && (digitos10Mostrados < Z::precisionSalida_) ){
-            out  << pila.top();
+            oss  << pila.top();
             pila.pop();
             digitos10Mostrados++;
           }
           if( !pila.empty() ) //hemos salido por precision
-            out << "e" << (digitos10 - digitos10Mostrados);
+            oss << "e" << (digitos10 - digitos10Mostrados);
         }
       }
 
@@ -1559,7 +1567,7 @@ namespace numth{
        * de diez. Cada dia me das mas asco joder
        * 
        */
-
+      out << oss.str();
       return out;
     }
 
@@ -1569,28 +1577,41 @@ namespace numth{
       std::string entrada;
       Cifra num;
       char *error;
-      char temp;
+      char sign;
       Cifra potenciaInicial = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
 
       numero = 0L;
-
+      
+      std::streampos streamInitialPos = is.tellg();
       is >> entrada;
 
-      size_t posError = entrada.find_first_not_of("0123456789",1);
-      if ( posError != std::string::npos )
-        throw Errores::SimboloInvalido(entrada[posError]);
+      sign = entrada[0];
 
-
-      temp = entrada[0];
-
-      if( temp == '-' ){
+      if( sign == '-' ){
         entrada.erase(0,1);
+        streamInitialPos += 1;
       }
-      else if (temp == '+' ){
+      else if (sign == '+' ){
         entrada.erase(0,1);
+        streamInitialPos += 1;
       }
-      else if ((temp < '0') || (temp > '9') )
-        throw Errores::SimboloInvalido(temp);
+      else if ((sign < '0') || (sign > '9') ){
+        is.seekg( streamInitialPos, ios_base::beg);
+        is.setstate( ios::badbit );
+        return is;
+      }
+
+
+      size_t posError = entrada.find_first_not_of("0123456789");
+      if ( posError != std::string::npos ){
+        //throw Errores::InvalidSymbol(entrada[posError]);
+//        is.setstate( ios::badbit );
+        
+        is.seekg( streamInitialPos + (std::streamoff)(posError+1), ios_base::beg);
+        entrada = entrada.substr(0,posError);
+      }
+
+
 
       int tam = entrada.size();
 
@@ -1602,8 +1623,9 @@ namespace numth{
         }
 
         numero = num;
-        if( tam > Constantes::MAX_EXP10_CIFRA )
+        if( tam > Constantes::MAX_EXP10_CIFRA ){
           numero *= potenciaInicial; 
+        }
       }
 
       if( tam > Constantes::MAX_EXP10_CIFRA){ 
@@ -1639,10 +1661,12 @@ namespace numth{
 
         numero = num; 
       }
-      if( temp == '-' ) // si el numero era negativo
+      if( sign == '-' ){
         numero.signo_ = -1;
-      else
-        numero.signo_ = 1; //por omision, positivo
+      }
+      else{
+        numero.signo_ = 1;
+      }
 
       return is;
     }

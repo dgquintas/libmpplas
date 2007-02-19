@@ -7,6 +7,7 @@
 #include "Z_nTest.h"
 #include <pari/pari.h>
 #include "aux.h"
+#include <exception>
 
 
 using namespace std;
@@ -286,6 +287,9 @@ void Z_nTest::testDivisionWithZThrows(){
   } catch( Errores::ElementoNoInvertible){
     return;
   }
+  catch(exception& e){
+    cerr << e.what() << endl;
+  }
 
 
   //this point shouldn't be reached 
@@ -371,6 +375,9 @@ void Z_nTest::testDivisionWithCifraSignoThrows(){
     Z_n res = (*modularInteger) / cifraSigno ; 
   } catch( Errores::ElementoNoInvertible){
     return;
+  }
+  catch(exception& e){
+    cerr << e.what() << endl;
   }
 
   //this point shouldn't be reached 
@@ -462,6 +469,10 @@ void Z_nTest::testExponentiationWithCifraSignoThrows(){
   } catch( Errores::ElementoNoInvertible){
     return;
   }
+  catch(exception& e){
+    cerr << e.what() << endl;
+  }
+
 
   qassertTrue(false);
 

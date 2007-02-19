@@ -5,32 +5,30 @@
 #ifndef __RANDOMTEST_H
 #define __RANDOMTEST_H
 
-#include <cppunit/TestFixture.h>
-#include <cppunit/extensions/HelperMacros.h>
+#include "qtunit/TestCase.h"
 #include <string>
 #include "Random.h"
 
 using namespace numth;
 
-class RandomTest : public CppUnit::TestFixture {
+namespace com_uwyn_qtunit{
+ 
+  class RandomTest : public TestCase {
 
-  CPPUNIT_TEST_SUITE( RandomTest );
-    CPPUNIT_TEST( testRC4 );
-    CPPUNIT_TEST( testCongruent );
-    CPPUNIT_TEST( testBBS );
-  CPPUNIT_TEST_SUITE_END();
-  
-  public:
+    public:
+    RandomTest();
+
     void setUp();
     void tearDown();
-    
+
+    protected:
     /* The actual tests */
     void testRC4();
     void testCongruent();
     void testBBS();
 
-  private:
-    FIPS_140_1 fips;
-};
-
+    private:
+    FIPS_140_1 fips_;
+  };
+}
 #endif

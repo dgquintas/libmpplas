@@ -816,18 +816,22 @@ namespace numth{
       Z entero;
       Z enteroAux;
 
+      std::ostringstream oss;
+
+
       if(numero.signo() < 0){
         numero.cambiarSigno();
-        out << "-";
+        oss << "-";
       }
 
       if( numero.exponente_ >= 0 ){
         size_t limitePrec = (size_t)floor(R::precision() / Constantes::LOG_2_10);
         size_t precEntAntigua = Z::precisionSalida();
         Z::precisionSalida(limitePrec);
-        out << (numero.mantisa_ << (size_t)numero.exponente_ );
+        oss << (numero.mantisa_ << (size_t)numero.exponente_ );
         Z::precisionSalida(precEntAntigua);
-
+  
+        out << oss.str();
         return out;
       }
 
@@ -851,7 +855,7 @@ namespace numth{
         // precision interna del número: se producirian digitos no
         // exactos
 
-        out << "~";
+        oss << "~";
       }
       else
         precisionUsada = R::precisionSalida();
@@ -879,20 +883,21 @@ namespace numth{
       entero = numeroRed.floor();
       //    size_t precEntAntigua = Z::precisionSalida();
       //    Z::precisionSalida(limitePrec);
-      out << entero ;
+      oss << entero ;
       //    Z::precisionSalida(precEntAntigua);
       numeroRed -= entero;
-      out << "." ;
+      oss << "." ;
       for(size_t i = 0; i < precisionUsada; i++){
         //FIXME: se puede hacer que, tras haber sacado cant_cifras_frac % max_pot_9_en_long,
         //se saquen los numeros de 10^(max_pot_9_en_long) en idem como con los Z
         numeroRed *= (Cifra)10;
         entero = numeroRed.floor();
-        out << entero ;
+        oss << entero ;
         numeroRed -= entero;
       }
       //	}
 
+      out << oss.str();
       return out;
     }
 
@@ -907,17 +912,30 @@ namespace numth{
       bool negativo = false;
 
       numero = (Cifra)0;
+
+      std::streampos streamInitialPos = in.tellg();
       in >> entrada;
 
-      size_t posError = entrada.find_first_not_of(".eE+-0123456789",1);
-      if ( posError != std::string::npos )
-        throw Errores::SimboloInvalido(entrada[posError]);
+      
+
+      size_t posError = entrada.find_first_not_of(".eE+-0123456789");
+      if ( posError != std::string::npos ){
+        //throw Errores::InvalidSymbol(entrada[posError]);
+        if( posError == 0 ){
+          in.seekg( streamInitialPos, ios_base::beg);
+          in.setstate( ios::badbit );
+          return in;
+        } 
+        in.seekg( streamInitialPos + (std::streamoff)(posError+1), ios_base::beg);
+        entrada = entrada.substr(0,posError);
+      }
 
       size_t posPunto = entrada.find_first_of('.');
       std::string parteEntera = entrada.substr(0,posPunto);
       Z entero(parteEntera.c_str());
-      if(entero.signo() < 0)
+      if(entero.signo() < 0){
         negativo = true;
+      }
 
 
       if(posPunto != std::string::npos){ //hay punto

@@ -20,7 +20,11 @@ namespace numth{
     /** Clase base de todas las excepciones (errores) que comprende
      * la librería. */
     class NumthException: public std::exception 
-    {};
+    {
+      public:
+        virtual ~NumthException() throw()
+        {}
+    };
       
     /** Clase base para errores de tipo aritméico.
      *
@@ -34,6 +38,9 @@ namespace numth{
       {
         return _("Undefined arithmetic error");
       }
+
+      virtual ~Aritmetico() throw() {}
+
     };
 
     /** Clase base para errores de tipo sintáctico.
@@ -45,10 +52,21 @@ namespace numth{
     class Sintactic : public NumthException
     {
       public:
-      virtual const char* what(void) const throw() 
-      {
-        return _("Undefined sintactic error");
-      }
+        Sintactic( std::string msg = "<empty>" )
+        {
+          _msg = "Sintactic error: ";
+          _msg += msg;
+        }
+        virtual const char* what(void) const throw() 
+        {
+          return _msg.c_str();
+        }
+
+        virtual ~Sintactic() throw() {}
+
+      private:
+        std::string _msg;
+
     };
 
     /** Clase base para errores internos.
@@ -139,22 +157,45 @@ namespace numth{
       }
     };
 
+    class NonConformantDimensions: public Aritmetico
+    {
+      public:
+        NonConformantDimensions(std::string str = "<empty>"){
+          _str = "Non conformant dimensions: ";
+          _str += str;
+        }
+
+        virtual const char* what(void) const throw() {
+          return _str.c_str();
+        }
+
+        virtual ~NonConformantDimensions() throw() {}
+      private:
+        std::string _str;
+    };
+
+
+
 
 
 
     /** Detectado símbolo inválido en la lectura de un nmero */
-    class SimboloInvalido : public Sintactic
+    class InvalidSymbol: public Sintactic
     {
-      char simbolo_;
-      
       public:
-        SimboloInvalido(char c) : simbolo_(c){}
-        virtual const char* what(void) const throw() 
-        { 
-          std::string msg( _("Invalid symbol: ") );
-          msg += simbolo_;
-          return msg.c_str();
+        InvalidSymbol(std::string str = "<empty>"){
+          _str = "Invalid symbol: ";
+          _str += str;
         }
+        virtual const char* what(void) const throw()  { 
+          return _str.c_str();
+        }
+
+        virtual ~InvalidSymbol() throw() {}
+
+      private:
+        std::string _str;
+
     };
 
     /** Signo inválido */

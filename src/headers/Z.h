@@ -1018,7 +1018,7 @@ namespace numth
        *
        * @return A constant char[] representing the base-10 conversion of *this
        */
-      std::string toString(void);
+      std::string toString(void) const;
 
 
       /** Get the Z as a single precision signed type.

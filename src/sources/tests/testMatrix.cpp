@@ -1,4 +1,5 @@
 #include "Matrix.h"
+#include "R.h"
 #include <iostream>
 
 
@@ -8,15 +9,12 @@ using namespace std;
 
 int main(){
 
-  Matrix<int> mat(3,3);
-
-  cin >> mat;
-
+  Matrix<R> mat("[1.324 2.1 3; 4 5 6; -753453253232522.342 8 9]");
 
   cout << mat;
 
   cout << endl;
-  mat.setNumberColumns(2);
+  mat.transpose();
 
   cout << mat;
 

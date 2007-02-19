@@ -20,7 +20,7 @@ int main()
   rnd->ponerSemilla("12345");
   clock_t t0, t1;
   
-  const int i = 200000;
+  const int i = 100000;
   
   Z num1 = rnd->leerBits(Constantes::BITS_EN_CIFRA * i);
   Z num2 = rnd->leerBits(Constantes::BITS_EN_CIFRA * i);

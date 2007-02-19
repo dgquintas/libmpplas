@@ -9,6 +9,9 @@
 #include "Z_nTest.h"
 #include "KernelTest.h"
 #include "RSATest.h"
+#include "RandomTest.h"
+#include "MatrixZTest.h"
+#include "VectorZTest.h"
 #include "qtunit/TestSuite.h"
 
 namespace com_uwyn_qtunit
@@ -23,6 +26,9 @@ namespace com_uwyn_qtunit
     Z_nTest z_nTest_;
     KernelTest kernelTest_;
     RSATest rsaTest_;
+    RandomTest randomTest_;
+    MatrixZTest matrixZTest_;
+    VectorZTest vectorZTest_;
 
 	};
 }

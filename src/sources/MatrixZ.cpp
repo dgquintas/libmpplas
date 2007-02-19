@@ -21,6 +21,11 @@ namespace numth
     : Matrix<Z>(n,m) {}
 
 
+  MatrixZ::MatrixZ(const std::string& str){
+    std::istringstream inStream(str);
+    operator>>(inStream,*this);
+    return;
+  }
 
 }
   

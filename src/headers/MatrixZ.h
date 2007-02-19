@@ -20,36 +20,38 @@ namespace numth
       MatrixZ(const size_t nAndm);
       MatrixZ(const size_t n, const size_t m);
 
- //     MatrixZ& operator+=(const MatrixZ&);
- //     MatrixZ& operator+=(const Z&);
- //     MatrixZ& operator+=(const Cifra);
- //     MatrixZ& operator+=(const CifraSigno);
+      MatrixZ(const std::string& str);
 
- //     MatrixZ& operator-=(const MatrixZ&);
- //     MatrixZ& operator-=(const Z&);
- //     MatrixZ& operator-=(const Cifra);
- //     MatrixZ& operator-=(const CifraSigno);
+      MatrixZ& operator+=(const MatrixZ&);
+      MatrixZ& operator+=(const Z&);
+      MatrixZ& operator+=(const Cifra);
+      MatrixZ& operator+=(const CifraSigno);
 
- //     MatrixZ& operator*=(const MatrixZ&);
- //     MatrixZ& operator*=(const Z&);
- //     MatrixZ& operator*=(const Cifra);
- //     MatrixZ& operator*=(const CifraSigno);
+      MatrixZ& operator-=(const MatrixZ&);
+      MatrixZ& operator-=(const Z&);
+      MatrixZ& operator-=(const Cifra);
+      MatrixZ& operator-=(const CifraSigno);
 
- //     MatrixZ& operator/=(const MatrixZ&);
- //     MatrixZ& operator/=(const Z&);
- //     MatrixZ& operator/=(const Cifra);
- //     MatrixZ& operator/=(const CifraSigno);
+      MatrixZ& operator*=(const MatrixZ&);
+      MatrixZ& operator*=(const Z&);
+      MatrixZ& operator*=(const Cifra);
+      MatrixZ& operator*=(const CifraSigno);
 
- //     MatrixZ& operator^=(const MatrixZ&);
- //     MatrixZ& operator^=(const Z&);
- //     MatrixZ& operator^=(const Cifra);
- //     MatrixZ& operator^=(const CifraSigno);
+      MatrixZ& operator/=(const MatrixZ&);
+      MatrixZ& operator/=(const Z&);
+      MatrixZ& operator/=(const Cifra);
+      MatrixZ& operator/=(const CifraSigno);
+
+      MatrixZ& operator^=(const MatrixZ&);
+      MatrixZ& operator^=(const Z&);
+      MatrixZ& operator^=(const Cifra);
+      MatrixZ& operator^=(const CifraSigno);
 
 
- //     MatrixZ& diagonalize();
- //     MatrixZ& invert();
+      MatrixZ& diagonalize();
+      MatrixZ& invert();
 
- //     Z getDeterminant();
+      Z getDeterminant();
 
       
 

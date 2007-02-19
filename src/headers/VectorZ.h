@@ -11,15 +11,16 @@
 
 namespace numth
 {
-  class VectorZ
+  class VectorZ : public Vector<Z>
   {
     public:
       VectorZ();
       VectorZ(size_t n);
       VectorZ(const VectorZ&);
       VectorZ(const std::vector<Z>&);
+      VectorZ(const std::string &);
 
-      VectorZ& operator+=(const VectorZ&);
+      VectorZ& operator+=(const VectorZ&) throw (Errores::NonConformantDimensions);
       VectorZ& operator+=(const Z&);
       VectorZ& operator+=(const Cifra);
       VectorZ& operator+=(const CifraSigno);
@@ -40,12 +41,6 @@ namespace numth
 
       Z& norm();
 
-
-      ////////////
-      inline size_t length() { return _data.size(); }
-
-    private:
-      Vector<Z> _data;
   };
 
 

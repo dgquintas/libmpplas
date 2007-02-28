@@ -26,8 +26,9 @@ namespace numth{
     funcs->getFunc(gcd);
     RandomRapido* rnd; funcs->getFunc(rnd);
     
-    if( p == (Cifra)2 )
+    if( p == (Cifra)2 ){
       return true;
+    }
     
     if(testigo){ 
       //se ha de rellenar "a toda costa", asi que ni se realiza
@@ -36,9 +37,9 @@ namespace numth{
       //Esto se utiliza para la función de detección de potencias de
       //primo
       Z_n z(p); 
-      Z pMenosUno(p); pMenosUno--;
-      size_t b = pMenosUno.numDoses();
-      Z m = pMenosUno >> b;
+      const Z pMenosUno(p-1); //pMenosUno--;
+      const size_t b = pMenosUno.numDoses();
+      const Z m = pMenosUno >> b;
       
       for( size_t i = 0; i < iteraciones_; i++){
         //Por 4.28 Menezes, el producto de 2 "mentirosos fuertes" (bases
@@ -81,26 +82,32 @@ namespace numth{
     }
     else{ //no hay que devolver testigo
 
-      if( p.esPar() || p.esUno() ) 
+      if( p.esPar() || p.esUno() ) {
         return false;
+      }
 
       size_t cota;
       if( p <= (Cifra)4000000 ){ // 2000^2
         cota = raizCuadrada(p[0]);
-        for(size_t i = 0; Constantes::TABLA_PRIMOS_2000[i] <= cota; i++)
-          if ( (!gcd->gcd(p, Constantes::TABLA_PRIMOS_2000[i]).esUno()) ) //si el gcd no es uno... 
+        for(size_t i = 0; Constantes::TABLA_PRIMOS_2000[i] <= cota; i++){
+          if ( (!gcd->gcd(p, Constantes::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
             return false;
+          }
+        }
 
         return true;
 
         /* Resultado GANTIZADO */
       }
-      else
+      else{
         cota = 303;
+      }
 
-      for(size_t i = 0; i < cota; i++)
-        if ( (!gcd->gcd(p, Constantes::TABLA_PRIMOS_2000[i]).esUno()) ) //si el gcd no es uno... 
+      for(size_t i = 0; i < cota; i++){
+        if ( (!gcd->gcd(p, Constantes::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
           return false;
+        }
+      }
 
 
       /* Sloane's A014233: 
@@ -119,11 +126,11 @@ namespace numth{
        8 | 341550071728321 <- fuera por superfluo
 
 */
-      Z psi_3; psi_3[0] = (Cifra)25326001UL;
-      Z psi_4; psi_4[0] = (Cifra)3215031751UL;
-      Z psi_5; psi_5.potenciaBase(1); psi_5[1] = 501; psi_5[0] = 524283451;
-      Z psi_6; psi_6.potenciaBase(1); psi_6[1] = 809; psi_6[0] = 121117919;
-      Z psi_7; psi_7.potenciaBase(1); psi_7[1] = 79523; psi_7[0] = 1387448513;
+      static const Z psi_3("25326001");
+      static const Z psi_4("3215031751");
+      static const Z psi_5("2152302898747");
+      static const Z psi_6("3474749660383");
+      static const Z psi_7("341550071728321");
 
       if( p < psi_7 ){
         if( p < psi_6 ){
@@ -141,8 +148,8 @@ namespace numth{
 
       Z_n z(p); 
       Z pMenosUno(p); pMenosUno--;
-      size_t b = pMenosUno.numDoses();
-      Z m = pMenosUno >> b;
+      const size_t b = pMenosUno.numDoses();
+      const Z m = pMenosUno >> b;
       for( size_t i = 0; i < iteraciones_; i++){
 
         //Por 4.28 Menezes, el producto de 2 "mentirosos fuertes" (bases

@@ -30,10 +30,10 @@ namespace numth
       Z( const Z& otro); /**< Constructor de copia.
                            @param otro Entero a copiar. */
 
-      Z( const CifraSigno ); /**< construccion desde simple precision */
+      explicit Z( const CifraSigno ); /**< construccion desde simple precision */
       Z( const Cifra ); /**< construccion desde 'token' básico */
-      Z( const double ); /**< construccion desde double  */
-      Z( const char* ); /**< construccion desde cadena de caracteres */
+      explicit Z( const double ); /**< construccion desde double  */
+      explicit Z( const char* ); /**< construccion desde cadena de caracteres */
 
       Z( const MiVec<Cifra>& vec);
 

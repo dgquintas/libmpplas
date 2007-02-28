@@ -2,7 +2,6 @@
  * $Id$ 
  */
 
-#include "mp.h"
 #include <algorithm>
 #include <utility>
 #ifdef _OPENMP
@@ -12,10 +11,13 @@
   #define GET_BASIC_CPU() basicCPUs_[0]
 #endif
 
+#include "mp.h"
+
 
 namespace numth{
 
-  vCPUVectorial::vCPUVectorial(int numCPUs){
+  vCPUVectorial::vCPUVectorial(int numCPUs)
+  {
     basicCPUs_ = new vCPUBasica<Arch::ARCH>[numCPUs];
   }
 
@@ -26,7 +28,7 @@ namespace numth{
 
   /*** OPERACIONES BASICAS EN VECTORES UNSIGNED ***/
   /*** DESPLAZAMIENTO ***/
-  void vCPUVectorial::lShift(numth::MiVec <Cifra>& a, size_t n)
+  void vCPUVectorial::lShift(numth::MiVec <Cifra>& a, const size_t n)
   {
     if( (a.size() == 1) && (a[0] == 0) ) 
       return;
@@ -65,7 +67,7 @@ namespace numth{
     return;
   }
 
-  void vCPUVectorial::rShift(numth::MiVec <Cifra> &a, size_t n)
+  void vCPUVectorial::rShift(numth::MiVec <Cifra> &a, const size_t n)
   {
     if( (a.size() == 1) && (a[0] == 0) ) 
       return;
@@ -254,8 +256,9 @@ namespace numth{
 
   bool vCPUVectorial::igual(numth::MiVec<Cifra> vec, Cifra num, bool limpiar )  
   {
-    if(limpiar)
+    if(limpiar){
       limpiarCeros(vec);
+    }
 
     assert(vec.size() > 0);
     if( vec.size() > 1 )
@@ -324,7 +327,7 @@ namespace numth{
   numth::MiVec<Cifra> 
     vCPUVectorial::sumaMP(const numth::MiVec<Cifra>& a, const Cifra b) 
     {
-      size_t tamA = a.size();
+      const size_t tamA = a.size();
 
       numth::MiVec<Cifra> c(tamA + 1, 0); // +1 por el carry posible
 
@@ -352,8 +355,8 @@ namespace numth{
        * el n� que representa "a" deber ser >= que el n� q rep. "b"
        */
 
-      size_t tamA = a.size();
-      size_t tamB = b.size();
+      const size_t tamA = a.size();
+      const size_t tamB = b.size();
 
       if( menorque(a,b) ){ // a < b
         throw Errores::RestaNegativa();
@@ -378,16 +381,15 @@ namespace numth{
   numth::MiVec<Cifra> 
     vCPUVectorial::restaMP(const numth::MiVec<Cifra>&a, const Cifra b) 
     {
-      size_t tamA = a.size();
+      const size_t tamA = a.size();
 
       numth::MiVec<Cifra> c(tamA,0);
 
       vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       cpuBasica_.overflow = 0;
-      size_t i;
       c[0] = cpuBasica_.Subx(a[0],b);
 
-      for(i=1; i < tamA; i++)
+      for(size_t i=1; i < tamA; i++)
         c[i] = cpuBasica_.Subx(a[i],0);
 
       limpiarCeros(c);
@@ -415,25 +417,26 @@ namespace numth{
 
      const size_t tamA = a.size();
      const size_t tamB = b.size();
+
       
       numth::MiVec<Cifra> w(tamA + tamB, 0);
       const size_t maxSize = tamA > tamB? tamA : tamB;
       if( maxSize >= Constantes::UMBRAL_KARATSUBA ){ 
         if ( maxSize  < 2 * std::min(tamA, tamB)) { //if the bigger factor is less than twice the size of the other
           if( tamA < tamB ){
-            MiVec<Cifra> aBis(a);
+            MiVec<Cifra> aBis(a); //FIXME : optimizar
             aBis.resize(tamB, 0);
             karatsuba(w, aBis,b);
             return w;
           }
           else if ( tamA > tamB ){ 
-            MiVec<Cifra> bBis(b);
+            MiVec<Cifra> bBis(b);//FIXME : optimizar
             bBis.resize(tamA, 0);
             karatsuba(w, a,bBis);
             return w;
           }
           else{ //igual tama�o
-            karatsuba(w, a,b);
+            karatsuba(w, a,b );
             return w;
           }
         }
@@ -480,15 +483,16 @@ namespace numth{
   numth::MiVec<Cifra> 
     vCPUVectorial::multMP(const numth::MiVec<Cifra>& a, const Cifra b ) 
     {
-      unsigned int tamA = a.size();
+      const size_t tamA = a.size();
 
       numth::MiVec<Cifra> c(tamA + 1, 0);
 
       vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       cpuBasica_.resto = 0;
-      unsigned int i;
-      for(i=0; i < tamA; i++)
+      int i;
+      for(i=0; i < tamA; i++){
         c[i] = cpuBasica_.Addmul(a[i],b);    
+      }
 
       // i == tamA
       c[i] = cpuBasica_.Add(c[i], cpuBasica_.resto);
@@ -564,7 +568,7 @@ namespace numth{
   numth::MiVec<Cifra>
     vCPUVectorial::cuadMP(const numth::MiVec<Cifra>& x)
     {
-      size_t t = x.size(); //n� de cifras en la base de trabajo de "x"
+      const size_t t = x.size(); //n� de cifras en la base de trabajo de "x"
 
       numth::MiVec<Cifra> w(2*t,0); //vector de resultado
 
@@ -643,22 +647,20 @@ namespace numth{
   std::pair< numth::MiVec<Cifra>, numth::MiVec<Cifra> > 
     vCPUVectorial::divMP(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b)
     {
-      numth::MiVec<Cifra>b2;
-      numth::MiVec<Cifra>a2;
 
 
-      if( b.size() == 1 )
+
+      if( b.size() == 1 ){
         return divMP(a,b[0]);
+      }
       assert( b.size() > 0 ); 
       //  numth::MiVec<Cifra> a = u;
       //  numth::MiVec<Cifra> b = v;
 
       Cifra d;
-      size_t tamA, tamB;
+      size_t tamA = a.size()-1;
+      const size_t tamB = b.size()-1;
       Cifra _q;
-
-      tamA = a.size()-1;
-      tamB = b.size()-1;
 
       //D1. NORMALIZAR
 
@@ -677,13 +679,14 @@ namespace numth{
           (numth::MiVec<Cifra>(1,0),a);
 
       numth::MiVec<Cifra> q((tamA - tamB)+1,0);
-      numth::MiVec<Cifra> r;
+      //numth::MiVec<Cifra> r;
 
       lShift(a, d);
       lShift(b, d);
 
-      if(tamA == a.size()-1)
+      if(tamA == a.size()-1){
         a.push_back(0); // se ha de introducir un nuevo digito en "a" 
+      }
       // siempre 
       tamA++;
       // D2
@@ -701,6 +704,8 @@ namespace numth{
           _q = cpuBasica_.Div(a[j-1],b[tamB]);
         }
 
+        numth::MiVec<Cifra>b2;
+        numth::MiVec<Cifra>a2;
         while(true){
           a2.clear();
           a2.push_back(a[j-1]);
@@ -718,10 +723,12 @@ namespace numth{
           b2.push_back(b[tamB-1]);
           b2 = multMP(b2, _q);
 
-          if( mayorque(b2,a2) )
+          if( mayorque(b2,a2) ){
             _q--;
-          else
+          }
+          else{
             break;
+          }
         }
 
 
@@ -795,12 +802,12 @@ namespace numth{
 
       rShift(a,d);
 
-      r = a;
+      //r = a;
 
-      limpiarCeros(r);
+      limpiarCeros(a);
       limpiarCeros(q);
 
-      return std::pair< numth::MiVec<Cifra>, numth::MiVec<Cifra> >(q,r);
+      return std::pair< numth::MiVec<Cifra>, numth::MiVec<Cifra> >(q,a);
 
     }
 
@@ -814,8 +821,9 @@ namespace numth{
       cpuBasica_.resto = 0;
       numth::MiVec<Cifra> q(a.size());
 
-      for(CifraSigno j=a.size()-1; j>=0; j--)
+      for(CifraSigno j=a.size()-1; j>=0; j--){
         q[j] = cpuBasica_.Div(a[j], b);
+      }
 
       //No es necesario llevar cuenta del resto aparte ya que la CPU
       //b�sica se encarga de forma transparente de ello: en cada
@@ -835,7 +843,7 @@ namespace numth{
   {
     /* precond: "x" e "y" tienen el mismo tama�o (mismo n� de pos el
      * vector) */
-    size_t m = x.size() >> 1; // indistintamente podria haberse usado y.size()
+    const size_t m = x.size() /2;// indistintamente podria haberse usado y.size()
 
     MiVec<Cifra> x0; x0.insert(x0.begin(), x.begin(), x.begin()+m);
     MiVec<Cifra> x1; x1.insert(x1.begin(), x.begin()+m, x.end());
@@ -892,9 +900,7 @@ namespace numth{
 
 
     
-    resultado = sumaMP(S11, P1);
-    resultado = sumaMP(resultado, S31);
-    resultado = sumaMP(resultado, P3);
+    resultado = sumaMP(sumaMP( sumaMP(S11, P1) , S31), P3);
    
     if(negativo){
       assert( !mayorque(P2, resultado) );

@@ -627,8 +627,9 @@ namespace numth{
   }
   Z& Z::factorial(void) 
   {
-    if( this->coefPoliB_.size() > 1 )
+    if( this->coefPoliB_.size() > 1 ){
       throw Errores::DemasiadoGrande();
+    }
 
     Cifra n = coefPoliB_[0];
     Cifra m;
@@ -862,15 +863,18 @@ namespace numth{
 
   Z& Z::operator/=(const CifraSigno corto)
   {
-    if( corto == 0 )
+    if( corto == 0 ){
       throw Errores::DivisionPorCero();
+    }
 
 
     Cifra cortoCifra;
-    if( corto >= 0 )
+    if( corto >= 0 ){
       cortoCifra = (Cifra)corto;
-    else //corto < 0
+    }
+    else{ //corto < 0
       cortoCifra = (Cifra)labs(corto);
+    }
 
     if( (signo_ > 0) ){
       if( (corto > 0) ){
@@ -903,8 +907,9 @@ namespace numth{
 
   Z& Z::operator%=(const CifraSigno divisorSigned)
   {
-    if( divisorSigned == 0 )
+    if( divisorSigned == 0 ){
       throw Errores::DivisionPorCero();
+    }
 
     this->operator%=(Z(divisorSigned));
 
@@ -2122,8 +2127,9 @@ namespace numth{
 
   Z operator^(Z base, const CifraSigno exp)
   {
-    if( exp < 0 )
+    if( exp < 0 ){
       throw Errores::ExponenteNegativo();
+    }
 
     base ^= ((Cifra)labs(exp));
     return base;

@@ -33,7 +33,6 @@ files = Split("""
     Hash.cpp
     LCM.cpp
     mp.cpp
-    Perfil.cpp
     Potencia.cpp
     Primos.cpp
     Random.cpp

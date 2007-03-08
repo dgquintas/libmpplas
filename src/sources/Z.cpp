@@ -20,17 +20,9 @@
 #include "Primos.h"
 #include "GCD.h"
 
-#ifdef _OPENMP
-  #include <omp.h>
-  #define NUM_CPUS omp_get_num_threads()
-#else
-  #define NUM_CPUS 1
-#endif
-
 namespace numth{
 
   size_t Z::precisionSalida_ = 0;
-  static vCPUVectorial cpuVectorial_(NUM_CPUS);
 
   Z Z::Zero((Cifra)0);
 
@@ -160,7 +152,7 @@ namespace numth{
 
     if( (signo_ > 0) ){
       if( (der.signo_ > 0) )
-        return cpuVectorial_.mayorque(coefPoliB_,der.coefPoliB_);
+        return vCPUVectorial::mayorque(coefPoliB_,der.coefPoliB_);
       else // der < 0
         return true;
     }
@@ -168,7 +160,7 @@ namespace numth{
       if( (der.signo_ > 0) )
         return false;
       else // der < 0
-        return cpuVectorial_.menorque(coefPoliB_, der.coefPoliB_);
+        return vCPUVectorial::menorque(coefPoliB_, der.coefPoliB_);
     }
   }
 
@@ -178,7 +170,7 @@ namespace numth{
 
     if( (signo_ > 0) ){
       if( (der.signo_ > 0) )
-        return cpuVectorial_.menorque(coefPoliB_,der.coefPoliB_);
+        return vCPUVectorial::menorque(coefPoliB_,der.coefPoliB_);
       else // der < 0
         return false;
     }
@@ -186,7 +178,7 @@ namespace numth{
       if( (der.signo_ > 0) )
         return true;
       else // der < 0
-        return cpuVectorial_.mayorque(coefPoliB_, der.coefPoliB_);
+        return vCPUVectorial::mayorque(coefPoliB_, der.coefPoliB_);
     }
 
   }
@@ -196,7 +188,7 @@ namespace numth{
 
 
     if( signo_ == der.signo_ )
-      if ( cpuVectorial_.igual(coefPoliB_, der.coefPoliB_) )
+      if ( vCPUVectorial::igual(coefPoliB_, der.coefPoliB_) )
         return true;
 
     return false;
@@ -222,7 +214,7 @@ namespace numth{
 
     if( (signo_ > 0) )
       if(der >= 0)
-        return cpuVectorial_.mayorque( coefPoliB_, (Cifra)der );
+        return vCPUVectorial::mayorque( coefPoliB_, (Cifra)der );
       else // der < 0
         return true;
     else // signo_ < 0 
@@ -231,7 +223,7 @@ namespace numth{
       else // der < 0
         // ambos son negativos. Por tanto el mayor ser� el menor
         // en valor absoluto
-        return cpuVectorial_.menorque( coefPoliB_, (Cifra)labs(der) );
+        return vCPUVectorial::menorque( coefPoliB_, (Cifra)labs(der) );
   }  
 
   bool Z::operator<(const CifraSigno der) const
@@ -240,7 +232,7 @@ namespace numth{
 
     if( (signo_ > 0) )
       if(der >= 0)
-        return cpuVectorial_.menorque( coefPoliB_, (Cifra)der );
+        return vCPUVectorial::menorque( coefPoliB_, (Cifra)der );
       else // der < 0
         return false;
     else // signo_ < 0 
@@ -249,7 +241,7 @@ namespace numth{
       else // der < 0
         // ambos son negativos. Por tanto el menor ser� el mayor
         // en valor absoluto
-        return cpuVectorial_.mayorque( coefPoliB_, (Cifra)labs(der) );
+        return vCPUVectorial::mayorque( coefPoliB_, (Cifra)labs(der) );
   }
 
   bool Z::operator==(const CifraSigno der) const
@@ -258,7 +250,7 @@ namespace numth{
 
     if( (signo_ > 0) )
       if(der >= 0)
-        return cpuVectorial_.igual( coefPoliB_, (Cifra)der );
+        return vCPUVectorial::igual( coefPoliB_, (Cifra)der );
       else // der < 0
         return false;
     else // signo_ < 0 
@@ -267,7 +259,7 @@ namespace numth{
       else // der < 0
         //ambos negativos; ser�n iguales si son iguales en valor
         //absoluto
-        return cpuVectorial_.igual( coefPoliB_, (Cifra)labs(der) );
+        return vCPUVectorial::igual( coefPoliB_, (Cifra)labs(der) );
   }
   bool Z::operator!=(const CifraSigno der) const
   {
@@ -293,7 +285,7 @@ namespace numth{
 
 
     if( (signo_ > 0) )
-      return cpuVectorial_.mayorque( coefPoliB_, der );
+      return vCPUVectorial::mayorque( coefPoliB_, der );
     else // signo_ < 0 
       return false;
   }  
@@ -303,7 +295,7 @@ namespace numth{
 
 
     if( (signo_ > 0) )
-      return cpuVectorial_.menorque( coefPoliB_, der );
+      return vCPUVectorial::menorque( coefPoliB_, der );
     else // signo_ < 0 
       return true;
   }
@@ -313,7 +305,7 @@ namespace numth{
 
 
     if( (signo_ > 0) )
-      return cpuVectorial_.igual( coefPoliB_, der );
+      return vCPUVectorial::igual( coefPoliB_, der );
     else // signo_ < 0 
       return false;
   }
@@ -344,14 +336,14 @@ namespace numth{
 
     if( (signo_ > 0) ){
       if( (sumandoDerecha.signo_ > 0) ){
-        this->coefPoliB_ = cpuVectorial_.sumaMP(coefPoliB_, sumandoDerecha.coefPoliB_);
+        this->coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, sumandoDerecha.coefPoliB_);
         return *this;
       }
       else{ // sumandoDerecha < 0
-        if( cpuVectorial_.mayorque(coefPoliB_, sumandoDerecha.coefPoliB_) )
-          this->coefPoliB_ = cpuVectorial_.restaMP(coefPoliB_, sumandoDerecha.coefPoliB_);
+        if( vCPUVectorial::mayorque(coefPoliB_, sumandoDerecha.coefPoliB_) )
+          this->coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, sumandoDerecha.coefPoliB_);
         else{
-          this->coefPoliB_ = cpuVectorial_.restaMP(sumandoDerecha.coefPoliB_, coefPoliB_);
+          this->coefPoliB_ = vCPUVectorial::restaMP(sumandoDerecha.coefPoliB_, coefPoliB_);
           this->signo_ = -1;
         }
         return *this;
@@ -360,16 +352,16 @@ namespace numth{
     else{ // this < 0
       if( (sumandoDerecha.signo_ > 0) ){
         // (-a) + b = b - a
-        if( cpuVectorial_.mayorque(coefPoliB_,sumandoDerecha.coefPoliB_) )
-          this->coefPoliB_ = cpuVectorial_.restaMP(coefPoliB_, sumandoDerecha.coefPoliB_);
+        if( vCPUVectorial::mayorque(coefPoliB_,sumandoDerecha.coefPoliB_) )
+          this->coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, sumandoDerecha.coefPoliB_);
         else{
-          this->coefPoliB_ = cpuVectorial_.restaMP(sumandoDerecha.coefPoliB_, coefPoliB_);
+          this->coefPoliB_ = vCPUVectorial::restaMP(sumandoDerecha.coefPoliB_, coefPoliB_);
           this->signo_ = 1;
         }
         return *this;
       }
       else{ // sumandoDerecha < 0
-        this->coefPoliB_ = cpuVectorial_.sumaMP(this->coefPoliB_, sumandoDerecha.coefPoliB_);
+        this->coefPoliB_ = vCPUVectorial::sumaMP(this->coefPoliB_, sumandoDerecha.coefPoliB_);
         //mantener el signo "-"
         return *this;
       }
@@ -382,34 +374,34 @@ namespace numth{
     if( (signo_ > 0) ){
       if( (sustraendo.signo_ > 0) ){
         // a - b
-        if( cpuVectorial_.mayorque(sustraendo.coefPoliB_, coefPoliB_) ){ // b > a
-          this->coefPoliB_ = cpuVectorial_.restaMP(sustraendo.coefPoliB_, coefPoliB_);
+        if( vCPUVectorial::mayorque(sustraendo.coefPoliB_, coefPoliB_) ){ // b > a
+          this->coefPoliB_ = vCPUVectorial::restaMP(sustraendo.coefPoliB_, coefPoliB_);
           this->signo_ = -1;
         }
         else // b <= a
-          this->coefPoliB_ = cpuVectorial_.restaMP(coefPoliB_, sustraendo.coefPoliB_);
+          this->coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, sustraendo.coefPoliB_);
         // se mantiene el signo +
       }
       else{ // sustraendo  < 0
         // a - (-b) = a + b
-        this->coefPoliB_ = cpuVectorial_.sumaMP(coefPoliB_, sustraendo.coefPoliB_);
+        this->coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, sustraendo.coefPoliB_);
         //se mantiene el signo +
       }
     }
     else{ // this < 0
       if( (sustraendo.signo_ > 0) ){
         // (-a) - b = -(a + b)
-        this->coefPoliB_ = cpuVectorial_.sumaMP(coefPoliB_, sustraendo.coefPoliB_);
+        this->coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, sustraendo.coefPoliB_);
         // se mantiene el signo -
       }
       else{ // sustraendo < 0
         // (-a) - (-b) = b - a
-        if( cpuVectorial_.mayorque(sustraendo.coefPoliB_, coefPoliB_) ){ // b > a
-          this->coefPoliB_ = cpuVectorial_.restaMP(sustraendo.coefPoliB_, coefPoliB_);
+        if( vCPUVectorial::mayorque(sustraendo.coefPoliB_, coefPoliB_) ){ // b > a
+          this->coefPoliB_ = vCPUVectorial::restaMP(sustraendo.coefPoliB_, coefPoliB_);
           this->signo_ = 1;
         }
         else // b <= a
-          this->coefPoliB_ = cpuVectorial_.restaMP( coefPoliB_, sustraendo.coefPoliB_ );
+          this->coefPoliB_ = vCPUVectorial::restaMP( coefPoliB_, sustraendo.coefPoliB_ );
         // se deja el signo -
 
       }
@@ -425,24 +417,24 @@ namespace numth{
     if( (signo_ > 0) ){
       if( (factorDer.signo_ > 0) ){
         // a * b
-        this->coefPoliB_ = cpuVectorial_.multMP(coefPoliB_, factorDer.coefPoliB_);
+        this->coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, factorDer.coefPoliB_);
         // se mantiene el signo +
       }
       else{ // factorDer  < 0
         // a * (-b) = -(ab)
-        this->coefPoliB_ = cpuVectorial_.multMP(coefPoliB_, factorDer.coefPoliB_);
+        this->coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, factorDer.coefPoliB_);
         this->signo_ = -1;
       }
     }
     else{ // this < 0
       if( (factorDer.signo_ > 0) ){
         // (-a) * b = -(ab)
-        this->coefPoliB_ = cpuVectorial_.multMP(coefPoliB_, factorDer.coefPoliB_);
+        this->coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, factorDer.coefPoliB_);
         // se deja el signo -
       }
       else{ // factorDer < 0
         // (-a) * (-b) = ab
-        this->coefPoliB_ = cpuVectorial_.multMP(coefPoliB_, factorDer.coefPoliB_);
+        this->coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, factorDer.coefPoliB_);
         this->signo_ = 1;
       }
     }
@@ -460,24 +452,24 @@ namespace numth{
     if( (signo_ > 0) ){
       if( (divisor.signo_ > 0) ){
         // a / b
-        this->coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, divisor.coefPoliB_)).first;
+        this->coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor.coefPoliB_)).first;
         // se mantiene el signo +
       }
       else{ // divisor  < 0
         // a / (-b) = -(a / b)
-        this->coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, divisor.coefPoliB_)).first;
+        this->coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor.coefPoliB_)).first;
         this->signo_ = -1;
       }
     }
     else{ // this < 0
       if( (divisor.signo_ > 0) ){
         // (-a) / b = -(a / b)
-        this->coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, divisor.coefPoliB_)).first;
+        this->coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor.coefPoliB_)).first;
         // se deja el signo -
       }
       else{ // divisor < 0
         // (-a) / (-b) = a / b
-        this->coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, divisor.coefPoliB_)).first;
+        this->coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor.coefPoliB_)).first;
         this->signo_ = 1;
       }
     }
@@ -494,11 +486,11 @@ namespace numth{
 
     if( divisor.signo_ > 0){ // divisor.signo_ > 0
       if( signo_ > 0 ){
-        coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, divisor.coefPoliB_)).second;
+        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor.coefPoliB_)).second;
         // se mantiene el signo +
       }
       else{ //signo_ < 0
-        coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, divisor.coefPoliB_)).second;
+        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor.coefPoliB_)).second;
         if( !(this->esCero()) )
           this->operator+=(divisor); // ajuste por dividendo negativo
         signo_ = 1;
@@ -513,7 +505,7 @@ namespace numth{
     }
     else{ // divisor.signo_ < 0
       if( signo_ > 0){
-        coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, divisor.coefPoliB_)).second;
+        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor.coefPoliB_)).second;
         if( !(this->esCero()) )
           this->operator+=(divisor); //ajuste por ser divisor negativo
         //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
@@ -525,7 +517,7 @@ namespace numth{
         // Por otra parte, el modulo siempre tiene el signo del divisor
       }
       else{ // signo_ < 0
-        coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, divisor.coefPoliB_)).second;
+        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor.coefPoliB_)).second;
         signo_ = -1;
       }
     }
@@ -609,7 +601,7 @@ namespace numth{
   {
 
     signo_ = 1; //el cuadrado siempre va a tener este efecto
-    coefPoliB_ = cpuVectorial_.cuadMP(coefPoliB_); 
+    coefPoliB_ = vCPUVectorial::cuadMP(coefPoliB_); 
     return *this;
   }
 
@@ -619,7 +611,7 @@ namespace numth{
     (*this) %= mod;
 
     signo_ = 1; //el cuadrado siempre va a tener este efecto
-    coefPoliB_ = cpuVectorial_.cuadMP(coefPoliB_); 
+    coefPoliB_ = vCPUVectorial::cuadMP(coefPoliB_); 
 
     (*this) %= mod;
 
@@ -740,13 +732,13 @@ namespace numth{
 
     if( (signo_ > 0) ){
       if( (corto > 0) ){
-        coefPoliB_ = cpuVectorial_.sumaMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoCifra);
       }
       else{ // corto  < 0
-        if( cpuVectorial_.mayorque(coefPoliB_, cortoCifra) )
-          coefPoliB_ = cpuVectorial_.restaMP(coefPoliB_, cortoCifra);
+        if( vCPUVectorial::mayorque(coefPoliB_, cortoCifra) )
+          coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoCifra);
         else{
-          coefPoliB_ = cpuVectorial_.restaMP(cortoCifra, coefPoliB_);
+          coefPoliB_ = vCPUVectorial::restaMP(cortoCifra, coefPoliB_);
           signo_ = -1;
         }
       }
@@ -754,15 +746,15 @@ namespace numth{
     else{ // this < 0
       if( (corto > 0) ){
         // (-a) + b = b - a
-        if( cpuVectorial_.mayorque(coefPoliB_, cortoCifra) )
-          coefPoliB_ = cpuVectorial_.restaMP(coefPoliB_, cortoCifra);
+        if( vCPUVectorial::mayorque(coefPoliB_, cortoCifra) )
+          coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoCifra);
         else{
-          coefPoliB_ = cpuVectorial_.restaMP(cortoCifra, coefPoliB_);
+          coefPoliB_ = vCPUVectorial::restaMP(cortoCifra, coefPoliB_);
           signo_ = 1;
         }
       }
       else{ // corto < 0
-        coefPoliB_ = cpuVectorial_.sumaMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoCifra);
         //mantener el signo "-"
       }
     }
@@ -785,34 +777,34 @@ namespace numth{
     if( (signo_ > 0) ){
       if( (corto > 0) ){
         // a - b
-        if(  cpuVectorial_.menorque(coefPoliB_, cortoCifra) ){ // a < b 
-          coefPoliB_ = cpuVectorial_.restaMP(cortoCifra, coefPoliB_);
+        if(  vCPUVectorial::menorque(coefPoliB_, cortoCifra) ){ // a < b 
+          coefPoliB_ = vCPUVectorial::restaMP(cortoCifra, coefPoliB_);
           signo_ = -1;
         }
         else // b <= a
-          coefPoliB_ = cpuVectorial_.restaMP(coefPoliB_, cortoCifra);
+          coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoCifra);
         // se mantiene el signo +
       }
       else{ // corto  < 0
         // a - (-b) = a + b
-        coefPoliB_ = cpuVectorial_.sumaMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoCifra);
         //se mantiene el signo +
       }
     }
     else{ // this < 0
       if( (corto > 0) ){
         // (-a) - b = -(a + b)
-        coefPoliB_ = cpuVectorial_.sumaMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoCifra);
         // se mantiene el signo -
       }
       else{ // corto < 0
         // (-a) - (-b) = b - a
-        if( cpuVectorial_.menorque(coefPoliB_, cortoCifra ) ){ // a < b
-          coefPoliB_ = cpuVectorial_.restaMP(cortoCifra, coefPoliB_);
+        if( vCPUVectorial::menorque(coefPoliB_, cortoCifra ) ){ // a < b
+          coefPoliB_ = vCPUVectorial::restaMP(cortoCifra, coefPoliB_);
           signo_ = 1;
         }
         else // b <= a
-          coefPoliB_ = cpuVectorial_.restaMP( coefPoliB_, cortoCifra );
+          coefPoliB_ = vCPUVectorial::restaMP( coefPoliB_, cortoCifra );
         // se deja el signo -
       }
     }
@@ -834,24 +826,24 @@ namespace numth{
     if( (signo_ > 0) ){
       if( (corto > 0) ){
         // a * b
-        coefPoliB_ = cpuVectorial_.multMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoCifra);
         // se mantiene el signo +
       }
       else{ // corto  < 0
         // a * (-b) = -(ab)
-        coefPoliB_ = cpuVectorial_.multMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoCifra);
         signo_ = -1;
       }
     }
     else{ // this < 0
       if( (corto > 0) ){
         // (-a) * b = -(ab)
-        coefPoliB_ = cpuVectorial_.multMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoCifra);
         // se deja el signo -
       }
       else{ // corto < 0
         // (-a) * (-b) = ab
-        coefPoliB_ = cpuVectorial_.multMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoCifra);
         signo_ = 1;
       }
     }
@@ -879,24 +871,24 @@ namespace numth{
     if( (signo_ > 0) ){
       if( (corto > 0) ){
         // a / b
-        coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, cortoCifra)).first;
+        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoCifra)).first;
         // se mantiene el signo +
       }
       else{ // corto  < 0
         // a / (-b) = -(a / b)
-        coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, cortoCifra)).first;
+        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoCifra)).first;
         signo_ = -1;
       }
     }
     else{ // this < 0
       if( (corto > 0) ){
         // (-a) / b = -(a / b)
-        coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, cortoCifra)).first;
+        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoCifra)).first;
         // se deja el signo -
       }
       else{ // corto < 0
         // (-a) / (-b) = a / b
-        coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, cortoCifra)).first;
+        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoCifra)).first;
         signo_ = 1;
       }
     }
@@ -921,11 +913,11 @@ namespace numth{
     //  
     //  if( divisorSigned > 0){ // divisor > 0
     //    if( signo_ > 0 ){
-    //      coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, divisor)).second;
+    //      coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor)).second;
     //      // se mantiene el signo +
     //    }
     //    else{ //signo_ < 0
-    //      coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, divisor)).second;
+    //      coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor)).second;
     //      if( !(this->esCero()) )
     //        this->operator+=(divisor); // ajuste por dividendo negativo
     //      signo_ = 1;
@@ -940,7 +932,7 @@ namespace numth{
     //  }
     //  else{ // divisor_ < 0
     //    if( signo_ > 0){
-    //       coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, divisor)).second;
+    //       coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor)).second;
     //      if( !(this->esCero()) )
     //        this->operator-=(divisor); //ajuste por ser divisor negativo
     //      //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
@@ -952,7 +944,7 @@ namespace numth{
     //      // Por otra parte, el modulo siempre tiene el signo del divisor
     //    }
     //    else{ // signo_ < 0
-    //      coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, divisor)).second;
+    //      coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor)).second;
     //      signo_ = -1;
     //    }
     //  }
@@ -1001,14 +993,14 @@ namespace numth{
     cortoCifra = (Cifra)corto;
 
     if( signo_ > 0 ){
-      coefPoliB_ = cpuVectorial_.sumaMP(coefPoliB_, cortoCifra);
+      coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoCifra);
       return *this;
     }
     else{ // signo_ < 0
-      if( cpuVectorial_.mayorque(coefPoliB_, cortoCifra) )
-        coefPoliB_ = cpuVectorial_.restaMP(coefPoliB_, cortoCifra);
+      if( vCPUVectorial::mayorque(coefPoliB_, cortoCifra) )
+        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoCifra);
       else{
-        coefPoliB_ = cpuVectorial_.restaMP(cortoCifra, coefPoliB_);
+        coefPoliB_ = vCPUVectorial::restaMP(cortoCifra, coefPoliB_);
         signo_ = 1;
       }
       return *this;
@@ -1021,17 +1013,17 @@ namespace numth{
 
 
     if( signo_ > 0 ){ // a - b
-      if(  cpuVectorial_.menorque(coefPoliB_, cortoCifra) ){ // a < b 
-        coefPoliB_ = cpuVectorial_.restaMP(cortoCifra, coefPoliB_);
+      if(  vCPUVectorial::menorque(coefPoliB_, cortoCifra) ){ // a < b 
+        coefPoliB_ = vCPUVectorial::restaMP(cortoCifra, coefPoliB_);
         signo_ = -1;
       }
       else // b <= a
-        coefPoliB_ = cpuVectorial_.restaMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoCifra);
       // se mantiene el signo +
       return *this;
     }
     else{ //signo_ < 0 
-      coefPoliB_ = cpuVectorial_.sumaMP(coefPoliB_, cortoCifra);
+      coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoCifra);
       // se mantiene el signo -
       return *this;
     }
@@ -1045,13 +1037,13 @@ namespace numth{
     cortoCifra = (Cifra)corto;
 
     if( signo_ > 0 ){ // a * b
-      coefPoliB_ = cpuVectorial_.multMP(coefPoliB_, cortoCifra);
+      coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoCifra);
       // se mantiene el signo +
       return *this;
     }
     else{ //signo_< 0
       // (-a) * b = -(ab)
-      coefPoliB_ = cpuVectorial_.multMP(coefPoliB_, cortoCifra);
+      coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoCifra);
       // se deja el signo -
       return *this;
     }
@@ -1069,13 +1061,13 @@ namespace numth{
     cortoCifra = (Cifra)corto;
 
     if( signo_ > 0 ){ // a / b
-      coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, cortoCifra)).first;
+      coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoCifra)).first;
       // se mantiene el signo +
       return *this;
     }
     else{ //signo_ < 0
       // (-a) / b = -(a / b)
-      coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, cortoCifra)).first;
+      coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoCifra)).first;
       // se deja el signo -
       return *this;
     }
@@ -1092,11 +1084,11 @@ namespace numth{
     //  cortoCifra = (Cifra)corto;
     //
     //  if( signo_ > 0 ){
-    //    coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, cortoCifra)).second;
+    //    coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoCifra)).second;
     //    // se mantiene el signo +
     //  }
     //  else{ //signo_ < 0
-    //    coefPoliB_ = (cpuVectorial_.divMP(coefPoliB_, cortoCifra)).second;
+    //    coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoCifra)).second;
     //    if( !(this->esCero()) )
     //      this->operator+=(cortoCifra); // ajuste por dividendo negativo
     //    signo_ = 1;
@@ -1170,14 +1162,14 @@ namespace numth{
   Z& Z::operator>>=(const size_t desp)
   {
 
-    cpuVectorial_.rShift(coefPoliB_, desp);
+    vCPUVectorial::rShift(coefPoliB_, desp);
     return *this;
   }
 
   Z& Z::operator<<=(const size_t desp)
   {
 
-    cpuVectorial_.lShift(coefPoliB_, desp);
+    vCPUVectorial::lShift(coefPoliB_, desp);
     return *this;
   }
 
@@ -1195,13 +1187,13 @@ namespace numth{
       if(coefPoliB_[0] < Constantes::CIFRA_MAX)
         coefPoliB_[0]++;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = cpuVectorial_.sumaMP(coefPoliB_, (Cifra)1);
+        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, (Cifra)1);
     }
     else{ //signo_ < 0
       if(coefPoliB_[0] > 0)
         coefPoliB_[0]--;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = cpuVectorial_.restaMP(coefPoliB_, (Cifra)1);
+        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, (Cifra)1);
     }
 
 
@@ -1220,13 +1212,13 @@ namespace numth{
       if(coefPoliB_[0] < Constantes::CIFRA_MAX)
         coefPoliB_[0]++;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = cpuVectorial_.sumaMP(coefPoliB_, (Cifra)1);
+        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, (Cifra)1);
     }
     else{ //signo_ < 0
       if(coefPoliB_[0] > 0)
         coefPoliB_[0]--;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = cpuVectorial_.restaMP(coefPoliB_, (Cifra)1);
+        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, (Cifra)1);
     }
 
 
@@ -1247,13 +1239,13 @@ namespace numth{
       if(coefPoliB_[0] > 0)
         coefPoliB_[0]--;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = cpuVectorial_.restaMP(coefPoliB_, (Cifra)1);
+        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, (Cifra)1);
     }
     else{ //signo_ < 0
       if(coefPoliB_[0] < Constantes::CIFRA_MAX)
         coefPoliB_[0]++;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = cpuVectorial_.sumaMP(coefPoliB_, (Cifra)1);
+        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, (Cifra)1);
     }
 
 
@@ -1275,13 +1267,13 @@ namespace numth{
       if(coefPoliB_[0] > 0)
         coefPoliB_[0]--;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = cpuVectorial_.restaMP(coefPoliB_, (Cifra)1);
+        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, (Cifra)1);
     }
     else{ //signo_ < 0
       if(coefPoliB_[0] < Constantes::CIFRA_MAX)
         coefPoliB_[0]++;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = cpuVectorial_.sumaMP(coefPoliB_, (Cifra)1);
+        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, (Cifra)1);
     }
 
 
@@ -1292,14 +1284,14 @@ namespace numth{
   {
 
     size_t componentes = coefPoliB_.size() - 1;
-    return (( Constantes::BITS_EN_CIFRA * componentes) + cpuVectorial_.numBits(coefPoliB_[componentes]));
+    return (( Constantes::BITS_EN_CIFRA * componentes) + vCPUVectorial::numBits(coefPoliB_[componentes]));
 
   }
 
   CifraSigno Z::redondear(size_t exceso) 
   {
 
-    return cpuVectorial_.redondear(coefPoliB_, exceso, signo_);
+    return vCPUVectorial::redondear(coefPoliB_, exceso, signo_);
   }
 
   Z& Z::hacerCero(void)
@@ -1349,7 +1341,7 @@ namespace numth{
   {
 
 
-    cpuVectorial_.limpiarCeros(coefPoliB_);
+    vCPUVectorial::limpiarCeros(coefPoliB_);
     if( (coefPoliB_.size() == 1) && (coefPoliB_[0] == 0) )
       signo_ = 1; //POR CO 0NVENIO
     return;
@@ -2150,7 +2142,7 @@ namespace numth{
 
       if( divisor.esPositivo() ){ 
         if( dividendo.esPositivo() ){
-          resultados = cpuVectorial_.divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
+          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
 
           cociente->coefPoliB_ = resultados.first;
 
@@ -2158,7 +2150,7 @@ namespace numth{
 
         }
         else{ //dividendo < 0
-          resultados = cpuVectorial_.divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
+          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
 
           cociente->coefPoliB_ = resultados.first;
           cociente->hacerNegativo();
@@ -2177,7 +2169,7 @@ namespace numth{
       }
       else{ // divisor negativo
         if( dividendo.esPositivo()){
-          resultados = cpuVectorial_.divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
+          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
 
           cociente->coefPoliB_ = resultados.first;
           cociente->hacerNegativo();
@@ -2193,7 +2185,7 @@ namespace numth{
           // Por otra parte, el modulo siempre tiene el signo del divisor
         }
         else{ // dividendo negativo
-          resultados = cpuVectorial_.divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
+          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
 
           cociente->coefPoliB_ = resultados.first;
 
@@ -2232,7 +2224,7 @@ namespace numth{
 
       if( divisorPositivo ){ 
         if( dividendo.esPositivo() ){
-          resultados = cpuVectorial_.divMP(dividendo.coefPoliB_, divisorCifra);
+          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorCifra);
 
           cociente->coefPoliB_ = resultados.first;
 
@@ -2240,7 +2232,7 @@ namespace numth{
 
         }
         else{ //dividendo < 0
-          resultados = cpuVectorial_.divMP(dividendo.coefPoliB_, divisorCifra);
+          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorCifra);
 
           cociente->coefPoliB_ = resultados.first;
           cociente->hacerNegativo();
@@ -2259,7 +2251,7 @@ namespace numth{
       }
       else{ // divisor negativo
         if( dividendo.esPositivo()){
-          resultados = cpuVectorial_.divMP(dividendo.coefPoliB_, divisorCifra);
+          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorCifra);
 
           cociente->coefPoliB_ = resultados.first;
           cociente->hacerNegativo();
@@ -2275,7 +2267,7 @@ namespace numth{
           // Por otra parte, el modulo siempre tiene el signo del divisor
         }
         else{ // dividendo negativo
-          resultados = cpuVectorial_.divMP(dividendo.coefPoliB_, divisorCifra);
+          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorCifra);
 
           cociente->coefPoliB_ = resultados.first;
 
@@ -2303,7 +2295,7 @@ namespace numth{
       std::pair< MiVec<Cifra>, MiVec<Cifra> > resultados;
 
       if( dividendo.esPositivo() ){
-        resultados = cpuVectorial_.divMP(dividendo.coefPoliB_, divisor);
+        resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisor);
 
         cociente->coefPoliB_ = resultados.first;
 
@@ -2311,7 +2303,7 @@ namespace numth{
 
       }
       else{ //dividendo < 0
-        resultados = cpuVectorial_.divMP(dividendo.coefPoliB_, divisor);
+        resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisor);
 
         cociente->coefPoliB_ = resultados.first;
         cociente->hacerNegativo();
@@ -2385,11 +2377,11 @@ namespace numth{
   }
   size_t numBits(const Cifra x)
   {
-    return cpuVectorial_.numBits(x);
+    return vCPUVectorial::numBits(x);
   }
   size_t numBits(const CifraSigno x)
   {
-    return cpuVectorial_.numBits((Cifra)labs(x));
+    return vCPUVectorial::numBits((Cifra)labs(x));
   }
 
 }

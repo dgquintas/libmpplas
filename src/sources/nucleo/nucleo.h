@@ -13,24 +13,27 @@
 
 namespace numth{
 
-  class vCPUVectorial;
-  class Perfil;
+  namespace vCPUBasica{
+
+#include "nucleox86.h"
+
+  };
+
+//  class vCPUVectorial;
+//  class Perfil;
   
   /** Estructura para almacenar valores derivados de las operaciones
    * de "profiling" */
-  struct ResultadosProf{
-    clock_t ciclos; /**< Tiempo de CPU real acumulados por el proceso */
-    Cifra n_operaciones[Constantes::NUM_OPERACIONES]; /**< Número de cada tipo de operación de 
-                                            vCPUBasica ejecutadas. @sa Operaciones */
-  };
+//  struct ResultadosProf{
+//    clock_t ciclos; /**< Tiempo de CPU real acumulados por el proceso */
+//    Cifra n_operaciones[Constantes::NUM_OPERACIONES]; /**< Número de cada tipo de operación de 
+//                                            vCPUBasica ejecutadas. @sa Operaciones */
+//  };
  
   
   /** Clase representando la CPU Básica. */
-  template<int Arch>
-  class vCPUBasica{
-    public:
       /** Constructor por defecto. */
-     inline vCPUBasica();
+  //   inline vCPUBasica();
       
     /** Suma básica de dos Cifras
      *
@@ -43,7 +46,7 @@ namespace numth{
      *
      * @return Parte baja de la suma de arg1 y arg2
      */
-    inline Cifra Add(Cifra arg1, Cifra arg2);
+//    static inline Cifra Add(Cifra arg1, Cifra arg2, Cifra& overflow);
     
     /** Suma básica extendida de dos Cifras
      *
@@ -61,7 +64,7 @@ namespace numth{
      *
      * @return Parte baja de la suma de arg1, arg2 y overflow inicial
      */
-    inline Cifra Addx(Cifra arg1, Cifra arg2);
+//    static inline Cifra Addx(Cifra arg1, Cifra arg2, Cifra& overflow);
 
 
     /** Resta básica de dos Cifras
@@ -79,7 +82,7 @@ namespace numth{
      *
      * @return Resta de arg1 y arg2 
      */
-    inline Cifra Sub(Cifra arg1, Cifra arg2);
+//    static inline Cifra Sub(Cifra arg1, Cifra arg2, Cifra& overflow);
 
     /** Resta básica extendida de dos Cifras
      *
@@ -99,7 +102,7 @@ namespace numth{
      */
     /* Subx(a,b) + (base·overflow) = a - b - overflow_ini 
      * overflow = {0,1} */
-    inline Cifra Subx(Cifra arg1, Cifra arg2);
+//    static inline Cifra Subx(Cifra arg1, Cifra arg2, Cifra& overflow);
       
     /** Producto de dos Cifras
      *
@@ -115,7 +118,7 @@ namespace numth{
      */
     /* c = mul(a,b)
      * Dejando resto = parte alta del resultado */
-    inline  Cifra Mul(Cifra arg1,Cifra arg2);
+//    static inline  Cifra Mul(Cifra arg1,Cifra arg2, Cifra& overflow);
 
     /** Producto de dos Cifras con suma.
      * 
@@ -137,7 +140,7 @@ namespace numth{
      * Suma al producto de a por b el contenido de resto, devolviendo
      los BITS_EN_CIFRA de la parte baja del resultado y almacenando en 
      resto la parte alta. */
-    inline Cifra Addmul(Cifra arg1,Cifra arg2) ;
+//    static inline Cifra Addmul(Cifra arg1,Cifra arg2, Cifra& resto) ;
 
     /** Cociente y resto de dos Cifras.
      *
@@ -159,7 +162,7 @@ namespace numth{
     /* c = div(a, b) 
      * Dejando el resto de la división de (resto:a / b) en resto. 
      * Se asume que inicialmente b > resto. */
-    inline Cifra Div(Cifra arg1, Cifra arg2);
+//    static inline Cifra Div(Cifra arg1, Cifra arg2, Cifra& resto);
 
     /** Desplazamiento de bits a la izquierda.
      *
@@ -181,7 +184,7 @@ namespace numth{
      */
     /* c = shiftl(a, b) 
      * Dejando en resto los la parte alta. Se asume que 0 <= b < lg2 B. */
-    inline Cifra Shiftl(Cifra arg1,Cifra arg2) ;
+//     static inline Cifra Shiftl(Cifra arg1,Cifra arg2, Cifra& resto) ;
    
     
     /** Desplazamiento de bits a la derecha.
@@ -205,7 +208,7 @@ namespace numth{
     /* c = shiftlr(a, b) 
      * devuelve en c los BITS_EN_CIFRA de la parte alta de a << BITS_EN_CIFRA entre 2^b y
      almacena en resto los BITS_EN_CIFRA de la parte baja. Se asume que 0 <= b < lg2 B.*/
-    inline Cifra Shiftlr(Cifra arg1,Cifra arg2) ;
+//    static inline Cifra Shiftlr(Cifra arg1,Cifra arg2, Cifra& resto) ;
  
     
     /** Encabezado de ceros.
@@ -225,7 +228,7 @@ namespace numth{
     /* c = Bfffo(a) devuelve en c el número de ceros binarios a la izquierda del primer uno.
        Esto es, el número de posiciones que habria que desplazar el número binario
        hacia la izquierda para que su cifra más significativa fuera 1. */
-    inline Cifra Bfffo(Cifra arg1) ;
+//    static inline Cifra Bfffo(Cifra arg1) ;
 
 
     /** Reset the CPU to its initial state.
@@ -237,33 +240,33 @@ namespace numth{
      *    \f$ overflow = 0 \f$
      *
      */
-    inline void reset(){
-      overflow = 0;
-      resto = 0;
-    }
+//    inline void reset(){
+//      overflow = 0;
+//      resto = 0;
+//    }
 
     /** Gets the current overflow.
      *
      * @return A constant reference to the @a overflow register.
      */
-    inline const Cifra& getOverflow() const {
-      return overflow;
-    }
+//    inline const Cifra& getOverflow() const {
+//      return overflow;
+//    }
+//
+//    /** Gets the current resto.
+//     *
+//     * @return A constant reference to the @a resto register.
+//     */
+//    inline const Cifra& getResto() const {
+//      return resto;
+//    }
 
-    /** Gets the current resto.
-     *
-     * @return A constant reference to the @a resto register.
-     */
-    inline const Cifra& getResto() const {
-      return resto;
-    }
 
 
-
-    protected:
+//    protected:
     /** Cifra que representa el acarreo en las operaciones de suma y
      * resta. */
-    Cifra overflow; 
+//    Cifra overflow; 
 
     /** 
      * Cifra que representa:
@@ -275,37 +278,36 @@ namespace numth{
      * <li> Parte alta tras un desplazamiento hacia la derecha
      * </ul>
      */
-    Cifra resto;
+//    Cifra resto;
  
     /* Solo están definidas realmente para arquitecturas (...)Prof
      * Para el resto, su utilización deriva en una excepción. */
     /** Poner a cero los contadores de perfilado */
-    static inline void reiniciarContadores(void);
-    /** Comenzar a tomar datos de perfilado */
-    static inline void inicioProf(void);
-    /** Finalizar la toma de datos de perfilado. */
-    static inline void finProf(void);
-    /** Obtener datos de perfilado.
-     *  @return Estructura ResultadosProf con los resultados del
-     *  periodo de tiempo que ha comprendido el perfilado. */
-    static inline ResultadosProf obtenerPerfil(void);
-    
-    /** Instancia de la estructura ResultadosProf. */
-    static ResultadosProf resultadosProf_; 
-    
-    friend class vCPUVectorial;
-    friend class Perfil;
-  };
+//    static inline void reiniciarContadores(void);
+//    /** Comenzar a tomar datos de perfilado */
+//    static inline void inicioProf(void);
+//    /** Finalizar la toma de datos de perfilado. */
+//    static inline void finProf(void);
+//    /** Obtener datos de perfilado.
+//     *  @return Estructura ResultadosProf con los resultados del
+//     *  periodo de tiempo que ha comprendido el perfilado. */
+//    static inline ResultadosProf obtenerPerfil(void);
+//    
+//    /** Instancia de la estructura ResultadosProf. */
+//    static ResultadosProf resultadosProf_; 
+//    
+//    friend class vCPUVectorial;
+//    friend class Perfil;
 
-  template<int A>
-    ResultadosProf vCPUBasica<A>::resultadosProf_;
+//  template<int A>
+//    ResultadosProf vCPUBasica<A>::resultadosProf_;
 
 //  #include "nucleogeneric.h"
-  #include "nucleox86_64.h"
-  #include "nucleox86_64prof.h"
-  #include "nucleox86.h"
-  #include "nucleox86prof.h"
-  #include "nucleoppc.h"
+//  #include "nucleox86_64.h"
+//  #include "nucleox86_64prof.h"
+//  #include "nucleox86.h"
+//  #include "nucleox86prof.h"
+//  #include "nucleoppc.h"
   
 }
 

@@ -4,34 +4,29 @@
 
 #include <algorithm>
 #include <utility>
-#ifdef _OPENMP
-  #include <omp.h>
-  #define GET_BASIC_CPU() basicCPUs_[omp_get_thread_num()]
-#else
-  #define GET_BASIC_CPU() basicCPUs_[0]
-#endif
 
 #include "mp.h"
 
 
 namespace numth{
 
-  vCPUVectorial::vCPUVectorial(int numCPUs)
-  {
-    basicCPUs_ = new vCPUBasica<Arch::ARCH>[numCPUs];
-  }
-
-  vCPUVectorial::~vCPUVectorial()
-  {
-    delete[] basicCPUs_;
-  }
+//  vCPUVectorial::vCPUVectorial(int numCPUs)
+//  {
+//    basicCPUs_ = new vCPUBasica<Arch::ARCH>[numCPUs];
+//  }
+//
+//  vCPUVectorial::~vCPUVectorial()
+//  {
+//    delete[] basicCPUs_;
+//  }
 
   /*** OPERACIONES BASICAS EN VECTORES UNSIGNED ***/
   /*** DESPLAZAMIENTO ***/
   void vCPUVectorial::lShift(numth::MiVec <Cifra>& a, const size_t n)
   {
-    if( (a.size() == 1) && (a[0] == 0) ) 
+    if( (a.size() == 1) && (a[0] == 0) ) {
       return;
+    }
     
     unsigned long componentes = n / Constantes::BITS_EN_CIFRA;
     unsigned long fraccion = n % Constantes::BITS_EN_CIFRA;
@@ -44,14 +39,13 @@ namespace numth{
     //  }
     a.insert(a.begin(), componentes, 0);
 
-    vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU();
-
+    Cifra resto = 0;
     if(fraccion){
       a.push_back(0);
       for( unsigned long i = a.size() - 2;  ; i--){
-        a[i] = cpuBasica_.Shiftl(a[i],fraccion);
+        a[i] = vCPUBasica::Shiftl(a[i],fraccion, resto);
         //      a[i+1] = Add(a[i+1], resto);
-        a[i+1] |= cpuBasica_.resto;
+        a[i+1] |= resto;
         if( i == 0 )
           break;
       }
@@ -61,8 +55,9 @@ namespace numth{
 //    no tiene sentido limpiar ceros, en un desplazamiento a la
 //    izquierda nunca se van a generar, salvo quizas 1
 
-    if( a.back() == 0 )
+    if( a.back() == 0 ){
       a.pop_back();
+    }
 
     return;
   }
@@ -83,14 +78,13 @@ namespace numth{
       a.push_back(0);
     }
 
-    vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
-
+    Cifra resto = 0;
     if(fraccion){
-      a[0] = cpuBasica_.Shiftlr(a[0], fraccion);
+      a[0] = vCPUBasica::Shiftlr(a[0], fraccion, resto);
       for(unsigned long i = 1; i < a.size() ; i++){
-        a[i] = cpuBasica_.Shiftlr(a[i], n);
+        a[i] = vCPUBasica::Shiftlr(a[i], n, resto);
         //      a[i-1] = Add(a[i-1],resto);
-        a[i-1] |= cpuBasica_.resto;
+        a[i-1] |= resto;
       }
     }
 
@@ -147,8 +141,7 @@ namespace numth{
   {
     size_t bits = sizeof(Cifra) << 3;
 
-    vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
-    bits -= cpuBasica_.Bfffo(num);
+    bits -= vCPUBasica::Bfffo(num);
 
     return bits;
   }
@@ -304,21 +297,22 @@ namespace numth{
 
       numth::MiVec<Cifra> c(tamA + 1, 0); // +1 por el carry posible
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       size_t i;
-      cpuBasica_.overflow = 0;
+      Cifra overflow = 0;
       for(i = 0; i < tamB; i++){
-        c[i]= cpuBasica_.Addx((*mayor)[i],(*menor)[i]);
+        c[i]= vCPUBasica::Addx((*mayor)[i],(*menor)[i], overflow);
         // el propio "loop" del n� del desbordarse es 
         // equivalente al modulo. FIXME: no te fies de
         // esto
       }
 
-      for(; i < tamA; i++)
-        c[i] = cpuBasica_.Addx((*mayor)[i],0);
+      for(; i < tamA; i++){
+        c[i] = vCPUBasica::Addx((*mayor)[i],0, overflow);
+      }
 
-      if( i < c.size() )
-        c[i] = cpuBasica_.overflow;
+      if( i < c.size() ){
+        c[i] = overflow;
+      }
 
       limpiarCeros(c);
 
@@ -333,15 +327,14 @@ namespace numth{
 
       size_t i;
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
-      cpuBasica_.overflow = 0;
-      c[0]= cpuBasica_.Addx(a[0],b);
+      Cifra overflow = 0;
+      c[0]= vCPUBasica::Addx(a[0],b, overflow);
 
       for(i=1; i < tamA; i++)
-        c[i] = cpuBasica_.Addx(a[i],0);
+        c[i] = vCPUBasica::Addx(a[i],0, overflow);
 
       if( i < c.size() )
-        c[i] = cpuBasica_.overflow;
+        c[i] = overflow;
 
       limpiarCeros(c);
 
@@ -364,33 +357,31 @@ namespace numth{
 
       numth::MiVec<Cifra> c(tamA,0);
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
-      cpuBasica_.overflow = 0;
+      Cifra overflow = 0;
       size_t i;
       for(i = 0; i < tamB; i++)
-        c[i] = cpuBasica_.Subx(a[i],b[i]);
+        c[i] = vCPUBasica::Subx(a[i],b[i], overflow);
 
       for(; i < tamA; i++)
-        c[i] = cpuBasica_.Subx(a[i],0);
+        c[i] = vCPUBasica::Subx(a[i],0, overflow);
 
 
       limpiarCeros(c);
 
       return c;
     }
-  numth::MiVec<Cifra> 
+ numth::MiVec<Cifra> 
     vCPUVectorial::restaMP(const numth::MiVec<Cifra>&a, const Cifra b) 
     {
       const size_t tamA = a.size();
 
       numth::MiVec<Cifra> c(tamA,0);
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
-      cpuBasica_.overflow = 0;
-      c[0] = cpuBasica_.Subx(a[0],b);
+      Cifra overflow = 0;
+      c[0] = vCPUBasica::Subx(a[0],b, overflow);
 
       for(size_t i=1; i < tamA; i++)
-        c[i] = cpuBasica_.Subx(a[i],0);
+        c[i] = vCPUBasica::Subx(a[i],0, overflow);
 
       limpiarCeros(c);
 
@@ -401,9 +392,9 @@ namespace numth{
     {
       assert( b[0] <= a ); 
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       numth::MiVec<Cifra> c(1);
-      c[0] = cpuBasica_.Sub(a,b[0]);
+      Cifra overflow = 0;
+      c[0] = vCPUBasica::Sub(a,b[0], overflow);
 
       limpiarCeros(c);
 
@@ -442,32 +433,32 @@ namespace numth{
         }
       }
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
+      Cifra overflow = 0, resto = 0;
       for(size_t i=0; i < tamB; i++){
         c = 0;
         // esta "iteracion particular de j=0" se pone aqui
         // para que al compilar con optimizaciones no se de
         // el caso de que se utilize "u" sin haberse inicializado
         // en el punto (1) posterior 
-          v = cpuBasica_.Add(c, w[i]);
-          u = cpuBasica_.overflow;
+          v = vCPUBasica::Add(c, w[i], overflow);
+          u = overflow;
 
-          cpuBasica_.resto = v; //para su uso por Addmul
+          resto = v; //para su uso por Addmul
 
-          v = cpuBasica_.Addmul(a[0],b[i]);
-          u += cpuBasica_.resto;
+          v = vCPUBasica::Addmul(a[0],b[i], resto);
+          u += resto;
 
           w[i] = v;
           c = u;
           
         for(size_t j=1; j < tamA; j++){
-          v = cpuBasica_.Add(c, w[i+j]);
-          u = cpuBasica_.overflow;
+          v = vCPUBasica::Add(c, w[i+j], overflow);
+          u = overflow;
 
-          cpuBasica_.resto = v; //para su uso por Addmul
+          resto = v; //para su uso por Addmul
 
-          v = cpuBasica_.Addmul(a[j],b[i]);
-          u += cpuBasica_.resto;
+          v = vCPUBasica::Addmul(a[j],b[i], resto);
+          u += resto;
 
           w[i+j] = v;
           c = u;
@@ -480,22 +471,21 @@ namespace numth{
       return w;
     }
 
-  numth::MiVec<Cifra> 
+ numth::MiVec<Cifra> 
     vCPUVectorial::multMP(const numth::MiVec<Cifra>& a, const Cifra b ) 
     {
       const size_t tamA = a.size();
 
       numth::MiVec<Cifra> c(tamA + 1, 0);
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
-      cpuBasica_.resto = 0;
+      Cifra resto = 0, overflow = 0;
       int i;
       for(i=0; i < tamA; i++){
-        c[i] = cpuBasica_.Addmul(a[i],b);    
+        c[i] = vCPUBasica::Addmul(a[i],b, resto);    
       }
 
       // i == tamA
-      c[i] = cpuBasica_.Add(c[i], cpuBasica_.resto);
+      c[i] = vCPUBasica::Add(c[i], resto, overflow);
 
       limpiarCeros(c);
 
@@ -565,7 +555,7 @@ namespace numth{
     return ;
   }
   
-  numth::MiVec<Cifra>
+ numth::MiVec<Cifra>
     vCPUVectorial::cuadMP(const numth::MiVec<Cifra>& x)
     {
       const size_t t = x.size(); //n� de cifras en la base de trabajo de "x"
@@ -577,21 +567,20 @@ namespace numth{
           return w;
       }
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
       
       //los resultados temporales se expresan como un numero (uA uB v) en la
       //base de trabajo.
-
+      Cifra resto, overflow = 0;
       for(size_t i = 0; i < t; i++){
         Cifra uA, uB; // partes Alta y Baja de "u"
         Cifra v; // cifra menos significativa del numero de trabajo
         Cifra cA, cB; // versiones para "carry" de "u"
 
         // (uA uB v) = x[i]*x[i] + w[2*i]
-        v = cpuBasica_.Mul(x[i],x[i]);
-        uB = cpuBasica_.resto;
-        v = cpuBasica_.Add(v, w[2*i]);
-        uB += cpuBasica_.overflow; //ya que aqui no va a darse nunca un 2� overflow
+        v = vCPUBasica::Mul(x[i],x[i], resto);
+        uB = resto;
+        v = vCPUBasica::Add(v, w[2*i], overflow);
+        uB += overflow; //ya que aqui no va a darse nunca un 2� overflow
         uA = 0;
 
         w[2*i] = v;
@@ -606,24 +595,24 @@ namespace numth{
 
 
           //      (A)
-          v = cpuBasica_.Mul(x[j],x[i]);
-          uB = cpuBasica_.resto;
-          v = cpuBasica_.Shiftl(v, 1); // *2 
-          Cifra restoTemp = cpuBasica_.resto;
-          uB = cpuBasica_.Shiftl(uB, 1); // *2
-          uA = cpuBasica_.resto;
-          uB = cpuBasica_.Add(uB, restoTemp);
-          uA += cpuBasica_.overflow; 
+          v = vCPUBasica::Mul(x[j],x[i], resto);
+          uB = resto;
+          v = vCPUBasica::Shiftl(v, 1, resto); // *2 
+          Cifra restoTemp = resto;
+          uB = vCPUBasica::Shiftl(uB, 1, resto); // *2
+          uA = resto;
+          uB = vCPUBasica::Add(uB, restoTemp, overflow);
+          uA += overflow; 
 
           //     (B)
-          v = cpuBasica_.Add(v,w[i+j]);
-          uB = cpuBasica_.Addx(uB,0);
-          uA += cpuBasica_.overflow;
+          v = vCPUBasica::Add(v,w[i+j], overflow);
+          uB = vCPUBasica::Addx(uB,0, overflow);
+          uA += overflow;
 
           //     (C)
-          v = cpuBasica_.Add(v,cB);
-          uB = cpuBasica_.Addx(uB,cA);
-          uA += cpuBasica_.overflow;
+          v = vCPUBasica::Add(v,cB, overflow);
+          uB = vCPUBasica::Addx(uB,cA, overflow);
+          uA += overflow;
 
           w[i+j] = v;
 
@@ -667,8 +656,7 @@ namespace numth{
       //obtenemos el digito mas significativo del divisor
       //=> siempre sera el se�alado por size() - 1 (o deberia serlo)
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
-      d = cpuBasica_.Bfffo(b[tamB]); // n� de ceros a la izq
+      d = vCPUBasica::Bfffo(b[tamB]); // n� de ceros a la izq
       // del 1er bit del long 
       // en cuestion 
 
@@ -700,8 +688,8 @@ namespace numth{
         if( a[j] == b[tamB] )
           _q = Constantes::CIFRA_MAX; // base-1
         else{
-          cpuBasica_.resto = a[j];
-          _q = cpuBasica_.Div(a[j-1],b[tamB]);
+          Cifra resto = a[j];
+          _q = vCPUBasica::Div(a[j-1],b[tamB], resto);
         }
 
         numth::MiVec<Cifra>b2;
@@ -740,7 +728,7 @@ namespace numth{
 //        bool centinela = false;
 //        bool segundaVez = false;
 //        bool terceraVez = false;
-//        Cifra restoGuardado = cpuBasica_.resto;
+//        Cifra restoGuardado = vCPUBasica::resto;
 //        do{
 //          if(terceraVez)
 //            break; //se demuestra que como maximo se comete un error de 2 en _q
@@ -817,12 +805,11 @@ namespace numth{
     vCPUVectorial::divMP(const numth::MiVec<Cifra>& a, const Cifra b ) 
     {
 
-      vCPUBasica<Arch::ARCH> cpuBasica_ = GET_BASIC_CPU(); 
-      cpuBasica_.resto = 0;
+      Cifra resto = 0;
       numth::MiVec<Cifra> q(a.size());
 
       for(CifraSigno j=a.size()-1; j>=0; j--){
-        q[j] = cpuBasica_.Div(a[j], b);
+        q[j] = vCPUBasica::Div(a[j], b, resto);
       }
 
       //No es necesario llevar cuenta del resto aparte ya que la CPU
@@ -835,7 +822,7 @@ namespace numth{
       limpiarCeros(q);
 
       return std::pair< numth::MiVec<Cifra>, numth::MiVec<Cifra> >(q,
-          numth::MiVec<Cifra> (1, cpuBasica_.resto));
+          numth::MiVec<Cifra> (1, resto));
     }
 
   void vCPUVectorial::karatsuba(MiVec<Cifra>& resultado, 

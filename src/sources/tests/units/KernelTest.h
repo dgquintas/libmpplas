@@ -40,12 +40,13 @@ namespace com_uwyn_qtunit{
       void testBfffo();
 
     private:
-      vCPUBasica<Arch::ARCH> cpu_;
-
       Cifra one;
       Cifra two;
       Cifra three;
       Cifra zero;
+
+      Cifra overflow;
+      Cifra resto;
 
   };
 }

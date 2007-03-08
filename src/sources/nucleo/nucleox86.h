@@ -1,6 +1,3 @@
-#include <iostream>
-#include <unistd.h>
-#include <stdlib.h>
 /* 
  * $Id$
  */
@@ -12,19 +9,18 @@
    *                                                                 *
    ******************************************************************/ 
   /** Constructor por defecto de la Cpu B�sica para x86 */
-  template<>
-    inline vCPUBasica<Arch::x86>::vCPUBasica()
-      : overflow(0), resto(0)
-    {
-    }
+//  template<>
+//    inline vCPUBasica()
+//      : overflow(0), resto(0)
+//    {
+//    }
  
 
   /** Suma b�sica de dos Cifras para x86.
    *
    * @sa Add(Cifra arg1, Cifra arg2)
    */
-  template<>
-    inline Cifra vCPUBasica<Arch::x86>::Add(Cifra arg1, Cifra arg2)
+    inline Cifra Add(Cifra arg1, Cifra arg2, Cifra& overflow)
     {
       __asm__ ("xor %[_of], %[_of];"
                "addl %[_arg2], %[_arg1]; "
@@ -41,8 +37,7 @@
    *
    * @sa Addx(Cifra arg1, Cifra arg2)
    */
-  template<>
-    inline Cifra vCPUBasica<Arch::x86>::Addx(Cifra arg1, Cifra arg2) 
+    inline Cifra Addx(Cifra arg1, Cifra arg2, Cifra& overflow) 
     { 
       __asm__ ("btr $0, %[_of];"
                "adcl %[_arg2], %[_arg1];" 
@@ -60,8 +55,7 @@
    *
    * @sa Sub(Cifra arg1, Cifra arg2)
    */
-  template<>
-    inline Cifra vCPUBasica<Arch::x86>::Sub(Cifra arg1, Cifra arg2) 
+    inline Cifra Sub(Cifra arg1, Cifra arg2, Cifra& overflow) 
     { 
       __asm__ ("xor %[_of], %[_of];"
                "subl %[_arg2], %[_arg1];"
@@ -77,8 +71,7 @@
    *
    * @sa Subx(Cifra arg1, Cifra arg2)
    */
-  template<>
-    inline Cifra vCPUBasica<Arch::x86>::Subx(Cifra arg1, Cifra arg2) 
+    inline Cifra Subx(Cifra arg1, Cifra arg2, Cifra& overflow) 
     { 
       __asm__ ("btr $0, %[_of];" /* pone CF al valor del bit 0 de overflow */
                "sbbl %[_arg2], %[_arg1];"
@@ -94,8 +87,7 @@
    *
    * @sa Mul(Cifra arg1,Cifra arg2)
    */
-  template<>
-    inline Cifra vCPUBasica<Arch::x86>::Mul(Cifra arg1,Cifra arg2) 
+    inline Cifra Mul(Cifra arg1,Cifra arg2, Cifra& resto) 
     { 
       __asm__ (" mull %[_arg2]" 
           : "=a" (arg1), "=d" (resto) 
@@ -109,8 +101,7 @@
    *
    * @sa Addmul(Cifra arg1,Cifra arg2) 
    */
-  template<>
-    inline Cifra vCPUBasica<Arch::x86>::Addmul(Cifra arg1,Cifra arg2) 
+    inline Cifra Addmul(Cifra arg1,Cifra arg2, Cifra& resto) 
     { 
       __asm__ (" mull %[_arg2];"
                "addl %[_restoViejo],%[_ret];" 
@@ -126,8 +117,7 @@
    *
    * @sa Div(Cifra arg1, Cifra arg2)
    */
-   template<>
-    inline Cifra vCPUBasica<Arch::x86>::Div(Cifra arg1, Cifra arg2) 
+    inline Cifra Div(Cifra arg1, Cifra arg2, Cifra& resto) 
     { 
       __asm__ (" divl %[_arg2]" 
           : "=a" (arg1), "=d" (resto) 
@@ -142,8 +132,7 @@
     *
     *  @sa Shiftl(Cifra arg1,Cifra arg2)
     */
-  template<>
-    inline Cifra vCPUBasica<Arch::x86>::Shiftl(Cifra arg1,Cifra arg2) 
+    inline Cifra Shiftl(Cifra arg1,Cifra arg2, Cifra& resto) 
     { 
       __asm__ ("xor %[_resto], %[_resto];"
                "shldl %%cl, %[_arg1], %[_resto]; "
@@ -159,8 +148,7 @@
    *
    * @sa Shiftlr(Cifra arg1,Cifra arg2)
    */
-  template<>
-    inline Cifra vCPUBasica<Arch::x86>::Shiftlr(Cifra arg1,Cifra arg2) 
+    inline Cifra Shiftlr(Cifra arg1,Cifra arg2, Cifra& resto) 
     { 
       __asm__ ("xor %[_resto], %[_resto];"
                "shrdl %%cl, %[_arg1], %[_resto];"
@@ -176,8 +164,7 @@
    *
    * @sa Bfffo(Cifra arg1) 
    */
-  template<>
-    inline Cifra vCPUBasica<Arch::x86>::Bfffo(Cifra arg1) 
+    inline Cifra Bfffo(Cifra arg1) 
     {
       Cifra ret = (Constantes::BITS_EN_CIFRA-1), temp; 
 
@@ -193,48 +180,48 @@
       return ret; 
     }
 
-  /** Funci�n de perfilado en x86 (inv�lido).
-   *
-   * Invicar esta funci�n produce que se lance una excepci�n de tipo 
-   * Errores::ArchNoProfiling
-   */
-  template<>
-    inline void vCPUBasica<Arch::x86>::reiniciarContadores(void)
-    {
-      throw Errores::ArchNoProfiling();
-    }
-
-   /** Funci�n de perfilado en x86 (inv�lido).
-   *
-   * Invicar esta funci�n produce que se lance una excepci�n de tipo 
-   * Errores::ArchNoProfiling
-   */
- template<>
-    inline void vCPUBasica<Arch::x86>::inicioProf(void)
-    {
-      throw Errores::ArchNoProfiling();
-    }
-
-   /** Funci�n de perfilado en x86 (inv�lido).
-   *
-   * Invicar esta funci�n produce que se lance una excepci�n de tipo 
-   * Errores::ArchNoProfiling
-   */
- template<>
-    inline void vCPUBasica<Arch::x86>::finProf(void)
-    {
-      throw Errores::ArchNoProfiling();
-    }
-
-   /** Funci�n de perfilado en x86 (inv�lido).
-   *
-   * Invicar esta funci�n produce que se lance una excepci�n de tipo 
-   * Errores::ArchNoProfiling
-   */
- template<>
-    inline ResultadosProf vCPUBasica<Arch::x86>::obtenerPerfil(void)
-    {
-      throw Errores::ArchNoProfiling();
-    }
+//  /** Funci�n de perfilado en x86 (inv�lido).
+//   *
+//   * Invicar esta funci�n produce que se lance una excepci�n de tipo 
+//   * Errores::ArchNoProfiling
+//   */
+//  template<>
+//    inline void reiniciarContadores(void)
+//    {
+//      throw Errores::ArchNoProfiling();
+//    }
+//
+//   /** Funci�n de perfilado en x86 (inv�lido).
+//   *
+//   * Invicar esta funci�n produce que se lance una excepci�n de tipo 
+//   * Errores::ArchNoProfiling
+//   */
+// template<>
+//    inline void inicioProf(void)
+//    {
+//      throw Errores::ArchNoProfiling();
+//    }
+//
+//   /** Funci�n de perfilado en x86 (inv�lido).
+//   *
+//   * Invicar esta funci�n produce que se lance una excepci�n de tipo 
+//   * Errores::ArchNoProfiling
+//   */
+// template<>
+//    inline void finProf(void)
+//    {
+//      throw Errores::ArchNoProfiling();
+//    }
+//
+//   /** Funci�n de perfilado en x86 (inv�lido).
+//   *
+//   * Invicar esta funci�n produce que se lance una excepci�n de tipo 
+//   * Errores::ArchNoProfiling
+//   */
+// template<>
+//    inline ResultadosProf obtenerPerfil(void)
+//    {
+//      throw Errores::ArchNoProfiling();
+//    }
 
 

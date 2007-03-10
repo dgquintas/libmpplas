@@ -216,20 +216,27 @@ namespace numth{
 
 #ifdef ARCH_x86
   #include "nucleox86.h"
+  #define ARCH_DEFINED
 #endif
 
 #ifdef ARCH_x86_64
   #include "nucleox86_64.h"
+  #define ARCH_DEFINED
 #endif
 
 #ifdef ARCH_generic
   #include "nucleogeneric.h"
+  #define ARCH_DEFINED
 #endif
 
 #ifdef ARCH_ppc
   #include "nucleoppc.h"
+  #define ARCH_DEFINED
 #endif
 
+#ifndef ARCH_DEFINED
+  #error "ARCH not supported or not defined"
+#endif
 
 
   };

@@ -11,7 +11,7 @@
 #include <cstdlib>
 
 #ifndef ARCH
-  #define ARCH x86 //arquitectura por omisión
+  #define ARCH_x86 //arquitectura por omisión
   #define ARCHBITS 32
 #endif
 

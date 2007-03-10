@@ -70,7 +70,7 @@ except ImportError:
 
 if env['enableProf']:
   env['arch'] += 'Prof'
-env.Append(CPPDEFINES = [('ARCH', env['arch'])])
+env.Append(CPPDEFINES = 'ARCH_' + env['arch'] )
 
 if env['arch'][:6] == 'x86_64':
   env.Append(CPPDEFINES = [('ARCHBITS', '64')])

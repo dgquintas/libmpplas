@@ -214,16 +214,20 @@ namespace numth{
 
 
 
-#if ARCH == x86
+#ifdef ARCH_x86
   #include "nucleox86.h"
-#elif ARCH == x86_64
+#endif
+
+#ifdef ARCH_x86_64
   #include "nucleox86_64.h"
-#elif ARCH == generic
+#endif
+
+#ifdef ARCH_generic
   #include "nucleogeneric.h"
-#elif ARCH == ppc
+#endif
+
+#ifdef ARCH_ppc
   #include "nucleoppc.h"
-#else
-  #error "Architecture not supported"
 #endif
 
 

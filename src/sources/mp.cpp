@@ -10,16 +10,6 @@
 
 namespace numth{
 
-//  vCPUVectorial::vCPUVectorial(int numCPUs)
-//  {
-//    basicCPUs_ = new vCPUBasica<Arch::ARCH>[numCPUs];
-//  }
-//
-//  vCPUVectorial::~vCPUVectorial()
-//  {
-//    delete[] basicCPUs_;
-//  }
-
   /*** OPERACIONES BASICAS EN VECTORES UNSIGNED ***/
   /*** DESPLAZAMIENTO ***/
   void vCPUVectorial::lShift(numth::MiVec <Cifra>& a, const size_t n)

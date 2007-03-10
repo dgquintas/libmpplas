@@ -19,13 +19,9 @@ namespace numth{
   /** Procesador que trabaja con vectores de Cifras */
   namespace vCPUVectorial  {
    
-    //  vCPUVectorial(int numCPUs);
-    //  ~vCPUVectorial();
-
     /* de desplazamiento */
     void lShift(numth::MiVec <Cifra>& a, size_t n);
     void rShift(numth::MiVec <Cifra>& a, size_t n);
-
 
     /* misc. */
     //funcion de redondeo
@@ -79,9 +75,6 @@ namespace numth{
     void karatsuba(MiVec<Cifra>& resultado, const MiVec<Cifra>& x, const MiVec<Cifra>& y);
     void cuadKaratsuba(MiVec<Cifra>& resultado, const MiVec<Cifra>& x);
     
-//    private:
-//    vCPUBasica<Arch::ARCH> *basicCPUs_; 
-
   }
 }
 

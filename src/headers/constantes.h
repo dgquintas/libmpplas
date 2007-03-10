@@ -43,24 +43,24 @@ namespace numth{
   #error Unsupported number of bits ARCHBITS
 #endif
 
-  /** Las arquitecturas soportadas */
-  struct Arch {
-    enum {
-      x86,
-      x86Prof,
-      x86_64,
-      x86_64Prof,
-      generic,
-      ppc
-    };
-  };
-
-  /** Las operaciones de la vCPUBasica */
-  struct Operaciones {
-    enum {
-      Add, Addx, Sub, Subx, Addmul, Mul, Div, Shiftl, Shiftlr, Bfffo
-    };
-  };
+//  /** Las arquitecturas soportadas */
+//  struct Arch {
+//    enum {
+//      x86,
+//      x86Prof,
+//      x86_64,
+//      x86_64Prof,
+//      generic,
+//      ppc
+//    };
+//  };
+//
+//  /** Las operaciones de la vCPUBasica */
+//  struct Operaciones {
+//    enum {
+//      Add, Addx, Sub, Subx, Addmul, Mul, Div, Shiftl, Shiftlr, Bfffo
+//    };
+//  };
 
 
   

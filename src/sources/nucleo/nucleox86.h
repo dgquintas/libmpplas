@@ -8,12 +8,6 @@
    *               IMPLEMENTACI�N PARA ARQUITECTURA X86              *
    *                                                                 *
    ******************************************************************/ 
-  /** Constructor por defecto de la Cpu B�sica para x86 */
-//  template<>
-//    inline vCPUBasica()
-//      : overflow(0), resto(0)
-//    {
-//    }
  
 
   /** Suma b�sica de dos Cifras para x86.
@@ -180,48 +174,5 @@
       return ret; 
     }
 
-//  /** Funci�n de perfilado en x86 (inv�lido).
-//   *
-//   * Invicar esta funci�n produce que se lance una excepci�n de tipo 
-//   * Errores::ArchNoProfiling
-//   */
-//  template<>
-//    inline void reiniciarContadores(void)
-//    {
-//      throw Errores::ArchNoProfiling();
-//    }
-//
-//   /** Funci�n de perfilado en x86 (inv�lido).
-//   *
-//   * Invicar esta funci�n produce que se lance una excepci�n de tipo 
-//   * Errores::ArchNoProfiling
-//   */
-// template<>
-//    inline void inicioProf(void)
-//    {
-//      throw Errores::ArchNoProfiling();
-//    }
-//
-//   /** Funci�n de perfilado en x86 (inv�lido).
-//   *
-//   * Invicar esta funci�n produce que se lance una excepci�n de tipo 
-//   * Errores::ArchNoProfiling
-//   */
-// template<>
-//    inline void finProf(void)
-//    {
-//      throw Errores::ArchNoProfiling();
-//    }
-//
-//   /** Funci�n de perfilado en x86 (inv�lido).
-//   *
-//   * Invicar esta funci�n produce que se lance una excepci�n de tipo 
-//   * Errores::ArchNoProfiling
-//   */
-// template<>
-//    inline ResultadosProf obtenerPerfil(void)
-//    {
-//      throw Errores::ArchNoProfiling();
-//    }
 
 

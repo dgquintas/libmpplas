@@ -10,8 +10,8 @@
 #include <stdint.h> //C99
 #include <cstdlib>
 
-#ifndef ARCH
-  #define ARCH_x86 //arquitectura por omisión
+#ifndef ARCHBITS
+  #warning "Architecture bits not defined. Using 32"
   #define ARCHBITS 32
 #endif
 

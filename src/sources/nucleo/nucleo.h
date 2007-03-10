@@ -235,7 +235,10 @@ namespace numth{
 #endif
 
 #ifndef ARCH_DEFINED
-  #error "ARCH not supported or not defined"
+  #warning "ARCH not supported or not defined. Using x86"
+  #include "nucleox86.h"
+  #define ARCH_DEFINED
+  #define ARCHBITS 32
 #endif
 
 

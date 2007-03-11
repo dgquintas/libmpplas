@@ -111,6 +111,13 @@ namespace numth{
     operator>>(flujoEntrada,*this);
     return;
   }
+  Z::Z(const std::string& str)
+  {
+    std::istringstream flujoEntrada(str);
+    operator>>(flujoEntrada,*this);
+    return;
+  }
+
  
   Z::Z(const MiVec<Cifra>& vec)
     : coefPoliB_(vec)

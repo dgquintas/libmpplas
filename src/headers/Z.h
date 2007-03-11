@@ -34,6 +34,7 @@ namespace numth
       Z( const Cifra ); /**< construccion desde 'token' básico */
       explicit Z( const double ); /**< construccion desde double  */
       explicit Z( const char* ); /**< construccion desde cadena de caracteres */
+      explicit Z(const std::string& str); /**< construction from a std::string */
 
       Z( const MiVec<Cifra>& vec);
 

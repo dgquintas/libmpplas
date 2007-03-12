@@ -33,16 +33,16 @@ namespace numth{
 
     //paso por valor ya que debemos modificarlos en la funcion para
     //quitar posibles ceros
-    bool mayorque(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar=false ) __FUNC_CONST_ATTRIB ;
+    bool mayorque(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar=false ) ;
     // idem
-    bool menorque(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar=false ) __FUNC_CONST_ATTRIB;
+    bool menorque(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar=false ) ;
     //idem
-    bool igual(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar=false ) __FUNC_CONST_ATTRIB;
+    bool igual(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar=false ) ;
 
     /* versiones para uso con longs */
-    bool mayorque(numth::MiVec<Cifra> vec, Cifra num, bool limpiar=false )  __FUNC_CONST_ATTRIB;
-    bool menorque(numth::MiVec<Cifra> vec, Cifra num, bool limpiar=false ) __FUNC_CONST_ATTRIB ;
-    bool igual(numth::MiVec<Cifra> vec, Cifra num, bool limpiar=false ) __FUNC_CONST_ATTRIB ;
+    bool mayorque(numth::MiVec<Cifra> vec, Cifra num, bool limpiar=false )  ;
+    bool menorque(numth::MiVec<Cifra> vec, Cifra num, bool limpiar=false ) ;
+    bool igual(numth::MiVec<Cifra> vec, Cifra num, bool limpiar=false ) ;
 
 
     /* aritmeticas */

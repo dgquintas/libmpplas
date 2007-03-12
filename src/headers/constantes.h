@@ -15,6 +15,13 @@
   #define ARCHBITS 32
 #endif
 
+#ifdef __GNUC__
+  #define __FUNC_CONST_ATTRIB __attribute__ ((const))
+#else
+  #define __FUNC_CONST_ATTRIB 
+#endif
+
+
 namespace numth{
   /** Tipo de dato básico. 
    *

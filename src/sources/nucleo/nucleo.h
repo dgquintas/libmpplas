@@ -11,10 +11,10 @@
 #include <ctime>
 
 
+
 namespace numth{
 
   namespace vCPUBasica{
-
 
 
     /** Suma básica de dos Cifras
@@ -28,7 +28,7 @@ namespace numth{
      *
      * @return Parte baja de la suma de arg1 y arg2
      */
-    inline Cifra Add(Cifra arg1, Cifra arg2, Cifra& overflow);
+    inline Cifra Add(Cifra arg1, Cifra arg2, Cifra& overflow) ;
     
     /** Suma básica extendida de dos Cifras
      *
@@ -210,7 +210,7 @@ namespace numth{
     /* c = Bfffo(a) devuelve en c el número de ceros binarios a la izquierda del primer uno.
        Esto es, el número de posiciones que habria que desplazar el número binario
        hacia la izquierda para que su cifra más significativa fuera 1. */
-    inline Cifra Bfffo(Cifra arg1) ;
+    inline Cifra Bfffo(Cifra arg1) __FUNC_CONST_ATTRIB;
 
 
 

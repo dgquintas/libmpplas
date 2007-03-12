@@ -27,22 +27,22 @@ namespace numth{
     //funcion de redondeo
     long redondear(const numth::MiVec<Cifra>& a, size_t exceso, const int8_t signo);
     
-    size_t numBits(const Cifra num);
+    size_t numBits(const Cifra num) __FUNC_CONST_ATTRIB;
     
     /* de comparacion */
 
     //paso por valor ya que debemos modificarlos en la funcion para
     //quitar posibles ceros
-    bool mayorque(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar=false )  ;
+    bool mayorque(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar=false ) __FUNC_CONST_ATTRIB ;
     // idem
-    bool menorque(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar=false ) ;
+    bool menorque(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar=false ) __FUNC_CONST_ATTRIB;
     //idem
-    bool igual(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar=false ) ;
+    bool igual(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar=false ) __FUNC_CONST_ATTRIB;
 
     /* versiones para uso con longs */
-    bool mayorque(numth::MiVec<Cifra> vec, Cifra num, bool limpiar=false )  ;
-    bool menorque(numth::MiVec<Cifra> vec, Cifra num, bool limpiar=false )  ;
-    bool igual(numth::MiVec<Cifra> vec, Cifra num, bool limpiar=false )  ;
+    bool mayorque(numth::MiVec<Cifra> vec, Cifra num, bool limpiar=false )  __FUNC_CONST_ATTRIB;
+    bool menorque(numth::MiVec<Cifra> vec, Cifra num, bool limpiar=false ) __FUNC_CONST_ATTRIB ;
+    bool igual(numth::MiVec<Cifra> vec, Cifra num, bool limpiar=false ) __FUNC_CONST_ATTRIB ;
 
 
     /* aritmeticas */
@@ -57,7 +57,7 @@ namespace numth{
     //en el algoritmo para trabajar localmente con ellos
     std::pair< numth::MiVec<Cifra>, numth::MiVec<Cifra> > 
       divMP(numth::MiVec<Cifra> a,
-          numth::MiVec<Cifra> b );
+          numth::MiVec<Cifra> b ) ;
 
     /* version de uso con precision simple */
     MiVec<Cifra> sumaMP(const numth::MiVec<Cifra>& a, const Cifra b ) ;

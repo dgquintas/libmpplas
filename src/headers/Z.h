@@ -56,7 +56,7 @@ namespace numth
        *
        *  @return El entero correspondiente a la conversión.
        */
-      static Z convertir(const Cifra numSimple);
+//      static Z convertir(const Cifra numSimple);
 
 
       /** Función de conversión de tipo long a Z (entero).
@@ -68,7 +68,7 @@ namespace numth
        *
        *  @return El entero correspondiente a la conversión.
        */
-      static Z convertir(const CifraSigno numSimple);
+//      static Z convertir(const CifraSigno numSimple);
 
 
       /** Función de conversión de tipo cadena de caracteres a Z (entero).
@@ -84,7 +84,7 @@ namespace numth
        *
        *  @return El entero correspondiente a la conversión.
        */
-      static Z convertir(const char* cadena) throw(Errores::Sintactic);
+//      static Z convertir(const char* cadena) throw(Errores::Sintactic);
 
 
       /** Función de conversión de tipo double a Z (entero).
@@ -97,7 +97,7 @@ namespace numth
        *
        *  @return El entero correspondiente a la conversión.
        */
-      static Z convertir(const double numFlotante);
+//      static Z convertir(const double numFlotante);
 
       /** Función de conversión de tipo MiVec<Cifra> a Z (entero).
        *
@@ -109,7 +109,7 @@ namespace numth
        *
        *  @return El entero correspondiente a la conversión.
        */
-      static Z convertir(const MiVec<Cifra>& vec);
+//      static Z convertir(const MiVec<Cifra>& vec);
 
 
       /** Operador de asignación desde Z.

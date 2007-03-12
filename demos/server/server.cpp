@@ -9,6 +9,7 @@
 #include "Random.h"
 #include "Primos.h"
 #include "GCD.h"
+#include "Potencia.h"
 #include "Funciones.h"
 
 /***********************************************
@@ -105,6 +106,72 @@ class ZModMethod : public xmlrpc_c::method {
         *retvalP = xmlrpc_c::value_string( (op1 % op2).toString() );
       }
 };
+
+/***********************************************
+ *************  MODULAR INTEGERS ***************
+ ***********************************************/
+class ModExpMethod : public xmlrpc_c::method {
+  public:
+    
+    ModExpMethod() {
+      this->_signature = "s:sss";
+      this->_help = "This method returns the result of the modular exponentiation (arg1 ^ arg2) MOD arg3"; 
+
+      numth::Funciones::getInstance()->getFunc(pmod);
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        numth::Z op1(paramList.getString(0));
+        numth::Z const op2(paramList.getString(1));
+        numth::Z const op3(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        pmod->potModular(&op1,op2,op3);
+        
+        *retvalP = xmlrpc_c::value_string( op1.toString() );
+      }
+
+  private:
+    numth::PotModular* pmod;
+};
+
+class ModInverseMethod : public xmlrpc_c::method {
+  public:
+    
+    ModInverseMethod() {
+      this->_signature = "s:ss";
+      this->_help = "This method returns the result of the modular inverse (arg1 ^ -1) MOD arg2"; 
+
+      numth::Funciones::getInstance()->getFunc(pmod);
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        numth::Z const op1(paramList.getString(0));
+        numth::Z const op2(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        numth::Z res;
+        
+        try {
+          res = pmod->inversa(op1,op2);
+        }
+        catch(numth::Errores::ElementoNoInvertible e){
+          res.hacerCero();
+        }
+          
+        
+        
+        *retvalP = xmlrpc_c::value_string( res.toString() );
+      }
+
+  private:
+    numth::PotModular* pmod;
+};
+
 
 
 /***********************************************
@@ -209,6 +276,10 @@ class GCDMethod : public xmlrpc_c::method {
 
 
 
+
+
+
+
 int main(int const, const char ** const) {
 
     try {
@@ -219,6 +290,9 @@ int main(int const, const char ** const) {
         xmlrpc_c::methodPtr const ZMulMethodP(new ZMulMethod);
         xmlrpc_c::methodPtr const ZDivMethodP(new ZDivMethod);
         xmlrpc_c::methodPtr const ZModMethodP(new ZModMethod);
+        
+        xmlrpc_c::methodPtr const ModExpMethodP(new ModExpMethod);
+        xmlrpc_c::methodPtr const ModInverseMethodP(new ModInverseMethod);
         
         xmlrpc_c::methodPtr const RandomZMethodP(new RandomZMethod);
 
@@ -233,6 +307,9 @@ int main(int const, const char ** const) {
         myRegistry.addMethod("zDiv", ZDivMethodP);
         myRegistry.addMethod("zMod", ZModMethodP);
         
+        myRegistry.addMethod("modExp", ModExpMethodP);
+        myRegistry.addMethod("modInverse", ModInverseMethodP);
+        
         myRegistry.addMethod("getRandomZ", RandomZMethodP);
 
         myRegistry.addMethod("getPrime", GenPrimeMethodP);
@@ -244,7 +321,7 @@ int main(int const, const char ** const) {
         
         xmlrpc_c::serverAbyss abyssServer(xmlrpc_c::serverAbyss::constrOpt()
             .registryP(&myRegistry)
-            .portNumber(8080)
+            .portNumber(1729)
             );
 
         abyssServer.run();

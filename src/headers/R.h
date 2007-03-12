@@ -148,6 +148,12 @@ namespace numth
    // constructores
     R() /**< constructor por defecto */;
     R( const R& ); /**< constructor de copia */
+    R( const CifraSigno ); /**< construccion desde simple precision */
+    R( const Cifra ); /**< construccion desde 'token' básico */
+    explicit R( const char* ); /**< construccion desde cadena de caracteres */
+    explicit R( const double ); /**< construccion desde double */
+    explicit R( const Z& ); /**< constructor desde Z */
+
      
     /** Función de conversión de tipo Cifra a R (real).
      *
@@ -158,7 +164,7 @@ namespace numth
      *
      *  @return El real correspondiente a la conversión.
      */
-    static R convertir(const Cifra numSimple);
+//    static R convertir(const Cifra numSimple);
      /** Función de conversión de tipo CifraSigno a R (real).
      *
      *  @par Complejidad:
@@ -168,7 +174,7 @@ namespace numth
      *
      *  @return El real correspondiente a la conversión.
      */  
-    static R convertir(const CifraSigno numSimple);
+//    static R convertir(const CifraSigno numSimple);
       /** Función de conversión de tipo cadena de caracteres a R (real).
        * 
        *  @par Complejidad:
@@ -182,7 +188,7 @@ namespace numth
        *
        *  @return El real correspondiente a la conversión.
        */
-   static R convertir(const char* cadena);
+//   static R convertir(const char* cadena);
      /** Función de conversión de tipo double a R (real).
      *
      *  @par Complejidad:
@@ -192,7 +198,7 @@ namespace numth
      *
      *  @return El real correspondiente a la conversión.
      */
-   static R convertir(const double numFlotante);
+//   static R convertir(const double numFlotante);
      /** Función de conversión de Z (entero) a R (real).
      *
      *  @par Complejidad:
@@ -202,7 +208,7 @@ namespace numth
      *
      *  @return El real correspondiente a la conversión.
      */
-   static R convertir(const Z& entero);
+//   static R convertir(const Z& entero);
 
       /** Operador de asignación desde R.
        *
@@ -644,11 +650,6 @@ namespace numth
     
     
     private:
-    R( const CifraSigno ); /**< construccion desde simple precision */
-    R( const Cifra ); /**< construccion desde 'token' básico */
-    R( const char* ); /**< construccion desde cadena de caracteres */
-    R( const double ); /**< construccion desde double */
-    R( const Z& ); /**< constructor desde Z */
 
     CifraSigno exponente_;
     Z mantisa_;

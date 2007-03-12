@@ -37,7 +37,7 @@ namespace numth{
       //Esto se utiliza para la función de detección de potencias de
       //primo
       Z_n z(p); 
-      const Z pMenosUno(p-1); //pMenosUno--;
+      Z pMenosUno(p); pMenosUno--;
       const size_t b = pMenosUno.numDoses();
       const Z m = pMenosUno >> b;
       

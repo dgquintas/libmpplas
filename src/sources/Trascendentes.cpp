@@ -67,7 +67,7 @@ namespace numth{
 
     R result; result.hacerCero();
     R dos;
-    dos = R::convertir((Cifra)2);
+    dos = R((Cifra)2);
 
     if( x < dos ){
       R xMenosUno = x-1;
@@ -144,7 +144,7 @@ namespace numth{
     R result; result.hacerCero();
     R resultAntes;
 
-    R xMasUno = R::convertir((Cifra)3);
+    R xMasUno = R((Cifra)3);
     acum = (xMenosUno/xMasUno);
     R xMenosUnoEntreXMasUno2= acum^2;
 
@@ -189,7 +189,7 @@ namespace numth{
 //    cout << DosPi << endl;
     Z cociente = (x / DosPi).floor();
 //    cout << cociente << endl;
-    R xRed = x - (DosPi * R::convertir(cociente));
+    R xRed = x - (DosPi * R(cociente));
 //    cout << xRed << endl;
     
     R::precision(precVieja);
@@ -218,7 +218,7 @@ namespace numth{
     R result,resultAntes; 
     
     //FIXME comprobar el valor absoluto de x
-    if( x < R::convertir((Cifra)1) ){
+    if( x < R((Cifra)1) ){
       acum = x;
       R signo; signo.hacerUno(); signo.cambiarSigno();
       R xCuad = x^2;

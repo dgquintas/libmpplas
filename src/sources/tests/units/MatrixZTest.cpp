@@ -59,7 +59,7 @@ void MatrixZTest::testToString(){
 
 void MatrixZTest::testSetDiagonal(){
   MatrixZ id(3,3);
-  id.setDiagonal(1);
+  id.setDiagonal((Cifra)1);
   
   MatrixZ realId("[1 0 0; 0 1 0; 0 0 1]");
   qassertTrue(id == realId);

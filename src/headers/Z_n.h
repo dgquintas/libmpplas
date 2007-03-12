@@ -19,17 +19,17 @@ namespace numth{
        *
        * @param mod Entero representando el módulo reductor.
        */
-      Z_n( const Z& mod);
+      explicit Z_n( const Z& mod);
        /** Constructor de \f$Z_n\f$ dado \f$n\f$.
        *
        * @param mod Cifra representando el módulo reductor.
        */
-     Z_n( Cifra mod);
+     explicit Z_n( Cifra mod);
        /** Constructor de \f$Z_n\f$ dado \f$n\f$.
        *
        * @param mod CifraSigno representando el módulo reductor.
        */
-     Z_n( CifraSigno mod);
+     explicit Z_n( CifraSigno mod);
       
        /** Constructor de \f$Z_n\f$ a partir de un entero y \f$n\f$.
        *

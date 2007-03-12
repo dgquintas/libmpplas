@@ -60,12 +60,12 @@ namespace numth{
 //    return temp;
 //  }
 //
-  Z Z::convertir(const MiVec<Cifra>& vec)
-  {
-    Z temp; temp.coefPoliB_ = vec;
-    temp.limpiarCeros();
-    return temp;
-  }
+//  Z Z::convertir(const MiVec<Cifra>& vec)
+//  {
+//    Z temp; temp.coefPoliB_ = vec;
+//    temp.limpiarCeros();
+//    return temp;
+//  }
 
   /* constructores privados para el uso de la funcion de conversion */
   Z::Z(const CifraSigno otro)
@@ -111,20 +111,23 @@ namespace numth{
     operator>>(flujoEntrada,*this);
     return;
   }
+ 
+
   Z::Z(const std::string& str)
   {
     std::istringstream flujoEntrada(str);
     operator>>(flujoEntrada,*this);
     return;
   }
-
- 
+  
   Z::Z(const MiVec<Cifra>& vec)
     : coefPoliB_(vec)
   {
     signo_ = 1;
     this->limpiarCeros();
   }
+
+  
 
   Z::~Z()
   {

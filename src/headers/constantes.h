@@ -117,11 +117,11 @@ namespace numth{
     /** Maximo valor de un unsigned long */
     static const unsigned long ULONG_MAX = std::numeric_limits<unsigned long>::max();
 
-#ifdef LONG_MAX
-#undef LONG_MAX
-#endif
-    /** Maximo valor de un long */
-    static const long LONG_MAX = std::numeric_limits<long>::max();
+//#ifdef LONG_MAX
+//#undef LONG_MAX
+//#endif
+//    /** Maximo valor de un long */
+//    static const long LONG_MAX = std::numeric_limits<long>::max();
 
 #ifdef SIZE_T_MAX
 #undef SIZE_T_MAX
@@ -164,7 +164,7 @@ namespace numth{
 
     /** Número de cifras en base \f$2^{BITS_EN_CIFRA}\f$ a partir del cual se usa
     * la multiplicacion de Karatsuba */
-    static const size_t UMBRAL_KARATSUBA = 64; 
+    static const size_t UMBRAL_KARATSUBA = 160; 
 
     /** Número de cifras en base \f$2^{BITS_EN_CIFRA}\f$ a partir del cual se usa
     * karatsuba para el calculo del cuadrado. */

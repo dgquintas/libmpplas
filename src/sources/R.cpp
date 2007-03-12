@@ -22,31 +22,31 @@ namespace numth{
     : exponente_(otro.exponente_), mantisa_(otro.mantisa_)
   {}
 
-  R R::convertir(const Cifra origen)
-  {
-    R temp(origen);
-    return temp;
-  }
-  R R::convertir(const CifraSigno origen)
-  {
-    R temp(origen);
-    return temp;
-  }
-  R R::convertir(const char* origen)
-  {
-    R temp(origen);
-    return temp;
-  } 
-  R R::convertir(const double origen)
-  {
-    R temp(origen);
-    return temp;
-  } 
-  R R::convertir(const Z& origen)
-  {
-    R temp(origen);
-    return temp;
-  } 
+//  R R::convertir(const Cifra origen)
+//  {
+//    R temp(origen);
+//    return temp;
+//  }
+//  R R::convertir(const CifraSigno origen)
+//  {
+//    R temp(origen);
+//    return temp;
+//  }
+//  R R::convertir(const char* origen)
+//  {
+//    R temp(origen);
+//    return temp;
+//  } 
+//  R R::convertir(const double origen)
+//  {
+//    R temp(origen);
+//    return temp;
+//  } 
+//  R R::convertir(const Z& origen)
+//  {
+//    R temp(origen);
+//    return temp;
+//  } 
 
   R::R(const CifraSigno otro)
     : exponente_(0), mantisa_(otro)
@@ -131,22 +131,22 @@ namespace numth{
     //FIXME: ESTO ES UNA GRAN CHAPUZA
     if(sueloDecimal2){
       this->operator=(sueloDecimal2);
-      this->operator/=(convertir((CifraSigno)potenciaFinal));
+      this->operator/=(R((CifraSigno)potenciaFinal));
 
-      this->operator+=(convertir((CifraSigno)sueloDecimal1));
-      this->operator/=(convertir((CifraSigno)potenciaInicial));
-      this->operator+=(convertir((CifraSigno)sueloEntero));
+      this->operator+=(R((CifraSigno)sueloDecimal1));
+      this->operator/=(R((CifraSigno)potenciaInicial));
+      this->operator+=(R((CifraSigno)sueloEntero));
     }
     else{
       this->operator=(sueloDecimal1);
-      this->operator/=(convertir((CifraSigno)potenciaFinal));
-      this->operator+=(convertir((CifraSigno)sueloEntero));
+      this->operator/=(R((CifraSigno)potenciaFinal));
+      this->operator+=(R((CifraSigno)sueloEntero));
     }
 
     if(sueloEnteroAlto){
-      this->operator/=(convertir((CifraSigno)potenciaInicial));
-      this->operator+=(convertir((CifraSigno)sueloEnteroAlto));
-      this->operator*=(convertir((CifraSigno)potenciaInicial));
+      this->operator/=(R((CifraSigno)potenciaInicial));
+      this->operator+=(R((CifraSigno)sueloEnteroAlto));
+      this->operator*=(R((CifraSigno)potenciaInicial));
     }
 
     if(negativo)
@@ -719,13 +719,13 @@ namespace numth{
     if( largo.esCero() )
       throw Errores::DivisionPorCero();
 
-    if( largo > R::convertir(corto)) { //FIXME
+    if( largo > R(corto)) { //FIXME
       R cero;
       cero.hacerCero();
       return cero;
     }
     else 
-      if( largo < R::convertir(corto) ){ //FIXME
+      if( largo < R(corto) ){ //FIXME
         R cociente = corto / largo;
         return cociente;
       }
@@ -839,7 +839,7 @@ namespace numth{
 
       entero = numero.floor();
       //out << entero ;
-      numero -= entero;
+      numero -= R(entero);
 
       //  if( R::precisionSalida() > 0 ){ //FIXME: forzar q siempre lo sea
 
@@ -866,7 +866,7 @@ namespace numth{
       for(size_t i = 0; i < precisionUsada; i++){
         numero *= (Cifra)10;  
         entero = numero.floor();  
-        numero -= entero;  
+        numero -= R(entero);  
         redondeo /= (Cifra)10;  
       }
 
@@ -885,7 +885,7 @@ namespace numth{
       //    Z::precisionSalida(limitePrec);
       oss << entero ;
       //    Z::precisionSalida(precEntAntigua);
-      numeroRed -= entero;
+      numeroRed -= R(entero);
       oss << "." ;
       for(size_t i = 0; i < precisionUsada; i++){
         //FIXME: se puede hacer que, tras haber sacado cant_cifras_frac % max_pot_9_en_long,
@@ -893,7 +893,7 @@ namespace numth{
         numeroRed *= (Cifra)10;
         entero = numeroRed.floor();
         oss << entero ;
-        numeroRed -= entero;
+        numeroRed -= R(entero);
       }
       //	}
 
@@ -965,10 +965,10 @@ namespace numth{
       if(negativo){
         numero.cambiarSigno();
         entero.cambiarSigno();
-        numero -= entero;
+        numero -= R(entero);
       }
       else
-        numero += entero;
+        numero += R(entero);
 
       numero.normalizar();
 

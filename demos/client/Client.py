@@ -4,20 +4,21 @@ from Configuration import Configuration
 global_config = Configuration()
 global_rpcServer = RPCServer.getInstance( global_config.url )
 
-
-
 filteredMethods = filter(lambda mName: mName[:7] != 'system.', 
                           global_rpcServer.system.listMethods())
 
 proxyFuncsSrc = """def %s(*args): 
-  for i in xrange(len(args)):
-    args[i] = str(args[i])
-  return global_rpcServer.%s(*args)
+  newArgs = []
+  for arg in args:
+    newArgs.append(str(arg))
+  return global_rpcServer.%s(*newArgs)
 """
 
 for mName in filteredMethods:
   exec( proxyFuncsSrc % (mName,mName), globals(), locals() )
 
+def listAvailableFunctions():
+  print filteredMethods
 
 class Z(object):
 

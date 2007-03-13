@@ -1,5 +1,6 @@
 #include <cassert>
 #include <stdexcept>
+#include <cstdlib>
 
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
@@ -174,6 +175,7 @@ class ModInverseMethod : public xmlrpc_c::method {
 
 
 
+
 /***********************************************
  ************** RANDOM Z ***********************
  ***********************************************/
@@ -181,7 +183,7 @@ class RandomZMethod : public xmlrpc_c::method {
   public:
     
     RandomZMethod() {
-      this->_signature = "s:i";
+      this->_signature = "s:s";
       this->_help = "This method returns a random interger of the specified number of bits"; 
 
       numth::Funciones::getInstance()->getFunc(rnd);
@@ -189,7 +191,7 @@ class RandomZMethod : public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        const int bits = paramList.getInt(0);
+        const int bits = std::atoi( paramList.getString(0).c_str() );
         paramList.verifyEnd(1);
         
         *retvalP = xmlrpc_c::value_string( (rnd->leerBits( bits )).toString() );
@@ -206,7 +208,7 @@ class GenPrimeMethod : public xmlrpc_c::method {
   public:
     
     GenPrimeMethod() {
-      this->_signature = "s:i";
+      this->_signature = "s:s";
       this->_help = "This method returns a prime of at least the specified number of bits"; 
 
       numth::Funciones::getInstance()->getFunc(primes);
@@ -214,7 +216,7 @@ class GenPrimeMethod : public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        const int bits = paramList.getInt(0);
+        const int bits = std::atoi( paramList.getString(0).c_str() );
         paramList.verifyEnd(1);
         
         *retvalP = xmlrpc_c::value_string( (primes->leerPrimoProb( bits )).toString() );

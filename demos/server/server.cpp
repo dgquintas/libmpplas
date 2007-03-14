@@ -1,15 +1,19 @@
 #include <cassert>
 #include <stdexcept>
 #include <cstdlib>
+#include <vector>
 
 #include <xmlrpc-c/base.hpp>
+#include <xmlrpc-c/girerr.hpp>
 #include <xmlrpc-c/registry.hpp>
 #include <xmlrpc-c/server_abyss.hpp>
 
+#include "MiVec.h"
 #include "Z.h"
 #include "Random.h"
 #include "Primos.h"
 #include "GCD.h"
+#include "CRT.h"
 #include "Potencia.h"
 #include "Funciones.h"
 
@@ -107,7 +111,41 @@ class ZModMethod : public xmlrpc_c::method {
         *retvalP = xmlrpc_c::value_string( (op1 % op2).toString() );
       }
 };
+class ZFactorialMethod : public xmlrpc_c::method {
+  public:
+    
+    ZFactorialMethod() {
+      this->_signature = "s:s";
+      this->_help = "This method returns the factorial of the given integer"; 
+    }
 
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        numth::Z op1(paramList.getString(0));
+
+        paramList.verifyEnd(1);
+
+        *retvalP = xmlrpc_c::value_string( (op1.factorial()).toString() );
+      }
+};
+class ZPowMethod : public xmlrpc_c::method {
+  public:
+    
+    ZPowMethod() {
+      this->_signature = "s:s";
+      this->_help = "This method returns the exponentiation of the first argument (base) by the second (exponent)"; 
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        numth::Z op1(paramList.getString(0));
+        numth::Z op2(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        *retvalP = xmlrpc_c::value_string( (op1 ^ op2).toString() );
+      }
+};
 /***********************************************
  *************  MODULAR INTEGERS ***************
  ***********************************************/
@@ -162,6 +200,7 @@ class ModInverseMethod : public xmlrpc_c::method {
         }
         catch(numth::Errores::ElementoNoInvertible e){
           res.hacerCero();
+          throw(girerr::error(e.what()));
         }
           
         
@@ -195,6 +234,28 @@ class RandomZMethod : public xmlrpc_c::method {
         paramList.verifyEnd(1);
         
         *retvalP = xmlrpc_c::value_string( (rnd->leerBits( bits )).toString() );
+      }
+
+  private:
+    numth::RandomRapido* rnd;
+};
+
+class RandomZLessThanMethod : public xmlrpc_c::method {
+  public:
+    
+    RandomZLessThanMethod() {
+      this->_signature = "s:s";
+      this->_help = "This method returns a random interger that is less than the given one"; 
+
+      numth::Funciones::getInstance()->getFunc(rnd);
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        numth::Z const op1(paramList.getString(0));
+        paramList.verifyEnd(1);
+        
+        *retvalP = xmlrpc_c::value_string( (rnd->leerEntero( op1 )).toString() );
       }
 
   private:
@@ -276,11 +337,42 @@ class GCDMethod : public xmlrpc_c::method {
     numth::GCD* gcd;
 };
 
+/***********************************************
+ ****************    CRT    ********************
+ ***********************************************/
+class CRTMethod : public xmlrpc_c::method {
+  public:
+    
+    CRTMethod() {
+      this->_signature = "s:AA";
+      this->_help = "This method returns the modular eq. system defined by the two arrays of integers given";
 
+      numth::Funciones::getInstance()->getFunc(crt);
+    }
 
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
+      std::vector<xmlrpc_c::value> y = paramList.getArray(0);
+      std::vector<xmlrpc_c::value> m = paramList.getArray(1);
 
+      paramList.verifyEnd(2);
+      if ( y.size() != m.size() ){
+          throw(girerr::error("Array parameters for the CRT should have the same length"));
+      }
 
+      numth::MiVec<numth::Z> yZ, mZ;
+      for( int i = 0; i < y.size(); i++ ){ //both 
+
+        yZ.push_back( numth::Z(( xmlrpc_c::value_string(y[i]) ) ));
+        mZ.push_back( numth::Z(( xmlrpc_c::value_string(m[i]) ) ));
+      }
+
+      *retvalP = xmlrpc_c::value_string( (crt->crt(yZ, mZ)).toString() );
+    }
+
+  private:
+    numth::CRT* crt;
+};
 
 int main(int const, const char ** const) {
 
@@ -292,32 +384,45 @@ int main(int const, const char ** const) {
         xmlrpc_c::methodPtr const ZMulMethodP(new ZMulMethod);
         xmlrpc_c::methodPtr const ZDivMethodP(new ZDivMethod);
         xmlrpc_c::methodPtr const ZModMethodP(new ZModMethod);
+        xmlrpc_c::methodPtr const ZPowMethodP(new ZPowMethod);
         
+        xmlrpc_c::methodPtr const ZFactorialMethodP(new ZFactorialMethod);
+
         xmlrpc_c::methodPtr const ModExpMethodP(new ModExpMethod);
         xmlrpc_c::methodPtr const ModInverseMethodP(new ModInverseMethod);
         
         xmlrpc_c::methodPtr const RandomZMethodP(new RandomZMethod);
+        xmlrpc_c::methodPtr const RandomZLessThanMethodP(new RandomZLessThanMethod);
 
         xmlrpc_c::methodPtr const GenPrimeMethodP(new GenPrimeMethod);
         xmlrpc_c::methodPtr const PrimeTestMethodP(new PrimeTestMethod);
         
         xmlrpc_c::methodPtr const GCDMethodP(new GCDMethod);
+        
+        xmlrpc_c::methodPtr const CRTMethodP(new CRTMethod);
 
         myRegistry.addMethod("zAdd", ZAddMethodP);
         myRegistry.addMethod("zSub", ZSubMethodP);
         myRegistry.addMethod("zMul", ZMulMethodP);
         myRegistry.addMethod("zDiv", ZDivMethodP);
         myRegistry.addMethod("zMod", ZModMethodP);
+        myRegistry.addMethod("zPow", ZPowMethodP);
+
+        myRegistry.addMethod("zFactorial", ZFactorialMethodP);
+
         
         myRegistry.addMethod("modExp", ModExpMethodP);
         myRegistry.addMethod("modInverse", ModInverseMethodP);
         
-        myRegistry.addMethod("getRandomZ", RandomZMethodP);
+        myRegistry.addMethod("randomZ", RandomZMethodP);
+        myRegistry.addMethod("randomZLessThan", RandomZLessThanMethodP);
 
         myRegistry.addMethod("getPrime", GenPrimeMethodP);
         myRegistry.addMethod("isPrime", PrimeTestMethodP);
         
-        myRegistry.addMethod("getGCD", GCDMethodP);
+        myRegistry.addMethod("gcd", GCDMethodP);
+        
+        myRegistry.addMethod("crt", CRTMethodP);
 
 
         

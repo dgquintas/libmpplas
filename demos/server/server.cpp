@@ -414,8 +414,8 @@ int main(int const, const char ** const) {
         myRegistry.addMethod("modExp", ModExpMethodP);
         myRegistry.addMethod("modInverse", ModInverseMethodP);
         
-        myRegistry.addMethod("randomZ", RandomZMethodP);
-        myRegistry.addMethod("randomZLessThan", RandomZLessThanMethodP);
+        myRegistry.addMethod("getRandomZ", RandomZMethodP);
+        myRegistry.addMethod("getRandomZLessThan", RandomZLessThanMethodP);
 
         myRegistry.addMethod("getPrime", GenPrimeMethodP);
         myRegistry.addMethod("isPrime", PrimeTestMethodP);

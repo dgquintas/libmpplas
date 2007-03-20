@@ -1,0 +1,99 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<script type="text/javascript">
+function scrollWindow()
+  {
+  window.scrollTo(0,10000)
+  }
+</script>
+</head>
+<body onLoad="scrollWindow()">
+
+
+<div id="searchable"><h2 id="XML-RPCTester">XML-RPC Tester</h2>
+<p>
+</p>
+<div id="txInfo"></div>
+<br/>
+
+<script type="text/javascript" src="/jsolait/jsolait.js"></script>
+<script type="text/javascript">jsolait.baseURI="/jsolait";</script>
+<script type="text/javascript">
+//<![CDATA[
+var xmlrpc=null;
+try{
+    var xmlrpc = imprt("xmlrpc");
+    var addr = "http://di015.edv.uniovi.es:1729/RPC2"
+    var service = new xmlrpc.ServiceProxy(addr);
+
+}catch(e){
+    alert(e);
+    throw "importing of xmlrpc module failed.";
+}
+
+showFuncs = function(){
+    var rslt = eval("service.system.listMethods()");
+    rslt = "" + rslt;
+    var txInfo = document.getElementById("txInfo");
+    var splitted = rslt.split(",")
+	
+    for(var i = 0; i < splitted.length; i++){
+	var doc = eval("service.system.methodHelp('"+ splitted[i] +"')")
+	splitted[i] = "<b>" + splitted[i] + "</b>" + ": " + doc
+    }
+
+    txInfo.innerHTML = splitted.join("<br />")
+}
+
+onSubmit = function(){
+    var evalStr = document.getElementById("txEval").value;
+    var txRslt = document.getElementById("txResult");
+    
+    txRslt.innerHTML = "";
+    
+    try{
+        rslt = eval("service." + evalStr);
+	rslt = "" + rslt;
+	var arr = new Array()
+	for(var i = 0 ; i < rslt.length; i+=70){	
+		arr.push( rslt.substr(i, 70) );
+	}
+	
+        txRslt.innerHTML = arr.join("<br/>");
+	scrollWindow()
+    }catch(e){
+        var em;
+        if(e.toTraceString){
+            em=e.toTraceString();
+        }else{
+           em = e.message;
+        }
+        txRslt.innerHTML = "Error trace: \n\n" + em;
+    }
+    return false;
+}
+
+// ]]>
+</script>
+<div class='jscodeblock'>
+<input type="text" id="txEval" size="60" class="code2" /><br/>
+</div>
+
+
+<button type="button" onclick="onSubmit()">run</button><br />
+<button type="button" onclick="showFuncs()">Mostrar metodos disponibles</button><br />
+        <br />
+        <div id="txResult"></div>
+
+</div>
+   </div>
+   
+  
+
+
+ </body>
+</html>
+

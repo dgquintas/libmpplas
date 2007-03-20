@@ -7,6 +7,7 @@
 #include <xmlrpc-c/girerr.hpp>
 #include <xmlrpc-c/registry.hpp>
 #include <xmlrpc-c/server_abyss.hpp>
+#include <xmlrpc-c/abyss.h>
 
 #include "MiVec.h"
 #include "Z.h"
@@ -426,12 +427,26 @@ int main(int const, const char ** const) {
 
 
         
-        xmlrpc_c::serverAbyss abyssServer(xmlrpc_c::serverAbyss::constrOpt()
-            .registryP(&myRegistry)
-            .portNumber(1729)
-            );
+//        xmlrpc_c::serverAbyss abyssServer(xmlrpc_c::serverAbyss::constrOpt()
+//            .registryP(&myRegistry)
+//            .portNumber(1729)
+//            );
 
-        abyssServer.run();
+	TServer abyssServer;
+	MIMETypeAdd("text/html", "html");
+	MIMETypeInit();
+	MIMETypeAdd("text/html", "html");
+	ServerCreate(&abyssServer, "XmlRpcServer", 1729,
+                    "./",
+	            "./abyss.log");
+
+	xmlrpc_c::server_abyss_set_handlers(&abyssServer, &myRegistry);
+	ServerInit(&abyssServer);
+	
+	MIMETypeAdd("text/html", "html");
+	ServerRun(&abyssServer);
+	MIMETypeAdd("text/html", "html");
+//        abyssServer.run();
         // xmlrpc_c::serverAbyss.run() never returns
         assert(false);
     } catch (std::exception const& e) {

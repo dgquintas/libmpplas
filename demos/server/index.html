@@ -1,7 +1,4 @@
-<!DOCTYPE html
-    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es">
 <head>
 <script type="text/javascript">
 function scrollWindow()
@@ -15,6 +12,99 @@ function scrollWindow()
 
 <div id="searchable"><h2 id="XML-RPCTester">XML-RPC Tester</h2>
 <p>
+Como otra forma adicional de acceder al servidor, está la implementación en 
+Javascript de un cliente de XML-RPC. Esta es otra muestra de la versatilidad que
+la utilización de este mecanismo ofrece. Además, dado que XML-RPC se sostiene 
+en un servidor HTTP, es posible hacer que éste mismo servidor sirva (valga la
+redundancia) esta misma página, con el código javascript que hace de cliente
+de ese mismo. En resumen, dondequiera que se este ejecutando este servidor, ofreciendo
+los métodos oportunos de la librería, es posible acceder a sus servicios vía un navegador
+web con el javascript activado. Claro está, no deja de ser también un servidor XML-RPC 
+en toda regla, con lo que cualquier otro cliente (por ejemplo, el basado en Python) 
+puede conectarse al mismo.<br/>
+Dado que, en este momento, la implementacion cliente en javascript no es mucho más que una
+prueba de concepto, no soporta más que llamadas simples a los métodos. Es decir:
+<blockquote>
+<code>
+	zAdd( getRandomZ('100'), '123' )
+</code>
+</blockquote>
+<b>no</b> está soportado actualmente. Por contra, por ejemplo, 
+<blockquote>
+<code>
+	zAdd( '10', '123' )
+</code>
+</blockquote>
+sí lo está. 
+</p>
+<p>
+Los argumentos de las funciones son cadenas de caraceres (strings), que deben especificarse
+como en los ejemplos anteriores, entrecomilladas. Esto es también una consecuencia de que 
+se están invocando los métodos de forma directa, sin capa intermedia que lime todas estas
+asperezas.
+</p>
+<p>
+Para obtener una lista de las funciones soportadas por el servidor, hacer click en el botón 
+correspondiente. NB: éste es un mecanismo automático: no es necesario cambio alguno en el cliente
+si a posteriori el servidor implementase más métodos o cambiase la especificación de los presentes. 
+El cliente inspecciona dinámicamente qué es lo que ofrece el servidor.
+</p>
+<p>
+<h3>Algunos ejemplos:</h3>
+<ul>
+<li> Obtención de primos:
+<blockquote>
+<code>
+getPrime('1024')
+<br/>
+<br/>
+1572931240260293194828558297396431333961075149066337129429682482876119<br/>
+5572295097690617187361473533020210188861680447933555479651217172352352<br/>
+6397676689326342355553563617071043916387850879815784885312207312207920<br/>
+0255811568960235085768393512763941652583592656864301541438823554541569<br/>
+50402529230031269344251329493
+</code>
+</blockquote>
+
+<li>Obtención de enteros aleatorios:
+<blockquote>
+<code>
+getRandomZ('128')
+<br/>
+<br/>
+220143201630847543901658476725238214476
+</code>
+</blockquote>
+
+<li>Exponenciación modular:
+<blockquote>
+<code>
+modExp('4569348765383659833', '385763872352', '332212')
+<br/>
+<br/>
+196685
+</code>
+</blockquote>
+<li>Inversa modular:
+<blockquote>
+<code>
+modInverse('4569348765383659833', '332212')
+<br/>
+<br/>
+122565
+</code>
+</blockquote>
+<br/>
+<blockquote>
+<code>
+modInverse('2121212121212112222', '332212')
+<br/>
+<br/>
+Error trace: Fault in [module 'xmlrpc' version: rev.56]: XML-RPC Fault: 0 Invalid inversion
+</code>
+</blockquote>
+(ya que base y modulo no son coprimos)
+</ul>
 </p>
 <div id="txInfo"></div>
 <br/>

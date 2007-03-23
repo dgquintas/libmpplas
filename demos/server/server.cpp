@@ -375,6 +375,34 @@ class CRTMethod : public xmlrpc_c::method {
     numth::CRT* crt;
 };
 
+/***********************************************
+ ****************    MISC   ********************
+ ***********************************************/
+//class SysInfoMethod : public xmlrpc_c::method { //TODO
+//  public:
+//    
+//    CRTMethod() {
+//      this->_signature = "s:";
+//      this->_help = "This method returns some information about the host system;
+//
+//      numth::Funciones::getInstance()->getFunc(crt);
+//    }
+//
+//    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+//
+//      paramList.verifyEnd(0);
+//      if ( y.size() != m.size() ){
+//          throw(girerr::error("This method does not take any parameter"));
+//      }
+//
+//
+//      *retvalP = xmlrpc_c::value_string( (crt->crt(yZ, mZ)).toString() );
+//    }
+//
+//  private:
+//};
+
+
 int main(int const, const char ** const) {
 
     try {
@@ -441,6 +469,7 @@ int main(int const, const char ** const) {
 	            "./abyss.log");
 
 	xmlrpc_c::server_abyss_set_handlers(&abyssServer, &myRegistry);
+	ServerDefaultHandler(&abyssServer, NULL);
 	ServerInit(&abyssServer);
 	
 	MIMETypeAdd("text/html", "html");

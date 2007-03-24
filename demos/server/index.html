@@ -117,7 +117,8 @@ var xmlrpc=null;
 try{
     var xmlrpc = imprt("xmlrpc");
     var thishosturl = location.host
-    var addr = thishosturl + "/RPC2"
+    var addr = "http://" + thishosturl + "/RPC2"
+    alert(addr)
     var service = new xmlrpc.ServiceProxy(addr);
 
 }catch(e){

@@ -62,7 +62,7 @@ namespace numth{
   };
  
   /** Clase base de algoritmos que implementen la reducción de
-    * Barrett.
+    * Montgomery.
    */
   class RedMontgomery  : public AbstractMethod
   {

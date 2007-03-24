@@ -116,7 +116,8 @@ Error trace: Fault in [module 'xmlrpc' version: rev.56]: XML-RPC Fault: 0 Invali
 var xmlrpc=null;
 try{
     var xmlrpc = imprt("xmlrpc");
-    var addr = "http://di015.edv.uniovi.es:1729/RPC2"
+    var thishosturl = location.host
+    var addr = thishosturl + "/RPC2"
     var service = new xmlrpc.ServiceProxy(addr);
 
 }catch(e){

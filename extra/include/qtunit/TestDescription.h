@@ -57,7 +57,7 @@ namespace com_uwyn_qtunit
       void	failedCondition(const QString& rFailedCondition);
       const QString&		sourcePath() const;
       void	sourcePath(const QString& rSourcePath);
-      const float       time() const;
+      float       time() const;
       void  time(const float time);
         
 

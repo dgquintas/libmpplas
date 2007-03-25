@@ -62,7 +62,7 @@ namespace com_uwyn_qtunit
 		void						clear();
 		
 		const QPtrList<TestBase>&	tests() const;
-		const int					countTests() const;
+		int					countTests() const;
 		
 		const TestResult&			testResult() const;
 	

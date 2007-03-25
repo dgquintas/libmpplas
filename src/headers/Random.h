@@ -11,7 +11,7 @@
 #include "AbstractMethod.h"
 #include <cassert>
 
-namespace numth{
+namespace mpplas{
  
   class NumThRC4Gen ;
   class BBSGen;

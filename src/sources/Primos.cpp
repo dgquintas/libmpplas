@@ -13,7 +13,7 @@
 #include <cmath>
 #include <algorithm>
 
-namespace numth{
+namespace mpplas{
 
   RabinMiller::RabinMiller()
     : iteraciones_(5)

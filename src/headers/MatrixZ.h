@@ -8,7 +8,7 @@
 #include "Matrix.h"
 #include "Z.h"
 
-namespace numth
+namespace mpplas 
 {
   class MatrixZ : public Matrix<Z>
   {

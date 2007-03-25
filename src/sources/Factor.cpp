@@ -11,7 +11,7 @@
 #include "GCD.h"
 #include "RedModular.h"
 
-namespace numth{
+namespace mpplas{
 
   MiVec<Z> CadenaAlgFactor::factoriza(const Z& n)
   {

@@ -8,11 +8,11 @@
 #include "mp.h"
 
 
-namespace numth{
+namespace mpplas{
 
   /*** OPERACIONES BASICAS EN VECTORES UNSIGNED ***/
   /*** DESPLAZAMIENTO ***/
-  void vCPUVectorial::lShift(numth::MiVec <Cifra>& a, const size_t n)
+  void vCPUVectorial::lShift(mpplas::MiVec <Cifra>& a, const size_t n)
   {
     if( (a.size() == 1) && (a[0] == 0) ) {
       return;
@@ -52,7 +52,7 @@ namespace numth{
     return;
   }
 
-  void vCPUVectorial::rShift(numth::MiVec <Cifra> &a, const size_t n)
+  void vCPUVectorial::rShift(mpplas::MiVec <Cifra> &a, const size_t n)
   {
     if( (a.size() == 1) && (a[0] == 0) ) 
       return;
@@ -84,7 +84,7 @@ namespace numth{
 
 
 
-  long vCPUVectorial::redondear(const numth::MiVec<Cifra>& numero, size_t exceso, const int8_t signo)
+  long vCPUVectorial::redondear(const mpplas::MiVec<Cifra>& numero, size_t exceso, const int8_t signo)
   {
     unsigned long indice = exceso - 1;
     unsigned long componente = indice/Constantes::BITS_EN_CIFRA;
@@ -137,7 +137,7 @@ namespace numth{
   }
 
   /*** COMPARACION ***/
-  bool vCPUVectorial::mayorque(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar) 
+  bool vCPUVectorial::mayorque(mpplas::MiVec<Cifra> a, mpplas::MiVec<Cifra> b, bool limpiar) 
   {
     if(limpiar){
       limpiarCeros(a);
@@ -153,7 +153,7 @@ namespace numth{
     }
 
     //equal size
-    typedef numth::MiVec<Cifra>::reverse_iterator It ;
+    typedef mpplas::MiVec<Cifra>::reverse_iterator It ;
     std::pair<It, It> p = mismatch(a.rbegin(), a.rend(), b.rbegin());
     if (p.first == a.rend() ){
       return false; //a and b are equal
@@ -165,7 +165,7 @@ namespace numth{
 
   }
 
-  bool vCPUVectorial::menorque(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar ) 
+  bool vCPUVectorial::menorque(mpplas::MiVec<Cifra> a, mpplas::MiVec<Cifra> b, bool limpiar ) 
   {
     if(limpiar){
       limpiarCeros(a);
@@ -181,7 +181,7 @@ namespace numth{
     }
 
     //equal size
-    typedef numth::MiVec<Cifra>::reverse_iterator It ;
+    typedef mpplas::MiVec<Cifra>::reverse_iterator It ;
     std::pair<It, It> p = mismatch(a.rbegin(), a.rend(), b.rbegin());
     if (p.first == a.rend() ){
       return false; //a and b are equal
@@ -193,7 +193,7 @@ namespace numth{
 
   }
 
-  bool vCPUVectorial::igual(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b, bool limpiar ) 
+  bool vCPUVectorial::igual(mpplas::MiVec<Cifra> a, mpplas::MiVec<Cifra> b, bool limpiar ) 
   {
     if(limpiar){
       limpiarCeros(a);
@@ -209,7 +209,7 @@ namespace numth{
 
   }
 
-  bool vCPUVectorial::mayorque(numth::MiVec<Cifra> vec, Cifra num, bool limpiar ) 
+  bool vCPUVectorial::mayorque(mpplas::MiVec<Cifra> vec, Cifra num, bool limpiar ) 
   {
     if(limpiar){
       limpiarCeros(vec);
@@ -224,7 +224,7 @@ namespace numth{
     }
   }
 
-  bool vCPUVectorial::menorque(numth::MiVec<Cifra> vec, Cifra num, bool limpiar ) 
+  bool vCPUVectorial::menorque(mpplas::MiVec<Cifra> vec, Cifra num, bool limpiar ) 
   {
     if(limpiar){
       limpiarCeros(vec);
@@ -237,7 +237,7 @@ namespace numth{
       return (vec[0] < num);
   }
 
-  bool vCPUVectorial::igual(numth::MiVec<Cifra> vec, Cifra num, bool limpiar )  
+  bool vCPUVectorial::igual(mpplas::MiVec<Cifra> vec, Cifra num, bool limpiar )  
   {
     if(limpiar){
       limpiarCeros(vec);
@@ -251,9 +251,9 @@ namespace numth{
   }
 
 
-  void vCPUVectorial::limpiarCeros(numth::MiVec<Cifra> &vec) throw()
+  void vCPUVectorial::limpiarCeros(mpplas::MiVec<Cifra> &vec) throw()
   {
-    numth::MiVec<Cifra>::iterator it;
+    mpplas::MiVec<Cifra>::iterator it;
     for( it = vec.end()-1; 
         (it != vec.begin()) && ( !(*it) )  ; 
         it--) ;
@@ -262,11 +262,11 @@ namespace numth{
     return;
   }
   /*** OPERADORES ARITMETICOS ***/
-  numth::MiVec<Cifra> 
-    vCPUVectorial::sumaMP(const numth::MiVec<Cifra>& a, const numth::MiVec<Cifra>& b) 
+  mpplas::MiVec<Cifra> 
+    vCPUVectorial::sumaMP(const mpplas::MiVec<Cifra>& a, const mpplas::MiVec<Cifra>& b) 
     {
-      const numth::MiVec<Cifra> *mayor;
-      const numth::MiVec<Cifra> *menor;
+      const mpplas::MiVec<Cifra> *mayor;
+      const mpplas::MiVec<Cifra> *menor;
 
       size_t tamA = a.size();
       size_t tamB = b.size();
@@ -285,7 +285,7 @@ namespace numth{
 
       // el vector "a" siempre sera el grande => tamA el tam. mayor
 
-      numth::MiVec<Cifra> c(tamA + 1, 0); // +1 por el carry posible
+      mpplas::MiVec<Cifra> c(tamA + 1, 0); // +1 por el carry posible
 
       size_t i;
       Cifra overflow = 0;
@@ -308,12 +308,12 @@ namespace numth{
 
       return c;
     }
-  numth::MiVec<Cifra> 
-    vCPUVectorial::sumaMP(const numth::MiVec<Cifra>& a, const Cifra b) 
+  mpplas::MiVec<Cifra> 
+    vCPUVectorial::sumaMP(const mpplas::MiVec<Cifra>& a, const Cifra b) 
     {
       const size_t tamA = a.size();
 
-      numth::MiVec<Cifra> c(tamA + 1, 0); // +1 por el carry posible
+      mpplas::MiVec<Cifra> c(tamA + 1, 0); // +1 por el carry posible
 
       size_t i;
 
@@ -331,8 +331,8 @@ namespace numth{
       return c;
     }
 
-  numth::MiVec<Cifra> 
-    vCPUVectorial::restaMP(const numth::MiVec<Cifra>&a, const numth::MiVec<Cifra>& b) 
+  mpplas::MiVec<Cifra> 
+    vCPUVectorial::restaMP(const mpplas::MiVec<Cifra>&a, const mpplas::MiVec<Cifra>& b) 
     {
       /* PRECONDICION:
        * el n� que representa "a" deber ser >= que el n� q rep. "b"
@@ -345,7 +345,7 @@ namespace numth{
         throw Errores::RestaNegativa();
       }
 
-      numth::MiVec<Cifra> c(tamA,0);
+      mpplas::MiVec<Cifra> c(tamA,0);
 
       Cifra overflow = 0;
       size_t i;
@@ -360,12 +360,12 @@ namespace numth{
 
       return c;
     }
- numth::MiVec<Cifra> 
-    vCPUVectorial::restaMP(const numth::MiVec<Cifra>&a, const Cifra b) 
+ mpplas::MiVec<Cifra> 
+    vCPUVectorial::restaMP(const mpplas::MiVec<Cifra>&a, const Cifra b) 
     {
       const size_t tamA = a.size();
 
-      numth::MiVec<Cifra> c(tamA,0);
+      mpplas::MiVec<Cifra> c(tamA,0);
 
       Cifra overflow = 0;
       c[0] = vCPUBasica::Subx(a[0],b, overflow);
@@ -377,12 +377,12 @@ namespace numth{
 
       return c;
     }
-  numth::MiVec<Cifra> 
-    vCPUVectorial::restaMP(const Cifra a, const numth::MiVec<Cifra>& b) 
+  mpplas::MiVec<Cifra> 
+    vCPUVectorial::restaMP(const Cifra a, const mpplas::MiVec<Cifra>& b) 
     {
       assert( b[0] <= a ); 
 
-      numth::MiVec<Cifra> c(1);
+      mpplas::MiVec<Cifra> c(1);
       Cifra overflow = 0;
       c[0] = vCPUBasica::Sub(a,b[0], overflow);
 
@@ -391,8 +391,8 @@ namespace numth{
       return c;
     }
 
-  numth::MiVec<Cifra> 
-    vCPUVectorial::multMP(const numth::MiVec<Cifra>& a, const numth::MiVec<Cifra>& b) 
+  mpplas::MiVec<Cifra> 
+    vCPUVectorial::multMP(const mpplas::MiVec<Cifra>& a, const mpplas::MiVec<Cifra>& b) 
     {
       Cifra v, u, c;
 
@@ -400,7 +400,7 @@ namespace numth{
      const size_t tamB = b.size();
 
       
-      numth::MiVec<Cifra> w(tamA + tamB, 0);
+      mpplas::MiVec<Cifra> w(tamA + tamB, 0);
       const size_t maxSize = tamA > tamB? tamA : tamB;
       if( maxSize >= Constantes::UMBRAL_KARATSUBA ){ 
         if ( maxSize  < 2 * std::min(tamA, tamB)) { //if the bigger factor is less than twice the size of the other
@@ -461,12 +461,12 @@ namespace numth{
       return w;
     }
 
- numth::MiVec<Cifra> 
-    vCPUVectorial::multMP(const numth::MiVec<Cifra>& a, const Cifra b ) 
+ mpplas::MiVec<Cifra> 
+    vCPUVectorial::multMP(const mpplas::MiVec<Cifra>& a, const Cifra b ) 
     {
       const size_t tamA = a.size();
 
-      numth::MiVec<Cifra> c(tamA + 1, 0);
+      mpplas::MiVec<Cifra> c(tamA + 1, 0);
 
       Cifra resto = 0, overflow = 0;
       int i;
@@ -545,12 +545,12 @@ namespace numth{
     return ;
   }
   
- numth::MiVec<Cifra>
-    vCPUVectorial::cuadMP(const numth::MiVec<Cifra>& x)
+ mpplas::MiVec<Cifra>
+    vCPUVectorial::cuadMP(const mpplas::MiVec<Cifra>& x)
     {
       const size_t t = x.size(); //n� de cifras en la base de trabajo de "x"
 
-      numth::MiVec<Cifra> w(2*t,0); //vector de resultado
+      mpplas::MiVec<Cifra> w(2*t,0); //vector de resultado
 
       if( t > Constantes::UMBRAL_CUAD_KARATSUBA ){ 
           cuadKaratsuba(w,x);
@@ -623,8 +623,8 @@ namespace numth{
 
 
   /*         cociente            modulo              */
-  std::pair< numth::MiVec<Cifra>, numth::MiVec<Cifra> > 
-    vCPUVectorial::divMP(numth::MiVec<Cifra> a, numth::MiVec<Cifra> b)
+  std::pair< mpplas::MiVec<Cifra>, mpplas::MiVec<Cifra> > 
+    vCPUVectorial::divMP(mpplas::MiVec<Cifra> a, mpplas::MiVec<Cifra> b)
     {
 
 
@@ -633,8 +633,8 @@ namespace numth{
         return divMP(a,b[0]);
       }
       assert( b.size() > 0 ); 
-      //  numth::MiVec<Cifra> a = u;
-      //  numth::MiVec<Cifra> b = v;
+      //  mpplas::MiVec<Cifra> a = u;
+      //  mpplas::MiVec<Cifra> b = v;
 
       Cifra d;
       size_t tamA = a.size()-1;
@@ -653,11 +653,11 @@ namespace numth{
       // multiplicar dividendo y divisor por 2^d
       if( menorque(a,b) ) // si el dividendo es menor que el divisor...
         // q = 0, r = a
-        return std::pair< numth::MiVec<Cifra>, numth::MiVec<Cifra> >
-          (numth::MiVec<Cifra>(1,0),a);
+        return std::pair< mpplas::MiVec<Cifra>, mpplas::MiVec<Cifra> >
+          (mpplas::MiVec<Cifra>(1,0),a);
 
-      numth::MiVec<Cifra> q((tamA - tamB)+1,0);
-      //numth::MiVec<Cifra> r;
+      mpplas::MiVec<Cifra> q((tamA - tamB)+1,0);
+      //mpplas::MiVec<Cifra> r;
 
       lShift(a, d);
       lShift(b, d);
@@ -682,8 +682,8 @@ namespace numth{
           _q = vCPUBasica::Div(a[j-1],b[tamB], resto);
         }
 
-        numth::MiVec<Cifra>b2;
-        numth::MiVec<Cifra>a2;
+        mpplas::MiVec<Cifra>b2;
+        mpplas::MiVec<Cifra>a2;
         while(true){
           a2.clear();
           a2.push_back(a[j-1]);
@@ -723,11 +723,11 @@ namespace numth{
 //          if(terceraVez)
 //            break; //se demuestra que como maximo se comete un error de 2 en _q
 //          centinela = false;
-//          numth::MiVec<Cifra> izda(1,b[tamB-1]);
-//          numth::MiVec<Cifra> drcha(1,restoGuardado);
+//          mpplas::MiVec<Cifra> izda(1,b[tamB-1]);
+//          mpplas::MiVec<Cifra> drcha(1,restoGuardado);
 //
 //          if(segundaVez){
-//            //        drcha = sumaMP(drcha, numth::MiVec<Cifra>(1,b[tamB]));
+//            //        drcha = sumaMP(drcha, mpplas::MiVec<Cifra>(1,b[tamB]));
 //            drcha = sumaMP(drcha, (Cifra)b[tamB]);
 //            terceraVez = true;
 //          }
@@ -785,18 +785,18 @@ namespace numth{
       limpiarCeros(a);
       limpiarCeros(q);
 
-      return std::pair< numth::MiVec<Cifra>, numth::MiVec<Cifra> >(q,a);
+      return std::pair< mpplas::MiVec<Cifra>, mpplas::MiVec<Cifra> >(q,a);
 
     }
 
 
   /*         cociente            modulo              */
-  std::pair< numth::MiVec<Cifra>, numth::MiVec<Cifra> > 
-    vCPUVectorial::divMP(const numth::MiVec<Cifra>& a, const Cifra b ) 
+  std::pair< mpplas::MiVec<Cifra>, mpplas::MiVec<Cifra> > 
+    vCPUVectorial::divMP(const mpplas::MiVec<Cifra>& a, const Cifra b ) 
     {
 
       Cifra resto = 0;
-      numth::MiVec<Cifra> q(a.size());
+      mpplas::MiVec<Cifra> q(a.size());
 
       for(CifraSigno j=a.size()-1; j>=0; j--){
         q[j] = vCPUBasica::Div(a[j], b, resto);
@@ -811,8 +811,8 @@ namespace numth{
 
       limpiarCeros(q);
 
-      return std::pair< numth::MiVec<Cifra>, numth::MiVec<Cifra> >(q,
-          numth::MiVec<Cifra> (1, resto));
+      return std::pair< mpplas::MiVec<Cifra>, mpplas::MiVec<Cifra> >(q,
+          mpplas::MiVec<Cifra> (1, resto));
     }
 
   void vCPUVectorial::karatsuba(MiVec<Cifra>& resultado, 

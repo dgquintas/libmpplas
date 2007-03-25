@@ -6,7 +6,7 @@
 #include "KernelTest.h"
 
 using namespace std;
-using namespace numth;
+using namespace mpplas;
 using namespace com_uwyn_qtunit;
 
 
@@ -33,8 +33,8 @@ void KernelTest::setUp(){
   overflow = resto = 0;
 
   //Pre-defined constants:
-  // numth::Constantes::CIFRA_MAX
-  // numth::Constantes::CIFRASIGNO_MAX
+  // mpplas::Constantes::CIFRA_MAX
+  // mpplas::Constantes::CIFRASIGNO_MAX
 
 
 }

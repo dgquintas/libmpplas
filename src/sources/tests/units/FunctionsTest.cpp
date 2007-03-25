@@ -1,20 +1,21 @@
 /*
- * $Id $
+ * $Id$
  */
 
-#include <cppunit/TestCase.h>
 #include <string>
 #include "FunctionsTest.h"
+#include "SystemInfo.h"
 
-CPPUNIT_TEST_SUITE_REGISTRATION( FunctionsTest );
+using namespace com_uwyn_qtunit;
 
-void FunctionsTest::setUp(){
-  this->foo = Z::convertir(1);
-  this->bar= Z::convertir(0);
+FunctionsTest::FunctionsTest()
+  : funcs(mpplas::Funciones::getInstance())
+{
+  addTest(FunctionsTest, test);
 }
-void FunctionsTest::tearDown(){
-//empty. new is not used
-}
+
+void FunctionsTest::setUp(){}
+void FunctionsTest::tearDown(){}
 
 void FunctionsTest::test(){
 

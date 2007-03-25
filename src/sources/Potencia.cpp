@@ -8,7 +8,7 @@
 #include "Potencia.h"
 #include "GCD.h"
 
-namespace numth{
+namespace mpplas{
 
   Potencia::Potencia()
     : funcs(Funciones::getInstance())
@@ -174,7 +174,7 @@ namespace numth{
     }
 
     if(doses){
-      if( (Cifra)exponente > Constantes::SIZE_T_MAX/doses )
+      if( (Cifra)exponente > Constantes::SYSTEM_SIZE_T_MAX/doses )
         throw Errores::DemasiadoGrande();
       acum <<= (exponente*doses);
     }

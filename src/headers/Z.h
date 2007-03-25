@@ -16,7 +16,7 @@
 #include "err.h"
 #include "constantes.h"
 
-namespace numth
+namespace mpplas
 {
   /** Clase para la representación de enteros. */
   class Z 
@@ -79,7 +79,7 @@ namespace numth
        *  @param cadena Vector de caracteres que representa el número a
        *  convertir a entero.
        *
-       *  @exception numth::Errores::Sintactico Error sintáctico en la
+       *  @exception mpplas::Errores::Sintactico Error sintáctico en la
        *  cadena.
        *
        *  @return El entero correspondiente a la conversión.
@@ -1025,8 +1025,8 @@ namespace numth
       /** Get the Z as a single precision signed type.
        *
        * If the conversion cannot be performed (the actual Z being
-       * larger than numth::Constantes::CIFRASIGNO_MAX), only the first
-       * numth::Constructor::BITS_EN_CIFRASIGNO are considered.
+       * larger than mpplas::Constantes::CIFRASIGNO_MAX), only the first
+       * mpplas::Constructor::BITS_EN_CIFRASIGNO are considered.
        *
        * @return A CifraSigno representing (a possibly truncated) *this.
        */
@@ -1044,8 +1044,8 @@ namespace numth
       /** Get the Z as a single precision unsigned type.
        *
        * If the conversion cannot be performed (the actual Z being
-       * larger than numth::Constantes::CIFRA_MAX), only the first
-       * numth::Constructor::BITS_EN_CIFRA are considered.
+       * larger than mpplas::Constantes::CIFRA_MAX), only the first
+       * mpplas::Constructor::BITS_EN_CIFRA are considered.
        *
        * @return A Cifra representing (a possibly truncated) *this.
        */
@@ -1165,7 +1165,7 @@ namespace numth
     protected:
 
       /** Vector de coeficientes del polinomio que representa el número en base B */
-      numth::MiVec<Cifra> coefPoliB_; 
+      mpplas::MiVec<Cifra> coefPoliB_; 
       int8_t signo_; /**< Indica el signo del numero largo representado. \n
                      Valor positivo \f$\Rightarrow\f$ entero positivo. \n
                      valor negativo \f$\Rightarrow\f$ entero negativo.

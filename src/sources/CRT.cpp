@@ -8,7 +8,7 @@
 #include "RedModular.h"
 #include "Potencia.h"
 
-namespace numth{
+namespace mpplas{
   
   Z CRTGarner::crt(MiVec<Z> y, MiVec<Z> m)
   {

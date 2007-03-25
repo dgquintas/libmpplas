@@ -10,7 +10,7 @@
 #include "AbstractMethod.h"
 #include "Funciones.h"
 
-namespace numth{
+namespace mpplas{
 
   class PotVentanaDeslizante;
   class PotVentanaDeslizanteR;

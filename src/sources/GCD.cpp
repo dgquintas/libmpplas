@@ -6,7 +6,7 @@
 #include "GCD.h"
 #include <cstdlib>
 
-namespace numth{
+namespace mpplas{
 
 
   Z GCD::gcd(Z u, Cifra v)

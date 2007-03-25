@@ -19,7 +19,7 @@
 
 using namespace std;
 
-namespace numth{
+namespace mpplas{
 
   /** Clase repositorio de funciones.
    *
@@ -94,7 +94,9 @@ namespace numth{
         void _get(T* &m) {
           const string name(typeid(T).name());
           if( _methods.find(name) == _methods.end() ){
-            T* newInstance = new typename T::DFL();
+            // if not method instance has been set for method type,
+            // its default (::DFL type) one is used.
+            T* newInstance = new typename T::DFL(); 
             _methods[name] = newInstance;
             m = newInstance;
           }

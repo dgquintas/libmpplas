@@ -7,7 +7,7 @@
 
 #include "Z.h"
 
-namespace numth{
+namespace mpplas{
   
   
   /** Clase para la representación de enteros modulares */

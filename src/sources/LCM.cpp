@@ -8,7 +8,7 @@
 #include "GCD.h"
 #include <cstdlib>
 
-namespace numth{
+namespace mpplas{
 
   LCM::LCM()
     : funcs(Funciones::getInstance())

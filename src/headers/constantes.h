@@ -22,7 +22,7 @@
 #endif
 
 
-namespace numth{
+namespace mpplas{
   /** Tipo de dato básico. 
    *
    * Representa la base en la cual se trabaja en Z y será el tipo
@@ -74,6 +74,38 @@ namespace numth{
   /** Espacio de nombres contenedor de las constantes utilizadas a lo
    * largo de la librería. */
   namespace Constantes{
+    
+#ifdef ARCH_x86
+    static const char* const ARCH_STRING = "x86";
+  #define ARCH_DEFINED
+#endif
+
+#ifdef ARCH_x86_64
+    static const char* const ARCH_STRING = "x86_64";
+  #define ARCH_DEFINED
+#endif
+
+#ifdef ARCH_generic
+    static const char* const ARCH_STRING = "generic";
+  #define ARCH_DEFINED
+#endif
+
+#ifdef ARCH_ppc
+    static const char* const ARCH_STRING = "ppc";
+  #define ARCH_DEFINED
+#endif
+
+#ifndef ARCH_DEFINED
+  #warning "ARCH not supported or not defined. Using x86"
+    static const char* const ARCH_STRING = "x86";
+  #define ARCH_DEFINED
+  #define ARCHBITS 32
+#endif
+
+
+    static const short ARCH_BITS = ARCHBITS;
+
+    
     /** Número de operaciones soportadas por vCPUBasica */
     static const size_t NUM_OPERACIONES = 10;
 
@@ -118,23 +150,14 @@ namespace numth{
     /** Maximo valor de una CifraSigno */
     static const CifraSigno CIFRASIGNO_MAX = std::numeric_limits<CifraSigno>::max();
 
-#ifdef ULONG_MAX
-#undef ULONG_MAX
-#endif
     /** Maximo valor de un unsigned long */
-    static const unsigned long ULONG_MAX = std::numeric_limits<unsigned long>::max();
+    static const unsigned long SYSTEM_ULONG_MAX = std::numeric_limits<unsigned long>::max();
 
-//#ifdef LONG_MAX
-//#undef LONG_MAX
-//#endif
-//    /** Maximo valor de un long */
-//    static const long LONG_MAX = std::numeric_limits<long>::max();
+    /** Maximo valor de un long */
+    static const long SYSTEM_LONG_INT_MAX = std::numeric_limits<long>::max();
 
-#ifdef SIZE_T_MAX
-#undef SIZE_T_MAX
-#endif
     /* Maximo valor de un size_t */
-    static const size_t SIZE_T_MAX = std::numeric_limits<size_t>::max();
+    static const size_t SYSTEM_SIZE_T_MAX = std::numeric_limits<size_t>::max();
 
     /** Mayor 'n' tal que \f$10^n \leq 2^{base}\f$.
      * 

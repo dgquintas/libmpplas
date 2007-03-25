@@ -1,6 +1,6 @@
 #include "MatrixZ.h"
 
-namespace numth
+namespace mpplas
 {
   MatrixZ::MatrixZ()
     : Matrix<Z>()

@@ -9,7 +9,7 @@
 #include "MiVec.h"
 #include "AbstractMethod.h"
 
-namespace numth{
+namespace mpplas{
 
   class MD5;
 

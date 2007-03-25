@@ -6,7 +6,7 @@
 #include <algorithm> //for for_each
 #include "Funciones.h"
 
-namespace numth{
+namespace mpplas{
   template<class T> struct destroyerFunctor: public unary_function<T, void>
   {
     destroyerFunctor(ostream& out) : os(out), count(0) {}

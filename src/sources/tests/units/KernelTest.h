@@ -1,5 +1,5 @@
 /*
- * $Id $
+ * $Id$
  */
 
 #ifndef __KERNELGENERICTEST_H
@@ -11,7 +11,7 @@
 #include "err.h"
 #include "nucleo.h"
 
-using namespace numth;
+using namespace mpplas;
 namespace com_uwyn_qtunit{
 
   class KernelTest: public TestCase {

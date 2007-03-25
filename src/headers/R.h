@@ -20,7 +20,7 @@
 #include "err.h"
 #include "Z.h"
 
-namespace numth
+namespace mpplas
 {
 
   class R;
@@ -183,7 +183,7 @@ namespace numth
        *  @param cadena Vector de caracteres que representa el número a
        *  convertir a real.
        *
-       *  @exception numth::Errores::Sintactico Error sintáctico en la
+       *  @exception mpplas::Errores::Sintactico Error sintáctico en la
        *  cadena.
        *
        *  @return El real correspondiente a la conversión.

@@ -3,24 +3,28 @@
  */
 
 #ifdef _OPENMP
-#include <cppunit/TestCase.h>
 #include <string>
 #include "OpenMPTest.h"
 
-  #include <omp.h>
-  CPPUNIT_TEST_SUITE_REGISTRATION( OpenMPTest );
+#include <omp.h>
 
 using namespace std;
-using namespace numth;
+using namespace mpplas;
+using namespace com_uwyn_qtunit;
 
+OpenMPTest::OpenMPTest()
+  : funcs(Funciones::getInstance()){
+  addTest( OpenMPTest, testParallelFor);
+}
 
 void OpenMPTest::setUp(){
-  factor = funcs.getRandomRapido()->leerBits(256);
+  funcs->getFunc(rnd);
+  factor = rnd->leerBits(256);
   integers = new Z[NUM_THREADS];
   integersPAR = new Z[NUM_THREADS];
   integersSEQ = new Z[NUM_THREADS];
   for(int i = 0; i < NUM_THREADS; i++){
-    integers[i] = funcs.getRandomRapido()->leerBits(512);
+    integers[i] = rnd->leerBits(512);
   }
 
 }
@@ -37,15 +41,21 @@ void OpenMPTest::testParallelFor(){
   }
 
   omp_set_num_threads(NUM_THREADS);
-#pragma omp parallel for default(shared)
+#pragma omp parallel default(shared)
+  {
+  qassertEquals( omp_get_num_threads(), NUM_THREADS);
+#pragma omp for 
   for(int i = 0; i < NUM_THREADS; i++){
      integersPAR[i] = integers[i] * factor;
   }
-
-  for(int i = 0; i < NUM_THREADS; i++){
-    CPPUNIT_ASSERT_EQUAL(integersSEQ[i],integersPAR[i]);
   }
 
+  for(int i = 0; i < NUM_THREADS; i++){
+    qassertTrue( integersSEQ[i] == integersPAR[i]);
+  }
 }
+
+
+  
 
 #endif

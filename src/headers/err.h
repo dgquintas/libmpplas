@@ -10,19 +10,21 @@
 #include <stdexcept>
 #include <exception>
 
+#include "AlgebraUtils.h"
+
 //FIXME
 #define _(STRING) STRING
 
-namespace numth{
+namespace mpplas{
   /** Espacio de nombres contenedor del mecanismo de errores. */
   namespace Errores{
     // Tipos báicos
     /** Clase base de todas las excepciones (errores) que comprende
      * la librería. */
-    class NumthException: public std::exception 
+    class Exception: public std::exception 
     {
       public:
-        virtual ~NumthException() throw()
+        virtual ~Exception() throw()
         {}
     };
       
@@ -31,7 +33,7 @@ namespace numth{
      * Ejemplo clásico: la división por cero.
      * 
      * */
-    class Aritmetico : public NumthException
+    class Aritmetico : public Exception
     {
       public:
       virtual const char* what(void) const throw()
@@ -49,7 +51,7 @@ namespace numth{
      * de entrada ">>".
      * 
      */
-    class Sintactic : public NumthException
+    class Sintactic : public Exception
     {
       public:
         Sintactic( std::string msg = "<empty>" )
@@ -74,7 +76,7 @@ namespace numth{
      * Por ejemplo al detectar un puntero inválido, intento de acceso
      * a una posición de memoria no reservada, etc.
      * */
-    class Interno : public NumthException
+    class Interno : public Exception
     {
       public:
         virtual const char* what(void) const throw()
@@ -160,9 +162,8 @@ namespace numth{
     class NonConformantDimensions: public Aritmetico
     {
       public:
-        NonConformantDimensions(std::string str = "<empty>"){
-          _str = "Non conformant dimensions: ";
-          _str += str;
+        NonConformantDimensions(const Dimensions& dimsLeft, const Dimensions& dimsRight, std::string str = ""){
+          _str = "Non conformant dimensions: " + dimsLeft.toString() + " and " + dimsRight.toString() + " " + str;
         }
 
         virtual const char* what(void) const throw() {
@@ -277,7 +278,7 @@ namespace numth{
 
   
   }//namespace Errores
-}//namespace numth
+}//namespace 
 
    
 #endif

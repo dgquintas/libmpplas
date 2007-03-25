@@ -2,36 +2,40 @@
  * $Id$
  */
 
-#ifndef __ZTEST_H
-#define __ZTEST_H
+#ifdef _OPENMP
+#ifndef __OPENMPTEST_H
+#define __OPENMPTEST_H
 
-#include <cppunit/TestFixture.h>
-#include <cppunit/extensions/HelperMacros.h>
 #include <string>
 #include "Z.h"
 #include "err.h"
+#include "Random.h"
 #include "Funciones.h"
 
-using namespace numth;
+#include "qtunit/TestCase.h"
 
-class OpenMPTest : public CppUnit::TestFixture {
+using namespace mpplas;
 
-  CPPUNIT_TEST_SUITE( OpenMPTest );
-    CPPUNIT_TEST( testParallelFor );
-  CPPUNIT_TEST_SUITE_END();
-  
-  public:
-    void setUp();
-    void tearDown();
-    
-    /* The actual tests */
-    void testParallelFor();
-  private:
-    Z *integers, *integersPAR, *integersSEQ;
-    Z factor;
-    Funciones funcs;
+namespace com_uwyn_qtunit{
 
-    static const int NUM_THREADS = 10;
-};
+  class OpenMPTest : public TestCase {
 
+    public:
+      OpenMPTest();
+
+      void setUp();
+      void tearDown();
+
+      /* The actual tests */
+      void testParallelFor();
+    private:
+      Z *integers, *integersPAR, *integersSEQ;
+      Z factor;
+      Funciones* const funcs;
+      Random* rnd;
+
+      static const int NUM_THREADS = 10;
+  };
+}
+#endif
 #endif

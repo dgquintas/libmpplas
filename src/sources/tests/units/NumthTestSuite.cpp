@@ -17,4 +17,8 @@ NumthTestSuite::NumthTestSuite()
 	addTestUnit(z_nTest_);
   addTestUnit(matrixZTest_);
   addTestUnit(vectorZTest_);
+  addTestUnit(functionsTest_);
+#ifdef _OPENMP
+  addTestUnit(openMPTest_);
+#endif
 }

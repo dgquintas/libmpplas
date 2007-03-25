@@ -9,7 +9,7 @@
 #include "Random.h"
 #include "AbstractMethod.h"
 
-namespace numth{
+namespace mpplas{
 
   class RabinMiller;
   class TMersenneLucasLehmer;

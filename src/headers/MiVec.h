@@ -8,7 +8,7 @@
 #include <vector>
 
 
-namespace numth{
+namespace mpplas{
 
   /** Vector propio de la librería. */
   template<class T>

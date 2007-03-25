@@ -5,29 +5,23 @@
 #ifndef __FUNCTIONSTEST_H
 #define __FUNCTIONSTEST_H
 
-#include <cppunit/TestFixture.h>
-#include <cppunit/extensions/HelperMacros.h>
+#include "qtunit/TestCase.h"
 #include <string>
-#include "Z.h"
+#include "Funciones.h"
 
-using namespace std;
-using namespace numth;
+namespace com_uwyn_qtunit{
 
+  class FunctionsTest : public TestCase{
 
-class FunctionsTest : public CppUnit::TestFixture {
+    public:
+      FunctionsTest();
+      void setUp();
+      void tearDown();
 
-  CPPUNIT_TEST_SUITE( FunctionsTest );
-    CPPUNIT_TEST( test );
-  CPPUNIT_TEST_SUITE_END();
-  
-  public:
-    void setUp();
-    void tearDown();
-    
-    /* The actual tests */
-    void test();
-  private:
-    Z foo, bar;
-};
-
+      /* The actual tests */
+      void test();
+    private:
+      mpplas::Funciones* const funcs;
+  };
+}
 #endif

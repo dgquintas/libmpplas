@@ -8,7 +8,7 @@
 #include "qtunit/TestCase.h"
 #include "VectorZ.h"
 
-using namespace numth;
+using namespace mpplas;
 
 namespace com_uwyn_qtunit{
 
@@ -28,7 +28,10 @@ namespace com_uwyn_qtunit{
       void testToString();
 
       void testOperatorAddition();
-      void testOperatorProduct();
+      void testOperatorProductWithZ();
+      void testOperatorProductWithVectorZ();
+
+      void testDot();
 
     private:
       VectorZ vecA;

@@ -3,11 +3,12 @@
  */
 
 #include "VectorZTest.h"
+#include "err.h"
 #include <iostream>
 
 
 using namespace std;
-using namespace numth;
+using namespace mpplas;
 using namespace com_uwyn_qtunit;
 
 
@@ -19,7 +20,10 @@ VectorZTest::VectorZTest()
   addTest(VectorZTest, testToString);
   
   addTest(VectorZTest, testOperatorAddition);
-  addTest(VectorZTest, testOperatorProduct);
+  addTest(VectorZTest, testOperatorProductWithZ);
+  addTest(VectorZTest, testOperatorProductWithVectorZ);
+
+  addTest( VectorZTest, testDot );
 
 }
 
@@ -59,13 +63,37 @@ void VectorZTest::testOperatorAddition(){
   qassertTrue(vecA == res);
 }
 
-void VectorZTest::testOperatorProduct(){
+void VectorZTest::testOperatorProductWithZ(){
   VectorZ res("[5221935 148140 666630 7666245 4394820 382695 0 -1530780 -12345]");
 
 
   vecB *= Z("12345");
 
   qassertTrue(vecB == res);
+}
+
+void VectorZTest::testOperatorProductWithVectorZ(){
+  VectorZ res("[423 24 162 2484 1780 186 0 -992 -9]");
+
+//  VectorZ res("[5221935 148140 666630 7666245 4394820 382695 0 -1530780 -12345]");
+  vecA *= vecB;
+
+  qassertTrue(vecA == res);
+}
+
+void VectorZTest::testDot(){
+  Z dotProd( dot(vecA, vecB) );
+
+  qassertEquals ( dotProd.toString() , "4058" );
+
+  try{
+    dot( VectorZ("[1 2 3]"), VectorZ("[1 2]") );
+  }
+  catch( Errores::NonConformantDimensions& e){
+    return;
+  }
+  qassertTrue(false);
+
 }
 
 

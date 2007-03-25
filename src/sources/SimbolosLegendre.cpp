@@ -5,7 +5,7 @@
 #include "SimbolosLegendre.h"
 #include "Funciones.h"
 
-namespace numth{
+namespace mpplas{
 
   Z SLegendreViaJacobi::simboloLegendre(Z a, Z p)
   {

@@ -12,6 +12,8 @@
 #include "RandomTest.h"
 #include "MatrixZTest.h"
 #include "VectorZTest.h"
+#include "FunctionsTest.h"
+#include "OpenMPTest.h"
 #include "qtunit/TestSuite.h"
 
 namespace com_uwyn_qtunit
@@ -29,6 +31,10 @@ namespace com_uwyn_qtunit
     RandomTest randomTest_;
     MatrixZTest matrixZTest_;
     VectorZTest vectorZTest_;
+    FunctionsTest functionsTest_;
+#ifdef _OPENMP
+    OpenMPTest openMPTest_;
+#endif
 
 	};
 }

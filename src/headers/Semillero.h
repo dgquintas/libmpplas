@@ -8,7 +8,7 @@
 #include "Z.h"
 #include <fstream>
 
-namespace numth{
+namespace mpplas{
 
  
   /** Fuente de semillas aleatorias (<em>realmente aleatorias</em>).

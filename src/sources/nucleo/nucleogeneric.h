@@ -11,19 +11,12 @@ inline Cifra LOWHALF(Cifra x) { return (x & Constantes::MASK_CIFRALOW); }
    *          IMPLEMENTACIÓN PARA ARQUITECTURA GENERICA              *
    *                                                                 *
    ******************************************************************/ 
-  /** Constructor por defecto de la Cpu Básica para generic */
-  template<>
-    inline vCPUBasica<Arch::generic>::vCPUBasica()
-      : overflow(0), resto(0)
-    {}
- 
 
   /** Suma básica de dos Cifras para generic.
    *
    * @sa Add(Cifra arg1, Cifra arg2)
    */
-  template<>
-    inline Cifra vCPUBasica<Arch::generic>::Add(Cifra arg1, Cifra arg2)
+    inline Cifra Add(Cifra arg1, Cifra arg2, Cifra& overflow)
     {
       const Cifra ret = arg1 + arg2;
       overflow = ( ret < arg1 );
@@ -35,7 +28,7 @@ inline Cifra LOWHALF(Cifra x) { return (x & Constantes::MASK_CIFRALOW); }
    * @sa Addx(Cifra arg1, Cifra arg2)
    */
   template<>
-    inline Cifra vCPUBasica<Arch::generic>::Addx(Cifra arg1, Cifra arg2) 
+    inline Cifra Addx(Cifra arg1, Cifra arg2, Cifra& overflow) 
     { 
       const Cifra ret = arg1 + arg2 + overflow;
       overflow = (ret < arg1 || (ret==arg1 && overflow));
@@ -48,7 +41,7 @@ inline Cifra LOWHALF(Cifra x) { return (x & Constantes::MASK_CIFRALOW); }
    * @sa Sub(Cifra arg1, Cifra arg2)
    */
   template<>
-    inline Cifra vCPUBasica<Arch::generic>::Sub(Cifra arg1, Cifra arg2) 
+    inline Cifra Sub(Cifra arg1, Cifra arg2, Cifra& overflow) 
     { 
       const Cifra ret = arg1-arg2;
       overflow = ( ret > arg1 );
@@ -59,7 +52,7 @@ inline Cifra LOWHALF(Cifra x) { return (x & Constantes::MASK_CIFRALOW); }
    * @sa Subx(Cifra arg1, Cifra arg2)
    */
   template<>
-    inline Cifra vCPUBasica<Arch::generic>::Subx(Cifra arg1, Cifra arg2) 
+    inline Cifra Subx(Cifra arg1, Cifra arg2, Cifra& overflow) 
     { 
       const Cifra ret = arg1-arg2-overflow;
       overflow = (ret > arg1 || (ret == arg1 && overflow) );
@@ -72,7 +65,7 @@ inline Cifra LOWHALF(Cifra x) { return (x & Constantes::MASK_CIFRALOW); }
    * @sa Mul(Cifra arg1,Cifra arg2)
    */
   template<>
-    inline Cifra vCPUBasica<Arch::generic>::Mul(Cifra arg1,Cifra arg2) 
+    inline Cifra Mul(Cifra arg1,Cifra arg2, Cifra& resto) 
     { 
       // based on pari-gp's implementation by Peter Montgomery
       const Cifra xlo = LOWHALF(arg1), xhi = HIGHHALF(arg1);
@@ -99,7 +92,7 @@ inline Cifra LOWHALF(Cifra x) { return (x & Constantes::MASK_CIFRALOW); }
    * @sa Addmul(Cifra arg1,Cifra arg2) 
    */
   template<>
-    inline Cifra vCPUBasica<Arch::generic>::Addmul(Cifra arg1,Cifra arg2) 
+    inline Cifra Addmul(Cifra arg1,Cifra arg2, Cifra& resto) 
     { 
       // based on pari-gp's implementation by Peter Montgomery
         const Cifra xlo = LOWHALF(arg1), xhi = HIGHHALF(arg1);
@@ -128,7 +121,7 @@ inline Cifra LOWHALF(Cifra x) { return (x & Constantes::MASK_CIFRALOW); }
    * @sa Div(Cifra arg1, Cifra arg2)
    */
    template<>
-    inline Cifra vCPUBasica<Arch::generic>::Div(Cifra arg1, Cifra arg2) 
+    inline Cifra Div(Cifra arg1, Cifra arg2, Cifra& resto) 
     { 
       //FIXME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       uint64_t x = resto;
@@ -150,7 +143,7 @@ inline Cifra LOWHALF(Cifra x) { return (x & Constantes::MASK_CIFRALOW); }
     *  @sa Shiftl(Cifra arg1,Cifra arg2)
     */
   template<>
-    inline Cifra vCPUBasica<Arch::generic>::Shiftl(Cifra arg1,Cifra arg2) 
+    inline Cifra Shiftl(Cifra arg1,Cifra arg2, Cifra& resto) 
     { 
       resto = arg1 >> (Constantes::BITS_EN_CIFRA-arg2);
       return (arg1 << arg2) ; 
@@ -161,7 +154,7 @@ inline Cifra LOWHALF(Cifra x) { return (x & Constantes::MASK_CIFRALOW); }
    * @sa Shiftlr(Cifra arg1,Cifra arg2)
    */
   template<>
-    inline Cifra vCPUBasica<Arch::generic>::Shiftlr(Cifra arg1,Cifra arg2) 
+    inline Cifra Shiftlr(Cifra arg1,Cifra arg2, Cifra& resto) 
     { 
       resto = arg1 << (Constantes::BITS_EN_CIFRA-arg2);
       return (arg1 >> arg2);
@@ -172,7 +165,7 @@ inline Cifra LOWHALF(Cifra x) { return (x & Constantes::MASK_CIFRALOW); }
    * @sa Bfffo(Cifra arg1) 
    */
   template<>
-    inline Cifra vCPUBasica<Arch::generic>::Bfffo(Cifra arg1) 
+    inline Cifra Bfffo(Cifra arg1) 
     {
       int res = Constantes::BITS_EN_CIFRA;
 
@@ -203,50 +196,6 @@ inline Cifra LOWHALF(Cifra x) { return (x & Constantes::MASK_CIFRALOW); }
         default: // case 0: written this way to avoid compiler warnings
           return res ;
       }
-    }
-
-  /** Función de perfilado en generic (inválido).
-   *
-   * Invicar esta función produce que se lance una excepción de tipo 
-   * Errores::ArchNoProfiling
-   */
-  template<>
-    inline void vCPUBasica<Arch::generic>::reiniciarContadores(void)
-    {
-      throw Errores::ArchNoProfiling();
-    }
-
-   /** Función de perfilado en generic (inválido).
-   *
-   * Invicar esta función produce que se lance una excepción de tipo 
-   * Errores::ArchNoProfiling
-   */
- template<>
-    inline void vCPUBasica<Arch::generic>::inicioProf(void)
-    {
-      throw Errores::ArchNoProfiling();
-    }
-
-   /** Función de perfilado en generic (inválido).
-   *
-   * Invicar esta función produce que se lance una excepción de tipo 
-   * Errores::ArchNoProfiling
-   */
- template<>
-    inline void vCPUBasica<Arch::generic>::finProf(void)
-    {
-      throw Errores::ArchNoProfiling();
-    }
-
-   /** Función de perfilado en generic (inválido).
-   *
-   * Invicar esta función produce que se lance una excepción de tipo 
-   * Errores::ArchNoProfiling
-   */
- template<>
-    inline ResultadosProf vCPUBasica<Arch::generic>::obtenerPerfil(void)
-    {
-      throw Errores::ArchNoProfiling();
     }
 
 

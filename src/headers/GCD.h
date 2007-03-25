@@ -8,7 +8,7 @@
 #include "Z.h"
 #include "AbstractMethod.h"
 
-namespace numth{
+namespace mpplas{
 
   class GCDLehmer;
   class GCDExtBinario;

@@ -9,7 +9,7 @@
 #include "Z.h"
 #include <vector>
 
-namespace numth
+namespace mpplas
 {
   class VectorZ : public Vector<Z>
   {
@@ -20,7 +20,7 @@ namespace numth
       VectorZ(const std::vector<Z>&);
       VectorZ(const std::string &);
 
-      VectorZ& operator+=(const VectorZ&) throw (Errores::NonConformantDimensions);
+      VectorZ& operator+=(const VectorZ&) ;
       VectorZ& operator+=(const Z&);
       VectorZ& operator+=(const Cifra);
       VectorZ& operator+=(const CifraSigno);
@@ -30,12 +30,12 @@ namespace numth
       VectorZ& operator-=(const Cifra);
       VectorZ& operator-=(const CifraSigno);
 
+      VectorZ& operator*=(const VectorZ&);
       VectorZ& operator*=(const Z&);
       VectorZ& operator*=(const Cifra);
       VectorZ& operator*=(const CifraSigno);
 
       VectorZ& cross(const VectorZ&);
-      VectorZ& dot(const VectorZ&);
 
       VectorZ& normalize();
 
@@ -43,6 +43,7 @@ namespace numth
 
   };
 
+  Z dot(const VectorZ& lhs, const VectorZ& rhs);
 
 
 }

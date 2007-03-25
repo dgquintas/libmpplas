@@ -5,7 +5,7 @@
 #include <cassert>
 #include "mp.h"
 
-namespace numth
+namespace mpplas
 {
 
       // constructores

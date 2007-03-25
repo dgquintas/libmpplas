@@ -12,7 +12,7 @@
 #include "Funciones.h"
 #include "Random.h"
 
-using namespace numth;
+using namespace mpplas;
 
 namespace com_uwyn_qtunit{
 

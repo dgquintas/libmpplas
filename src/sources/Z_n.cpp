@@ -8,7 +8,7 @@
 #include <algorithm>
 
 
-namespace numth{
+namespace mpplas{
 
   Z_n::Z_n(const Z& mod)
     : Z(), n_(mod)

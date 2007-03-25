@@ -10,9 +10,11 @@
 #include <algorithm>
 #include <sstream>
 
-#include "err.h"
 
-namespace numth
+#include "err.h"
+#include "AlgebraUtils.h"
+
+namespace mpplas 
 {
   template<typename T>
     class Vector : public std::vector<T>
@@ -33,6 +35,8 @@ namespace numth
         }
 
         size_t length() const  { return this->size(); }
+
+        Dimensions getDimensions() const;
 
         std::string toString() const;
 
@@ -94,6 +98,10 @@ namespace numth
       }
     }
 
+  template<typename T>
+    Dimensions Vector<T>::getDimensions() const {
+      return Dimensions(1, this->length() );
+    }
 
 
   template<typename T>

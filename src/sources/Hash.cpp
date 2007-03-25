@@ -7,7 +7,7 @@
 #include <sstream>
 #include <cstring> //para memset
 
-namespace numth{
+namespace mpplas{
 
 
   MD5::MD5(void)

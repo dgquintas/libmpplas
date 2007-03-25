@@ -7,7 +7,7 @@
 #include "R.h"
 #include "AbstractMethod.h"
 
-namespace numth{
+namespace mpplas{
 
   class ExpTaylor;
   class LnTaylor;

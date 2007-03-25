@@ -7,7 +7,7 @@
 #include "Potencia.h"
 #include <algorithm>
 
-namespace numth{
+namespace mpplas{
   
   
 //  Z RedModular::redModular(Z num, const Z& mod)

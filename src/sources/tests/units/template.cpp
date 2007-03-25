@@ -7,7 +7,7 @@
 #include "template.h"
 
 using namespace std;
-using namespace numth;
+using namespace mpplas;
 
 CPPUNIT_TEST_SUITE_REGISTRATION( Test );
 

@@ -20,7 +20,7 @@
 #include "Primos.h"
 #include "GCD.h"
 
-namespace numth{
+namespace mpplas{
 
   size_t Z::precisionSalida_ = 0;
 
@@ -714,7 +714,7 @@ namespace numth{
 
     Z raizCuad(*this);
     raizCuad.raizCuadrada();
-    if( numth::cuadrado(raizCuad) != (*this) )
+    if( mpplas::cuadrado(raizCuad) != (*this) )
       return false;
     else{
       if( raiz )

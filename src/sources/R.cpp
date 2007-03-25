@@ -7,7 +7,7 @@
 #include "Funciones.h" 
 #include "Potencia.h"
 
-namespace numth{
+namespace mpplas{
 
   size_t R::precision_ = 300;
   size_t R::precisionSalida_ = 20;
@@ -736,7 +736,7 @@ namespace numth{
       }
   }
 
-  //R numth::operator%(const double corto, const R& largo)
+  //R mpplas::operator%(const double corto, const R& largo)
   //{
   //  if( largo.esCero() )
   //    throw Errores::DivisionPorCero();
@@ -779,7 +779,7 @@ namespace numth{
     largo /= corto;
     return largo;
   }
-  //R numth::operator%(R largo, const double corto)
+  //R mpplas::operator%(R largo, const double corto)
   //{
   //  if( corto == 0 )
   //    throw Errores::DivisionPorCero();

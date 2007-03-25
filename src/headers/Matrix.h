@@ -14,19 +14,23 @@
 
 #include "err.h"
 #include "Vector.h"
+#include "AlgebraUtils.h"
 
-namespace numth
+namespace mpplas 
 {
   template<typename T>
     class Matrix
     {
       public:
         Matrix()
-          : _n(1), _m(1), _data(1) { };
+          : _dims(1,1), _data(1) { };
         Matrix(const size_t nAndm) 
-          : _n(nAndm), _m(nAndm), _data(nAndm*nAndm) {} ;
+          : _dims(nAndm,nAndm), _data(nAndm*nAndm) {} ;
         Matrix(const size_t n, const size_t m)
-          : _n(n), _m(m), _data(n*m) {} ;
+          : _dims(n,m), _data(n*m) {} ;
+        Matrix(const Dimensions& dims)
+          : _dims(dims), _data( _dims.getProduct() )
+        {}
 
         Matrix(const Matrix<T>& rhs)
           : _data(rhs._data) {}; //copy constr
@@ -35,8 +39,7 @@ namespace numth
 
         Matrix<T>& operator=(const Matrix<T>& rhs){
           _data = rhs._data;
-          _n = rhs._n;
-          _m = rhs._m;
+          _dims = rhs._dims;
         }
 
         Vector<T> operator[](size_t i) const; 
@@ -52,49 +55,15 @@ namespace numth
 
         std::string toString() const;
 
-        size_t getNumRows() const 
-        {return _n;};
-        size_t getNumColumns() const
-        {return _m;};
+        Dimensions getDimensions() const;
 
-        void setNumRows(const size_t newN)
-        {
-          if( newN == _n ){ //do nothing
-            return;
-          }
-          else{
-            //the extra space will be filled with the default
-            //constructor's value for the type T
-            _data.resize( _m * newN );
-            _n = newN;
-          }
-        }
+        void setDimensions(const Dimensions& dims);
 
-        void setNumColumns(const size_t newM)
-        {
-          if(newM == _m ){ //do nothing
-            return;
-          }
-
-          typename Vector<T>::iterator it;
-          if( newM > _m) {
-            _data.reserve( _n * newM );
-            for(it = _data.begin() + _m; it <= _data.end(); it += (_m + (newM-_m))){
-              _data.insert(it, newM - _m, T() );
-            }
-          }
-          else{ //newM < _m
-             for(it = _data.begin() + _m-1; it < _data.end(); it += _m - 1){
-              _data.erase(it);
-            }
-          }
-          _m = newM;
-          
-        }
 
 
       protected:
-        size_t _n,_m;
+//        size_t _n,_m;
+        Dimensions _dims;
 
         Vector<T> _data; /**< Row-major vector representation of the matrix */
 
@@ -116,6 +85,7 @@ namespace numth
 
   template<typename T>
     Vector<T> Matrix<T>::operator[](size_t i) const{
+      const size_t _m = _dims.getColumns();
       Vector<T> v(_m);
 
       typename Vector<T>::const_iterator it;
@@ -128,11 +98,11 @@ namespace numth
 
   template<typename T>
     inline T& Matrix<T>::operator()(size_t i, size_t j){
-      return _data[(i*_m) + j];
+      return _data[(i* _dims.getColumns() ) + j];
     }
   template<typename T>
     inline const T& Matrix<T>::operator()(size_t i, size_t j) const{
-      return _data[(i*_m) + j];
+      return _data[(i* _dims.getColumns() ) + j];
     }
 
   template<typename T>
@@ -143,11 +113,13 @@ namespace numth
   template<typename T>
     void Matrix<T>::reset() {
       _data.clear();
-      _m = _n = 0;
+      _dims.setBoth(0,0);
     }
 
   template<typename T>
     Matrix<T>& Matrix<T>::transpose(){
+      const size_t _n = _dims.getRows();
+      const size_t _m = _dims.getColumns();
 #pragma omp parallel for schedule(guided) 
       for(int i=0; i < _n-1; i++){
         for(int j=1; j < _m; j++){
@@ -161,7 +133,7 @@ namespace numth
   template<typename T>
     void Matrix<T>::setDiagonal(T n){
       typename Vector<T>::iterator it;
-      for(it = _data.begin(); it < _data.end(); it+= _m +1){
+      for(it = _data.begin(); it < _data.end(); it+= _dims.getColumns() +1){
         *it = n;
       }
       return;
@@ -170,22 +142,62 @@ namespace numth
 
 
   template<typename T>
-    std::string Matrix<T>::toString() const {
+    std::string Matrix<T>::toString() const { 
+      const size_t _n = _dims.getRows();
+      const size_t _m = _dims.getColumns();
+
       std::string res("[ ");
-      for(int i=0; i < this->_n; i++){
-        for(int j=0; j < this->_m; j++){
+      for(int i=0; i < _n; i++){
+        for(int j=0; j < _m; j++){
           std::ostringstream oss;
           oss << (this->operator()(i,j));
           res += oss.str();
           res += " ";
         }
-        if( i != this->_n-1){
+        if( i != _n-1){
           res += "; ";
         }
       }
       res += " ]";
 
       return res;
+    }
+
+  template<typename T>
+    Dimensions Matrix<T>::getDimensions() const{
+      return _dims;
+    }
+
+  template<typename T>
+    void Matrix<T>::setDimensions(const Dimensions& dims){
+      const size_t _n = _dims.getRows();
+      const size_t _m = _dims.getColumns();
+      //deal with the possible change in the # of rows
+      const size_t newN = dims.getRows();
+      if( newN != _n ){ 
+        //the extra space will be filled with the default
+        //constructor's value for the type T
+        _data.resize( _m * newN );
+        _dims.setRows(newN);
+      }
+
+      //deal with the possible change in the # of columns 
+      const size_t newM = dims.getColumns();
+      if( newM != _m ){
+        typename Vector<T>::iterator it;
+        if( newM > _m) {
+          _data.reserve( _n * newM );
+          for(it = _data.begin() + _m; it <= _data.end(); it += (_m + (newM-_m))){
+            _data.insert(it, newM - _m, T() );
+          }
+        }
+        else{ //newM < _m
+          for(it = _data.begin() + _m-1; it < _data.end(); it += _m - 1){
+            _data.erase(it);
+          }
+        }
+        _dims.setColumns(newM);
+      }
     }
 
 
@@ -201,6 +213,8 @@ namespace numth
       maxWidth[i % COLS] = std::max(oss.str().size()+2, maxWidth[i % COLS]);
     }
 
+    const size_t _n = m.getDimensions().getRows();
+    const size_t _m = m.getDimensions().getColumns();
     for(int i=0; i < m._n; i++){
       out << "[" ;
       for(int j=0; j < m._m; j++ ){
@@ -235,8 +249,8 @@ namespace numth
     in.clear();
     in >> c;
     if( c == ']' ){ // single-rowed matrix
-      m._n = 1;
-      m._m = columnsIni;
+      m._dims.setRows(1);
+      m._dims.setColumns(columnsIni);
       return in;
     }
     if( c != ';' ){
@@ -263,8 +277,8 @@ namespace numth
       in >> c;
 
       if( c == ']' ){ 
-        m._n = (rows+1);
-        m._m = columnsIni;
+        m._dims.setRows(rows+1);
+        m._dims.setColumns(columnsIni);
         return in;
       }
       if( c != ';'){
@@ -277,6 +291,7 @@ namespace numth
     return in;
   
   }
+
 
 
 }

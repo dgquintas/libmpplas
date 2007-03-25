@@ -26,6 +26,7 @@ Import('env')
 env.Append( CPPPATH=['#/src/sources/nucleo'] )
 
 files = Split("""
+    AlgebraUtils.cpp
     CRT.cpp
     Factor.cpp
     Funciones.cpp
@@ -40,6 +41,7 @@ files = Split("""
     RedModular.cpp
     Semillero.cpp
     SimbolosLegendre.cpp
+    SystemInfo.cpp
     Trascendentes.cpp
     Z.cpp
     Z_n.cpp
@@ -86,7 +88,7 @@ if env['enableRelease']:
 #  env.Append(CCFLAGS = ' -ffast-math')  #FIXME: esto con icc no chuta
 
 if env['enableDebug']:
-  env.Append(CCFLAGS = ' -g')
+  env.Append(CCFLAGS = ' -ggdb3')
 
 if env['enableWarnings']:
   env.Append(CCFLAGS = ' -Wall -W')

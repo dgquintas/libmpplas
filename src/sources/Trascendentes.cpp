@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace numth{
+namespace mpplas{
 
   R ExpTaylor::exponencial(const R& x)
   {

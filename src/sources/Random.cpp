@@ -8,7 +8,7 @@
 #include "GCD.h"
 #include <algorithm> //para max()
 
-namespace numth{
+namespace mpplas{
 
   /* IMPLEMENTACION MIEMBROS NO PUROS DE Random */
   Cifra Random::leerCifra(void)
@@ -75,14 +75,15 @@ namespace numth{
     }
       
     const size_t numCifras = ((n_bytes+(Constantes::BYTES_EN_CIFRA-1)) / Constantes::BYTES_EN_CIFRA); 
-    MiVec<Cifra> vecRandom(numCifras,0);
+    MiVec<Cifra> vecRandom(numCifras);
     
     size_t i;
-    for(i = 0 ; i < numCifras-1 ; i++)
+    for(i = 0 ; i < numCifras-1 ; i++){
       for(int j = 0; j < (Constantes::BYTES_EN_CIFRA); j++){
         vecRandom[i] <<= 8;
         vecRandom[i] |= bytesRand[(i*Constantes::BYTES_EN_CIFRA)+j];
       }
+    }
 
     //y ultima iteracion
     size_t j;

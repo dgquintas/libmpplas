@@ -15,7 +15,7 @@
 #endif
 
 
-namespace numth{
+namespace mpplas{
 
   Semillero::Semillero(void)
   {

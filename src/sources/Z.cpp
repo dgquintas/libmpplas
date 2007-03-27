@@ -11,6 +11,7 @@
 #include <string>
 #include <utility>
 #include <iomanip>
+#include <cctype> //for isdigit
 
 
 #include "Z.h"
@@ -1578,21 +1579,25 @@ namespace mpplas{
       return out;
     }
 
+  
+  mpplas::MiVec<Cifra> _parseNumber( std::istream &in ){
+    char c;
+    Cifra n = 0;
+    int numDigits = 0;
+
+    while( in >> c) {
+      if( std::isdigit(c) ) {
+        n *= 10;
+        ++numDigits;
+        n += std::atoi(c); 
+        if( numDigits >= Constantes::MAX_EXP10_CIFRA ){ //shouldn't ever be >
+
+
+  }
   std::istream& 
-    operator>>(std::istream& is, Z& numero) throw(Errores::Sintactic)
+    operator>>(std::istream& in, Z& numero) throw(Errores::Sintactic)
     {
-      std::string entrada;
-      Cifra num;
-      char *error;
-      char sign;
       Cifra potenciaInicial = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
-
-      numero = 0L;
-      
-      std::streampos streamInitialPos = is.tellg();
-      is >> entrada;
-
-      sign = entrada[0];
 
       if( sign == '-' ){
         entrada.erase(0,1);
@@ -1608,75 +1613,9 @@ namespace mpplas{
         return is;
       }
 
-
-      size_t posError = entrada.find_first_not_of("0123456789");
-      if ( posError != std::string::npos ){
-        //throw Errores::InvalidSymbol(entrada[posError]);
-//        is.setstate( ios::badbit );
-        
-        is.seekg( streamInitialPos + (std::streamoff)(posError+1), ios_base::beg);
-        entrada = entrada.substr(0,posError);
-      }
-
-
-
-      int tam = entrada.size();
-
-      if( tam % Constantes::MAX_EXP10_CIFRA ){
-        std::string tmpSubstr = entrada.substr(0, tam % Constantes::MAX_EXP10_CIFRA);
-        num = strtoul(tmpSubstr.c_str(), &error, 10);
-        if(*error != '\0'){
-          throw Errores::Sintactic();
-        }
-
-        numero = num;
-        if( tam > Constantes::MAX_EXP10_CIFRA ){
-          numero *= potenciaInicial; 
-        }
-      }
-
-      if( tam > Constantes::MAX_EXP10_CIFRA){ 
-        for(long i = (tam % Constantes::MAX_EXP10_CIFRA); 
-            i+Constantes::MAX_EXP10_CIFRA < tam ; 
-            i += Constantes::MAX_EXP10_CIFRA){
-
-          std::string tmpSubstr = entrada.substr(i,Constantes::MAX_EXP10_CIFRA);
-          num = strtoul(tmpSubstr.c_str(), &error, 10);
-          if(*error != '\0'){
-            throw Errores::Sintactic();
-          }
-
-          numero += num; 
-          numero *= potenciaInicial; 
-        }
-
-        //ultima cifra
-        assert(tam >= Constantes::MAX_EXP10_CIFRA ); //FIXME
-        std::string tmpSubstr = entrada.substr(tam-Constantes::MAX_EXP10_CIFRA,Constantes::MAX_EXP10_CIFRA);
-        num = strtoul(tmpSubstr.c_str(), &error, 10);
-        if(*error != '\0'){
-          throw Errores::Sintactic();
-        }
-
-        numero += num; 
-      }
-      else{ // tam <= Constantes::MAX_EXP10_CIFRA => todo cabe en uno
-        num = strtoul(entrada.c_str(), &error, 10);
-        if(*error != '\0'){
-          throw Errores::Sintactic();
-        }
-
-        numero = num; 
-      }
-      if( sign == '-' ){
-        numero.signo_ = -1;
-      }
-      else{
-        numero.signo_ = 1;
-      }
-
       return is;
     }
+
 
 
   Z operator+(Z izq, const Z& der)

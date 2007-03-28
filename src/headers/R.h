@@ -430,6 +430,9 @@ namespace mpplas
     ~R();
 
     //funciones utiles
+    
+    std::string toString() const;
+    
       /** Hacer cero.
        * 
        * \par Complejidad:
@@ -659,7 +662,7 @@ namespace mpplas
     /** Operador de salida del número */
     friend std::ostream& operator<<(std::ostream&, R);
     /** Operador obtencion del número */
-    friend std::istream& operator>>(std::istream&, R&) throw(Errores::Sintactic);
+    friend std::istream& operator>>(std::istream&, R&); 
 
   };
 }

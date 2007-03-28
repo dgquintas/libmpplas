@@ -6,12 +6,11 @@ using namespace std;
 int main()
 {
  
-    mpplas::Z entero;
+    mpplas::Z entero1, entero2;
     char c;
 
-    cin >> entero >> c;
+    cin >> entero1 >> c >> entero2;
     
-    cout << entero << endl;
-    cout << c << endl;
+    cout << entero1 <<  c << entero2 << endl;
 
 }

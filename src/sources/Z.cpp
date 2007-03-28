@@ -1600,12 +1600,8 @@ namespace mpplas{
         }
       }
       else{ //not a digit
-        if( (std::isspace(c)) || (!in.good()) ){ 
-          //error. sth we cannot interpret
-          throw Errores::InvalidSymbol(std::string(c,1));
-        }
-        //in any case, we'd have to flush what we might have read so
-        //far
+        in.putback(c);
+        //we have to flush what we might have read so far
         break;
       }
     } //while

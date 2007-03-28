@@ -422,6 +422,14 @@ namespace mpplas{
     return *this;
   }
 
+  std::string R::toString(void) const {
+    std::ostringstream oss;
+    oss << *this;
+
+    return oss.str().c_str();
+  }
+
+
   R& R::operator<<=(const size_t n)
   {
     if( n > Cifra(Constantes::CIFRASIGNO_MAX) )
@@ -901,79 +909,98 @@ namespace mpplas{
       return out;
     }
 
+  void _parseNumber( std::istream &in, R& res, bool decimalPart ){
+    static Cifra const potenciaInicial = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
+    char c;
+    Cifra n = 0;
+    int numDigits = 0;
+    res.hacerCero();
+
+    while( in.get(c) ) {
+      if( std::isdigit(c) ) {
+        n *= 10;
+        ++numDigits;
+        n += c - '0';  //FIXME: is this portable?
+        if( numDigits >= Constantes::MAX_EXP10_CIFRA ){ //shouldn't ever be >
+          //put into the number to return
+          if( decimalPart ){
+            res += n;
+            res /= potenciaInicial;
+          }
+          else{ //still on the "integer" part
+            res *= potenciaInicial;
+            res += n;
+          }
+          n = numDigits = 0;
+        }
+      }
+      else{ //not a digit
+        in.putback(c);
+        //we have to flush what we might have read so far
+        break;
+      }
+    } //while
+
+    if( numDigits > 0 ){ //still sth to process: flush it
+      if( decimalPart ){
+        res += n;
+        res /= (Cifra)pow(10.0,numDigits);
+      }
+      else{ //still on the "integer" part
+        res *= (Cifra)pow(10.0,numDigits);
+        res += n;
+      }
+    }
+
+
+  
+    return;
+  }
+
 
   std::istream& 
-    operator>>(std::istream& in, R& numero) throw(Errores::Sintactic)
+    operator>>(std::istream& in, R& numero) 
     {
-      std::string entrada;
-      Cifra num;
-      char *error;
-      Cifra potenciaInicial = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
-      bool negativo = false;
+      bool negative = false;
+      char c;
 
-      numero = (Cifra)0;
+      in >> c;
 
-      std::streampos streamInitialPos = in.tellg();
-      in >> entrada;
+      if( c == '-' ){
+        negative = true;
+      }
+      else if (c == '+' ){
+        ;
+      }
+      else{
+        in.putback(c);
+      }
 
+      //_parseNumber(in, numero, false);
+      Z integer;
+      in >> integer;
+      //was the offending character a dot?
+      in.get(c);
+      if( c != '.' ){
+        throw Errores::InvalidSymbol(std::string(1,c));
+      }
+      else{ //somewhat redundant: would have left the function by the throw already
+        _parseNumber(in, numero, true);
+      }
       
+      numero += R(integer);
 
-      size_t posError = entrada.find_first_not_of(".eE+-0123456789");
-      if ( posError != std::string::npos ){
-        //throw Errores::InvalidSymbol(entrada[posError]);
-        if( posError == 0 ){
-          in.seekg( streamInitialPos, ios_base::beg);
-          in.setstate( ios::badbit );
-          return in;
-        } 
-        in.seekg( streamInitialPos + (std::streamoff)(posError+1), ios_base::beg);
-        entrada = entrada.substr(0,posError);
-      }
-
-      size_t posPunto = entrada.find_first_of('.');
-      std::string parteEntera = entrada.substr(0,posPunto);
-      Z entero(parteEntera.c_str());
-      if(entero.signo() < 0){
-        negativo = true;
-      }
-
-
-      if(posPunto != std::string::npos){ //hay punto
-        std::string parteFrac = entrada.substr(posPunto+1);
-        int tam = parteFrac.size();
-        Cifra potenciaFinal = (Cifra)pow(10.0,tam % Constantes::MAX_EXP10_CIFRA);
-
-        for(long i = tam-Constantes::MAX_EXP10_CIFRA; i >= 0 ; i -= Constantes::MAX_EXP10_CIFRA){
-          num = strtoul((parteFrac.substr(i, Constantes::MAX_EXP10_CIFRA)).c_str(), &error, 10);
-          if(*error != '\0'){
-            throw Errores::Sintactic();
-          }
-          numero += num;
-          numero /= potenciaInicial;
-        }
-        //ultima cifra
-        num = strtoul((parteFrac.substr(0,tam % Constantes::MAX_EXP10_CIFRA)).c_str(), &error, 10);
-        if(*error != '\0'){
-          throw Errores::Sintactic();
-        }
-        numero += num;
-        numero /= potenciaFinal;
-      }
-      //  else
-      //    std::string parteFrac = "0";
-
-      if(negativo){
+      if( negative ){
         numero.cambiarSigno();
-        entero.cambiarSigno();
-        numero -= R(entero);
       }
-      else
-        numero += R(entero);
 
       numero.normalizar();
-
       return in;
     }
+
+
+
+
 
   R operator-(R real)
   {

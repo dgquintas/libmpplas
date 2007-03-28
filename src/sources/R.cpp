@@ -975,10 +975,7 @@ namespace mpplas{
       in >> integer;
       //was the offending character a dot?
       in.get(c);
-      if( c != '.' ){
-        throw Errores::InvalidSymbol(std::string(1,c));
-      }
-      else{ //somewhat redundant: would have left the function by the throw already
+      if( c == '.' ){
         _parseNumber(in, numero);
       }
       

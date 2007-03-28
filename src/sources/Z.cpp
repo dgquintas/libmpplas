@@ -1580,40 +1580,70 @@ namespace mpplas{
     }
 
   
-  mpplas::MiVec<Cifra> _parseNumber( std::istream &in ){
+  void _parseNumber( std::istream &in, Z& res ){
     char c;
     Cifra n = 0;
     int numDigits = 0;
+    res.hacerCero();
+    static Cifra const potenciaInicial = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
 
-    while( in >> c) {
+    while( in.get(c) ) {
       if( std::isdigit(c) ) {
         n *= 10;
         ++numDigits;
-        n += std::atoi(c); 
+        n += c - '0';  //FIXME: is this portable?
         if( numDigits >= Constantes::MAX_EXP10_CIFRA ){ //shouldn't ever be >
+          //put into the number to return
+          res *= potenciaInicial;
+          res += n;
+          n = numDigits = 0;
+        }
+      }
+      else{ //not a digit
+        if( (std::isspace(c)) || (!in.good()) ){ 
+          //error. sth we cannot interpret
+          throw Errores::InvalidSymbol(std::string(c,1));
+        }
+        //in any case, we'd have to flush what we might have read so
+        //far
+        break;
+      }
+    } //while
 
-
+    if( numDigits > 0 ){ //still sth to process: flush it
+      res *= (Cifra)pow(10.0,numDigits);
+      res += n;
+    }
+  
+    return;
   }
+
+
   std::istream& 
-    operator>>(std::istream& in, Z& numero) throw(Errores::Sintactic)
+    operator>>(std::istream& in, Z& numero) 
     {
-      Cifra potenciaInicial = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
+      bool negative = false;
+      char c;
 
-      if( sign == '-' ){
-        entrada.erase(0,1);
-        streamInitialPos += 1;
+      in >> c;
+
+      if( c == '-' ){
+        negative = true;
       }
-      else if (sign == '+' ){
-        entrada.erase(0,1);
-        streamInitialPos += 1;
+      else if (c == '+' ){
+        ;
       }
-      else if ((sign < '0') || (sign > '9') ){
-        is.seekg( streamInitialPos, ios_base::beg);
-        is.setstate( ios::badbit );
-        return is;
+      else{
+        in.putback(c);
       }
 
-      return is;
+      _parseNumber(in, numero);
+
+      if( negative ){
+        numero.cambiarSigno();
+      }
+
+      return in;
     }
 
 

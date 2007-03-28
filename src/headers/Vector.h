@@ -131,13 +131,15 @@ namespace mpplas
 
     while( in >> valueRead ){
       v.push_back(valueRead);
+      in >> std::ws >> c;
+      if( c != ']' ){
+        in.putback(c); 
+      }
+      else{ //reached the final ]
+        break; 
+      }
     }
-    in.clear();
-    in >> c;
-    if( c != ']' ){
-      throw Errores::InvalidSymbol(std::string(1,c));
-    }
-
+  
     return in;
   
   }

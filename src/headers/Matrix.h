@@ -203,7 +203,7 @@ namespace mpplas
 
   template<typename T>
   std::ostream& operator<<(std::ostream& out, const Matrix<T>& m){
-    const size_t COLS = m.getNumColumns();
+    const size_t COLS = m.getDimensions().getColumns();
     size_t maxWidth[COLS];
     memset(maxWidth, 0, COLS*sizeof(size_t));
 
@@ -215,9 +215,9 @@ namespace mpplas
 
     const size_t _n = m.getDimensions().getRows();
     const size_t _m = m.getDimensions().getColumns();
-    for(int i=0; i < m._n; i++){
+    for(int i=0; i < _n; i++){
       out << "[" ;
-      for(int j=0; j < m._m; j++ ){
+      for(int j=0; j < _m; j++ ){
         out << std::setw(maxWidth[j]) << std::right << m(i,j);
       }
       out << " ]\n" ;
@@ -233,6 +233,7 @@ namespace mpplas
     char c;
     size_t columnsIni, columnsRead, rows;
     columnsIni = columnsRead = rows = 0;
+    bool firstRow = true;
 
     in >> c;
     if( !in.good() || c != '[' ){
@@ -240,54 +241,42 @@ namespace mpplas
     }
     
     T valueRead;
-
-
-    while( in >> valueRead ){
-      m._data.push_back(valueRead);
-      columnsIni++;
-    }
-    in.clear();
-    in >> c;
-    if( c == ']' ){ // single-rowed matrix
-      m._dims.setRows(1);
-      m._dims.setColumns(columnsIni);
-      return in;
-    }
-    if( c != ';' ){
-      throw Errores::InvalidSymbol(std::string(1,c));
-    }
-    rows++;
-    //finished reading first row
-    //keep reading til we find the matching ]
-    //attencion has to be paid to the number of 
-    //elements per row, now the # of columns has been defined
     
     while(true){
       while( in >> valueRead ){
         m._data.push_back(valueRead);
-        columnsRead++;
-      }
+        if( firstRow ) {
+          columnsIni++;
+        }
+        else{
+          columnsRead++;
+          if( columnsRead > columnsIni ){
+            throw Errores::Sintactic("Inconsistent number of columns");
+          }
+        }
+        in >> std::ws >> c;
+        if( c != ';' && c != ']' ){
+          in.putback(c);
+        }
+        else{ //reached the final ] or ; 
+          break; 
+        }
+      }// inner while
       
-      if( columnsRead != columnsIni ){
-        throw Errores::Sintactic("Incoherent number of columns");
+      if( (!firstRow) && (columnsRead != columnsIni) ){
+        throw Errores::Sintactic("Inconsistent number of columns");
       }
       columnsRead = 0;
-      in.clear();
-      
-      in >> c;
 
       if( c == ']' ){ 
         m._dims.setRows(rows+1);
         m._dims.setColumns(columnsIni);
         return in;
       }
-      if( c != ';'){
-        throw Errores::InvalidSymbol(std::string(1,c));
-      }
       rows++;
-    }
+      firstRow = false;
+    } //while(true)
 
-    assert(false); //shouldn't be reaching this point
     return in;
   
   }

@@ -1183,7 +1183,7 @@ namespace mpplas
       /** Operador de salida del número */
       friend std::ostream& operator<<(std::ostream&, Z);
       /** Operador obtencion del número */
-      friend std::istream& operator>>(std::istream&, Z&) throw (Errores::Sintactic);
+      friend std::istream& operator>>(std::istream&, Z&); 
 
       /** Funciones (procedimientos) para el calculo simultaneao de cociente y módulo.
        *

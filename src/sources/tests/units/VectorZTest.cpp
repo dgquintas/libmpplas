@@ -73,7 +73,7 @@ void VectorZTest::testOperatorProductWithZ(){
 }
 
 void VectorZTest::testOperatorProductWithVectorZ(){
-  VectorZ res("[423 24 162 2484 1780 186 0 -992 -9]");
+  VectorZ res("[423       24      162       2484     1780     186     0    -992        -9]");
 
 //  VectorZ res("[5221935 148140 666630 7666245 4394820 382695 0 -1530780 -12345]");
   vecA *= vecB;

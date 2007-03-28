@@ -10,7 +10,6 @@ using namespace com_uwyn_qtunit;
 
 NumthTestSuite::NumthTestSuite() 
 {
-  addTestUnit(rsaTest_);
   addTestUnit(randomTest_);
   addTestUnit(kernelTest_);
 	addTestUnit(zTest_);
@@ -21,4 +20,5 @@ NumthTestSuite::NumthTestSuite()
 #ifdef _OPENMP
   addTestUnit(openMPTest_);
 #endif
+  addTestUnit(rsaTest_);
 }

@@ -32,6 +32,7 @@ namespace com_uwyn_qtunit{
 
     protected:
       /* The actual tests */
+      void testInput();
       void testEquality();
       void testAddition();
       void testSubstraction();

@@ -1,5 +1,4 @@
 #include <iostream>
-#include "funciones.h"
 #include "Z.h"
 
 using namespace std;
@@ -7,11 +6,12 @@ using namespace std;
 int main()
 {
  
-    numth::Z entero;
-    unsigned long div;
+    mpplas::Z entero;
+    char c;
 
-    cin >> entero >> div;
+    cin >> entero >> c;
     
-    cout << (entero % div) << endl;
+    cout << entero << endl;
+    cout << c << endl;
 
 }

@@ -1,15 +1,15 @@
 #include "Matrix.h"
-#include "R.h"
+#include "Z.h"
 #include <iostream>
 
 
-using namespace numth;
+using namespace mpplas;
 using namespace std;
 
 
 int main(){
 
-  Matrix<R> mat("[1.324 2.1 3; 4 5 6; -753453253232522.342 8 9]");
+  Matrix<Z> mat("[1324 21 3; 4 5 6; -753453253232522342 8 9]");
 
   cout << mat;
 

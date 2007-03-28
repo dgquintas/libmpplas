@@ -2,8 +2,9 @@
  * $Id$
  */
 
+#include <stack>
+
 #include "R.h"
-#include <inttypes.h>
 #include "Funciones.h" 
 #include "Potencia.h"
 
@@ -198,14 +199,14 @@ namespace mpplas{
   {
     unsigned long difTam = labs(mantisa_.numBits() - otro.mantisa_.numBits());
 
-    //comprobamos si uno es "despreciable" frete al otro en funci髇 de
+    //comprobamos si uno es "despreciable" frete al otro en funci贸n de
     //si la diferencia de sus respectivos exponentes sobrepasa la
-    //precisi髇 de trabajo
+    //precisi贸n de trabajo
     if( exponente_ > otro.exponente_ ){
       unsigned long difExp = exponente_ - otro.exponente_;
       if( difExp >= (R::precision_ + difTam)){
         // "otro" es mucho menor que "this" -> no se suma nada, ya que
-        // de todas formas, lo ibamos a perder por precisi髇.
+        // de todas formas, lo ibamos a perder por precisi贸n.
         return *this;
       }
       else{
@@ -222,7 +223,7 @@ namespace mpplas{
       unsigned long difExp = otro.exponente_ - exponente_;
       if( difExp >= (R::precision_ + difTam)){
         // "this" es mucho menor que "otro" -> no se suma nada, ya que
-        // de todas formas, lo ibamos a perder por precisi髇.
+        // de todas formas, lo ibamos a perder por precisi贸n.
         // En este caso, esto supone que "this" pasa a ser "otro"
         this->operator=(otro);
         return *this;
@@ -249,14 +250,14 @@ namespace mpplas{
   {
     unsigned long difTam = labs(mantisa_.numBits() - otro.mantisa_.numBits());
 
-    //comprobamos si uno es "despreciable" frete al otro en funci髇 de
+    //comprobamos si uno es "despreciable" frete al otro en funci贸n de
     //si la diferencia de sus respectivos exponentes sobrepasa la
-    //precisi髇 de trabajo
+    //precisi贸n de trabajo
     if( exponente_ > otro.exponente_ ){
       unsigned long difExp = exponente_ - otro.exponente_;
       if( difExp >= (R::precision_ + difTam)){
         // "otro" es mucho menor que "this" -> no se resta nada, ya que
-        // de todas formas, lo ibamos a perder por precisi髇.
+        // de todas formas, lo ibamos a perder por precisi贸n.
         return *this;
       }
       else{
@@ -273,7 +274,7 @@ namespace mpplas{
       unsigned long difExp = otro.exponente_ - exponente_;
       if( difExp >= (R::precision_ + difTam) ){
         // "this" es mucho menor que "otro" -> no se resta nada, ya que
-        // de todas formas, lo ibamos a perder por precisi髇.
+        // de todas formas, lo ibamos a perder por precisi贸n.
         // En este caso, esto supone que "this" pasa a ser "otro" con
         // cambio de signo.
         this->operator=(otro);
@@ -454,7 +455,7 @@ namespace mpplas{
       return false;
 
     // se pasa de la casuistica de signos porque ya se encarga de ella
-    // la comparaci髇 de Z subyacente
+    // la comparaci贸n de Z subyacente
     //  if( (signo() > 0) && (der.signo() > 0) ){
     if( exponente_ > der.exponente_ ){
       Z mantTemp(mantisa_);
@@ -649,7 +650,7 @@ namespace mpplas{
   void R::normalizar(size_t nprec)
   {
     if( mantisa_.esCero() ){
-      exponente_ = 0; //hacer que la representacion del 0 real sea 鷑ica.
+      exponente_ = 0; //hacer que la representacion del 0 real sea 煤nica.
       return;
     }
 
@@ -860,7 +861,7 @@ namespace mpplas{
         precisionUsada = limitePrec;
         // limitePrec < R::precisionSalida. Es decir, la precision
         // de salida es mayor que la que se puede conseguir con la
-        // precision interna del n鷐ero: se producirian digitos no
+        // precision interna del n煤mero: se producirian digitos no
         // exactos
 
         oss << "~";
@@ -909,8 +910,9 @@ namespace mpplas{
       return out;
     }
 
-  void _parseNumber( std::istream &in, R& res, bool decimalPart ){
+  void _parseNumber( std::istream &in, R& res){
     static Cifra const potenciaInicial = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
+    std::stack<Cifra> stk;
     char c;
     Cifra n = 0;
     int numDigits = 0;
@@ -923,14 +925,7 @@ namespace mpplas{
         n += c - '0';  //FIXME: is this portable?
         if( numDigits >= Constantes::MAX_EXP10_CIFRA ){ //shouldn't ever be >
           //put into the number to return
-          if( decimalPart ){
-            res += n;
-            res /= potenciaInicial;
-          }
-          else{ //still on the "integer" part
-            res *= potenciaInicial;
-            res += n;
-          }
+          stk.push(n);
           n = numDigits = 0;
         }
       }
@@ -942,18 +937,18 @@ namespace mpplas{
     } //while
 
     if( numDigits > 0 ){ //still sth to process: flush it
-      if( decimalPart ){
-        res += n;
-        res /= (Cifra)pow(10.0,numDigits);
-      }
-      else{ //still on the "integer" part
-        res *= (Cifra)pow(10.0,numDigits);
-        res += n;
-      }
+      //first element, with only numDigits digits
+      res += n;
+      res /= (Cifra)pow(10.0,numDigits);
+    }
+
+    while(!stk.empty()) {
+      n = stk.top(); stk.pop();
+      res += n;
+      res /= potenciaInicial;
     }
 
 
-  
     return;
   }
 
@@ -976,7 +971,6 @@ namespace mpplas{
         in.putback(c);
       }
 
-      //_parseNumber(in, numero, false);
       Z integer;
       in >> integer;
       //was the offending character a dot?
@@ -985,7 +979,7 @@ namespace mpplas{
         throw Errores::InvalidSymbol(std::string(1,c));
       }
       else{ //somewhat redundant: would have left the function by the throw already
-        _parseNumber(in, numero, true);
+        _parseNumber(in, numero);
       }
       
       numero += R(integer);

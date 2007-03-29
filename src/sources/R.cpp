@@ -490,10 +490,12 @@ namespace mpplas{
 
   bool R::operator==(const R& der) const
   {
-    if( exponente_ != der.exponente_ )
+    if( exponente_ != der.exponente_ ){
       return false;
-    else
+    }
+    else{
       return (mantisa_ == der.mantisa_);
+    }
   }
 
   bool R::operator!=(const R& der) const
@@ -935,11 +937,14 @@ namespace mpplas{
         break;
       }
     } //while
-
+    
     if( numDigits > 0 ){ //still sth to process: flush it
       //first element, with only numDigits digits
+      int digitsInN = (int)ceil( log10(n) );
+      int toComplete = Constantes::MAX_EXP10_CIFRA - digitsInN;
+      n *= (Cifra)pow(10.0, toComplete);
       res += n;
-      res /= (Cifra)pow(10.0,numDigits);
+      res /= potenciaInicial; 
     }
 
     while(!stk.empty()) {
@@ -947,6 +952,8 @@ namespace mpplas{
       res += n;
       res /= potenciaInicial;
     }
+    
+
 
 
     return;

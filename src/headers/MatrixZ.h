@@ -24,31 +24,21 @@ namespace mpplas
 
       MatrixZ& operator+=(const MatrixZ&);
       MatrixZ& operator+=(const Z&);
-      MatrixZ& operator+=(const Cifra);
-      MatrixZ& operator+=(const CifraSigno);
 
       MatrixZ& operator-=(const MatrixZ&);
       MatrixZ& operator-=(const Z&);
-      MatrixZ& operator-=(const Cifra);
-      MatrixZ& operator-=(const CifraSigno);
 
       MatrixZ& operator*=(const MatrixZ&);
       MatrixZ& operator*=(const Z&);
-      MatrixZ& operator*=(const Cifra);
-      MatrixZ& operator*=(const CifraSigno);
 
       MatrixZ& operator/=(const MatrixZ&);
       MatrixZ& operator/=(const Z&);
-      MatrixZ& operator/=(const Cifra);
-      MatrixZ& operator/=(const CifraSigno);
 
-      MatrixZ& operator^=(const MatrixZ&);
       MatrixZ& operator^=(const Z&);
-      MatrixZ& operator^=(const Cifra);
-      MatrixZ& operator^=(const CifraSigno);
 
 
       MatrixZ& diagonalize();
+
       MatrixZ& invert();
 
       Z getDeterminant();
@@ -58,7 +48,7 @@ namespace mpplas
 
   };
 
-  //MatrixZ operator-(MatrixZ); /**< Unary negation, sign inversion */
+  MatrixZ operator-(MatrixZ m); /**< Unary negation, sign inversion */
 
 }
 

@@ -11,6 +11,7 @@
 #include <sstream>
 #include <cstring>
 #include <iomanip>
+#include <vector>
 
 #include "err.h"
 #include "Vector.h"
@@ -33,7 +34,8 @@ namespace mpplas
         {}
 
         Matrix(const Matrix<T>& rhs)
-          : _data(rhs._data) {}; //copy constr
+          : _data(rhs._data), _dims(rhs._dims) //copy constr
+        {}
 
         Matrix(const std::string& str);
 
@@ -62,12 +64,11 @@ namespace mpplas
 
 
       protected:
-//        size_t _n,_m;
         Dimensions _dims;
 
-        Vector<T> _data; /**< Row-major vector representation of the matrix */
+        std::vector<T> _data; /**< Row-major vector representation of the matrix */
 
-        void reset();
+        void _reset();
 
         /** Matrix ouput operator */
         template<typename U> friend std::ostream& operator<<(std::ostream&, const Matrix<U>& );
@@ -111,7 +112,7 @@ namespace mpplas
     }
  
   template<typename T>
-    void Matrix<T>::reset() {
+    void Matrix<T>::_reset() {
       _data.clear();
       _dims.setBoth(0,0);
     }
@@ -228,7 +229,7 @@ namespace mpplas
   template<typename T>
   std::istream& operator>>(std::istream& in, Matrix<T>& m) throw (Errores::InvalidSymbol){
     
-    m.reset();
+    m._reset();
 
     char c;
     size_t columnsIni, columnsRead, rows;

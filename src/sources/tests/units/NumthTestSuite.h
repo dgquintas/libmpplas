@@ -11,6 +11,7 @@
 #include "RSATest.h"
 #include "RandomTest.h"
 #include "MatrixZTest.h"
+#include "MatrixRTest.h"
 #include "VectorZTest.h"
 #include "FunctionsTest.h"
 #include "OpenMPTest.h"
@@ -30,6 +31,7 @@ namespace com_uwyn_qtunit
     RSATest rsaTest_;
     RandomTest randomTest_;
     MatrixZTest matrixZTest_;
+    MatrixRTest matrixRTest_;
     VectorZTest vectorZTest_;
     FunctionsTest functionsTest_;
 #ifdef _OPENMP

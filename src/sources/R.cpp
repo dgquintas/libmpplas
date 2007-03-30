@@ -817,7 +817,7 @@ namespace mpplas{
     }
 
   void _parseNumber( std::istream &in, R& res){
-    static Cifra const potenciaInicial = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
+    static R const potenciaInicial((Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA));
     std::stack<Cifra> stk;
     char c;
     Cifra n = 0;
@@ -847,13 +847,13 @@ namespace mpplas{
       int digitsInN = (int)ceil( log10(n) );
       int toComplete = Constantes::MAX_EXP10_CIFRA - digitsInN;
       n *= (Cifra)pow(10.0, toComplete);
-      res += n;
+      res += R(n);
       res /= potenciaInicial; 
     }
 
     while(!stk.empty()) {
       n = stk.top(); stk.pop();
-      res += n;
+      res += R(n);
       res /= potenciaInicial;
     }
     

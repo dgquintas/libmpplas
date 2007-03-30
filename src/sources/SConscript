@@ -142,7 +142,7 @@ else:
   # configuring ends
 
 
-lib = env.SharedLibrary('numth', files)
+lib = env.SharedLibrary('mpplas', files)
 env.Default(lib)
 Alias('lib', lib)
 Alias('all', lib)

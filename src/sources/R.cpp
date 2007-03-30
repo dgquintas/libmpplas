@@ -3,6 +3,8 @@
  */
 
 #include <stack>
+#include <iomanip>
+#include <sstream>
 
 #include "R.h"
 #include "Funciones.h" 
@@ -71,109 +73,11 @@ namespace mpplas{
 
   R::R(double otro)
   {
-    if(otro == 0){
-      hacerCero();
-      return;
-    }
-
-    if( otro == 1){
-      hacerUno();
-      return;
-    }
-
-
-    // La idea es la misma que cuando trabajamos con un char*
-    double suelo;
-    Cifra sueloEntero;
-    Cifra sueloEnteroAlto = 0;
-    Cifra sueloDecimal1 = 0;
-    Cifra sueloDecimal2;
-    Cifra potenciaInicial = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
-    Cifra potenciaFinal;
-    bool negativo = false;
-    size_t cifrasEnteras = 0;
-
-    if( otro < 0){
-      negativo = true;
-      otro *= -1;
-    }
-
-    suelo = std::floor(otro);
-    if( suelo > Constantes::CIFRA_MAX ){ //"partir el suelo en 2"
-      sueloEntero = (Cifra)std::fmod(suelo, potenciaInicial);
-      cifrasEnteras += (Cifra)std::ceil(log10(sueloEntero));
-      sueloEnteroAlto = (Cifra)(suelo / potenciaInicial);
-      cifrasEnteras += (Cifra)std::ceil(log10(sueloEnteroAlto));
-    }
-    else{ //cabe todo en uno
-      sueloEntero = (Cifra)suelo;
-      cifrasEnteras += (Cifra)std::ceil(log10(sueloEntero));
-    }
-
-    otro -= suelo;
-
-    int cifrasRestantes = (Constantes::MAX_EXP10_DOUBLE+2)-cifrasEnteras;
-
-    if( cifrasRestantes > (long)Constantes::MAX_EXP10_CIFRA ){
-      potenciaFinal = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
-      otro *= potenciaFinal;
-      suelo = std::floor(otro);
-      otro -= suelo;
-      sueloDecimal1 = (Cifra)suelo;
-
-      cifrasRestantes -= Constantes::MAX_EXP10_CIFRA;
-    }
-
-    potenciaFinal = (Cifra)pow(10.0,cifrasRestantes);
-    otro *= potenciaFinal;
-    suelo = std::floor(otro);
-    sueloDecimal2 = (Cifra)suelo;
-
-    //FIXME: ESTO ES UNA GRAN CHAPUZA
-    if(sueloDecimal2){
-      this->operator=(sueloDecimal2);
-      this->operator/=(R((CifraSigno)potenciaFinal));
-
-      this->operator+=(R((CifraSigno)sueloDecimal1));
-      this->operator/=(R((CifraSigno)potenciaInicial));
-      this->operator+=(R((CifraSigno)sueloEntero));
-    }
-    else{
-      this->operator=(sueloDecimal1);
-      this->operator/=(R((CifraSigno)potenciaFinal));
-      this->operator+=(R((CifraSigno)sueloEntero));
-    }
-
-    if(sueloEnteroAlto){
-      this->operator/=(R((CifraSigno)potenciaInicial));
-      this->operator+=(R((CifraSigno)sueloEnteroAlto));
-      this->operator*=(R((CifraSigno)potenciaInicial));
-    }
-
-    if(negativo)
-      cambiarSigno();
-
-    normalizar();
-
-
-    //  int exp;
-    //  double frac;
-    //  
-    //  frac = frexp(otro, &exp);
-    //  frac = ldexp(frac, BITS_EN_DOUBLE); 
-    //  exp -= BITS_EN_DOUBLE;
-    //
-    //  mantisa_ = Z::convertir(frac); // atencion a conversion desde double a Z
-    //  exponente_ = (long)exp;
-    //  
-    ///*  unsigned long k = R::precision_ - BITS_EN_DOUBLE;
-    //  exponente_ -= k;
-    //  mantisa_ <<= k;
-    //*/  
-    //  //Ahora habria que "poner ceros" hasta extendernos a la precision de
-    //  //trabajo. Claro que esos ceros serian en base 10. 
-    //  
-    //  normalizar();
+    std::stringstream ss;
+    ss << std::fixed <<  otro;
+    
+    operator>>(ss, *this);
+    return;
   }
 
   R::R( const Z& entero )

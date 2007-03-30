@@ -1,7 +1,7 @@
 Import('env')
 
 myenv = env.Copy()
-myenv.Append( LIBS = ['numth'] )
+myenv.Append( LIBS = ['mpplas'] )
 
 Export('myenv')
 SConscript(dirs="units")

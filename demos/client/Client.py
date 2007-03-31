@@ -2,47 +2,55 @@ from RPCServer import RPCServer
 from Configuration import Configuration
 from xmlrpclib import Fault
 
-global_config = Configuration()
-global_rpcServer = RPCServer.getInstance( global_config.url )
-
-filteredMethods = filter(lambda mName: mName[:7] != 'system.', 
-                          global_rpcServer.system.listMethods())
-
 def __elemsToStr(ls):
   newl = []
   for elem in ls:
     newl.append(str(elem))
   return newl
 
-proxyFuncsSrc = """def %s(*args):
-  \"\"\"%s\"\"\"
-  newArgs = []
-  for arg in args:
-    if type(arg) in ( type(()), type([]) ):
-      newArgs.append( __elemsToStr(arg) )
-    else:
-      newArgs.append(str(arg))
-  try:
-    result = global_rpcServer.%s(*newArgs)
-  except Fault, e:
-    raise "Exception from the server: " + e.faultString   
-  except:
-    raise
-  
-  if type(result) == type(""):
-    result = Z(result)
-  # else, do not chage its type   
+global filteredMethods
+global global_rpcServer
 
-  return result
+def initializeClient():
+  global_config = Configuration()
+  global global_rpcServer
+  global_rpcServer = RPCServer.getInstance( global_config.url )
+
+  global filteredMethods
+  filteredMethods = filter(lambda mName: mName[:7] != 'system.', 
+                            global_rpcServer.system.listMethods())
+
+  proxyFuncsSrc = """def %s(*args):
+    \"\"\"%s\"\"\"
+    newArgs = []
+    for arg in args:
+      if type(arg) in ( type(()), type([]) ):
+        newArgs.append( __elemsToStr(arg) )
+      else:
+        newArgs.append(str(arg))
+    try:
+      result = global_rpcServer.%s(*newArgs)
+    except Fault, e:
+      raise "Exception from the server: " + e.faultString   
+    except:
+      raise
+    
+    if type(result) == type(""):
+      result = Z(result)
+    # else, do not chage its type   
+    
+    return result
 """
 
-for mName in filteredMethods:
-  exec( proxyFuncsSrc % (mName, global_rpcServer.system.methodHelp(mName), mName), 
-      globals(), locals() )
-  
+  for mName in filteredMethods:
+    exec proxyFuncsSrc % (mName, global_rpcServer.system.methodHelp(mName), mName) in globals()
+
+  return globals()
+
+
 
 def listFuncs():
-  print filteredMethods
+  return filteredMethods
 
 class Z(object):
 

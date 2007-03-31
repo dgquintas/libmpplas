@@ -32,8 +32,8 @@ class ZAddMethod : public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        numth::Z const op1(paramList.getString(0));
-        numth::Z const op2(paramList.getString(1));
+        mpplas::Z const op1(paramList.getString(0));
+        mpplas::Z const op2(paramList.getString(1));
 
         paramList.verifyEnd(2);
 
@@ -50,8 +50,8 @@ class ZSubMethod : public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        numth::Z const op1(paramList.getString(0));
-        numth::Z const op2(paramList.getString(1));
+        mpplas::Z const op1(paramList.getString(0));
+        mpplas::Z const op2(paramList.getString(1));
 
         paramList.verifyEnd(2);
 
@@ -68,8 +68,8 @@ class ZMulMethod : public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        numth::Z const op1(paramList.getString(0));
-        numth::Z const op2(paramList.getString(1));
+        mpplas::Z const op1(paramList.getString(0));
+        mpplas::Z const op2(paramList.getString(1));
 
         paramList.verifyEnd(2);
 
@@ -86,8 +86,8 @@ class ZDivMethod : public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        numth::Z const op1(paramList.getString(0));
-        numth::Z const op2(paramList.getString(1));
+        mpplas::Z const op1(paramList.getString(0));
+        mpplas::Z const op2(paramList.getString(1));
 
         paramList.verifyEnd(2);
 
@@ -104,8 +104,8 @@ class ZModMethod : public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        numth::Z const op1(paramList.getString(0));
-        numth::Z const op2(paramList.getString(1));
+        mpplas::Z const op1(paramList.getString(0));
+        mpplas::Z const op2(paramList.getString(1));
 
         paramList.verifyEnd(2);
 
@@ -122,7 +122,7 @@ class ZFactorialMethod : public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        numth::Z op1(paramList.getString(0));
+        mpplas::Z op1(paramList.getString(0));
 
         paramList.verifyEnd(1);
 
@@ -139,8 +139,8 @@ class ZPowMethod : public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        numth::Z op1(paramList.getString(0));
-        numth::Z op2(paramList.getString(1));
+        mpplas::Z op1(paramList.getString(0));
+        mpplas::Z op2(paramList.getString(1));
 
         paramList.verifyEnd(2);
 
@@ -157,14 +157,14 @@ class ModExpMethod : public xmlrpc_c::method {
       this->_signature = "s:sss";
       this->_help = "This method returns the result of the modular exponentiation (arg1 ^ arg2) MOD arg3"; 
 
-      numth::Funciones::getInstance()->getFunc(pmod);
+      mpplas::Funciones::getInstance()->getFunc(pmod);
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        numth::Z op1(paramList.getString(0));
-        numth::Z const op2(paramList.getString(1));
-        numth::Z const op3(paramList.getString(2));
+        mpplas::Z op1(paramList.getString(0));
+        mpplas::Z const op2(paramList.getString(1));
+        mpplas::Z const op3(paramList.getString(2));
 
         paramList.verifyEnd(3);
 
@@ -174,7 +174,7 @@ class ModExpMethod : public xmlrpc_c::method {
       }
 
   private:
-    numth::PotModular* pmod;
+    mpplas::PotModular* pmod;
 };
 
 class ModInverseMethod : public xmlrpc_c::method {
@@ -184,22 +184,22 @@ class ModInverseMethod : public xmlrpc_c::method {
       this->_signature = "s:ss";
       this->_help = "This method returns the result of the modular inverse (arg1 ^ -1) MOD arg2"; 
 
-      numth::Funciones::getInstance()->getFunc(pmod);
+      mpplas::Funciones::getInstance()->getFunc(pmod);
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        numth::Z const op1(paramList.getString(0));
-        numth::Z const op2(paramList.getString(1));
+        mpplas::Z const op1(paramList.getString(0));
+        mpplas::Z const op2(paramList.getString(1));
 
         paramList.verifyEnd(2);
 
-        numth::Z res;
+        mpplas::Z res;
         
         try {
           res = pmod->inversa(op1,op2);
         }
-        catch(numth::Errores::ElementoNoInvertible e){
+        catch(mpplas::Errores::ElementoNoInvertible e){
           res.hacerCero();
           throw(girerr::error(e.what()));
         }
@@ -210,7 +210,7 @@ class ModInverseMethod : public xmlrpc_c::method {
       }
 
   private:
-    numth::PotModular* pmod;
+    mpplas::PotModular* pmod;
 };
 
 
@@ -226,7 +226,7 @@ class RandomZMethod : public xmlrpc_c::method {
       this->_signature = "s:s";
       this->_help = "This method returns a random interger of the specified number of bits"; 
 
-      numth::Funciones::getInstance()->getFunc(rnd);
+      mpplas::Funciones::getInstance()->getFunc(rnd);
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -238,7 +238,7 @@ class RandomZMethod : public xmlrpc_c::method {
       }
 
   private:
-    numth::RandomRapido* rnd;
+    mpplas::RandomRapido* rnd;
 };
 
 class RandomZLessThanMethod : public xmlrpc_c::method {
@@ -248,19 +248,19 @@ class RandomZLessThanMethod : public xmlrpc_c::method {
       this->_signature = "s:s";
       this->_help = "This method returns a random interger that is less than the given one"; 
 
-      numth::Funciones::getInstance()->getFunc(rnd);
+      mpplas::Funciones::getInstance()->getFunc(rnd);
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        numth::Z const op1(paramList.getString(0));
+        mpplas::Z const op1(paramList.getString(0));
         paramList.verifyEnd(1);
         
         *retvalP = xmlrpc_c::value_string( (rnd->leerEntero( op1 )).toString() );
       }
 
   private:
-    numth::RandomRapido* rnd;
+    mpplas::RandomRapido* rnd;
 };
 
 /***********************************************
@@ -273,7 +273,7 @@ class GenPrimeMethod : public xmlrpc_c::method {
       this->_signature = "s:s";
       this->_help = "This method returns a prime of at least the specified number of bits"; 
 
-      numth::Funciones::getInstance()->getFunc(primes);
+      mpplas::Funciones::getInstance()->getFunc(primes);
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -285,7 +285,7 @@ class GenPrimeMethod : public xmlrpc_c::method {
       }
 
   private:
-    numth::GenPrimos* primes;
+    mpplas::GenPrimos* primes;
 };
 
 class PrimeTestMethod : public xmlrpc_c::method {
@@ -295,19 +295,19 @@ class PrimeTestMethod : public xmlrpc_c::method {
       this->_signature = "b:s";
       this->_help = "This method returns true if its argument is prime"; 
 
-      numth::Funciones::getInstance()->getFunc(primeTest);
+      mpplas::Funciones::getInstance()->getFunc(primeTest);
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        numth::Z const op(paramList.getString(0));
+        mpplas::Z const op(paramList.getString(0));
         paramList.verifyEnd(1);
         
         *retvalP = xmlrpc_c::value_boolean( primeTest->esPrimo( op ) );
       }
 
   private:
-    numth::TestPrimoProb* primeTest;
+    mpplas::TestPrimoProb* primeTest;
 };
 
 /***********************************************
@@ -320,13 +320,13 @@ class GCDMethod : public xmlrpc_c::method {
       this->_signature = "s:ss";
       this->_help = "This method returns a the greatest common divisor of both integer arguments"; 
 
-      numth::Funciones::getInstance()->getFunc(gcd);
+      mpplas::Funciones::getInstance()->getFunc(gcd);
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        numth::Z const op1(paramList.getString(0));
-        numth::Z const op2(paramList.getString(1));
+        mpplas::Z const op1(paramList.getString(0));
+        mpplas::Z const op2(paramList.getString(1));
 
         paramList.verifyEnd(2);
 
@@ -335,7 +335,7 @@ class GCDMethod : public xmlrpc_c::method {
       }
 
   private:
-    numth::GCD* gcd;
+    mpplas::GCD* gcd;
 };
 
 /***********************************************
@@ -348,7 +348,7 @@ class CRTMethod : public xmlrpc_c::method {
       this->_signature = "s:AA";
       this->_help = "This method returns the modular eq. system defined by the two arrays of integers given";
 
-      numth::Funciones::getInstance()->getFunc(crt);
+      mpplas::Funciones::getInstance()->getFunc(crt);
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -361,18 +361,18 @@ class CRTMethod : public xmlrpc_c::method {
           throw(girerr::error("Array parameters for the CRT should have the same length"));
       }
 
-      numth::MiVec<numth::Z> yZ, mZ;
+      mpplas::MiVec<mpplas::Z> yZ, mZ;
       for( int i = 0; i < y.size(); i++ ){ //both 
 
-        yZ.push_back( numth::Z(( xmlrpc_c::value_string(y[i]) ) ));
-        mZ.push_back( numth::Z(( xmlrpc_c::value_string(m[i]) ) ));
+        yZ.push_back( mpplas::Z(( xmlrpc_c::value_string(y[i]) ) ));
+        mZ.push_back( mpplas::Z(( xmlrpc_c::value_string(m[i]) ) ));
       }
 
       *retvalP = xmlrpc_c::value_string( (crt->crt(yZ, mZ)).toString() );
     }
 
   private:
-    numth::CRT* crt;
+    mpplas::CRT* crt;
 };
 
 /***********************************************
@@ -385,7 +385,7 @@ class CRTMethod : public xmlrpc_c::method {
 //      this->_signature = "s:";
 //      this->_help = "This method returns some information about the host system;
 //
-//      numth::Funciones::getInstance()->getFunc(crt);
+//      mpplas::Funciones::getInstance()->getFunc(crt);
 //    }
 //
 //    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {

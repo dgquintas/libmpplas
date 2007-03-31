@@ -869,6 +869,7 @@ namespace mpplas{
     {
       bool negative = false;
       char c;
+      numero.hacerCero();
 
       in >> c;
 

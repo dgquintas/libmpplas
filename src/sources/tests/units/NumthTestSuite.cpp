@@ -10,16 +10,20 @@ using namespace com_uwyn_qtunit;
 
 NumthTestSuite::NumthTestSuite() 
 {
-  addTestUnit(randomTest_);
-  addTestUnit(kernelTest_);
-	addTestUnit(zTest_);
-	addTestUnit(z_nTest_);
-  addTestUnit(matrixZTest_);
-  addTestUnit(matrixRTest_);
-  addTestUnit(vectorZTest_);
-  addTestUnit(functionsTest_);
+  addTestUnit(_randomTest);
+  addTestUnit(_kernelTest);
+	addTestUnit(_zTest);
+	addTestUnit(_z_nTest);
+  addTestUnit(_matrixZTest);
+  addTestUnit(_matrixRTest);
+  addTestUnit(_matrixDoubleTest);
+  addTestUnit(_vectorZTest);
+  addTestUnit(_functionsTest);
 #ifdef _OPENMP
-  addTestUnit(openMPTest_);
+  addTestUnit(_openMPTest);
 #endif
-  addTestUnit(rsaTest_);
+  addTestUnit(_rsaTest);
+  addTestUnit(_reductionTest);
+  addTestUnit(_exponentiationTest);
+
 }

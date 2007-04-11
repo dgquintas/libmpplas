@@ -12,9 +12,12 @@
 #include "RandomTest.h"
 #include "MatrixZTest.h"
 #include "MatrixRTest.h"
+#include "MatrixDoubleTest.h"
 #include "VectorZTest.h"
 #include "FunctionsTest.h"
 #include "OpenMPTest.h"
+#include "ReductionTest.h"
+#include "ExponentiationTest.h"
 #include "qtunit/TestSuite.h"
 
 namespace com_uwyn_qtunit
@@ -25,18 +28,21 @@ namespace com_uwyn_qtunit
 		NumthTestSuite();
 	
 	private:
-		ZTest zTest_;
-    Z_nTest z_nTest_;
-    KernelTest kernelTest_;
-    RSATest rsaTest_;
-    RandomTest randomTest_;
-    MatrixZTest matrixZTest_;
-    MatrixRTest matrixRTest_;
-    VectorZTest vectorZTest_;
-    FunctionsTest functionsTest_;
+		ZTest _zTest;
+    Z_nTest _z_nTest;
+    KernelTest _kernelTest;
+    RSATest _rsaTest;
+    RandomTest _randomTest;
+    MatrixZTest _matrixZTest;
+    MatrixRTest _matrixRTest;
+    MatrixDoubleTest _matrixDoubleTest;
+    VectorZTest _vectorZTest;
+    FunctionsTest _functionsTest;
 #ifdef _OPENMP
-    OpenMPTest openMPTest_;
+    OpenMPTest _openMPTest;
 #endif
+    ReductionTest _reductionTest;
+    ExponentiationTest _exponentiationTest;
 
 	};
 }

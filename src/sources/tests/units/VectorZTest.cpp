@@ -89,7 +89,7 @@ void VectorZTest::testDot(){
   try{
     dot( VectorZ("[1 2 3]"), VectorZ("[1 2]") );
   }
-  catch( Errores::NonConformantDimensions& e){
+  catch( Errors::NonConformantDimensions& e){
     return;
   }
   qassertTrue(false);

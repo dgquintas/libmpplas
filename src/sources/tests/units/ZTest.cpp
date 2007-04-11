@@ -192,7 +192,7 @@ void ZTest::testSquare(){
 void ZTest::testDivideByZeroThrows(){
   try{
     uno / cero;
-  } catch (Errores::DivisionPorCero){
+  } catch (Errors::DivisionPorCero){
     return;
   }
 
@@ -202,7 +202,7 @@ void ZTest::testDivideByZeroThrows(){
 void ZTest::testModulusByZeroThrows(){
   try{
     uno % cero;
-  } catch (Errores::DivisionPorCero){
+  } catch (Errors::DivisionPorCero){
     return;
   }
 

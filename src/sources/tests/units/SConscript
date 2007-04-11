@@ -13,8 +13,8 @@ myenv.Append(LIBPATH= ('#/extra/lib' + myenv['SYSTEMBITS']))
 
 myenv.Append(LIBS = [ 'pthread', 'm', 'pari', 'qtunit'])
 if not myenv['ENV'].has_key('QTDIR'):
-  print "Cannot build test suite without a properly configured $QTDIR"
-  Exit(1) 
+  print "WARNING: $QTDIR not set. Guessing..."
+  myenv['ENV']['QTDIR'] = "/usr/share/qt3/"
 myenv.Append(CPPPATH = myenv['ENV']['QTDIR']+'/include')
 myenv.Append(LIBPATH = myenv['ENV']['QTDIR']+'/lib')
 #myenv.Replace(CCFLAGS = '-O0 -ggdb3') #FIXME
@@ -27,9 +27,12 @@ moduleFiles = Split("""
     RandomTest.cpp
     MatrixZTest.cpp
     MatrixRTest.cpp
+    MatrixDoubleTest.cpp
     VectorZTest.cpp
     FunctionsTest.cpp
     OpenMPTest.cpp
+    ReductionTest.cpp
+    ExponentiationTest.cpp
     NumthTestSuite.cpp
     TestModule.cpp
     TextRunner.cpp

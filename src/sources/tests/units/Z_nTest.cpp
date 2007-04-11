@@ -284,7 +284,7 @@ void Z_nTest::testDivisionWithZThrows(){
 
   try{
     Z_n res = (*modularInteger) / integer ; 
-  } catch( Errores::ElementoNoInvertible){
+  } catch( Errors::ElementoNoInvertible){
     return;
   }
   catch(exception& e){
@@ -330,7 +330,7 @@ void Z_nTest::testDivisionWithCifraThrows(){
   this->modularInteger = new Z_n(rnd->leerBits(1234), modulus);
   try{
     Z_n res = (*modularInteger) / cifra ; 
-  } catch( Errores::ElementoNoInvertible){
+  } catch( Errors::ElementoNoInvertible){
     return;
   }
 
@@ -373,7 +373,7 @@ void Z_nTest::testDivisionWithCifraSignoThrows(){
 
   try{
     Z_n res = (*modularInteger) / cifraSigno ; 
-  } catch( Errores::ElementoNoInvertible){
+  } catch( Errors::ElementoNoInvertible){
     return;
   }
   catch(exception& e){
@@ -466,7 +466,7 @@ void Z_nTest::testExponentiationWithCifraSignoThrows(){
   this->modularInteger->operator*=(this->modulus);
   try{
     Z_n res = (*modularInteger) ^ cifraSigno ;
-  } catch( Errores::ElementoNoInvertible){
+  } catch( Errors::ElementoNoInvertible){
     return;
   }
   catch(exception& e){

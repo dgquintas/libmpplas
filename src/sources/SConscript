@@ -48,6 +48,7 @@ files = Split("""
     VectorZ.cpp
     MatrixZ.cpp
     MatrixR.cpp
+    MatrixDouble.cpp
     """)
 
 env.Append(CCFLAGS = ' -pipe ')

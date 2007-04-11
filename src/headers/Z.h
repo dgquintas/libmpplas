@@ -79,12 +79,12 @@ namespace mpplas
        *  @param cadena Vector de caracteres que representa el número a
        *  convertir a entero.
        *
-       *  @exception mpplas::Errores::Sintactico Error sintáctico en la
+       *  @exception mpplas::Errors::Sintactico Error sintáctico en la
        *  cadena.
        *
        *  @return El entero correspondiente a la conversión.
        */
-//      static Z convertir(const char* cadena) throw(Errores::Sintactic);
+//      static Z convertir(const char* cadena) throw(Errors::Sintactic);
 
 
       /** Función de conversión de tipo double a Z (entero).
@@ -384,7 +384,7 @@ namespace mpplas
        * Se realiza la operación \f$(*this) = (*this)^{exp}\f$
        *
        * \exception 
-       * Errores::DemasiadoGrande Si el entero que
+       * Errors::TooBig Si el entero que
        * representa el exponente exp es demasiado grande ( mayor que
        * CIFRA_MAX )
        *
@@ -420,7 +420,7 @@ namespace mpplas
        * Se realiza la operación \f$(*this) = (*this)^{exp}\f$
        *
        * \exception 
-       * Errores::ExponenteNegativo Si el entero que
+       * Errors::ExponenteNegativo Si el entero que
        * representa el exponente exp es negativo.
        *
        * \note
@@ -1199,11 +1199,11 @@ namespace mpplas
        * "resto".
        */
       friend void divMod(const Z& dividendo, const Z& divisor, Z* cociente, Z* resto) 
-        throw (Errores::DivisionPorCero);
+        throw (Errors::DivisionPorCero);
       friend void divMod(const Z& dividendo, const CifraSigno divisor, Z* cociente, Z* resto) 
-        throw (Errores::DivisionPorCero);
+        throw (Errors::DivisionPorCero);
       friend void divMod(const Z& dividendo, const Cifra divisor, Z* cociente, Z* resto) 
-        throw (Errores::DivisionPorCero);
+        throw (Errors::DivisionPorCero);
 
 
   };
@@ -1395,7 +1395,7 @@ namespace mpplas
    * @sa class Potencia.
    *
    * @note El exponente ha de ser \f$\leq 2^{BASE}\f$ o se lanzará un
-   * error de tipo Errores::DemasiadoGrande
+   * error de tipo Errors::TooBig
    *
    */
   Z operator^(Z base, const Z& exp); 
@@ -1419,7 +1419,7 @@ namespace mpplas
    * @sa class Potencia.
    *
    * @note El exponente ha de ser positivo o se lanzará un
-   * error de tipo Errores::ExponenteNegativo
+   * error de tipo Errors::ExponenteNegativo
    *
    */
  Z operator^(Z base, const CifraSigno exp); 

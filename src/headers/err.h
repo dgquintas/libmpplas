@@ -17,7 +17,7 @@
 
 namespace mpplas{
   /** Espacio de nombres contenedor del mecanismo de errores. */
-  namespace Errores{
+  namespace Errors{
     // Tipos báicos
     /** Clase base de todas las excepciones (errores) que comprende
      * la librería. */
@@ -28,20 +28,20 @@ namespace mpplas{
         {}
     };
       
-    /** Clase base para errores de tipo aritméico.
+    /** Base class for invalid arguments errors
      *
-     * Ejemplo clásico: la división por cero.
+     * For instance, division by zero, non-invertible element, etc.
      * 
      * */
-    class Aritmetico : public Exception
+    class InvalidArgument: public Exception
     {
       public:
       virtual const char* what(void) const throw()
       {
-        return _("Undefined arithmetic error");
+        return _("Undefined invalid argument error");
       }
 
-      virtual ~Aritmetico() throw() {}
+      virtual ~InvalidArgument() throw() {}
 
     };
 
@@ -86,11 +86,14 @@ namespace mpplas{
     };
 
 
-    ////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////
+    // ARGUMENT ERRORS
+    ////////////////////////////////////////////
+
 
     // Tipos derivados
     /** Error de división por cero */
-    class DivisionPorCero : public Aritmetico
+    class DivisionPorCero : public InvalidArgument
     {
       public:
       virtual const char* what(void) const throw() 
@@ -100,7 +103,7 @@ namespace mpplas{
     };
 
     /** Resultado negativo en resta sin signo */
-    class RestaNegativa : public Aritmetico
+    class RestaNegativa : public InvalidArgument
     {
       public:
       virtual const char* what(void) const throw()
@@ -110,7 +113,7 @@ namespace mpplas{
     };
 
     /** Elemento no invertible en un grupo finito */
-    class ElementoNoInvertible : public Aritmetico
+    class ElementoNoInvertible : public InvalidArgument
     {
       public:
       virtual const char* what(void) const throw()
@@ -120,7 +123,7 @@ namespace mpplas{
     };
 
     /** Intento de potenciación de un elemento no inverbiel en un no-cuerpo */
-    class ExponenteNegativo : public Aritmetico
+    class ExponenteNegativo : public InvalidArgument
     {
       public:
       virtual const char* what(void) const throw()
@@ -130,7 +133,7 @@ namespace mpplas{
     };
 
     /** Segundo argumento de un símbolo de Jacobi es par */
-    class ParEnSimboloJacobi : public Aritmetico
+    class ParEnSimboloJacobi : public InvalidArgument
     {
       public:
       virtual const char* what(void) const throw()
@@ -139,18 +142,18 @@ namespace mpplas{
       }
     };
 
-    /** Modulo par en la exponenciación por Montgomery */
-    class ModuloParEnMontgomery : public Aritmetico
+    /** Even modulus on a Montgomery reduction */
+    class ModuloParEnMontgomery : public InvalidArgument
     {
       public:
       virtual const char* what(void) const throw()
       {
-         return _("Even modulus on Montgomery exponentiation"); 
+         return _("Even modulus on Montgomery reduction/exponentiation"); 
       }
     };
 
     /** Logaritmo de cero */
-    class LogaritmoDeCero : public Aritmetico
+    class LogaritmoDeCero : public InvalidArgument
     {
       public:
       virtual const char* what(void) const throw()
@@ -159,7 +162,7 @@ namespace mpplas{
       }
     };
 
-    class NonConformantDimensions: public Aritmetico
+    class NonConformantDimensions: public InvalidArgument
     {
       public:
         NonConformantDimensions(const Dimensions& dimsLeft, const Dimensions& dimsRight, std::string str = ""){
@@ -176,9 +179,9 @@ namespace mpplas{
     };
 
 
-
-
-
+    ////////////////////////////////////////////
+    // SINTACTIC ERRORS
+    ////////////////////////////////////////////
 
     /** Detectado símbolo inválido en la lectura de un nmero */
     class InvalidSymbol: public Sintactic
@@ -199,6 +202,10 @@ namespace mpplas{
 
     };
 
+    ////////////////////////////////////////////
+    // INTERNAL ERRORS
+    ////////////////////////////////////////////
+
     /** Signo inválido */
     class SignoInvalido : public Interno
     {
@@ -209,8 +216,8 @@ namespace mpplas{
 
     };
 
-    /** Uso de un nmero demasiado grande para el contexto */
-    class DemasiadoGrande : public Interno
+    /** Number too big to be used in a given context */
+    class TooBig: public Interno
     {
       virtual const char* what(void) const throw()
       {
@@ -277,7 +284,7 @@ namespace mpplas{
     };
 
   
-  }//namespace Errores
+  }//namespace Errors
 }//namespace 
 
    

@@ -74,7 +74,7 @@ namespace mpplas
         template<typename U> friend std::ostream& operator<<(std::ostream&, const Matrix<U>& );
         /** Matrix input operator */
         template<typename U> friend std::istream& operator>>(std::istream&, Matrix<U>& ) 
-          throw (Errores::InvalidSymbol);
+          throw (Errors::InvalidSymbol);
     };
 
   template<typename T>
@@ -227,7 +227,7 @@ namespace mpplas
   }
  
   template<typename T>
-  std::istream& operator>>(std::istream& in, Matrix<T>& m) throw (Errores::InvalidSymbol){
+  std::istream& operator>>(std::istream& in, Matrix<T>& m) throw (Errors::InvalidSymbol){
     
     m._reset();
 
@@ -238,7 +238,7 @@ namespace mpplas
 
     in >> c;
     if( !in.good() || c != '[' ){
-      throw Errores::InvalidSymbol(std::string(1,c));
+      throw Errors::InvalidSymbol(std::string(1,c));
     }
     
     T valueRead;
@@ -252,7 +252,7 @@ namespace mpplas
         else{
           columnsRead++;
           if( columnsRead > columnsIni ){
-            throw Errores::Sintactic("Inconsistent number of columns");
+            throw Errors::Sintactic("Inconsistent number of columns");
           }
         }
         in >> std::ws >> c;
@@ -265,7 +265,7 @@ namespace mpplas
       }// inner while
       
       if( (!firstRow) && (columnsRead != columnsIni) ){
-        throw Errores::Sintactic("Inconsistent number of columns");
+        throw Errors::Sintactic("Inconsistent number of columns");
       }
       columnsRead = 0;
 

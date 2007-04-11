@@ -227,10 +227,13 @@ namespace mpplas{
     public:
       virtual void potModular(Z* const base, const Z& exp, const Z& mod); 
 
+      Z montInverse(const Z& a, const Z& mod);
       virtual ~PotMontgomery(){}
     protected:
-      void montgomeryMult(Z* x, const Z& y,const Z& mod, const Z& modPrima);
-      void montgomeryCuad(Z* x, const Z& mod, const Z& modPrima);
+      void montgomeryMult(Z* const x, const Z& y,const Z& mod, const Z& modPrima);
+      void montgomeryCuad(Z* const x, const Z& mod, const Z& modPrima);
+
+      void almostMontgomeryInverse(const Z& a, const Z& mod, Z& r, Cifra& k);
   };
  
   /** Potenciación modular entera utilizando reducción de Barrett.

@@ -52,7 +52,7 @@ namespace mpplas
         template<typename U> friend std::ostream& operator<<(std::ostream&, const Vector<U>& );
         /** Matrix input operator */
         template<typename U> friend std::istream& operator>>(std::istream&, Vector<U>& ) 
-          throw (Errores::InvalidSymbol);
+          throw (Errors::InvalidSymbol);
     };
 
   template<typename T>
@@ -116,7 +116,7 @@ namespace mpplas
   }
  
   template<typename T>
-  std::istream& operator>>(std::istream& in, Vector<T>& v) throw (Errores::InvalidSymbol){
+  std::istream& operator>>(std::istream& in, Vector<T>& v) throw (Errors::InvalidSymbol){
     
     v.clear();
 
@@ -124,7 +124,7 @@ namespace mpplas
 
     in >> c;
     if( !in.good() || c != '[' ){
-      throw Errores::InvalidSymbol(std::string(1,c));
+      throw Errors::InvalidSymbol(std::string(1,c));
     }
     
     T valueRead;

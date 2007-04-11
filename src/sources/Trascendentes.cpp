@@ -61,7 +61,7 @@ namespace mpplas{
   R LnTaylor::ln(const R& x)
   {
     if( x.esCero() )
-      throw Errores::LogaritmoDeCero();
+      throw Errors::LogaritmoDeCero();
 
     //FIXME: añadir soporte pa cuando x < 0 --> numeros complejos
 
@@ -235,7 +235,7 @@ namespace mpplas{
       return result;
     }
     else{
-      throw Errores::NoImplementado();
+      throw Errors::NoImplementado();
       return result;
     }
     

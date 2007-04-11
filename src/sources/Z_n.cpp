@@ -305,7 +305,7 @@ namespace mpplas{
 //  Z_n operator/(Z_n izq, const Z_n& der)
 //  {
 //    if( der.esCero() )
-//      throw Errores::DivisionPorCero();  
+//      throw Errors::DivisionPorCero();  
 //
 //    izq /= der;
 //
@@ -337,7 +337,7 @@ namespace mpplas{
   Z_n operator/(Z_n izq, const Z& der)
   {
     if( der.esCero() )
-      throw Errores::DivisionPorCero();  
+      throw Errors::DivisionPorCero();  
 
     izq /= der;
 
@@ -402,7 +402,7 @@ namespace mpplas{
   Z_n operator/(Z_n largo, const CifraSigno corto)
   {
     if( corto == 0 )
-      throw Errores::DivisionPorCero(); 
+      throw Errors::DivisionPorCero(); 
 
     largo /= corto;
     return largo;
@@ -446,7 +446,7 @@ namespace mpplas{
   Z_n operator/(const Cifra corto, const Z_n& largo)
   {
     if( largo.esCero() )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     Z_n cortoZ_n(Z_n(corto), largo.modulo() );
 
@@ -477,7 +477,7 @@ namespace mpplas{
   Z_n operator/(Z_n largo, const Cifra corto)
   {
     if( corto == 0 )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     largo /= corto;
     return largo;

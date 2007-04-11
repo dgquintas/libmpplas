@@ -218,7 +218,7 @@ namespace mpplas{
   R& R::operator/=(const R& otro)
   {
     if( otro.esCero() )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     long k = precision_ - mantisa_.numBits() + otro.mantisa_.numBits() -1;
     k = k < 0 ? 0 : k ;
@@ -293,7 +293,7 @@ namespace mpplas{
   R& R::operator^=(const Z& exp)
   {
     if( exp.longitud() > 1 )
-      throw Errores::DemasiadoGrande();
+      throw Errors::TooBig();
 
     Cifra exponente = exp[0];
 
@@ -315,10 +315,10 @@ namespace mpplas{
   R& R::operator>>=(const size_t n)
   {
     if( n > Cifra(Constantes::CIFRASIGNO_MAX) )
-      throw Errores::OverflowExpReales();
+      throw Errors::OverflowExpReales();
 
     if( exponente_ - (CifraSigno)n > exponente_ )
-      throw Errores::OverflowExpReales();
+      throw Errors::OverflowExpReales();
 
     exponente_ -= n;
 
@@ -338,10 +338,10 @@ namespace mpplas{
   R& R::operator<<=(const size_t n)
   {
     if( n > Cifra(Constantes::CIFRASIGNO_MAX) )
-      throw Errores::OverflowExpReales();
+      throw Errors::OverflowExpReales();
 
     if( exponente_ + (CifraSigno)n < exponente_ )
-      throw Errores::OverflowExpReales();
+      throw Errors::OverflowExpReales();
 
     exponente_ += n;
 
@@ -606,7 +606,7 @@ namespace mpplas{
   R operator/(R izq, const R& der)
   {
     if( der.esCero() )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     izq /= der;
     return izq;
@@ -632,7 +632,7 @@ namespace mpplas{
   R operator/(const double corto, const R& largo)
   {
     if( largo.esCero() )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     if( largo > R(corto)) { //FIXME
       R cero;
@@ -654,7 +654,7 @@ namespace mpplas{
   //R mpplas::operator%(const double corto, const R& largo)
   //{
   //  if( largo.esCero() )
-  //    throw Errores::DivisionPorCero();
+  //    throw Errors::DivisionPorCero();
   //
   //  if( largo > corto ){
   //    return R::convertir(corto);
@@ -689,7 +689,7 @@ namespace mpplas{
   R operator/(R largo, const double corto)
   {
     if( corto == 0 )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     largo /= corto;
     return largo;
@@ -697,7 +697,7 @@ namespace mpplas{
   //R mpplas::operator%(R largo, const double corto)
   //{
   //  if( corto == 0 )
-  //    throw Errores::DivisionPorCero();
+  //    throw Errors::DivisionPorCero();
   //
   //  largo %= corto;
   //  return largo;
@@ -914,7 +914,7 @@ namespace mpplas{
   R operator^(R base, const Z& exp)
   {
     if( exp.longitud() > 1 )
-      throw Errores::DemasiadoGrande();
+      throw Errors::TooBig();
 
     base ^= exp;
     return base;

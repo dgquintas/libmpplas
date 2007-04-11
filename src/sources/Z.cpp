@@ -48,7 +48,7 @@ namespace mpplas{
 //    return temp;
 //  }
 //
-//  Z Z::convertir(const char* origen) throw (Errores::Sintactico)
+//  Z Z::convertir(const char* origen) throw (Errors::Sintactico)
 //  {
 //    Z temp(origen);
 //    return temp;
@@ -458,7 +458,7 @@ namespace mpplas{
   {
 
     if( divisor.esCero() )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     if( (signo_ > 0) ){
       if( (divisor.signo_ > 0) ){
@@ -493,7 +493,7 @@ namespace mpplas{
 
 
     if( divisor.esCero() )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     if( divisor.signo_ > 0){ // divisor.signo_ > 0
       if( signo_ > 0 ){
@@ -631,7 +631,7 @@ namespace mpplas{
   Z& Z::factorial(void) 
   {
     if( this->coefPoliB_.size() > 1 ){
-      throw Errores::DemasiadoGrande();
+      throw Errors::TooBig();
     }
 
     Cifra n = coefPoliB_[0];
@@ -867,7 +867,7 @@ namespace mpplas{
   Z& Z::operator/=(const CifraSigno corto)
   {
     if( corto == 0 ){
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
     }
 
 
@@ -911,7 +911,7 @@ namespace mpplas{
   Z& Z::operator%=(const CifraSigno divisorSigned)
   {
     if( divisorSigned == 0 ){
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
     }
 
     this->operator%=(Z(divisorSigned));
@@ -1064,7 +1064,7 @@ namespace mpplas{
   Z& Z::operator/=(const Cifra corto)
   {
     if( corto == 0 )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
 
 
@@ -1087,7 +1087,7 @@ namespace mpplas{
   Z& Z::operator%=(const Cifra corto)
   {
     if( corto == 0 )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     this->operator%=(Z(corto));
 
@@ -1152,7 +1152,7 @@ namespace mpplas{
   Z& Z::operator^=(const Z& exp)
   {
     if( exp.longitud() > 1 ){
-      throw Errores::DemasiadoGrande();
+      throw Errors::TooBig();
     }
 
     Cifra exponente = exp[0];
@@ -1163,7 +1163,7 @@ namespace mpplas{
   Z& Z::operator^=(const CifraSigno exp)
   {
     if( exp < 0 ){
-      throw Errores::ExponenteNegativo();
+      throw Errors::ExponenteNegativo();
     }
 
     return operator^=((Cifra)labs(exp));
@@ -1448,10 +1448,12 @@ namespace mpplas{
   
   Z& Z::divisionBase(const size_t n)
   {
-    if( coefPoliB_.size() > n )
+    if( coefPoliB_.size() > n ){
       coefPoliB_.erase(coefPoliB_.begin(), coefPoliB_.begin()+n);
-    else
+    }
+    else{
       hacerCero();
+    }
     return *this;
   }
 
@@ -1465,10 +1467,14 @@ namespace mpplas{
 
   Z& Z::potenciaBase(const size_t n)
   {
-    coefPoliB_.clear();
-    coefPoliB_.resize(n+1,0); 
-    coefPoliB_[n] = 1;
-
+//    coefPoliB_.clear();
+//    coefPoliB_.resize(n+1,0); 
+//    coefPoliB_[n] = 1;
+    if( this->esCero() ){
+      this->hacerUno();
+    };
+    coefPoliB_.insert(coefPoliB_.begin(), n, (Cifra)0);
+    
     return *this;
   }
 
@@ -1668,7 +1674,7 @@ namespace mpplas{
   Z operator/(Z izq, const Z& der)
   {
     if( der.esCero() )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     izq /= der;
 
@@ -1678,7 +1684,7 @@ namespace mpplas{
   Z operator%(Z izq, const Z& der)
   {
     if( der.esCero() )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     izq %= der;
 
@@ -1741,7 +1747,7 @@ namespace mpplas{
   Z operator/(const CifraSigno corto, const Z& largo)
   {
     if( largo.esCero() )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     return ( Z(corto) / largo );
 
@@ -1770,7 +1776,7 @@ namespace mpplas{
   Z operator%(const CifraSigno corto, const Z& largo)
   {
     if( largo.esCero() )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     return( (Z(corto) % largo ) );
   }
@@ -1810,7 +1816,7 @@ namespace mpplas{
   Z operator/(Z largo, const CifraSigno corto)
   {
     if( corto == 0 )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     largo /= corto;
     return largo;
@@ -1818,7 +1824,7 @@ namespace mpplas{
   Z operator%(Z largo, const CifraSigno corto)
   {
     if( corto == 0 )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     largo %= corto;
     return largo;
@@ -1863,7 +1869,7 @@ namespace mpplas{
   Z operator/(const Cifra corto, const Z& largo)
   {
     if( largo.esCero() )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     if( largo > corto) {
       Z cero;
@@ -1884,7 +1890,7 @@ namespace mpplas{
   Z operator%(const Cifra corto, const Z& largo)
   {
     if( largo.esCero() )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     if( largo > corto ){
       return Z(corto);
@@ -1936,7 +1942,7 @@ namespace mpplas{
   Z operator/(Z largo, const Cifra corto)
   {
     if( corto == 0 )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     largo /= corto;
     return largo;
@@ -1944,7 +1950,7 @@ namespace mpplas{
   Z operator%(Z largo, const Cifra corto)
   {
     if( corto == 0 )
-      throw Errores::DivisionPorCero();
+      throw Errors::DivisionPorCero();
 
     largo %= corto;
     return largo;
@@ -2080,7 +2086,7 @@ namespace mpplas{
   Z operator^(Z base, const Z& exp)
   {
     if( exp.longitud() > 1 )
-      throw Errores::DemasiadoGrande();
+      throw Errors::TooBig();
 
     base ^= exp;
     return base;
@@ -2095,7 +2101,7 @@ namespace mpplas{
   Z operator^(Z base, const CifraSigno exp)
   {
     if( exp < 0 ){
-      throw Errores::ExponenteNegativo();
+      throw Errors::ExponenteNegativo();
     }
 
     base ^= ((Cifra)labs(exp));
@@ -2103,11 +2109,11 @@ namespace mpplas{
   }
 
   void divMod(const Z& dividendo, const Z& divisor, Z* cociente, Z* resto)
-    throw (Errores::DivisionPorCero)
+    throw (Errors::DivisionPorCero)
     {
 
       if( divisor.esCero() )
-        throw Errores::DivisionPorCero();
+        throw Errors::DivisionPorCero();
 
       //por precaucion, no sea que se hayan pasado cosas ya trajinadas
       cociente->hacerPositivo();
@@ -2173,14 +2179,14 @@ namespace mpplas{
     }
 
   void divMod(const Z& dividendo, const CifraSigno divisor, Z* cociente, Z* resto)
-    throw (Errores::DivisionPorCero)
+    throw (Errors::DivisionPorCero)
     {
 
       bool divisorPositivo;
       Cifra divisorCifra;
 
       if( divisor == 0 )
-        throw Errores::DivisionPorCero();
+        throw Errors::DivisionPorCero();
 
       if( divisor < 0 ){
         divisorPositivo = false;
@@ -2256,12 +2262,12 @@ namespace mpplas{
 
 
   void divMod(const Z& dividendo, const Cifra divisor, Z* cociente, Z* resto)
-    throw (Errores::DivisionPorCero)
+    throw (Errors::DivisionPorCero)
     {
 
 
       if( divisor == 0 )
-        throw Errores::DivisionPorCero();
+        throw Errors::DivisionPorCero();
 
       //por precaucion, no sea que se hayan pasado cosas ya trajinadas
       cociente->hacerPositivo();

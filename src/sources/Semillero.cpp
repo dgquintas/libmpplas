@@ -84,11 +84,11 @@ namespace mpplas{
 		uint8_t ptr;
 	  if( !CryptAcquireContext (&crypt_prov, NULL, MS_DEF_PROV, PROV_RSA_FULL,
 			       CRYPT_VERIFYCONTEXT | CRYPT_MACHINE_KEYSET) )
-      throw Errores::FuenteEntropiaInvalida();
+      throw Errors::FuenteEntropiaInvalida();
 
 		for(size_t i=0; i < numBytes; i++){
 			if( !CryptGenRandom(crypt_prov, 1, (BYTE *)&ptr) )
-        throw Errores::FuenteEntropiaInvalida();
+        throw Errors::FuenteEntropiaInvalida();
 			rnd[i] = ptr;
 		}
 
@@ -97,7 +97,7 @@ namespace mpplas{
 		std::ifstream* urandom;
     urandom = new std::ifstream("/dev/urandom", std::ios::in | std::ios::binary );
     if( !urandom->is_open() )
-        throw Errores::FuenteEntropiaInvalida();
+        throw Errors::FuenteEntropiaInvalida();
     
     for(size_t i=0; i < numBytes; i++)
       (*urandom) >> rnd[i];
@@ -113,7 +113,7 @@ namespace mpplas{
   void Semillero::ponerFuente(std::ifstream* fuente)
   {
     if( (!fuente) || (!fuente->is_open()) || (!fuente->good()) )
-      throw Errores::FuenteEntropiaInvalida();
+      throw Errors::FuenteEntropiaInvalida();
 
     if( fuente_->is_open() )
       fuente_->close();

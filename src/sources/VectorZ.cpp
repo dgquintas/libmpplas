@@ -36,7 +36,7 @@ namespace mpplas{
     if( this->size() != rhs.size() ){
       std::ostringstream oss;
       oss << "Right-hand-side operator size = " << rhs.size();
-      throw Errores::NonConformantDimensions(this->getDimensions(), rhs.getDimensions(),  oss.str());
+      throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions(),  oss.str());
     }
     const size_t length = this->size();
     Z* const thisVec = &(this->operator[](0));
@@ -99,7 +99,7 @@ namespace mpplas{
   {
     //both vectors should have the same length
     if( this->size() != rhs.size() ){
-      throw Errores::NonConformantDimensions(this->getDimensions(), rhs.getDimensions());
+      throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions());
     }
     const size_t length = this->size();
     Z* const thisVec = &(this->operator[](0));
@@ -156,7 +156,7 @@ namespace mpplas{
   {
     //both vectors should have the same length
     if( this->size() != rhs.size() ){
-      throw Errores::NonConformantDimensions(this->getDimensions(), rhs.getDimensions());
+      throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions());
     }
     const size_t length = this->size();
     Z* const thisVec = &(this->operator[](0));
@@ -208,7 +208,7 @@ namespace mpplas{
     if( this->size() != 3 || rhs.size() != 3 ){
       std::ostringstream oss;
       oss << "Cross product operators should have three dimensions" << rhs.size();
-      throw Errores::NonConformantDimensions(this->getDimensions(), rhs.getDimensions(), oss.str());
+      throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions(), oss.str());
     }
 
     
@@ -228,7 +228,7 @@ namespace mpplas{
     if( length != rhs.size() ){
       std::ostringstream oss;
       oss << "for the dot product.";
-      throw Errores::NonConformantDimensions(lhs.getDimensions(), rhs.getDimensions(), oss.str());
+      throw Errors::NonConformantDimensions(lhs.getDimensions(), rhs.getDimensions(), oss.str());
     }
     VectorZ thisCopy(lhs);
     Z* const thisVec = &(thisCopy.operator[](0));

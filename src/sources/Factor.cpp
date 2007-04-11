@@ -155,9 +155,9 @@ namespace mpplas{
 //  {
 //
 //    if( n == NULL )
-//      throw Errores::PunteroNulo();
+//      throw Errors::PunteroNulo();
 //    if( factores == NULL )
-//      throw Errores::PunteroNulo();
+//      throw Errors::PunteroNulo();
 //
 //    
 //    // pag 430 cohen
@@ -328,9 +328,9 @@ namespace mpplas{
   bool RhoPollard::factorZ(Z* n, MiVec<Z>* factores)
   {
     if( n == NULL )
-      throw Errores::PunteroNulo();
+      throw Errors::PunteroNulo();
     if( factores == NULL )
-      throw Errores::PunteroNulo();
+      throw Errors::PunteroNulo();
 
     // pag 91 Menezes
     Funciones* const funcs = Funciones::getInstance();
@@ -512,9 +512,9 @@ namespace mpplas{
   {
 
     if( n == NULL )
-      throw Errores::PunteroNulo();
+      throw Errors::PunteroNulo();
     if( factores == NULL )
-      throw Errores::PunteroNulo();
+      throw Errors::PunteroNulo();
 
     //pag. 364 Knuth
     

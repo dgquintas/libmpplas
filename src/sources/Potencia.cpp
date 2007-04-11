@@ -37,11 +37,13 @@ namespace mpplas{
     Z inv;
     Z temp;
     GCDExt *gcdext; funcs->getFunc(gcdext);
-    if( !(gcdext->gcdext(base, mod, inv, temp)).esUno() )
-      throw Errores::ElementoNoInvertible();
+    if( !(gcdext->gcdext(base, mod, inv, temp)).esUno() ){
+      throw Errors::ElementoNoInvertible();
+    }
 
-    if( inv.signo() < 0 )
+    if( inv.signo() < 0 ){
       inv += mod;
+    }
 
     return inv;
   }
@@ -56,7 +58,7 @@ namespace mpplas{
   void PotVentanaDeslizante::potencia(Z* const base, CifraSigno e)
   {
     if( e < 0 ){
-      throw Errores::ExponenteNegativo();
+      throw Errors::ExponenteNegativo();
     }
 
     if(e == 0){
@@ -141,10 +143,10 @@ namespace mpplas{
   void PotRightLeft::potencia(Z* const base, CifraSigno exponente)
   {
     if( exponente < 0 )
-      throw Errores::ExponenteNegativo();
+      throw Errors::ExponenteNegativo();
 
     if( base == NULL )
-      throw Errores::PunteroNulo();
+      throw Errors::PunteroNulo();
 
     unsigned long doses = 0;
     Z acum;
@@ -175,7 +177,7 @@ namespace mpplas{
 
     if(doses){
       if( (Cifra)exponente > Constantes::SYSTEM_SIZE_T_MAX/doses )
-        throw Errores::DemasiadoGrande();
+        throw Errors::TooBig();
       acum <<= (exponente*doses);
     }
 
@@ -187,47 +189,46 @@ namespace mpplas{
   void PotMontgomery::potModular(Z* const base, const Z& e, const Z& mod)
   {
     if( base == NULL ){
-      throw Errores::PunteroNulo();
+      throw Errors::PunteroNulo();
     }
+    if( mod.esPar() ){ //modulo par => No puede aplicarse Montgomery
+      throw Errors::ModuloParEnMontgomery();
+    }
+
+    Z r;  r.potenciaBase(mod.longitud());     
+    Z r2; r2.potenciaBase(mod.longitud()*2); // r2 = r^2
     
-    if( mod.esImpar()){ //modulo impar => montgomery
-      Z R;  R.potenciaBase(mod.longitud());     
-      Z R2; R2.potenciaBase(mod.longitud()*2); // R2 = R^2
-      
-      R %= mod;
-      R2 %= mod;
+    r %= mod;
+    r2 %= mod;
 
-      base->operator%=(mod);
-      
-      Z modPrima; 
+    base->operator%=(mod);
+    
+    Z modPrima; 
 
-      // modPrima = -mod^{-1} (mod base)
-      RedMontgomery *rm; funcs->getFunc(rm);
-      modPrima = rm->precomputaciones(mod); 
-      
-      Z xTilde(*base);
-      montgomeryMult(&xTilde, R2,mod,modPrima ); // R2 = R^{2} mod n
-      base->operator=(R); // R = R_inicial mod n
+    // modPrima = -mod^{-1} (mod base)
+    RedMontgomery *rm; funcs->getFunc(rm);
+    modPrima = rm->precomputaciones(mod); 
+    
+    Z xTilde(*base);
+    montgomeryMult(&xTilde, r2,mod,modPrima ); // r2 = r^{2} mod n
+    base->operator=(r); // r = r_inicial mod n
 
-      for(long i = (e.numBits()-1); i >= 0 ; i--){
-        montgomeryCuad(base, mod, modPrima);
-        if( (e[(i / Constantes::BITS_EN_CIFRA)] & (1 << (i % Constantes::BITS_EN_CIFRA))) )
-          //i-esimo bit de "e" es uno...
-          montgomeryMult(base,xTilde, mod, modPrima);
-      }
-
-      Z uno; uno.hacerUno();
-
-      montgomeryMult(base,uno,mod, modPrima);
+    for(int i = (e.numBits()-1); i >= 0 ; i--){
+      montgomeryCuad(base, mod, modPrima);
+      if( (e[(i / Constantes::BITS_EN_CIFRA)] & (1 << (i % Constantes::BITS_EN_CIFRA))) )
+        //i-esimo bit de "e" es uno...
+        montgomeryMult(base,xTilde, mod, modPrima);
     }
-    else{ //modulo par => No puede aplicarse Montgomery
-      throw Errores::ModuloParEnMontgomery();
-    }
+
+    Z uno; uno.hacerUno();
+
+    montgomeryMult(base,uno,mod, modPrima);
+    
     
     return;
   }
 
-  void PotMontgomery::montgomeryMult(Z* x, const Z& y, const Z& mod, const Z& modPrima)
+  void PotMontgomery::montgomeryMult(Z* const x, const Z& y, const Z& mod, const Z& modPrima)
   {
     size_t n = mod.longitud() ; // exponente de R
     Z A; A.hacerCero(); 
@@ -246,14 +247,15 @@ namespace mpplas{
       A.divisionBase(1);
     }
 
-    if( A >= mod )
+    if( A >= mod ){
       A -= mod;
+    }
 
     x->operator=(A);  // x·y·R^{-1} (mod mod)  /  R = base^{n}
 
   }
 
-  void PotMontgomery::montgomeryCuad(Z* x, const Z& mod, const Z& modPrima)
+  void PotMontgomery::montgomeryCuad(Z* const x, const Z& mod, const Z& modPrima)
   {
     //utilizar el metodo "clasico" (no modular) para cuadrado y luego
     //reducir con el metodo de reduccion de montgomery
@@ -263,17 +265,66 @@ namespace mpplas{
     rm->redMontgomery(x,mod, modPrima);
 
     return; 
-    
-
   }
 
+  Z PotMontgomery::montInverse(const Z&a, const Z& mod){
+    Z r;
+    Cifra k;
+    const size_t n = mod.numBits();
+    const size_t m = 
+    almostMontgomeryInverse(a,mod, r, k);
+  }
+   
+  
+  void PotMontgomery::almostMontgomeryInverse(
+      const Z& a, const Z& mod, Z& r, Cifra& k)
+  {
+    Z u(mod);
+    Z v(a);
+    r.hacerCero();
+    Z s((Cifra)1);
+
+    k = 0;
+    while( v > (Cifra)0 ){
+      if( u.esPar() ){
+        u >>= 1; // u = u / 2
+        s <<= 1; // s = s * 2
+      } 
+      else if( v.esPar() ){
+        v >>= 1;
+        r <<= 1;
+      }
+      else if( u > v ){
+        u -= v; 
+        u >>= 1;
+        r += s;
+        s <<= 1;
+      }
+      else { // v >= u
+        v -= u; 
+        v >>= 1;
+        s += r;
+        r <<= 1;
+      }
+      k++;
+    }
+    if( r >= mod){
+      r -= mod;
+    }
+    r  = mod -r;
+    return;
+  }
+           
+      
+
+  
 
  ///////////////////////////////////
  
   void ClasicoConBarrett::potModular(Z* const base, const Z& exp, const Z& mod)
   {
     if( base == NULL ){
-      throw Errores::PunteroNulo();
+      throw Errors::PunteroNulo();
     }
 
     RedBarrett* redbarrett; funcs->getFunc(redbarrett);
@@ -320,7 +371,7 @@ namespace mpplas{
   void PotVentanaDeslizanteR::potenciaR(R* base, CifraSigno e)
   {
     if( e < 0 )
-      throw Errores::NoImplementado();
+      throw Errors::NoImplementado();
 
     if(e == 0){
       base->hacerUno();

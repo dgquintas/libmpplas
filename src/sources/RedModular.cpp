@@ -32,7 +32,7 @@ namespace mpplas{
     // realizar la computacion de mu_
     size_t k = modulo.longitud();
     mu.hacerUno(); 
-    mu <<= ((Constantes::BITS_EN_CIFRA)*(2*k));
+    mu.potenciaBase( 2*k );
     mu /= modulo;
 
     return mu;
@@ -40,8 +40,7 @@ namespace mpplas{
 
   void RedBarrett::redBarrett(Z* num, const Z& modulo, const Z& mu)
   {
-    if( num == NULL )
-      throw Errores::PunteroNulo();
+    assert( num ); 
 
     //  this->coefPoliB_.resize(2*k,0);
     Z mod(modulo);
@@ -74,18 +73,20 @@ namespace mpplas{
       r += temp;
     }
 
-    while ( r >= mod )
+    while ( r >= mod ){
       r -= mod;
+    }
 
     num->operator=(r);
 
-    if( modNegativo )
+    if( modNegativo ){
       mod.cambiarSigno();
+    }
 
     return;
   }
 
-
+////////////////////////////////////////////////////////////
 
 
   Z RedMontgomery::precomputaciones(const Z& modulo)
@@ -102,26 +103,29 @@ namespace mpplas{
 
   void RedMontgomery::redMontgomery(Z* num, const Z& mod, const Z& modPrima)
   {
+    assert( num );
+
+    // modulus has to odd 
+    if( mod.esPar() ){  
+      throw Errors::ModuloParEnMontgomery();
+    }
     
-    //EL MODULO HA DE SER IMPARRRRRRRRRRRRRR
-//    if( mod_.esPar() ){  
-//      (*num) %= mod_;
-//      return;
-//    }
-    
+
     size_t n = mod.longitud();
+    if( num->longitud() > 2*n){
+      throw Errors::TooBig();
+    }
     Cifra u;
     
-    size_t centinela = std::min(n, num->longitud());
-    
-    for(size_t i=0; i < centinela; i++){
+    for(size_t i=0; i < n; i++){
       u = ((*num)[i] * modPrima)[0];
-      (*num) += ( (u*mod) << (Constantes::BITS_EN_CIFRA * i) );
+      (*num) += ( (u*mod).potenciaBase(i) );
     }
 
-    (*num) >>= (Constantes::BITS_EN_CIFRA * n);
-    if( (*num) >= mod )
+    (*num).divisionBase(n);
+    if( (*num) >= mod ){
       (*num) -= mod;
+    }
    
     return;
   }
@@ -129,6 +133,7 @@ namespace mpplas{
 
     
 
+////////////////////////////////////////////////////////////
   
 
   void RedModularALaMersenne::redModularALaMersenne(Z* num, const CifraSigno t, const CifraSigno c)

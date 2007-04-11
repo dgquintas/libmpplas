@@ -21,7 +21,7 @@ namespace mpplas{
   Z SJacobiViaKronecker::simboloJacobi(Z a, Z b)
   {
     if( b.esPar() )
-      throw Errores::ParEnSimboloJacobi();
+      throw Errors::ParEnSimboloJacobi();
    
     Funciones *funcs = Funciones::getInstance();
     

@@ -27,7 +27,6 @@ moduleFiles = Split("""
     RandomTest.cpp
     MatrixZTest.cpp
     MatrixRTest.cpp
-    MatrixDoubleTest.cpp
     VectorZTest.cpp
     FunctionsTest.cpp
     OpenMPTest.cpp

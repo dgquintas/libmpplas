@@ -41,5 +41,5 @@ void ExponentiationTest::testALaMersenneReduction(){
 }
 
 void ExponentiationTest::testClassicMontgomeryInverse(){
-  
+}  
 

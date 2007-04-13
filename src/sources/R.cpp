@@ -70,6 +70,12 @@ namespace mpplas{
     operator>>(flujoEntrada,*this);
     return;
   }
+  R::R(const std::string& str)
+  {
+    std::istringstream flujoEntrada(str);
+    operator>>(flujoEntrada,*this);
+    return;
+  }
 
   R::R(double otro)
   {
@@ -844,7 +850,7 @@ namespace mpplas{
     
     if( numDigits > 0 ){ //still sth to process: flush it
       //first element, with only numDigits digits
-      int digitsInN = (int)ceil( log10(n) );
+      int digitsInN = 1+(int)floor( log10(n) );
       int toComplete = Constantes::MAX_EXP10_CIFRA - digitsInN;
       n *= (Cifra)pow(10.0, toComplete);
       res += R(n);

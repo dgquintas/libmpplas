@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <vector>
+#include <sstream>
 
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/girerr.hpp>
@@ -11,6 +12,7 @@
 
 #include "MiVec.h"
 #include "Z.h"
+#include "R.h"
 #include "Random.h"
 #include "Primos.h"
 #include "GCD.h"
@@ -147,6 +149,108 @@ class ZPowMethod : public xmlrpc_c::method {
         *retvalP = xmlrpc_c::value_string( (op1 ^ op2).toString() );
       }
 };
+
+
+/***********************************************
+ **************   REALS  ***********************
+ ***********************************************/
+
+class RAddMethod : public xmlrpc_c::method {
+  public:
+    
+    RAddMethod() {
+      this->_signature = "s:ss";
+      this->_help = "This method adds two reals together";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        mpplas::R const op1(paramList.getString(0));
+        mpplas::R const op2(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        *retvalP = xmlrpc_c::value_string( (op1+op2).toString() );
+      }
+};
+class RSubMethod : public xmlrpc_c::method {
+  public:
+    
+    RSubMethod() {
+      this->_signature = "s:ss";
+      this->_help = "This method substracts the second real from the first";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        mpplas::R const op1(paramList.getString(0));
+        mpplas::R const op2(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        *retvalP = xmlrpc_c::value_string( (op1 - op2).toString() );
+      }
+};
+class RMulMethod : public xmlrpc_c::method {
+  public:
+    
+    RMulMethod() {
+      this->_signature = "s:ss";
+      this->_help = "This method multiplies two reals together";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        mpplas::R const op1(paramList.getString(0));
+        mpplas::R const op2(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        *retvalP = xmlrpc_c::value_string( (op1 * op2).toString() );
+      }
+};
+class RDivMethod : public xmlrpc_c::method {
+  public:
+    
+    RDivMethod() {
+      this->_signature = "s:ss";
+      this->_help = "This method divides the first real by the second"; 
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        mpplas::R const op1(paramList.getString(0));
+        mpplas::R const op2(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        *retvalP = xmlrpc_c::value_string( (op1 / op2).toString() );
+      }
+};
+
+class RPowMethod : public xmlrpc_c::method {
+  public:
+    
+    RPowMethod() {
+      this->_signature = "s:s";
+      this->_help = "This method returns the exponentiation of the first argument (base) by the second (exponent)"; 
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        mpplas::R op1(paramList.getString(0));
+        mpplas::CifraSigno op2;
+        std::stringstream ss(paramList.getString(1));
+        ss >> op2;
+
+        paramList.verifyEnd(2);
+
+        *retvalP = xmlrpc_c::value_string( (op1 ^ op2).toString() );
+      }
+};
+
+
+
 /***********************************************
  *************  MODULAR INTEGERS ***************
  ***********************************************/
@@ -199,7 +303,7 @@ class ModInverseMethod : public xmlrpc_c::method {
         try {
           res = pmod->inversa(op1,op2);
         }
-        catch(mpplas::Errores::ElementoNoInvertible e){
+        catch(mpplas::Errors::ElementoNoInvertible e){
           res.hacerCero();
           throw(girerr::error(e.what()));
         }
@@ -417,6 +521,13 @@ int main(int const, const char ** const) {
         
         xmlrpc_c::methodPtr const ZFactorialMethodP(new ZFactorialMethod);
 
+        xmlrpc_c::methodPtr const RAddMethodP(new RAddMethod);
+        xmlrpc_c::methodPtr const RSubMethodP(new RSubMethod);
+        xmlrpc_c::methodPtr const RMulMethodP(new RMulMethod);
+        xmlrpc_c::methodPtr const RDivMethodP(new RDivMethod);
+        xmlrpc_c::methodPtr const RPowMethodP(new RPowMethod);
+
+
         xmlrpc_c::methodPtr const ModExpMethodP(new ModExpMethod);
         xmlrpc_c::methodPtr const ModInverseMethodP(new ModInverseMethod);
         
@@ -436,6 +547,13 @@ int main(int const, const char ** const) {
         myRegistry.addMethod("zDiv", ZDivMethodP);
         myRegistry.addMethod("zMod", ZModMethodP);
         myRegistry.addMethod("zPow", ZPowMethodP);
+
+        myRegistry.addMethod("rAdd", RAddMethodP);
+        myRegistry.addMethod("rSub", RSubMethodP);
+        myRegistry.addMethod("rMul", RMulMethodP);
+        myRegistry.addMethod("rDiv", RDivMethodP);
+        myRegistry.addMethod("rPow", RPowMethodP);
+
 
         myRegistry.addMethod("zFactorial", ZFactorialMethodP);
 

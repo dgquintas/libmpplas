@@ -20,8 +20,9 @@ def initializeClient():
   filteredMethods = filter(lambda mName: mName[:7] != 'system.', 
                             global_rpcServer.system.listMethods())
 
-  proxyFuncsSrc = """def %s(*args):
-    \"\"\"%s\"\"\"
+  proxyFuncsSrc = """def %(methodName)s(*args):
+    \"\"\"%(methodHelp)s\"\"\"
+    opType = '%(methodName)s'[0]
     newArgs = []
     for arg in args:
       if type(arg) in ( type(()), type([]) ):
@@ -29,21 +30,24 @@ def initializeClient():
       else:
         newArgs.append(str(arg))
     try:
-      result = global_rpcServer.%s(*newArgs)
+      result = global_rpcServer.%(methodName)s(*newArgs)
     except Fault, e:
       raise "Exception from the server: " + e.faultString   
     except:
       raise
     
     if type(result) == type(""):
-      result = Z(result)
+      if opType == 'z':
+        result = Z(result)
+      elif opType == 'r':
+        result = R(result)
     # else, do not chage its type   
     
     return result
 """
 
   for mName in filteredMethods:
-    exec proxyFuncsSrc % (mName, global_rpcServer.system.methodHelp(mName), mName) in globals()
+    exec proxyFuncsSrc % {'methodName': mName, 'methodHelp': global_rpcServer.system.methodHelp(mName)} in globals()
 
   return globals()
 
@@ -102,11 +106,6 @@ class Z(object):
     return long(str(self)) >= long(str(anotherZ))
 
 
-
-
-
-
-
   def __len__(self):
     return len(self.__integerStr);
 
@@ -118,6 +117,64 @@ class Z(object):
 
   def __str__(self):
     return self.__integerStr
+
+
+class R(object):
+
+  def __init__(self, rStr=""):
+    self.__realStr = str(rStr)
+
+  def __add__(self, anotherR): 
+    return rAdd(self, anotherR )
+  def __iadd__(self, anotherR): 
+    self.__realStr = str(rAdd(self, anotherR))
+    return self
+
+  def __sub__(self, anotherR): 
+    return rSub(self, anotherR )
+  def __isub__(self, anotherR): 
+    self.__realStr = str(rSub(self, anotherR))
+    return self
+
+  def __mul__(self, anotherR): 
+    return rMul(self, anotherR )
+  def __imul__(self, anotherR): 
+    self.__realStr = str(rMul(self, anotherR))
+    return self
+
+  def __div__(self, anotherR): 
+    return rDiv(self, anotherR )
+  def __idiv__(self, anotherR): 
+    self.__realStr = str(rDiv(self, anotherR))
+    return self
+
+
+  def __lt__(self, anotherR):
+    return long(str(self)) < long(str(anotherR))
+  def __le__(self, anotherR):
+    return long(str(self)) <= long(str(anotherR))
+  def __eq__(self, anotherR):
+    return long(str(self)) == long(str(anotherR))
+  def __ne__(self, anotherR):
+    return long(str(self)) != long(str(anotherR))
+  def __gt__(self, anotherR):
+    return long(str(self)) > long(str(anotherR))
+  def __ge__(self, anotherR):
+    return long(str(self)) >= long(str(anotherR))
+
+
+  def __len__(self):
+    return len(self.__realStr);
+
+  def __getitem__(self, key):
+    return self.__realStr[key]
+
+  def __repr__(self):
+    return 'R("' + self.__realStr + '")'
+
+  def __str__(self):
+    return self.__realStr
+
 
 
 import sys

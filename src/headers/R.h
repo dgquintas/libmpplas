@@ -11,6 +11,7 @@
 #define __R_H
 
 #include <vector>
+#include <string>
 #include <iostream>
 #include <utility>
 #include <cmath>
@@ -23,125 +24,7 @@
 namespace mpplas
 {
 
-  class R;
-  
-  //se devuelve un objeto (y no una referencia) debido a lo
-  //expuesto en stroustrup pág. 297 ultimo parrafo.
-  //
-  //Estas funciones no son amigas de class Z por lo expuesto
-  //en stroustrup 11.3.1 (pag 282)
-  
-  /** Suma no acumulativa de reales.
-   *
-   * @param a Sumando izquierdo.
-   * @param b Sumando derecho.
-   * 
-   * @return El real suma de los argumentos. 
-   */
-  R operator+(R a, const R &b);
-  
-  /** Resta no acumulativa de reales.
-   *
-   * @param a Minuendo.
-   * @param b Sustraendo.
-   * 
-   * @return El real resta de los argumentos. 
-   */
-  R operator-(R a, const R &b);
-  
-  
-  
-  
-  /** Producto no acumulativa de reales.
-   *
-   * @param a Factor izquierdo.
-   * @param b Factor derecho.
-   * 
-   * @return El real producto de los argumentos. 
-  */
-  R operator*(R a, const R &b);
-  
-  /** División no acumulativa de reales.
-   *
-   * @param a Dividendo.
-   * @param b Divisor.
-   * 
-   * @return El real cociente \f$\lfloor(a/b)\rfloor\f$. 
-   */
-  R operator/(R a, const R &b);
-
-  /** Versión de precisión simple de operator+(R, const R&)*/
-  R operator+(const double, R);
-  /** Versión de precisión simple de operator-(R, const R&)*/
-  R operator-(const double, R);
-  /** Versión de precisión simple de operator*(R, const R&)*/
-  R operator*(const double, R);
-  /** Versión de precisión simple de operator/(R, const R&)*/
-  R operator/(const double, const R&);
-
-  /** Versión de precisión simple de operator+(R, const R&)*/
-  R operator+(R, const double);
-  /** Versión de precisión simple de operator-(R, const R&)*/
-  R operator-(R, const double);
-  /** Versión de precisión simple de operator*(R, const R&)*/
-  R operator*(R, const double);
-  /** Versión de precisión simple de operator/(R, const R&)*/
-  R operator/(R, const double);
-
-  
-  /** Operator - unario -> cambio de signo */
-  R operator-(R);     
-  
-  /** Operador de potenciación.
-   *
-   * @param base Real base de la potenciación.
-   * @param exp Entero exponente.
-   *
-   * @return Real igual a \f$base^{exp}\f$
-   * @sa class Potencia.
-   *
-   * @note El exponente ha de ser \f$\leq 2^{BASE}\f$ o se lanzará un
-   * error de tipo Errores::DemasiadoGrande
-   *
-   */
-  R operator^(R base, const Z& exp); 
-
-   /** Operador de potenciación.
-   *
-   * @param base Real base de la potenciación.
-   * @param exp CifraSigno exponente.
-   *
-   * @return Real igual a \f$base^{exp}\f$
-   * @sa class Potencia.
-   *
-   */
-  R operator^(R base, CifraSigno exp); 
-
-
-  /** Operador de "desplazamiento" a la derecha no acumulativo.
-   *
-   * @param real El real a "desplazar".
-   * @param n El número de posiciones a "desplazar".
-   *
-   * @return El real "desplazado" @a n posiciones a la
-   * derecha.
-   *
-   * @sa R::operator>>=(const size_t n) */
-  R operator>>(R real, const size_t n);
-
-  /** Operador de "desplazamiento" a la izquierda no acumulativo.
-   *
-   * @param real El real a desplazar.
-   * @param n El número de posiciones a "desplazar".
-   *
-   * @return El real desplazado @a n posiciones a la
-   * izquierda.
-   *
-   * @sa R::operator<<=(const size_t n) */
-  R operator<<(R real, const size_t n);
-
-
-  /** Clase para la representación de enteros. */
+/** Clase para la representación de enteros. */
   class R
   {
     public:
@@ -151,6 +34,7 @@ namespace mpplas
     R( const CifraSigno ); /**< construccion desde simple precision */
     R( const Cifra ); /**< construccion desde 'token' básico */
     explicit R( const char* ); /**< construccion desde cadena de caracteres */
+    explicit R( const std::string& str ); /**< construction from a std::string */ 
     explicit R( const double ); /**< construccion desde double */
     explicit R( const Z& ); /**< constructor desde Z */
 
@@ -665,6 +549,124 @@ namespace mpplas
     friend std::istream& operator>>(std::istream&, R&); 
 
   };
+  
+  //se devuelve un objeto (y no una referencia) debido a lo
+  //expuesto en stroustrup pág. 297 ultimo parrafo.
+  //
+  //Estas funciones no son amigas de class Z por lo expuesto
+  //en stroustrup 11.3.1 (pag 282)
+  
+  /** Suma no acumulativa de reales.
+   *
+   * @param a Sumando izquierdo.
+   * @param b Sumando derecho.
+   * 
+   * @return El real suma de los argumentos. 
+   */
+  R operator+(R a, const R &b);
+  
+  /** Resta no acumulativa de reales.
+   *
+   * @param a Minuendo.
+   * @param b Sustraendo.
+   * 
+   * @return El real resta de los argumentos. 
+   */
+  R operator-(R a, const R &b);
+  
+  
+  
+  
+  /** Producto no acumulativa de reales.
+   *
+   * @param a Factor izquierdo.
+   * @param b Factor derecho.
+   * 
+   * @return El real producto de los argumentos. 
+  */
+  R operator*(R a, const R &b);
+  
+  /** División no acumulativa de reales.
+   *
+   * @param a Dividendo.
+   * @param b Divisor.
+   * 
+   * @return El real cociente \f$\lfloor(a/b)\rfloor\f$. 
+   */
+  R operator/(R a, const R &b);
+
+  /** Versión de precisión simple de operator+(R, const R&)*/
+  R operator+(const double, R);
+  /** Versión de precisión simple de operator-(R, const R&)*/
+  R operator-(const double, R);
+  /** Versión de precisión simple de operator*(R, const R&)*/
+  R operator*(const double, R);
+  /** Versión de precisión simple de operator/(R, const R&)*/
+  R operator/(const double, const R&);
+
+  /** Versión de precisión simple de operator+(R, const R&)*/
+  R operator+(R, const double);
+  /** Versión de precisión simple de operator-(R, const R&)*/
+  R operator-(R, const double);
+  /** Versión de precisión simple de operator*(R, const R&)*/
+  R operator*(R, const double);
+  /** Versión de precisión simple de operator/(R, const R&)*/
+  R operator/(R, const double);
+
+  
+  /** Operator - unario -> cambio de signo */
+  R operator-(R);     
+  
+  /** Operador de potenciación.
+   *
+   * @param base Real base de la potenciación.
+   * @param exp Entero exponente.
+   *
+   * @return Real igual a \f$base^{exp}\f$
+   * @sa class Potencia.
+   *
+   * @note El exponente ha de ser \f$\leq 2^{BASE}\f$ o se lanzará un
+   * error de tipo Errores::DemasiadoGrande
+   *
+   */
+  R operator^(R base, const Z& exp); 
+
+   /** Operador de potenciación.
+   *
+   * @param base Real base de la potenciación.
+   * @param exp CifraSigno exponente.
+   *
+   * @return Real igual a \f$base^{exp}\f$
+   * @sa class Potencia.
+   *
+   */
+  R operator^(R base, CifraSigno exp); 
+
+
+  /** Operador de "desplazamiento" a la derecha no acumulativo.
+   *
+   * @param real El real a "desplazar".
+   * @param n El número de posiciones a "desplazar".
+   *
+   * @return El real "desplazado" @a n posiciones a la
+   * derecha.
+   *
+   * @sa R::operator>>=(const size_t n) */
+  R operator>>(R real, const size_t n);
+
+  /** Operador de "desplazamiento" a la izquierda no acumulativo.
+   *
+   * @param real El real a desplazar.
+   * @param n El número de posiciones a "desplazar".
+   *
+   * @return El real desplazado @a n posiciones a la
+   * izquierda.
+   *
+   * @sa R::operator<<=(const size_t n) */
+  R operator<<(R real, const size_t n);
+
+
+  
 }
 #endif
 

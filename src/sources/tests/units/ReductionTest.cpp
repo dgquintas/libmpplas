@@ -76,6 +76,7 @@ void ReductionTest::testMontgomeryReduction(){
   m = gp_read_str(const_cast<char*>(primeMod.toString().c_str()));
 
   x = Fp_invsafe(x,m);
+  qassertTrue( x != NULL);
   x = gmul(x, y);
   GEN pariRes = gmod(x,m);
 
@@ -94,9 +95,48 @@ void ReductionTest::testMontgomeryReduction(){
 
 }
 
-void ReductionTest::testBarrettPrecomp(){
+void ReductionTest::testBarrettPrecomp(){ 
+  Z mod(_rnd->leerBits(brand(300,2000)));
+  _integer = _rnd->leerBits(brand(2000, 4000));
+
+  Z b2k(1);
+  b2k.potenciaBase( 2*mod.longitud() );
+  
+  GEN x, m;
+
+  x = gp_read_str(const_cast<char*>(b2k.toString().c_str()));
+  m = gp_read_str(const_cast<char*>(mod.toString().c_str()));
+
+  
+  GEN pariRes = gfloor( gdiv(x, m) );
+
+  Z mu( _redBarret.precomputaciones(mod) );
+
+  string pariStr(GENtostr( pariRes ));
+  cout << pariStr << endl << mu << endl;
+  qassertTrue( mu.toString() == pariStr );
+
+
 }
 void ReductionTest::testBarrettReduction(){
+  Z mod(_rnd->leerBits(brand(1000,2000)));
+  _integer = _rnd->leerBits( mod.numBits() * 2 );
+ 
+  GEN x, m;
+
+  x = gp_read_str(const_cast<char*>(_integer.toString().c_str()));
+  m = gp_read_str(const_cast<char*>(mod.toString().c_str()));
+
+  
+  GEN pariRes = gmod(x, m);
+
+  Z mu( _redBarret.precomputaciones(mod) );
+  _redBarret.redBarrett(&_integer, mod, mu);
+  string pariStr(GENtostr( pariRes ));
+  cout << pariStr << endl << _integer << endl;
+  qassertTrue( _integer.toString() == pariStr );
+
+
 }
 
 void ReductionTest::testALaMersenneReduction(){

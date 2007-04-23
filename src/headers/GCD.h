@@ -36,11 +36,11 @@ namespace mpplas{
       /** Máximo común divisor, versión especial precisión simple.
        *
        * Realiza el cálculo del máximo común divisor de un entero y un
-       * dato de precisión simple Cifra.
+       * dato de precisión simple Digit.
        * 
        *  @param u Entero del que calcular el máximo común divisor
        *  junto con @a v.
-       *  @param v Cifra de precisión simple de la que calcular el máximo común divisor
+       *  @param v Digit de precisión simple de la que calcular el máximo común divisor
        *  junto con @a u.
        *  
        * @return El máximo común divisor de @a u y @a v.
@@ -50,16 +50,16 @@ namespace mpplas{
        * enteros.
        * 
        */
-      virtual Z gcd(Z u, Cifra v ); //Euclides
+      virtual Z gcd(Z u, Digit v ); //Euclides
 
       /** Máximo común divisor, versión especial precisión simple
        * con signo.
        *
-       * Método análogo a gcd(Z u, Cifra v).
+       * Método análogo a gcd(Z u, Digit v).
        * Su razón de ser es evitar problemas si @a v es un tipo con
        * signo, por las conversiones automáticas que realiza C++.
        */
-      virtual Z gcd(Z u, CifraSigno v ); 
+      virtual Z gcd(Z u, SignedDigit v ); 
 
       virtual ~GCD(){}
 

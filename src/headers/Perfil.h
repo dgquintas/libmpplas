@@ -9,7 +9,7 @@
 #include "Z.h"
 #include "R.h"
 
-namespace numth{
+namespace mpplas{
 
   /** Clase para el manejo del mecanismo de perfilado. */
   class Perfil

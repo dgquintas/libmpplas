@@ -1,5 +1,4 @@
 #include "Matrix.h"
-#include "Z.h"
 #include <iostream>
 
 
@@ -9,7 +8,7 @@ using namespace std;
 
 int main(){
 
-  Matrix<Z> mat("[1324 21 3; 4 5 6; -753453253232522342 8 9]");
+  Matrix<int> mat("[1324 21 3; 4 5 6; -753442 8 9]");
 
   cout << mat;
 

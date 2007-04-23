@@ -11,17 +11,17 @@
 namespace mpplas{
 
   /* IMPLEMENTACION MIEMBROS NO PUROS DE Random */
-  Cifra Random::leerCifra(void)
+  Digit Random::leerDigit(void)
   {
-    Cifra temp;
-    temp = (this->leerBits(Constantes::BITS_EN_CIFRA)).toCifra();
+    Digit temp;
+    temp = (this->leerBits(Constants::BITS_EN_CIFRA)).toDigit();
 
     return temp;
   }
-  CifraSigno Random::leerCifraSigno(void)
+  SignedDigit Random::leerSignedDigit(void)
   {
-    CifraSigno temp;
-    temp = (this->leerBits(Constantes::BITS_EN_CIFRASIGNO)).toCifraSigno();
+    SignedDigit temp;
+    temp = (this->leerBits(Constants::BITS_EN_CIFRASIGNO)).toSignedDigit();
 
     return temp;
   }
@@ -74,37 +74,37 @@ namespace mpplas{
       bytesRand[c] = s_[t];
     }
       
-    const size_t numCifras = ((n_bytes+(Constantes::BYTES_EN_CIFRA-1)) / Constantes::BYTES_EN_CIFRA); 
-    MiVec<Cifra> vecRandom(numCifras);
+    const size_t numDigits = ((n_bytes+(Constants::BYTES_EN_CIFRA-1)) / Constants::BYTES_EN_CIFRA); 
+    MiVec<Digit> vecRandom(numDigits);
     
     size_t i;
-    for(i = 0 ; i < numCifras-1 ; i++){
-      for(int j = 0; j < (Constantes::BYTES_EN_CIFRA); j++){
+    for(i = 0 ; i < numDigits-1 ; i++){
+      for(int j = 0; j < (Constants::BYTES_EN_CIFRA); j++){
         vecRandom[i] <<= 8;
-        vecRandom[i] |= bytesRand[(i*Constantes::BYTES_EN_CIFRA)+j];
+        vecRandom[i] |= bytesRand[(i*Constants::BYTES_EN_CIFRA)+j];
       }
     }
 
     //y ultima iteracion
     size_t j;
-    if( n_bytes % Constantes::BYTES_EN_CIFRA ){
-      for(j = 0; j < (n_bytes % Constantes::BYTES_EN_CIFRA)-1; j++){
+    if( n_bytes % Constants::BYTES_EN_CIFRA ){
+      for(j = 0; j < (n_bytes % Constants::BYTES_EN_CIFRA)-1; j++){
         vecRandom[i] <<= 8;
-        vecRandom[i] |= bytesRand[(i*Constantes::BYTES_EN_CIFRA)+j];
+        vecRandom[i] |= bytesRand[(i*Constants::BYTES_EN_CIFRA)+j];
       }
       if ( n & 0x7 ){ // n % 8
         vecRandom[i] <<= (n & 0x7);
-        vecRandom[i] |= (bytesRand[(i*Constantes::BYTES_EN_CIFRA)+j]) & ((1 << (n & 0x7))-1);
+        vecRandom[i] |= (bytesRand[(i*Constants::BYTES_EN_CIFRA)+j]) & ((1 << (n & 0x7))-1);
       }
       else{
         vecRandom[i] <<= 8;
-        vecRandom[i] |= bytesRand[(i*Constantes::BYTES_EN_CIFRA)+j];
+        vecRandom[i] |= bytesRand[(i*Constants::BYTES_EN_CIFRA)+j];
       }
     }
     else{
-      for(int j = 0; j < (Constantes::BYTES_EN_CIFRA); j++){
+      for(int j = 0; j < (Constants::BYTES_EN_CIFRA); j++){
         vecRandom[i] <<= 8;
-        vecRandom[i] |= bytesRand[(i*Constantes::BYTES_EN_CIFRA)+j];
+        vecRandom[i] |= bytesRand[(i*Constants::BYTES_EN_CIFRA)+j];
       }
     }
     
@@ -123,7 +123,7 @@ namespace mpplas{
   {
     size_t longSemilla = semilla_.longitud();
 
-    Cifra mascara;
+    Digit mascara;
     size_t posSemilla = 0;
     for(size_t m = 0; m < 256; m++)
       s_[m] = m;
@@ -134,7 +134,7 @@ namespace mpplas{
       if ( posSemilla == longSemilla ) 
         posSemilla = 0;
 
-      for(int n = 0; n < Constantes::BYTES_EN_CIFRA ; n++){
+      for(int n = 0; n < Constants::BYTES_EN_CIFRA ; n++){
         k_[m] = semilla_[ posSemilla ] & mascara;
         m++;
         mascara <<= 8;
@@ -194,8 +194,8 @@ namespace mpplas{
     size_t n_bytes = (n+7)/8;
     MiVec<uint8_t> bytesRand(n_bytes);
     
-    size_t numCifras = ((n_bytes+(Constantes::BYTES_EN_CIFRA-1)) / Constantes::BYTES_EN_CIFRA); 
-    MiVec<Cifra> vecRandom(numCifras,0);
+    size_t numDigits = ((n_bytes+(Constants::BYTES_EN_CIFRA-1)) / Constants::BYTES_EN_CIFRA); 
+    MiVec<Digit> vecRandom(numDigits,0);
     
     // rellenar bytesRand
     size_t c = 0;
@@ -214,26 +214,26 @@ namespace mpplas{
     }
 
     size_t i;
-    for(i = 0 ; i < numCifras-1 ; i++)
-      for(int j = 0; j < (Constantes::BYTES_EN_CIFRA); j++){
+    for(i = 0 ; i < numDigits-1 ; i++)
+      for(int j = 0; j < (Constants::BYTES_EN_CIFRA); j++){
         vecRandom[i] <<= 8;
-        vecRandom[i] |= bytesRand[(i*Constantes::BYTES_EN_CIFRA)+j];
+        vecRandom[i] |= bytesRand[(i*Constants::BYTES_EN_CIFRA)+j];
       }
 
     //y ultima iteracion
     size_t j;
-    if( n_bytes % Constantes::BYTES_EN_CIFRA ){
-      for(j = 0; j < (n_bytes % Constantes::BYTES_EN_CIFRA)-1; j++){
+    if( n_bytes % Constants::BYTES_EN_CIFRA ){
+      for(j = 0; j < (n_bytes % Constants::BYTES_EN_CIFRA)-1; j++){
         vecRandom[i] <<= 8;
-        vecRandom[i] |= bytesRand[(i*Constantes::BYTES_EN_CIFRA)+j];
+        vecRandom[i] |= bytesRand[(i*Constants::BYTES_EN_CIFRA)+j];
       }
       vecRandom[i] <<= (n % 8);
-      vecRandom[i] |= (bytesRand[(i*Constantes::BYTES_EN_CIFRA)+j]) & ((1 << (n % 8))-1);
+      vecRandom[i] |= (bytesRand[(i*Constants::BYTES_EN_CIFRA)+j]) & ((1 << (n % 8))-1);
     }
     else{
-      for(int j = 0; j < (Constantes::BYTES_EN_CIFRA); j++){
+      for(int j = 0; j < (Constants::BYTES_EN_CIFRA); j++){
         vecRandom[i] <<= 8;
-        vecRandom[i] |= bytesRand[(i*Constantes::BYTES_EN_CIFRA)+j];
+        vecRandom[i] |= bytesRand[(i*Constants::BYTES_EN_CIFRA)+j];
       }
     }
     
@@ -276,11 +276,11 @@ namespace mpplas{
     
 //    do{
 //      p = gprimos->leerPrimoProb(calidad_);
-//    } while( slegendre->simboloLegendre(menosUno, p) != (CifraSigno)-1 );
+//    } while( slegendre->simboloLegendre(menosUno, p) != (SignedDigit)-1 );
 //    
 //    do{
 //      q = gprimos->leerPrimoProb(calidad_);
-//    } while( slegendre->simboloLegendre(menosUno, q) != (CifraSigno)-1 );
+//    } while( slegendre->simboloLegendre(menosUno, q) != (SignedDigit)-1 );
  
     do{
       p = gprimos->leerPrimoProb(calidad_);
@@ -294,7 +294,7 @@ namespace mpplas{
     n_ = p*q;
     do{
       Xi_ = rnd->leerEntero(n_);
-    }while( gcd->gcd(Xi_, n_) != (Cifra)1);
+    }while( gcd->gcd(Xi_, n_) != (Digit)1);
 
     Xi_.cuadradoModular(n_); 
     
@@ -317,8 +317,8 @@ namespace mpplas{
     //max(1,numBits(n)-1) bits de menos peso
     
     size_t n = numBits(Xi_);
-    Cifra longConsiderada = std::max(numBits((Cifra)n)-1,(size_t)1);
-    Cifra mascara = (1UL << longConsiderada)-1;
+    Digit longConsiderada = std::max(numBits((Digit)n)-1,(size_t)1);
+    Digit mascara = (1UL << longConsiderada)-1;
     while(num){
       Xi_.cuadradoModular(n_); 
       if(num < (2*longConsiderada) ){
@@ -400,7 +400,7 @@ namespace mpplas{
   }
   float FIPS_140_1::pokerTest_(Z muestraLocal)
   {
-    Cifra mascara; mascara = 0xf;
+    Digit mascara; mascara = 0xf;
     
     size_t numSeqIesima[16] = {0}; // 16 = 2^m = 2^4  ; Menezes 183
     

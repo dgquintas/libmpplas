@@ -4,7 +4,6 @@
 
 #include <string>
 #include "FunctionsTest.h"
-#include "SystemInfo.h"
 
 using namespace com_uwyn_qtunit;
 

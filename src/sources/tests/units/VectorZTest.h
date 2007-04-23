@@ -32,6 +32,9 @@ namespace com_uwyn_qtunit{
       void testOperatorProductWithVectorZ();
 
       void testDot();
+      void testDotNonMember();
+
+      void testCross();
 
     private:
       VectorZ vecA;

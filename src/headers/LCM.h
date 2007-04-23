@@ -37,25 +37,25 @@ namespace mpplas{
      /** Mínimo común múltiplo, versión especial precisión simple.
        *
        * Realiza el cálculo del mínimo común múltiplo de un entero y un
-       * dato de precisión simple Cifra.
+       * dato de precisión simple Digit.
        * 
        *  @param u Entero del que calcular el mínimo común múltiplo
        *  junto con @a v.
-       *  @param v Cifra de precisión simple de la que calcular el mínimo común múltiplo
+       *  @param v Digit de precisión simple de la que calcular el mínimo común múltiplo
        *  junto con @a u.
        *  
        * @return El mínimo común múltiplo de @a u y @a v.
        */
-      virtual Z lcm(Z u, Cifra v ); 
+      virtual Z lcm(Z u, Digit v ); 
 
       /** Mínimo común múltiplo, versión especial precisión simple
        * con signo.
        *
-       * Método análogo a gcd(Z u, Cifra v).
+       * Método análogo a gcd(Z u, Digit v).
        * Su razón de ser es evitar problemas si @a v es un tipo con
        * signo, por las conversiones automáticas que realiza C++.
        */
-      virtual Z lcm(Z u, CifraSigno v ); 
+      virtual Z lcm(Z u, SignedDigit v ); 
 
 
       virtual ~LCM(){}

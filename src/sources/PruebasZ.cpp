@@ -14,7 +14,7 @@ namespace mpplas
                            @param otro Entero a copiar. */
 
       
-      static Z convertir(const Cifra numSimple);
+      static Z convertir(const Digit numSimple);
 
       static Z convertir(const long numSimple);
 
@@ -27,7 +27,7 @@ namespace mpplas
       Z& operator=(const Z& origen);
 
 
-      Z& operator=(const Cifra origenSimple);
+      Z& operator=(const Digit origenSimple);
 
      Z& operator+=(const Z& sumandoDerecha);
 
@@ -118,7 +118,7 @@ namespace mpplas
         unsigned long longitud(void) const  {   return coefPoliB_.size();  }
 
       inline
-        Cifra operator[](unsigned long i) const { return coefPoliB_[i]; }
+        Digit operator[](unsigned long i) const { return coefPoliB_[i]; }
 
       inline 
         long signo(void) const { return signo_; }
@@ -135,7 +135,7 @@ namespace mpplas
 
     protected:
       Z( const long ); 
-      Z( const Cifra ); 
+      Z( const Digit ); 
       Z( const double ); 
       Z( const char* ); 
 
@@ -149,7 +149,7 @@ namespace mpplas
         throw (Errores::DivisionPorCero);
       friend void divMod(const Z& dividendo, const long divisor, Z& cociente, Z& resto) 
         throw (Errores::DivisionPorCero);
-      friend void divMod(const Z& dividendo, const Cifra divisor, Z& cociente, Z& resto) 
+      friend void divMod(const Z& dividendo, const Digit divisor, Z& cociente, Z& resto) 
         throw (Errores::DivisionPorCero);
 
 

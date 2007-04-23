@@ -16,7 +16,7 @@ namespace mpplas{
 //    return num;
 //  }
 //  
-//  Z RedModularEspecial::redModularEspecial(Z num, const CifraSigno t, const CifraSigno c)
+//  Z RedModularEspecial::redModularEspecial(Z num, const SignedDigit t, const SignedDigit c)
 //  {
 //    this->redModularEspecial(&num, t,c);
 //    return num;
@@ -67,7 +67,7 @@ namespace mpplas{
 
     r = r1 - r2;
 
-    if( r < (Cifra)0 ){
+    if( r < (Digit)0 ){
       Z temp; 
       temp.potenciaBase(k+1);
       r += temp;
@@ -115,7 +115,7 @@ namespace mpplas{
     if( num->longitud() > 2*n){
       throw Errors::TooBig();
     }
-    Cifra u;
+    Digit u;
     
     for(size_t i=0; i < n; i++){
       u = ((*num)[i] * modPrima)[0];
@@ -136,7 +136,7 @@ namespace mpplas{
 ////////////////////////////////////////////////////////////
   
 
-  void RedModularALaMersenne::redModularALaMersenne(Z* num, const CifraSigno t, const CifraSigno c)
+  void RedModularALaMersenne::redModularALaMersenne(Z* num, const SignedDigit t, const SignedDigit c)
   {
     Z qActual;
     Z qSiguiente;
@@ -151,7 +151,7 @@ namespace mpplas{
     qActual >>= t;
     *num -= (qActual << t);
 
-    while( qActual > (Cifra)0 ){
+    while( qActual > (Digit)0 ){
       qActual *= c;
       qSiguiente = qActual >> t;
       rSiguiente = qActual - (qSiguiente << t);

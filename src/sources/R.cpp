@@ -25,12 +25,12 @@ namespace mpplas{
     : exponente_(otro.exponente_), mantisa_(otro.mantisa_)
   {}
 
-//  R R::convertir(const Cifra origen)
+//  R R::convertir(const Digit origen)
 //  {
 //    R temp(origen);
 //    return temp;
 //  }
-//  R R::convertir(const CifraSigno origen)
+//  R R::convertir(const SignedDigit origen)
 //  {
 //    R temp(origen);
 //    return temp;
@@ -51,13 +51,13 @@ namespace mpplas{
 //    return temp;
 //  } 
 
-  R::R(const CifraSigno otro)
+  R::R(const SignedDigit otro)
     : exponente_(0), mantisa_(otro)
   {
     normalizar();
   }
 
-  R::R(const Cifra otro)
+  R::R(const Digit otro)
     : exponente_(0), mantisa_(otro)
   {
     normalizar();
@@ -281,7 +281,7 @@ namespace mpplas{
   //  return *this;
   //}
 
-  R& R::operator^=(CifraSigno exponente)
+  R& R::operator^=(SignedDigit exponente)
   {
     //  mantisa_ ^= exponente;
     //  exponente_ *= exponente;
@@ -301,7 +301,7 @@ namespace mpplas{
     if( exp.longitud() > 1 )
       throw Errors::TooBig();
 
-    Cifra exponente = exp[0];
+    Digit exponente = exp[0];
 
     return operator^=(exponente);
 
@@ -320,10 +320,10 @@ namespace mpplas{
 
   R& R::operator>>=(const size_t n)
   {
-    if( n > Cifra(Constantes::CIFRASIGNO_MAX) )
+    if( n > Digit(Constants::CIFRASIGNO_MAX) )
       throw Errors::OverflowExpReales();
 
-    if( exponente_ - (CifraSigno)n > exponente_ )
+    if( exponente_ - (SignedDigit)n > exponente_ )
       throw Errors::OverflowExpReales();
 
     exponente_ -= n;
@@ -339,14 +339,22 @@ namespace mpplas{
 
     return oss.str().c_str();
   }
+  std::string R::toString(size_t decimalPlaces) const {
+    std::string fullNum( this->toString() );
+    std::string::size_type dotPos = fullNum.find('.');
+    if( dotPos + decimalPlaces >= fullNum.size() ){
+      decimalPlaces = fullNum.size() - dotPos -1;
+    }
+    return fullNum.substr( 0, dotPos+decimalPlaces+1);
+  }
 
 
   R& R::operator<<=(const size_t n)
   {
-    if( n > Cifra(Constantes::CIFRASIGNO_MAX) )
+    if( n > Digit(Constants::CIFRASIGNO_MAX) )
       throw Errors::OverflowExpReales();
 
-    if( exponente_ + (CifraSigno)n < exponente_ )
+    if( exponente_ + (SignedDigit)n < exponente_ )
       throw Errors::OverflowExpReales();
 
     exponente_ += n;
@@ -575,7 +583,7 @@ namespace mpplas{
     // prec. de salida salieran mal.
 
     if( exceso > 0 ){
-      CifraSigno correccion = mantisa_.redondear(exceso);
+      SignedDigit correccion = mantisa_.redondear(exceso);
       mantisa_ >>= exceso;
       mantisa_ += correccion;
       exponente_ += exceso;
@@ -746,7 +754,7 @@ namespace mpplas{
       }
 
       if( numero.exponente_ >= 0 ){
-        size_t limitePrec = (size_t)floor(R::precision() / Constantes::LOG_2_10);
+        size_t limitePrec = (size_t)floor(R::precision() / Constants::LOG_2_10);
         size_t precEntAntigua = Z::precisionSalida();
         Z::precisionSalida(limitePrec);
         oss << (numero.mantisa_ << (size_t)numero.exponente_ );
@@ -768,7 +776,7 @@ namespace mpplas{
 
       size_t precisionUsada;
       size_t limitePrec = 
-        (size_t)floor((R::precision()-entero.numBits()) / Constantes::LOG_2_10);
+        (size_t)floor((R::precision()-entero.numBits()) / Constants::LOG_2_10);
       if( (limitePrec < R::precisionSalida()) ){
         precisionUsada = limitePrec;
         // limitePrec < R::precisionSalida. Es decir, la precision
@@ -785,19 +793,19 @@ namespace mpplas{
       redondeo.hacerUno();
 
       for(size_t i = 0; i < precisionUsada; i++){
-        numero *= (Cifra)10;  
+        numero *= (Digit)10;  
         entero = numero.floor();  
         numero -= R(entero);  
-        redondeo /= (Cifra)10;  
+        redondeo /= (Digit)10;  
       }
 
-      numero *= (Cifra)10;
+      numero *= (Digit)10;
       entero = numero.floor();  
 
-      if( entero > (Cifra)5)
+      if( entero > (Digit)5)
         numeroRed += redondeo;
       else //entero == 5
-        if( entero == (Cifra)5 )
+        if( entero == (Digit)5 )
           if( entero.esImpar() ) 
             numeroRed += redondeo;
 
@@ -811,7 +819,7 @@ namespace mpplas{
       for(size_t i = 0; i < precisionUsada; i++){
         //FIXME: se puede hacer que, tras haber sacado cant_cifras_frac % max_pot_9_en_long,
         //se saquen los numeros de 10^(max_pot_9_en_long) en idem como con los Z
-        numeroRed *= (Cifra)10;
+        numeroRed *= (Digit)10;
         entero = numeroRed.floor();
         oss << entero ;
         numeroRed -= R(entero);
@@ -823,10 +831,10 @@ namespace mpplas{
     }
 
   void _parseNumber( std::istream &in, R& res){
-    static R const potenciaInicial((Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA));
-    std::stack<Cifra> stk;
+    static R const potenciaInicial((Digit)pow(10.0,Constants::MAX_EXP10_CIFRA));
+    std::stack<Digit> stk;
     char c;
-    Cifra n = 0;
+    Digit n = 0;
     int numDigits = 0;
     res.hacerCero();
 
@@ -835,7 +843,7 @@ namespace mpplas{
         n *= 10;
         ++numDigits;
         n += c - '0';  //FIXME: is this portable?
-        if( numDigits >= Constantes::MAX_EXP10_CIFRA ){ //shouldn't ever be >
+        if( numDigits >= Constants::MAX_EXP10_CIFRA ){ //shouldn't ever be >
           //put into the number to return
           stk.push(n);
           n = numDigits = 0;
@@ -851,8 +859,8 @@ namespace mpplas{
     if( numDigits > 0 ){ //still sth to process: flush it
       //first element, with only numDigits digits
       int digitsInN = 1+(int)floor( log10(n) );
-      int toComplete = Constantes::MAX_EXP10_CIFRA - digitsInN;
-      n *= (Cifra)pow(10.0, toComplete);
+      int toComplete = Constants::MAX_EXP10_CIFRA - digitsInN;
+      n *= (Digit)pow(10.0, toComplete);
       res += R(n);
       res /= potenciaInicial; 
     }
@@ -896,6 +904,9 @@ namespace mpplas{
       if( c == '.' ){
         _parseNumber(in, numero);
       }
+      else{
+        in.putback(c);
+      }
       
       numero += R(integer);
 
@@ -926,7 +937,7 @@ namespace mpplas{
     return base;
   }
 
-  R operator^(R base, CifraSigno exp)
+  R operator^(R base, SignedDigit exp)
   {
     base ^= exp;
     return base;

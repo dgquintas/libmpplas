@@ -3,43 +3,89 @@
  */
 
 #include <string>
+#include "Random.h"
+#include "Primos.h"
+#include "Funciones.h"
 #include "ExponentiationTest.h"
+#include "aux.h"
 
 using namespace com_uwyn_qtunit;
+using namespace mpplas;
 
 ExponentiationTest::ExponentiationTest()
+  : funcs( Funciones::getInstance() )
 {
-  addTest(ExponentiationTest, testMontgomeryPrecomp);
-  addTest(ExponentiationTest, testMontgomeryReduction);
+  pari_init(1000000, 0);
 
-  addTest(ExponentiationTest, testBarrettPrecomp  );
-  addTest(ExponentiationTest, testBarrettReduction );
+  addTest(ExponentiationTest, testSlidingWindowExp );
+  addTest(ExponentiationTest, testSlidingWindowExpR );
+  addTest(ExponentiationTest, testExpLeftRight );
+  addTest(ExponentiationTest, testExpMontgomery );
+  addTest(ExponentiationTest, testExpBarrett );
 
-  addTest(ExponentiationTest, testALaMersenneReduction);
-
-  addTest(ExponentiationTest, testClassicMontgomeryInverse);
-  
+  funcs->getFunc(rnd);
+  funcs->getFunc(primes);
 }
 void ExponentiationTest::setUp(){
+  _base = rnd->leerBits( brand(100,200 ) );
+  _exp  = rnd->leerSignedDigit() % brand(500, 1500);
+  _expZ = rnd->leerBits( brand(1000,2000) );
+ 
+
+  x = gp_read_str(const_cast<char*>(_base.toString().c_str()));
+  y = gp_read_str(const_cast<char*>(Z(_exp).toString().c_str()));
+  Y = gp_read_str(const_cast<char*>(_expZ.toString().c_str()));
+
+
+
+
 }
 void ExponentiationTest::tearDown(){
 //empty. new is not used
 }
 
 
-void ExponentiationTest::testMontgomeryPrecomp(){
-}
-void ExponentiationTest::testMontgomeryReduction(){
-}
+void ExponentiationTest::testSlidingWindowExp(){
+  GEN pariRes = powgi(x,y);
+  PotVentanaDeslizante potFunc;
+  potFunc.potencia(&_base,_exp);
 
-void ExponentiationTest::testBarrettPrecomp(){
-}
-void ExponentiationTest::testBarrettReduction(){
-}
+  string pariStr(GENtostr( pariRes ));
+  qassertTrue( _base.toString() == pariStr );
 
-void ExponentiationTest::testALaMersenneReduction(){
 }
+void ExponentiationTest::testSlidingWindowExpR(){}
+void ExponentiationTest::testExpLeftRight(){
+  GEN pariRes = powgi(x,y);
+  PotLeftRight potFunc;
+  potFunc.potencia(&_base,_exp);
 
-void ExponentiationTest::testClassicMontgomeryInverse(){
-}  
+  string pariStr(GENtostr( pariRes ));
 
+  qassertTrue ( _base.toString() == pariStr );
+
+}
+void ExponentiationTest::testExpMontgomery(){
+  Z _mod(rnd->leerBits( brand(1000,2000) ));
+  if( _mod.esPar() ){
+    _mod++;
+  }
+  GEN m = gp_read_str(const_cast<char*>(_mod.toString().c_str()));
+  GEN pariRes = Fp_pow(x,Y,m);
+  PotMontgomery potFunc;
+  potFunc.potModular(&_base,_expZ,_mod);
+
+  string pariStr(GENtostr( pariRes ));
+  qassertTrue( _base.toString() == pariStr );
+}
+void ExponentiationTest::testExpBarrett(){
+  Z _mod(rnd->leerBits( brand(1000,2000) ));
+  GEN m = gp_read_str(const_cast<char*>(_mod.toString().c_str()));
+  GEN pariRes = Fp_pow(x,Y,m);
+  ClasicoConBarrett potFunc;
+  potFunc.potModular(&_base,_expZ,_mod);
+
+  string pariStr(GENtostr( pariRes ));
+  qassertTrue( _base.toString() == pariStr );
+
+}

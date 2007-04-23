@@ -17,7 +17,7 @@
 #include <cmath>
 #include <limits>
 #include <sstream>
-#include "constantes.h"
+#include "constants.h"
 #include "err.h"
 #include "Z.h"
 
@@ -31,15 +31,15 @@ namespace mpplas
    // constructores
     R() /**< constructor por defecto */;
     R( const R& ); /**< constructor de copia */
-    R( const CifraSigno ); /**< construccion desde simple precision */
-    R( const Cifra ); /**< construccion desde 'token' básico */
+    R( const SignedDigit ); /**< construccion desde simple precision */
+    R( const Digit ); /**< construccion desde 'token' básico */
     explicit R( const char* ); /**< construccion desde cadena de caracteres */
     explicit R( const std::string& str ); /**< construction from a std::string */ 
     explicit R( const double ); /**< construccion desde double */
     explicit R( const Z& ); /**< constructor desde Z */
 
      
-    /** Función de conversión de tipo Cifra a R (real).
+    /** Función de conversión de tipo Digit a R (real).
      *
      *  @par Complejidad:
      *       \f$O(1)\f$
@@ -48,8 +48,8 @@ namespace mpplas
      *
      *  @return El real correspondiente a la conversión.
      */
-//    static R convertir(const Cifra numSimple);
-     /** Función de conversión de tipo CifraSigno a R (real).
+//    static R convertir(const Digit numSimple);
+     /** Función de conversión de tipo SignedDigit a R (real).
      *
      *  @par Complejidad:
      *       \f$O(1)\f$
@@ -58,7 +58,7 @@ namespace mpplas
      *
      *  @return El real correspondiente a la conversión.
      */  
-//    static R convertir(const CifraSigno numSimple);
+//    static R convertir(const SignedDigit numSimple);
       /** Función de conversión de tipo cadena de caracteres a R (real).
        * 
        *  @par Complejidad:
@@ -186,7 +186,7 @@ namespace mpplas
        * CIFRA_MAX )
        *
        * \note
-       * Esta función invoca a la versión con argumento CifraSigno. En
+       * Esta función invoca a la versión con argumento SignedDigit. En
        * cualquier caso, depende de la implementación particular de la
        * clase Potencia accesible mediante la clase Funciones.
        * 
@@ -195,7 +195,7 @@ namespace mpplas
  
       /** Operador de potenciación acumulada.
        *
-       * @param exp Dato CifraSigno reprensentado el exponente al que elevar.
+       * @param exp Dato SignedDigit reprensentado el exponente al que elevar.
        *
        * @return *this, instancia de la clase actual tras elevarla a
        * exp.
@@ -206,7 +206,7 @@ namespace mpplas
        * Errores::ExponenteNegativo Si el entero que
        * representa el exponente exp es negativo.
        */
-    R& operator^=(CifraSigno exp); 
+    R& operator^=(SignedDigit exp); 
 
 
 
@@ -316,6 +316,7 @@ namespace mpplas
     //funciones utiles
     
     std::string toString() const;
+    std::string toString(size_t decimalPlaces) const;
     
       /** Hacer cero.
        * 
@@ -501,7 +502,7 @@ namespace mpplas
     
     /** Valor del exponente.
      *
-     * Devuelve un dato CifraSigno con el valor del exponente de la
+     * Devuelve un dato SignedDigit con el valor del exponente de la
      * representación del real.
          * @par Complejidad:
        *      \f$O(1)\f$
@@ -509,7 +510,7 @@ namespace mpplas
      * @return Valor del exponente de la representación del real.
      */
     inline
-      CifraSigno exponente() const { return exponente_; }
+      SignedDigit exponente() const { return exponente_; }
     inline
      /** Valor de la mantisa.
      *
@@ -538,7 +539,7 @@ namespace mpplas
     
     private:
 
-    CifraSigno exponente_;
+    SignedDigit exponente_;
     Z mantisa_;
     static size_t precision_; /**< Valor por defecto = 300. @sa R::precision() */
     static size_t precisionSalida_;/**< Valor por defecto = 20. @sa R::precisionSalida() */
@@ -634,13 +635,13 @@ namespace mpplas
    /** Operador de potenciación.
    *
    * @param base Real base de la potenciación.
-   * @param exp CifraSigno exponente.
+   * @param exp SignedDigit exponente.
    *
    * @return Real igual a \f$base^{exp}\f$
    * @sa class Potencia.
    *
    */
-  R operator^(R base, CifraSigno exp); 
+  R operator^(R base, SignedDigit exp); 
 
 
   /** Operador de "desplazamiento" a la derecha no acumulativo.

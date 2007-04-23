@@ -14,41 +14,20 @@ namespace mpplas
   {
     public:
       MatrixZ();
-      MatrixZ(const MatrixZ& m);
-      MatrixZ(const Matrix<Z>& m);
-
       MatrixZ(const size_t nAndm);
       MatrixZ(const size_t n, const size_t m);
-
+      MatrixZ(const Dimensions& dims);
+      MatrixZ(const MatrixZ& m);
+      MatrixZ(const Matrix<Z>& m);
       MatrixZ(const std::string& str);
 
-      MatrixZ& operator+=(const MatrixZ&);
-      MatrixZ& operator+=(const Z&);
 
-      MatrixZ& operator-=(const MatrixZ&);
-      MatrixZ& operator-=(const Z&);
-
-      MatrixZ& operator*=(const MatrixZ&);
-      MatrixZ& operator*=(const Z&);
-
-      MatrixZ& operator/=(const MatrixZ&);
-      MatrixZ& operator/=(const Z&);
-
-      MatrixZ& operator^=(const Z&);
-
-
-      MatrixZ& diagonalize();
-
-      MatrixZ& invert();
-
-      Z getDeterminant();
 
       
 
 
   };
 
-  MatrixZ operator-(MatrixZ m); /**< Unary negation, sign inversion */
 
 }
 

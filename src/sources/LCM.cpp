@@ -14,7 +14,7 @@ namespace mpplas{
     : funcs(Funciones::getInstance())
   {}
 
-  Z LCM::lcm(Z u, Cifra v)
+  Z LCM::lcm(Z u, Digit v)
   {
     if( (v == 0) || (u.esCero()) )
       return Z::Zero;
@@ -25,7 +25,7 @@ namespace mpplas{
     GCD* gcd; funcs->getFunc(gcd);
     return ((u*v)/gcd->gcd(u,v));
   }
-  Z LCM::lcm(Z u, CifraSigno v)
+  Z LCM::lcm(Z u, SignedDigit v)
   {
     if( (v == 0) || (u.esCero()) ){
       return Z::Zero;

@@ -8,6 +8,7 @@
 #include "qtunit/TestCase.h"
 #include <string>
 #include "Potencia.h"
+#include <pari/pari.h>
 
 using namespace mpplas;
 
@@ -23,15 +24,23 @@ namespace com_uwyn_qtunit{
 
     protected:
     /* The actual tests */
-    void testMontgomeryPrecomp();
-    void testMontgomeryReduction();
 
-    void testBarrettPrecomp();
-    void testBarrettReduction();
+    void testSlidingWindowExp();
+    void testSlidingWindowExpR();
+    void testExpLeftRight();
+    void testExpMontgomery();
+    void testExpBarrett();
 
-    void testALaMersenneReduction();
+    private:
+    Z _base;
+    R _baseR;
+    Z _expZ;
+    SignedDigit _exp;
+    Funciones* const funcs;
+    Random* rnd;
+    GenPrimos* primes;
 
-    void testClassicMontgomeryInverse();
+    GEN x,y,Y,m;
 
   };
 }

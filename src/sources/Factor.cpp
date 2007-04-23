@@ -6,7 +6,7 @@
 #include <set> //para set de metodo SQUFOF
 #include "Factor.h"
 #include "Funciones.h"
-#include "constantes.h"
+#include "constants.h"
 #include "Primos.h"
 #include "GCD.h"
 #include "RedModular.h"
@@ -51,9 +51,9 @@ namespace mpplas{
   //    Z P;
   //    Z g;
   //
-  //    y = Z::convertir((Cifra)2);
-  //    x = Z::convertir((Cifra)2);
-  //    x1 = Z::convertir((Cifra)2);
+  //    y = Z::convertir((Digit)2);
+  //    x = Z::convertir((Digit)2);
+  //    x1 = Z::convertir((Digit)2);
   // 
   //    k = 1; l = 1; c= 0;
   //    P.hacerUno();
@@ -64,7 +64,7 @@ namespace mpplas{
   //    c++;
   //    if ( c == 20 ){
   //      g = gcd->gcd(P, *n);
-  //      if ( g > (Cifra)1 )
+  //      if ( g > (Digit)1 )
   //        goto p4;
   //      else{
   //        y = x;
@@ -76,7 +76,7 @@ namespace mpplas{
   //    if( k )
   //      goto p2;
   //    g = gcd->gcd(P, *n);
-  //    if ( g > (Cifra)1 )
+  //    if ( g > (Digit)1 )
   //      goto p4;
   //    else{
   //      x1 = x;
@@ -96,7 +96,7 @@ namespace mpplas{
   //      y.cuadrado(); y++;
   //      reduccion->redBarrett(&y, *n, mu);
   //      g = gcd->gcd(x1-y, *n);
-  //    } while( g == (Cifra)1);
+  //    } while( g == (Digit)1);
   //
   //    if( g < (*n ))
   //      factores->push_back(g);
@@ -132,7 +132,7 @@ namespace mpplas{
 //    Z c;
 //    c = abs(C);
 //
-//    if (B < (Cifra)0){
+//    if (B < (Digit)0){
 //      B.cambiarSigno();
 //      A.cambiarSigno();
 //      C.cambiarSigno();
@@ -140,7 +140,7 @@ namespace mpplas{
 //    
 //    while ( (B <= abs(d - (abs(A) << 1))) || (B > d) ) {
 //      // pag 257 cohen, def 5.6.2  (negada por el while)
-//      if (B < (Cifra)0){
+//      if (B < (Digit)0){
 //        B.cambiarSigno();
 //        A.cambiarSigno();
 //        C.cambiarSigno();
@@ -177,7 +177,7 @@ namespace mpplas{
 //                           //que duplicar los primos de la factorización
 //                           //de éste
 //      
-//    for(size_t iteraciones = 0; iteraciones < Constantes::COTA_FACTORIZACION_SQUFOF; iteraciones++){
+//    for(size_t iteraciones = 0; iteraciones < Constants::COTA_FACTORIZACION_SQUFOF; iteraciones++){
 //      //1
 //      if( test->esPrimo(*n) ){
 //        factores->push_back(*n);
@@ -199,14 +199,14 @@ namespace mpplas{
 //      if( ((*n)[0] & 0x3) == 1 ){ // n = 1 (mod 4)
 //        // D = n
 //        d = raizCuadrada(D);
-//        b = d; b--; b[0] &= (Constantes::CIFRA_MAX-1); b++; // b = 2*floor((d-1)/2) + 1
+//        b = d; b--; b[0] &= (Constants::CIFRA_MAX-1); b++; // b = 2*floor((d-1)/2) + 1
 //                  //^^^^^^^^^^^^^^^^^^^^^^//
 //                  //  para hacer "b" par  //
 //      }
 //      else{
 //        D <<= 2; // D = 4n
 //        d = raizCuadrada(D);
-//        b = d; b[0] &= (Constantes::CIFRA_MAX-1); // b = 2*floor(d/2) 
+//        b = d; b[0] &= (Constants::CIFRA_MAX-1); // b = 2*floor(d/2) 
 //      }
 //      a.hacerUno();
 //      // b ya esta
@@ -272,7 +272,7 @@ namespace mpplas{
 //      Z s;
 //      s = gcd->gcd(B,D);
 //      s = gcd->gcd(a, s); // s = gcd(raiz, B, D)
-//      if( s > (Cifra)1 ){
+//      if( s > (Digit)1 ){
 //        // s^2 es factor 
 //        factores->push_back(s);
 //        factores->push_back(s);
@@ -338,8 +338,8 @@ namespace mpplas{
     Z mu = reduccion->precomputaciones(*n);
     GCD* gcd;funcs->getFunc(gcd);
     TestPrimoProb* test; funcs->getFunc(test);
-    Z a((Cifra)2);
-    Z b((Cifra)2);
+    Z a((Digit)2);
+    Z b((Digit)2);
     Z d;
 //    size_t numFactoresIni = factores->size();
 
@@ -348,7 +348,7 @@ namespace mpplas{
       return true;
     }
     size_t iteraciones = 0;
-    while(++iteraciones <= Constantes::COTA_FACTORIZACION_RHO){
+    while(++iteraciones <= Constants::COTA_FACTORIZACION_RHO){
       a.cuadrado();
       a++;
       reduccion->redBarrett(&a,*n,mu);
@@ -362,7 +362,7 @@ namespace mpplas{
 
       d = gcd->gcd( a - b, *n );
 
-      if( (d > (Cifra)1) && (d < (*n)) ){
+      if( (d > (Digit)1) && (d < (*n)) ){
         factores->push_back(d);
         (*n) /= d;
         if( test->esPrimo(*n) ){
@@ -394,7 +394,7 @@ namespace mpplas{
   //    Z G;
   //    size_t r,k,m;
   //    r=1; m = 1;
-  //    x0 = Z::convertir((Cifra)2); y = x0;
+  //    x0 = Z::convertir((Digit)2); y = x0;
   //    q.hacerUno();
   //
   //    do{
@@ -447,9 +447,9 @@ namespace mpplas{
   //    MiVec<Z> factores; factores.clear();
   //    Z n(num);
   //    Z x;
-  //    x = Z::convertir((Cifra)5); 
+  //    x = Z::convertir((Digit)5); 
   //    Z xPrima;
-  //    xPrima = Z::convertir((Cifra)2); 
+  //    xPrima = Z::convertir((Digit)2); 
   //    Z k; k.hacerUno();
   //    Z l; l.hacerUno();
   //    RedBarrett* reduccion = funcs.getBarrettReduction();
@@ -480,7 +480,7 @@ namespace mpplas{
   //
   //        if( g == n )
   //          abort();
-  //        else if( g > (Cifra)1 ){
+  //        else if( g > (Digit)1 ){
   //          factores.push_back(g);
   //          n /= g;
   //          mu = reduccion->precomputaciones(n);
@@ -519,7 +519,7 @@ namespace mpplas{
     //pag. 364 Knuth
     
     if( n->esUno() ){
-      factores->push_back( Z((Cifra)1) );
+      factores->push_back( Z((Digit)1) );
       return true;
     }
 
@@ -529,20 +529,20 @@ namespace mpplas{
     size_t doses = n->numDoses();
     if(doses){
       (*n) >>= doses;
-      factores->insert(factores->end(), doses, Z((Cifra)2));
+      factores->insert(factores->end(), doses, Z((Digit)2));
     }
 
     Z q,r;
     size_t i = 1; //empezar en el 3, no en el 2 (ya se han quitado)
-    while( i < Constantes::COTA_FACTORIZACION_TRIAL ){
-      divMod( *n, Constantes::TABLA_PRIMOS_2000[i], &q, &r );
+    while( i < Constants::COTA_FACTORIZACION_TRIAL ){
+      divMod( *n, Constants::TABLA_PRIMOS_2000[i], &q, &r );
       if( r.esCero() ){
-        factores->push_back(Z(Constantes::TABLA_PRIMOS_2000[i]));
+        factores->push_back(Z(Constants::TABLA_PRIMOS_2000[i]));
         (*n) = q;
         if( n->esUno() ) return true;
       }
       else{ // r != 0
-        if( q <= Constantes::TABLA_PRIMOS_2000[i] ){
+        if( q <= Constants::TABLA_PRIMOS_2000[i] ){
           factores->push_back(*n);
           return true;
         }

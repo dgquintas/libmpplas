@@ -3,9 +3,9 @@
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
-PROJECT_NAME           = "Librería NumTh"
+PROJECT_NAME           = "MultiPrecision Parallel Linear Algebra System (MPPLAS)"
 PROJECT_NUMBER         = 
-OUTPUT_DIRECTORY       = /home/dgquintas/libnumth/svn/doc/
+OUTPUT_DIRECTORY       = /home/dgquintas/libmpplas/trunk/docV2/html/
 CREATE_SUBDIRS         = YES
 OUTPUT_LANGUAGE        = English
 USE_WINDOWS_ENCODING   = NO
@@ -27,7 +27,7 @@ TAB_SIZE               = 2
 ALIASES                = 
 OPTIMIZE_OUTPUT_FOR_C  = NO
 OPTIMIZE_OUTPUT_JAVA   = NO
-BUILTIN_STL_SUPPORT    = NO
+BUILTIN_STL_SUPPORT    = YES
 DISTRIBUTE_GROUP_DOC   = NO
 SUBGROUPING            = YES
 #---------------------------------------------------------------------------
@@ -38,7 +38,7 @@ EXTRACT_PRIVATE        = YES
 EXTRACT_STATIC         = YES
 EXTRACT_LOCAL_CLASSES  = YES
 EXTRACT_LOCAL_METHODS  = YES
-HIDE_UNDOC_MEMBERS     = NO
+HIDE_UNDOC_MEMBERS     = YES
 HIDE_UNDOC_CLASSES     = NO
 HIDE_FRIEND_COMPOUNDS  = NO
 HIDE_IN_BODY_DOCS      = NO
@@ -72,15 +72,13 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = /home/dgquintas/libnumth/svn/src/sources/ \
-                         /home/dgquintas/libnumth/svn/src/sources/nucleo/ \
-                         /home/dgquintas/libnumth/svn/src/headers/
-FILE_PATTERNS          = 
-RECURSIVE              = YES
-EXCLUDE                = /home/dgquintas/libnumth/svn/src/sources/tests/ \
-                         /home/dgquintas/libnumth/svn/src/sources/ui/ \
-                         /home/dgquintas/libnumth/svn/src/sources/build/ \
-                         /home/dgquintas/libnumth/svn/src/sources/nucleo/pruebaPPC.cpp
+INPUT                  = /home/dgquintas/libmpplas/trunk/src/sources/nucleo/ \
+                         /home/dgquintas/libmpplas/trunk/src/sources/ \
+                         /home/dgquintas/libmpplas/trunk/src/headers/
+FILE_PATTERNS          = *.cpp \
+                         *.h
+RECURSIVE              = NO
+EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = test*
 EXAMPLE_PATH           = 
@@ -200,9 +198,9 @@ PERL_PATH              = /usr/bin/perl
 #---------------------------------------------------------------------------
 # Configuration options related to the dot tool   
 #---------------------------------------------------------------------------
-CLASS_DIAGRAMS         = YES
+CLASS_DIAGRAMS         = NO
 HIDE_UNDOC_RELATIONS   = NO
-HAVE_DOT               = YES
+HAVE_DOT               = NO
 CLASS_GRAPH            = YES
 COLLABORATION_GRAPH    = YES
 GROUP_GRAPHS           = YES

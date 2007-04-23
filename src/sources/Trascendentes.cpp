@@ -26,7 +26,7 @@ namespace mpplas{
     }
 
     
-    for(Cifra i=1; ; i++ ){
+    for(Digit i=1; ; i++ ){
       acum *= x;
       acum /= i;
       resultAntes = result;
@@ -46,7 +46,7 @@ namespace mpplas{
     R acum;
     acum.hacerUno();
     
-    for(Cifra i=1; ; i++ ){
+    for(Digit i=1; ; i++ ){
       acum /= i;
       resultAntes = result;
       result += acum;
@@ -67,7 +67,7 @@ namespace mpplas{
 
     R result; result.hacerCero();
     R dos;
-    dos = R((Cifra)2);
+    dos = R((Digit)2);
 
     if( x < dos ){
       R xMenosUno = x-1;
@@ -81,7 +81,7 @@ namespace mpplas{
       acum = (xMenosUno/xMasUno);
       R xMenosUnoEntreXMasUno2= acum^2;
 
-      Cifra i;
+      Digit i;
       for(i=1; ; i+=2){
         resultAntes = result;
         result += (acum/i);
@@ -144,11 +144,11 @@ namespace mpplas{
     R result; result.hacerCero();
     R resultAntes;
 
-    R xMasUno = R((Cifra)3);
+    R xMasUno = R((Digit)3);
     acum = (xMenosUno/xMasUno);
     R xMenosUnoEntreXMasUno2= acum^2;
 
-    Cifra i;
+    Digit i;
     for(i=1; ; i+=2){
       resultAntes = result;
       result += (acum/i);
@@ -199,7 +199,7 @@ namespace mpplas{
     R signo; signo.hacerUno(); signo.cambiarSigno();
     R xCuad = xRed^2;
     
-    for(Cifra i=1; ; i+=2 ){
+    for(Digit i=1; ; i+=2 ){
       acum *= xCuad;
       acum /= i; acum /= (i+1);
       resultAntes = result;
@@ -218,13 +218,13 @@ namespace mpplas{
     R result,resultAntes; 
     
     //FIXME comprobar el valor absoluto de x
-    if( x < R((Cifra)1) ){
+    if( x < R((Digit)1) ){
       acum = x;
       R signo; signo.hacerUno(); signo.cambiarSigno();
       R xCuad = x^2;
       result = x;
 
-      for(Cifra i=3; ; i+=2 ){
+      for(Digit i=3; ; i+=2 ){
         acum *= xCuad;
         resultAntes = result;
         result += ((acum/i) * signo);
@@ -253,8 +253,8 @@ namespace mpplas{
     size_t precisionVieja=0;
     if( prec ){
       precisionVieja = R::precision();
-      R::precision( (size_t)(prec * Constantes::LOG_2_10) +1 );
-//      cout << (size_t)(prec * Constantes::LOG_2_10) +1 << endl;
+      R::precision( (size_t)(prec * Constants::LOG_2_10) +1 );
+//      cout << (size_t)(prec * Constants::LOG_2_10) +1 << endl;
     }
     R unQuinto; unQuinto.hacerUno(); unQuinto /= 5;
 //    cout << unQuinto << endl;

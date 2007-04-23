@@ -5,7 +5,7 @@
 #ifndef __NUCLEO_H
 #define __NUCLEO_H
 
-#include "constantes.h"
+#include "constants.h"
 #include "err.h"
 #include <cstring>
 #include <ctime>
@@ -17,20 +17,20 @@ namespace mpplas{
   namespace vCPUBasica{
 
 
-    /** Suma básica de dos Cifras
+    /** Basic summation of two Digits
      *
-     * \par Definición:
+     * \par Definition:
      *   \f$ Add(a,b) + (overflow \cdot BASE) = a + b \f$
      *   con \f$ overflow \in \{0,1\} \f$
      * 
-     * @param arg1 Primer sumando
-     * @param arg2 Segundo sumando
+     * @param arg1 First addend
+     * @param arg2 Second addend
      *
      * @return Parte baja de la suma de arg1 y arg2
      */
-    inline Cifra Add(Cifra arg1, Cifra arg2, Cifra& overflow) ;
+    inline Digit Add(Digit arg1, Digit arg2, Digit& overflow) ;
     
-    /** Suma básica extendida de dos Cifras
+    /** Suma básica extendida de dos Digits
      *
      * Esta función tiene en cuenta el valor
      * de @e overflow presente en el momento de llamar a la funcion.
@@ -46,10 +46,10 @@ namespace mpplas{
      *
      * @return Parte baja de la suma de arg1, arg2 y overflow inicial
      */
-    inline Cifra Addx(Cifra arg1, Cifra arg2, Cifra& overflow);
+    inline Digit Addx(Digit arg1, Digit arg2, Digit& overflow);
 
 
-    /** Resta básica de dos Cifras
+    /** Resta básica de dos Digits
      *
      * El significado de @e overflow en esta función no sería correcto
      * como tal, ya que se trata más bien de un desbordamiento "por
@@ -64,9 +64,9 @@ namespace mpplas{
      *
      * @return Resta de arg1 y arg2 
      */
-    inline Cifra Sub(Cifra arg1, Cifra arg2, Cifra& overflow);
+    inline Digit Sub(Digit arg1, Digit arg2, Digit& overflow);
 
-    /** Resta básica extendida de dos Cifras
+    /** Resta básica extendida de dos Digits
      *
      * Esta función tiene en cuenta el valor
      * de @e overflow presente en el momento de llamar a la funcion.
@@ -84,9 +84,9 @@ namespace mpplas{
      */
     /* Subx(a,b) + (base·overflow) = a - b - overflow_ini 
      * overflow = {0,1} */
-      inline Cifra Subx(Cifra arg1, Cifra arg2, Cifra& overflow);
+      inline Digit Subx(Digit arg1, Digit arg2, Digit& overflow);
       
-    /** Producto de dos Cifras
+    /** Producto de dos Digits
      *
      * \par Definición:
      *   \f$ Mul(a,b) = {a \cdot b} \bmod {BASE} \f$ \n
@@ -100,9 +100,9 @@ namespace mpplas{
      */
     /* c = mul(a,b)
      * Dejando resto = parte alta del resultado */
-    inline  Cifra Mul(Cifra arg1,Cifra arg2, Cifra& overflow);
+    inline  Digit Mul(Digit arg1,Digit arg2, Digit& overflow);
 
-    /** Producto de dos Cifras con suma.
+    /** Producto de dos Digits con suma.
      * 
      * Suma al producto de @e arg1 por @e arg2 el contenido de @e resto, devolviendo
      *  los @e BITS_EN_CIFRA de la parte baja del resultado y almacenando en @e resto
@@ -122,9 +122,9 @@ namespace mpplas{
      * Suma al producto de a por b el contenido de resto, devolviendo
      los BITS_EN_CIFRA de la parte baja del resultado y almacenando en 
      resto la parte alta. */
-    inline Cifra Addmul(Cifra arg1,Cifra arg2, Cifra& resto) ;
+    inline Digit Addmul(Digit arg1,Digit arg2, Digit& resto) ;
 
-    /** Cociente y resto de dos Cifras.
+    /** Cociente y resto de dos Digits.
      *
      * Realiza la división entera del entero de "doble precisión"
      * formado por la concatenación de @e resto y @e arg1 entre @e arg2, obteniendo
@@ -144,11 +144,11 @@ namespace mpplas{
     /* c = div(a, b) 
      * Dejando el resto de la división de (resto:a / b) en resto. 
      * Se asume que inicialmente b > resto. */
-    inline Cifra Div(Cifra arg1, Cifra arg2, Cifra& resto);
+    inline Digit Div(Digit arg1, Digit arg2, Digit& resto);
 
     /** Desplazamiento de bits a la izquierda.
      *
-     * Desplaza una Cifra una cantidad de bits a la izquierda. Esto es
+     * Desplaza una Digit una cantidad de bits a la izquierda. Esto es
      * análogo a la multiplicación por una potencia de 2 igual al número
      * de posiciones desplazadas.
      *
@@ -166,7 +166,7 @@ namespace mpplas{
      */
     /* c = shiftl(a, b) 
      * Dejando en resto los la parte alta. Se asume que 0 <= b < lg2 B. */
-     inline Cifra Shiftl(Cifra arg1,Cifra arg2, Cifra& resto) ;
+     inline Digit Shiftl(Digit arg1,Digit arg2, Digit& resto) ;
    
     
     /** Desplazamiento de bits a la derecha.
@@ -190,7 +190,7 @@ namespace mpplas{
     /* c = shiftlr(a, b) 
      * devuelve en c los BITS_EN_CIFRA de la parte alta de a << BITS_EN_CIFRA entre 2^b y
      almacena en resto los BITS_EN_CIFRA de la parte baja. Se asume que 0 <= b < lg2 B.*/
-    inline Cifra Shiftlr(Cifra arg1,Cifra arg2, Cifra& resto) ;
+    inline Digit Shiftlr(Digit arg1,Digit arg2, Digit& resto) ;
  
     
     /** Encabezado de ceros.
@@ -198,6 +198,8 @@ namespace mpplas{
      * Devuelve en el número de ceros binarios a la izquierda del primer uno.
      *  Esto es, el número de posiciones que habria que desplazar el número binario
      *  hacia la izquierda para que su cifra más significativa fuera 1. 
+     *
+     *  Acronim of "Bit Field Find First One set"
      *
      * \par Definición:
      *    Bfffo(a) = Menor natural \f$ n \f$ tal que \f$ a \cdot
@@ -210,9 +212,10 @@ namespace mpplas{
     /* c = Bfffo(a) devuelve en c el número de ceros binarios a la izquierda del primer uno.
        Esto es, el número de posiciones que habria que desplazar el número binario
        hacia la izquierda para que su cifra más significativa fuera 1. */
-    inline Cifra Bfffo(Cifra arg1) __FUNC_CONST_ATTRIB;
+    inline Digit Bfffo(Digit arg1) __FUNC_CONST_ATTRIB;
 
 
+    inline void stats() {};
 
 #ifdef ARCH_x86
   #include "nucleox86.h"
@@ -246,12 +249,12 @@ namespace mpplas{
 
 
 //    protected:
-    /** Cifra que representa el acarreo en las operaciones de suma y
+    /** Digit que representa el acarreo en las operaciones de suma y
      * resta. */
-//    Cifra overflow; 
+//    Digit overflow; 
 
     /** 
-     * Cifra que representa:
+     * Digit que representa:
      * <ul>
      * <li> Parte alta del resultado de una multiplicación
      * <li> Parte alta del dividendo previamente a la división
@@ -260,7 +263,7 @@ namespace mpplas{
      * <li> Parte alta tras un desplazamiento hacia la derecha
      * </ul>
      */
-//    Cifra resto;
+//    Digit resto;
  
   
 }

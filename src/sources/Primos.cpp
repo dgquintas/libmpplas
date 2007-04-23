@@ -26,7 +26,7 @@ namespace mpplas{
     funcs->getFunc(gcd);
     RandomRapido* rnd; funcs->getFunc(rnd);
     
-    if( p == (Cifra)2 ){
+    if( p == (Digit)2 ){
       return true;
     }
     
@@ -53,7 +53,7 @@ namespace mpplas{
           (*testigo) = z;
         }
         else{
-          z = Z(Constantes::TABLA_PRIMOS_2000[i]);
+          z = Z(Constants::TABLA_PRIMOS_2000[i]);
           if( z.esCero() ) {
             // ya que eso quiere decir que son el mismo número( p | z,
             // con z primo => p = z ), y al ser z un primo, p será también primo.
@@ -87,10 +87,10 @@ namespace mpplas{
       }
 
       size_t cota;
-      if( p <= (Cifra)4000000 ){ // 2000^2
+      if( p <= (Digit)4000000 ){ // 2000^2
         cota = raizCuadrada(p[0]);
-        for(size_t i = 0; Constantes::TABLA_PRIMOS_2000[i] <= cota; i++){
-          if ( (!gcd->gcd(p, Constantes::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
+        for(size_t i = 0; Constants::TABLA_PRIMOS_2000[i] <= cota; i++){
+          if ( (!gcd->gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
             return false;
           }
         }
@@ -104,7 +104,7 @@ namespace mpplas{
       }
 
       for(size_t i = 0; i < cota; i++){
-        if ( (!gcd->gcd(p, Constantes::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
+        if ( (!gcd->gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
           return false;
         }
       }
@@ -161,13 +161,13 @@ namespace mpplas{
           //de iteraciones asi de grande
           z = rnd->leerBits( std::min((size_t)16,p.numBits()-1) );
         else
-          z = Z(Constantes::TABLA_PRIMOS_2000[i]);
+          z = Z(Constants::TABLA_PRIMOS_2000[i]);
 
         z ^= m;
 
         if( (!z.esUno()) && ( z != pMenosUno) ){
           for(size_t j = 0; (j < b) && (z != pMenosUno) ; j++ ){
-            z ^= (Cifra)2; //FIXME
+            z ^= (Digit)2; //FIXME
             if( z.esUno() ) //ya que no cambiará aun en los cuadrados sucesivos...
               return false;
           }
@@ -187,7 +187,7 @@ namespace mpplas{
   
 
 
-  bool TMersenneLucasLehmer::esPrimo(const CifraSigno p) 
+  bool TMersenneLucasLehmer::esPrimo(const SignedDigit p) 
   {
     /*
     Lucas_Lehmer_Test(p):
@@ -206,11 +206,11 @@ namespace mpplas{
     if( !primTest->esPrimo(Z(p)) )
       return false;
     
-    Z s((Cifra)4);
+    Z s((Digit)4);
     
-    for(CifraSigno i = 3; i <= p; i++){
+    for(SignedDigit i = 3; i <= p; i++){
       s.cuadrado(); 
-      s -= (Cifra)2;
+      s -= (Digit)2;
       redmodmers->redModularALaMersenne(&s,p,1);
     }
     if( s.esCero() )
@@ -242,9 +242,9 @@ namespace mpplas{
     //poner a 1 los bits más y menos significativos 
     //poner a 1 el bit mas significativo hace que el nº
     //generado tenga el numero de bits especificado
-    const size_t i = (bits-1) / Constantes::BITS_EN_CIFRA;
-    const size_t j = (bits-1) % Constantes::BITS_EN_CIFRA;
-    const Cifra mascara = (1U << j);
+    const size_t i = (bits-1) / Constants::BITS_EN_CIFRA;
+    const size_t j = (bits-1) % Constants::BITS_EN_CIFRA;
+    const Digit mascara = (1U << j);
 
     n[i] |= mascara; //el más
     n[0] |= 0x1;     //el menos
@@ -296,8 +296,8 @@ namespace mpplas{
     TestPrimoProb* test; funcs->getFunc(test);
 
     //caso especial
-    if( comienzo == (Cifra)2 )
-      return Z((Cifra)3);
+    if( comienzo == (Digit)2 )
+      return Z((Digit)3);
     
     Z n = comienzo;
     if( comienzo.esPar() ){
@@ -370,7 +370,7 @@ namespace mpplas{
 
     Z p,p0;
     PotModular *potModular; funcs->getFunc(potModular);
-    p0 = potModular->potModular(s,r-(Cifra)2, r);
+    p0 = potModular->potModular(s,r-(Digit)2, r);
     p0 *= s; p0 <<= 1; p0--;
     
     Z dosRS = r*s; dosRS <<= 1;

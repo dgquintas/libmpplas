@@ -27,7 +27,7 @@ namespace mpplas
   //////////////////////////////////////////////
 
   MatrixDouble operator-(MatrixDouble m){
-//    m *= ((CifraSigno)-1);
+//    m *= ((SignedDigit)-1);
     return m;
   }
 

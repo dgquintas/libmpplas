@@ -4,7 +4,7 @@
 
 /************************ Z.h ***************************************
  * Cabecera que define el tipo de dato para un número entero.       *
- * El 'token' básico será el tipo 'Cifra' definido en el núcleo.    *
+ * El 'token' básico será el tipo 'Digit' definido en el núcleo.    *
  * *****************************************************************/
 
 #ifndef __Z_H
@@ -14,7 +14,7 @@
 #include <string>
 #include "MiVec.h"
 #include "err.h"
-#include "constantes.h"
+#include "constants.h"
 
 namespace mpplas
 {
@@ -30,13 +30,13 @@ namespace mpplas
       Z( const Z& otro); /**< Constructor de copia.
                            @param otro Entero a copiar. */
 
-      explicit Z( const CifraSigno ); /**< construccion desde simple precision */
-      Z( const Cifra ); /**< construccion desde 'token' básico */
+      explicit Z( const SignedDigit ); /**< construccion desde simple precision */
+      Z( const Digit ); /**< construccion desde 'token' básico */
       explicit Z( const double ); /**< construccion desde double  */
       explicit Z( const char* ); /**< construccion desde cadena de caracteres */
       explicit Z(const std::string& str); /**< construction from a std::string */
 
-      Z( const MiVec<Cifra>& vec);
+      Z( const MiVec<Digit>& vec);
 
       ////////////////////////////////
       //   OPERADORES DE CONVERSION //
@@ -47,7 +47,7 @@ namespace mpplas
       //Estas funciones no son amigas de class Z por lo expuesto
       //en stroustrup 11.3.1 (pag 282)
 
-      /** Función de conversión de tipo Cifra a Z (entero).
+      /** Función de conversión de tipo Digit a Z (entero).
        *
        *  @par Complejidad:
        *       \f$O(1)\f$
@@ -56,7 +56,7 @@ namespace mpplas
        *
        *  @return El entero correspondiente a la conversión.
        */
-//      static Z convertir(const Cifra numSimple);
+//      static Z convertir(const Digit numSimple);
 
 
       /** Función de conversión de tipo long a Z (entero).
@@ -68,7 +68,7 @@ namespace mpplas
        *
        *  @return El entero correspondiente a la conversión.
        */
-//      static Z convertir(const CifraSigno numSimple);
+//      static Z convertir(const SignedDigit numSimple);
 
 
       /** Función de conversión de tipo cadena de caracteres a Z (entero).
@@ -99,17 +99,17 @@ namespace mpplas
        */
 //      static Z convertir(const double numFlotante);
 
-      /** Función de conversión de tipo MiVec<Cifra> a Z (entero).
+      /** Función de conversión de tipo MiVec<Digit> a Z (entero).
        *
        *  @par Complejidad:
        *       \f$O(1)\f$
        * 
-       *  @param vec Vector de Cifra 's representando un entero
-       *  positivo en base sizeof(Cifra)*8 
+       *  @param vec Vector de Digit 's representando un entero
+       *  positivo en base sizeof(Digit)*8 
        *
        *  @return El entero correspondiente a la conversión.
        */
-//      static Z convertir(const MiVec<Cifra>& vec);
+//      static Z convertir(const MiVec<Digit>& vec);
 
 
       /** Operador de asignación desde Z.
@@ -124,7 +124,7 @@ namespace mpplas
       Z& operator=(const Z& origen);
 
 
-      /** Operador de asignación desde Cifra.
+      /** Operador de asignación desde Digit.
        *
        *  @par Complejidad:
        *       \f$O(1)\f$
@@ -133,7 +133,7 @@ namespace mpplas
        *
        * @return Referencia a *this 
        */
-      Z& operator=(const Cifra origenSimple);
+      Z& operator=(const Digit origenSimple);
 
       
       //////////////////////////////
@@ -336,39 +336,39 @@ namespace mpplas
       bool esCuadrado(Z* raiz = NULL);
       
       /** Versión de precisión simple de suma. @sa operator+=(const Z&)*/
-      Z& operator+=(const CifraSigno); 
+      Z& operator+=(const SignedDigit); 
       /** Versión de precisión simple de resta. @sa operator-=(const Z&)*/
-      Z& operator-=(const CifraSigno); 
+      Z& operator-=(const SignedDigit); 
       /** Versión de precisión simple de multiplicacion. @sa operator*=(const Z&)*/
-      Z& operator*=(const CifraSigno); 
+      Z& operator*=(const SignedDigit); 
       /** Versión de precisión simple de división. @sa operator/=(const Z&)*/
-      Z& operator/=(const CifraSigno); 
+      Z& operator/=(const SignedDigit); 
       /** Versión de precisión simple de resto. @sa operator%=(const Z&)*/
-      Z& operator%=(const CifraSigno); 
+      Z& operator%=(const SignedDigit); 
       /** Versión de precisión simple de AND. @sa operator&=(const Z&)*/
-      Z& operator&=(const CifraSigno);
+      Z& operator&=(const SignedDigit);
       /** Versión de precisión simple de OR. @sa operator|=(const Z&)*/
-      Z& operator|=(const CifraSigno);
+      Z& operator|=(const SignedDigit);
       /** Versión de precisión simple de XOR. @sa XOR(const Z&)*/
-      Z& XOR(const CifraSigno);
+      Z& XOR(const SignedDigit);
       
       
       /** Versión de precisión simple de suma. @sa operator+=(const Z&)*/
-      Z& operator+=(const Cifra); 
+      Z& operator+=(const Digit); 
       /** Versión de precisión simple de resta. @sa operator-=(const Z&)*/
-      Z& operator-=(const Cifra); 
+      Z& operator-=(const Digit); 
       /** Versión de precisión simple de multiplicacion. @sa operator*=(const Z&)*/
-      Z& operator*=(const Cifra); 
+      Z& operator*=(const Digit); 
       /** Versión de precisión simple de división. @sa operator/=(const Z&)*/
-      Z& operator/=(const Cifra); 
+      Z& operator/=(const Digit); 
       /** Versión de precisión simple de resto. @sa operator%=(const Z&)*/
-      Z& operator%=(const Cifra); 
+      Z& operator%=(const Digit); 
       /** Versión de precisión simple de AND. @sa operator&=(const Z&)*/
-      Z& operator&=(const Cifra);
+      Z& operator&=(const Digit);
       /** Versión de precisión simple de OR. @sa operator|=(const Z&)*/
-      Z& operator|=(const Cifra);
+      Z& operator|=(const Digit);
       /** Versión de precisión simple de XOR. @sa XOR(const Z&)*/
-      Z& XOR(const Cifra);
+      Z& XOR(const Digit);
 
 
       //////////////////////////////////
@@ -389,7 +389,7 @@ namespace mpplas
        * CIFRA_MAX )
        *
        * \note
-       * Esta función invoca a la versión con argumento Cifra. En
+       * Esta función invoca a la versión con argumento Digit. En
        * cualquier caso, depende de la implementación particular de la
        * clase Potencia accesible mediante la clase Funciones.
        * 
@@ -397,7 +397,7 @@ namespace mpplas
       Z& operator^=(const Z& exp); 
        /** Operador de potenciación acumulada.
        *
-       * @param exp Dato Cifra reprensentado el exponente al que elevar.
+       * @param exp Dato Digit reprensentado el exponente al que elevar.
        *
        * @return *this, instancia de la clase actual tras elevarla a
        * exp.
@@ -408,11 +408,11 @@ namespace mpplas
        * Esta función depende de la implementación particular de la
        * clase Potencia accesible mediante la clase Funciones.
        */
-      Z& operator^=(Cifra exp); 
+      Z& operator^=(Digit exp); 
 
       /** Operador de potenciación acumulada.
        *
-       * @param exp Dato CifraSigno reprensentado el exponente al que elevar.
+       * @param exp Dato SignedDigit reprensentado el exponente al que elevar.
        *
        * @return *this, instancia de la clase actual tras elevarla a
        * exp.
@@ -424,12 +424,12 @@ namespace mpplas
        * representa el exponente exp es negativo.
        *
        * \note
-       * Esta función invoca a la versión con argumento Cifra. En
+       * Esta función invoca a la versión con argumento Digit. En
        * cualquier caso, depende de la implementación particular de la
        * clase Potencia accesible mediante la clase Funciones.
        * 
        */
-      Z& operator^=(CifraSigno exp); 
+      Z& operator^=(SignedDigit exp); 
 
       /////////////////////////////////
       //   OPERADORES DE COMPARACION //
@@ -539,7 +539,7 @@ namespace mpplas
        *      \f$O(1)\f$
        * 
        * @sa operator>(const Z&) const*/
-      bool operator>(const CifraSigno der) const;  
+      bool operator>(const SignedDigit der) const;  
       
      
       /** Versión de precisión simple de "Menor que"
@@ -548,7 +548,7 @@ namespace mpplas
        *      \f$O(1)\f$
        * 
        * @sa operator<(const Z&) const*/
-     bool operator<(const CifraSigno der) const;
+     bool operator<(const SignedDigit der) const;
 
      
      /** Versión de precisión simple de "Igual"
@@ -557,7 +557,7 @@ namespace mpplas
        *      \f$O(1)\f$
        * 
        * @sa operator==(const Z&) const*/
-     bool operator==(const CifraSigno der) const;
+     bool operator==(const SignedDigit der) const;
       
      
      /** Versión de precisión simple de "Distinto"
@@ -566,7 +566,7 @@ namespace mpplas
        *      \f$O(1)\f$
        * 
        * @sa operator!=(const Z&) const*/
-     bool operator!=(const CifraSigno der) const;
+     bool operator!=(const SignedDigit der) const;
      
      
      /** Versión de precisión simple de "Mayor o igual que"
@@ -575,7 +575,7 @@ namespace mpplas
        *      \f$O(1)\f$
        * 
        * @sa operator>=(const Z&) const*/
-     bool operator>=(const CifraSigno der) const;
+     bool operator>=(const SignedDigit der) const;
      
      
      /** Versión de precisión simple de "Menor o igual que"
@@ -584,7 +584,7 @@ namespace mpplas
        *      \f$O(1)\f$
        * 
        * @sa operator<=(const Z&) const*/
-     bool operator<=(const CifraSigno der) const;
+     bool operator<=(const SignedDigit der) const;
 
      
      /** Versión de precisión simple de "Mayor que"
@@ -593,7 +593,7 @@ namespace mpplas
        *      \f$O(1)\f$
        * 
        * @sa operator>(const Z&) const*/
-     bool operator>(const Cifra der) const;
+     bool operator>(const Digit der) const;
      
      
      /** Versión de precisión simple de "Menor que"
@@ -602,7 +602,7 @@ namespace mpplas
        *      \f$O(1)\f$
        * 
        * @sa operator<(const Z&) const*/
-     bool operator<(const Cifra der) const;
+     bool operator<(const Digit der) const;
      
      
      /** Versión de precisión simple de "Igual"
@@ -611,7 +611,7 @@ namespace mpplas
        *      \f$O(1)\f$
        * 
        * @sa operator==(const Z&) const*/
-     bool operator==(const Cifra der) const;
+     bool operator==(const Digit der) const;
      
      
      /** Versión de precisión simple de "Distinto"
@@ -620,7 +620,7 @@ namespace mpplas
        *      \f$O(1)\f$
        * 
        * @sa operator!=(const Z&) const*/
-     bool operator!=(const Cifra der) const;
+     bool operator!=(const Digit der) const;
      
      
      /** Versión de precisión simple de "Mayor o igual que"
@@ -629,7 +629,7 @@ namespace mpplas
        *      \f$O(1)\f$
        * 
        * @sa operator>=(const Z&) const*/
-     bool operator>=(const Cifra der) const;
+     bool operator>=(const Digit der) const;
      
      
      /** Versión de precisión simple de "Menor o igual que"
@@ -638,7 +638,7 @@ namespace mpplas
        *      \f$O(1)\f$
        * 
        * @sa operator<=(const Z&) const*/
-     bool operator<=(const Cifra der) const;
+     bool operator<=(const Digit der) const;
 
 
      
@@ -711,7 +711,7 @@ namespace mpplas
       size_t numBits(void) const;
  
       //redondeo
-      CifraSigno redondear(size_t exceso) ;
+      SignedDigit redondear(size_t exceso) ;
 
       /** Hacer cero.
        * 
@@ -1025,14 +1025,14 @@ namespace mpplas
       /** Get the Z as a single precision signed type.
        *
        * If the conversion cannot be performed (the actual Z being
-       * larger than mpplas::Constantes::CIFRASIGNO_MAX), only the first
+       * larger than mpplas::Constants::CIFRASIGNO_MAX), only the first
        * mpplas::Constructor::BITS_EN_CIFRASIGNO are considered.
        *
-       * @return A CifraSigno representing (a possibly truncated) *this.
+       * @return A SignedDigit representing (a possibly truncated) *this.
        */
-      inline CifraSigno toCifraSigno(void) throw(){
-        Cifra c = coefPoliB_[0] & (Constantes::CIFRASIGNO_MAX-1);
-        CifraSigno ret = (CifraSigno)c;
+      inline SignedDigit toSignedDigit(void) throw(){
+        Digit c = coefPoliB_[0] & (Constants::CIFRASIGNO_MAX-1);
+        SignedDigit ret = (SignedDigit)c;
         if(signo_ < 0 ){
           return -ret;
         }
@@ -1044,12 +1044,12 @@ namespace mpplas
       /** Get the Z as a single precision unsigned type.
        *
        * If the conversion cannot be performed (the actual Z being
-       * larger than mpplas::Constantes::CIFRA_MAX), only the first
+       * larger than mpplas::Constants::CIFRA_MAX), only the first
        * mpplas::Constructor::BITS_EN_CIFRA are considered.
        *
-       * @return A Cifra representing (a possibly truncated) *this.
+       * @return A Digit representing (a possibly truncated) *this.
        */
-      inline Cifra toCifra(void) throw(){
+      inline Digit toDigit(void) throw(){
         return coefPoliB_[0];
       };
 
@@ -1060,7 +1060,7 @@ namespace mpplas
       /////////////////////////////////
       //   FUNCIONES DE INFORMACIÓN  //
       /////////////////////////////////
-      /** Cifras en base BITS_EN_CIFRA 
+      /** Digits en base BITS_EN_CIFRA 
        *
        * @par Complejidad:
        *      \f$O(1)\f$
@@ -1081,7 +1081,7 @@ namespace mpplas
        * @par Complejidad:
        *      \f$O(1)\f$
        *
-       * @param i Cifra a considerar (desde 0 hasta
+       * @param i Digit a considerar (desde 0 hasta
        * \f$longitud()-1\f$).
        *
        * @return Referencia a la i-ésima cifra del entero en base 
@@ -1089,7 +1089,7 @@ namespace mpplas
        *
        */
       inline
-        Cifra& operator[](size_t i) { return coefPoliB_[i]; }
+        Digit& operator[](size_t i) { return coefPoliB_[i]; }
  
       /** Acceso constante a cifra.
        *  
@@ -1100,7 +1100,7 @@ namespace mpplas
        * @par Complejidad:
        *      \f$O(1)\f$
        *
-       * @param i Cifra a considerar (desde 0 hasta
+       * @param i Digit a considerar (desde 0 hasta
        * \f$longitud()-1\f$).
        * 
        * @return Copia de la i-ésima cifra del entero en base 
@@ -1108,7 +1108,7 @@ namespace mpplas
        *
        */
       inline
-        Cifra operator[](size_t i) const { return coefPoliB_[i]; }
+        Digit operator[](size_t i) const { return coefPoliB_[i]; }
 
       /** Signo del entero. 
        * 
@@ -1165,7 +1165,7 @@ namespace mpplas
     protected:
 
       /** Vector de coeficientes del polinomio que representa el número en base B */
-      mpplas::MiVec<Cifra> coefPoliB_; 
+      mpplas::MiVec<Digit> coefPoliB_; 
       int8_t signo_; /**< Indica el signo del numero largo representado. \n
                      Valor positivo \f$\Rightarrow\f$ entero positivo. \n
                      valor negativo \f$\Rightarrow\f$ entero negativo.
@@ -1200,40 +1200,40 @@ namespace mpplas
        */
       friend void divMod(const Z& dividendo, const Z& divisor, Z* cociente, Z* resto) 
         throw (Errors::DivisionPorCero);
-      friend void divMod(const Z& dividendo, const CifraSigno divisor, Z* cociente, Z* resto) 
+      friend void divMod(const Z& dividendo, const SignedDigit divisor, Z* cociente, Z* resto) 
         throw (Errors::DivisionPorCero);
-      friend void divMod(const Z& dividendo, const Cifra divisor, Z* cociente, Z* resto) 
+      friend void divMod(const Z& dividendo, const Digit divisor, Z* cociente, Z* resto) 
         throw (Errors::DivisionPorCero);
 
 
   };
 
   /** Versión de precisión simple con signo del operador "<" */
-  bool operator<(const CifraSigno, const Z&);
+  bool operator<(const SignedDigit, const Z&);
   /** Versión de precisión simple con signo del operador ">" */
-  bool operator>(const CifraSigno, const Z&);
+  bool operator>(const SignedDigit, const Z&);
   /** Versión de precisión simple con signo del operador "<=" */
-  bool operator<=(const CifraSigno, const Z&);
+  bool operator<=(const SignedDigit, const Z&);
   /** Versión de precisión simple con signo del operador ">=" */
-  bool operator>=(const CifraSigno, const Z&);
+  bool operator>=(const SignedDigit, const Z&);
   /** Versión de precisión simple con signo del operador "==" */
-  bool operator==(const CifraSigno, const Z&);
+  bool operator==(const SignedDigit, const Z&);
   /** Versión de precisión simple con signo del operador "!=" */
-  bool operator!=(const CifraSigno, const Z&);
+  bool operator!=(const SignedDigit, const Z&);
 
 
   /** Versión de precisión simple sin signo del operador "<" */
-  bool operator<(const Cifra, const Z&);
+  bool operator<(const Digit, const Z&);
   /** Versión de precisión simple sin signo del operador ">" */
-  bool operator>(const Cifra, const Z&);
+  bool operator>(const Digit, const Z&);
   /** Versión de precisión simple sin signo del operador "<=" */
-  bool operator<=(const Cifra, const Z&);
+  bool operator<=(const Digit, const Z&);
   /** Versión de precisión simple sin signo del operador ">=" */
-  bool operator>=(const Cifra, const Z&);
+  bool operator>=(const Digit, const Z&);
   /** Versión de precisión simple sin signo del operador "==" */
-  bool operator==(const Cifra, const Z&);
+  bool operator==(const Digit, const Z&);
   /** Versión de precisión simple sin signo del operador "!=" */
-  bool operator!=(const Cifra, const Z&);
+  bool operator!=(const Digit, const Z&);
 
   //se devuelve un objeto (y no una referencia) debido a lo
   //expuesto en stroustrup pág. 297 ultimo parrafo.
@@ -1315,74 +1315,74 @@ namespace mpplas
   Z XOR(Z a, const Z &b);
 
   /** Versión de precisión simple de operator+(Z, const Z&)*/
-  Z operator+(const CifraSigno, Z); 
+  Z operator+(const SignedDigit, Z); 
   /** Versión de precisión simple de operator-(Z, const Z&)*/
-  Z operator-(const CifraSigno, Z);
+  Z operator-(const SignedDigit, Z);
   /** Versión de precisión simple de operator*(Z, const Z&)*/
-  Z operator*(const CifraSigno, Z);
+  Z operator*(const SignedDigit, Z);
   /** Versión de precisión simple de operator/(Z, const Z&)*/
-  Z operator/(const CifraSigno, const Z&);
+  Z operator/(const SignedDigit, const Z&);
   /** Versión de precisión simple de operator%(Z, const Z&)*/
-  Z operator%(const CifraSigno, const Z&);
+  Z operator%(const SignedDigit, const Z&);
   /** Versión de precisión simple de operator&(Z, const Z&)*/
-  Z operator&(const CifraSigno, Z);
+  Z operator&(const SignedDigit, Z);
   /** Versión de precisión simple de operator|(Z, const Z&)*/
-  Z operator|(const CifraSigno, Z);
+  Z operator|(const SignedDigit, Z);
   /** Versión de precisión simple de XOR(Z, const Z&)*/
-  Z XOR(const CifraSigno, Z);
+  Z XOR(const SignedDigit, Z);
 
 
   /** Versión de precisión simple de operator+(Z, const Z&)*/
-  Z operator+(Z, const CifraSigno);
+  Z operator+(Z, const SignedDigit);
   /** Versión de precisión simple de operator-(Z, const Z&)*/
-  Z operator-(Z, const CifraSigno);
+  Z operator-(Z, const SignedDigit);
   /** Versión de precisión simple de operator*(Z, const Z&)*/
-  Z operator*(Z, const CifraSigno);
+  Z operator*(Z, const SignedDigit);
   /** Versión de precisión simple de operator/(Z, const Z&)*/
-  Z operator/(Z, const CifraSigno);
+  Z operator/(Z, const SignedDigit);
   /** Versión de precisión simple de operator%(Z, const Z&)*/
-  Z operator%(Z, const CifraSigno);
+  Z operator%(Z, const SignedDigit);
   /** Versión de precisión simple de operator&(Z, const Z&)*/
-  Z operator&(Z, const CifraSigno);
+  Z operator&(Z, const SignedDigit);
   /** Versión de precisión simple de operator|(Z, const Z&)*/
-  Z operator|(Z, const CifraSigno);
+  Z operator|(Z, const SignedDigit);
   /** Versión de precisión simple de XOR(Z, const Z&)*/
-  Z XOR(Z, const CifraSigno);
+  Z XOR(Z, const SignedDigit);
 
   /** Versión de precisión simple de operator+(Z, const Z&)*/
-  Z operator+(const Cifra, Z);
+  Z operator+(const Digit, Z);
   /** Versión de precisión simple de operator-(Z, const Z&)*/
-  Z operator-(const Cifra, Z);
+  Z operator-(const Digit, Z);
   /** Versión de precisión simple de operator*(Z, const Z&)*/
-  Z operator*(const Cifra, Z);
+  Z operator*(const Digit, Z);
   /** Versión de precisión simple de operator/(Z, const Z&)*/
-  Z operator/(const Cifra, const Z&);
+  Z operator/(const Digit, const Z&);
   /** Versión de precisión simple de operator%(Z, const Z&)*/
-  Z operator%(const Cifra, const Z&);
+  Z operator%(const Digit, const Z&);
   /** Versión de precisión simple de operator&(Z, const Z&)*/
-  Z operator&(const Cifra, Z);
+  Z operator&(const Digit, Z);
   /** Versión de precisión simple de operator|(Z, const Z&)*/
-  Z operator|(const Cifra, Z);
+  Z operator|(const Digit, Z);
   /** Versión de precisión simple de XOR(Z, const Z&)*/
-  Z XOR(const Cifra, Z);
+  Z XOR(const Digit, Z);
 
  
   /** Versión de precisión simple de operator+(Z, const Z&)*/
-  Z operator+(Z, const Cifra);
+  Z operator+(Z, const Digit);
   /** Versión de precisión simple de operator-(Z, const Z&)*/
-  Z operator-(Z, const Cifra);
+  Z operator-(Z, const Digit);
   /** Versión de precisión simple de operator*(Z, const Z&)*/
-  Z operator*(Z, const Cifra);
+  Z operator*(Z, const Digit);
   /** Versión de precisión simple de operator/(Z, const Z&)*/
-  Z operator/(Z, const Cifra);
+  Z operator/(Z, const Digit);
   /** Versión de precisión simple de operator%(Z, const Z&)*/
-  Z operator%(Z, const Cifra);
+  Z operator%(Z, const Digit);
   /** Versión de precisión simple de operator&(Z, const Z&)*/
-  Z operator&(Z, const Cifra);
+  Z operator&(Z, const Digit);
   /** Versión de precisión simple de operator|(Z, const Z&)*/
-  Z operator|(Z, const Cifra);
+  Z operator|(Z, const Digit);
   /** Versión de precisión simple de XOR(Z, const Z&)*/
-  Z XOR(Z, const Cifra);
+  Z XOR(Z, const Digit);
 
   Z operator-(Z); /**< Operator - unario: cambio de signo */
 
@@ -1402,17 +1402,17 @@ namespace mpplas
    /** Operador de potenciación.
    *
    * @param base Entero base de la potenciación.
-   * @param exp Cifra exponente.
+   * @param exp Digit exponente.
    *
    * @return Entero igual a \f$base^{exp}\f$
    * @sa class Potencia.
    *
    */
- Z operator^(Z base, const Cifra exp); 
+ Z operator^(Z base, const Digit exp); 
    /** Operador de potenciación.
    *
    * @param base Entero base de la potenciación.
-   * @param exp CifraSigno exponente.
+   * @param exp SignedDigit exponente.
    *
    * @return Entero igual a \f$base^{exp}\f$
    * 
@@ -1422,7 +1422,7 @@ namespace mpplas
    * error de tipo Errors::ExponenteNegativo
    *
    */
- Z operator^(Z base, const CifraSigno exp); 
+ Z operator^(Z base, const SignedDigit exp); 
 
  /** Cuadrado (versión "función").
   *
@@ -1462,7 +1462,7 @@ namespace mpplas
    * @sa Z::raizCuadrada()
    * 
    */
-  Cifra raizCuadrada(Cifra x);
+  Digit raizCuadrada(Digit x);
   
   
   /** Determinar si es cuadrado perfecto (versión "función")
@@ -1486,12 +1486,12 @@ namespace mpplas
    *
    * @sa Z::numBits() 
    */
-  size_t numBits(const Cifra x);
+  size_t numBits(const Digit x);
   /** Número de bits precisión simple con signo(versión "función").
    *
    * @sa Z::numBits() 
    */
-  size_t numBits(const CifraSigno x);
+  size_t numBits(const SignedDigit x);
 
 
   //OPERADORES DE DESPLAZAMIENTO 

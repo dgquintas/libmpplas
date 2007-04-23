@@ -22,14 +22,14 @@ namespace mpplas{
       explicit Z_n( const Z& mod);
        /** Constructor de \f$Z_n\f$ dado \f$n\f$.
        *
-       * @param mod Cifra representando el módulo reductor.
+       * @param mod Digit representando el módulo reductor.
        */
-     explicit Z_n( Cifra mod);
+     explicit Z_n( Digit mod);
        /** Constructor de \f$Z_n\f$ dado \f$n\f$.
        *
-       * @param mod CifraSigno representando el módulo reductor.
+       * @param mod SignedDigit representando el módulo reductor.
        */
-     explicit Z_n( CifraSigno mod);
+     explicit Z_n( SignedDigit mod);
       
        /** Constructor de \f$Z_n\f$ a partir de un entero y \f$n\f$.
        *
@@ -45,22 +45,22 @@ namespace mpplas{
        *
        * @param num Entero a introducir, tras reducirlo módulo \f$n\f$
        * en el entero modular a construir.
-       * @param mod Cifra representando el módulo reductor.
+       * @param mod Digit representando el módulo reductor.
        * @param reducir Variable booleana que indica si realizar el
        * paso de reducción. Por omisión se considera "true".
        *
        */
-     Z_n( const Z& num, Cifra mod, bool reducir=true);
+     Z_n( const Z& num, Digit mod, bool reducir=true);
         /** Constructor de \f$Z_n\f$ a partir de un entero y \f$n\f$.
        *
        * @param num Entero a introducir, tras reducirlo módulo \f$n\f$
        * en el entero modular a construir.
-       * @param mod CifraSigno representando el módulo reductor.
+       * @param mod SignedDigit representando el módulo reductor.
        * @param reducir Variable booleana que indica si realizar el
        * paso de reducción. Por omisión se considera "true".
        *
        */
-     Z_n( const Z& num, CifraSigno mod, bool reducir=true);
+     Z_n( const Z& num, SignedDigit mod, bool reducir=true);
       
        /** Constructor de copia de \f$Z_n\f$.
        *
@@ -79,18 +79,18 @@ namespace mpplas{
       Z_n& operator*=(const Z&);
       Z_n& operator/=(const Z&);
 
-      Z_n& operator+=(const CifraSigno);
-      Z_n& operator-=(const CifraSigno);
-      Z_n& operator*=(const CifraSigno);
-      Z_n& operator/=(const CifraSigno);
+      Z_n& operator+=(const SignedDigit);
+      Z_n& operator-=(const SignedDigit);
+      Z_n& operator*=(const SignedDigit);
+      Z_n& operator/=(const SignedDigit);
 
-      Z_n& operator+=(const Cifra);
-      Z_n& operator-=(const Cifra);
-      Z_n& operator*=(const Cifra);
-      Z_n& operator/=(const Cifra);
+      Z_n& operator+=(const Digit);
+      Z_n& operator-=(const Digit);
+      Z_n& operator*=(const Digit);
+      Z_n& operator/=(const Digit);
 
-      Z_n& operator^=(const Cifra e);
-      Z_n& operator^=(const CifraSigno e);
+      Z_n& operator^=(const Digit e);
+      Z_n& operator^=(const SignedDigit e);
       Z_n& operator^=(const Z& e);
    
       
@@ -121,29 +121,29 @@ namespace mpplas{
   Z_n operator/(Z_n, const Z&);
 
 
-  Z_n operator+(const CifraSigno, Z_n);
-  Z_n operator-(const CifraSigno, Z_n);
-  Z_n operator*(const CifraSigno, Z_n);
-  Z_n operator/(const CifraSigno, const Z_n&);
+  Z_n operator+(const SignedDigit, Z_n);
+  Z_n operator-(const SignedDigit, Z_n);
+  Z_n operator*(const SignedDigit, Z_n);
+  Z_n operator/(const SignedDigit, const Z_n&);
 
-  Z_n operator+(Z_n, const CifraSigno);
-  Z_n operator-(Z_n, const CifraSigno);
-  Z_n operator*(Z_n, const CifraSigno);
-  Z_n operator/(Z_n, const CifraSigno);
+  Z_n operator+(Z_n, const SignedDigit);
+  Z_n operator-(Z_n, const SignedDigit);
+  Z_n operator*(Z_n, const SignedDigit);
+  Z_n operator/(Z_n, const SignedDigit);
 
-  Z_n operator+(const Cifra, Z_n);
-  Z_n operator-(const Cifra, Z_n);
-  Z_n operator*(const Cifra, Z_n);
-  Z_n operator/(const Cifra, const Z_n&);
+  Z_n operator+(const Digit, Z_n);
+  Z_n operator-(const Digit, Z_n);
+  Z_n operator*(const Digit, Z_n);
+  Z_n operator/(const Digit, const Z_n&);
 
-  Z_n operator+(Z_n, const Cifra);
-  Z_n operator-(Z_n, const Cifra);
-  Z_n operator*(Z_n, const Cifra);
-  Z_n operator/(Z_n, const Cifra);
+  Z_n operator+(Z_n, const Digit);
+  Z_n operator-(Z_n, const Digit);
+  Z_n operator*(Z_n, const Digit);
+  Z_n operator/(Z_n, const Digit);
 
   Z_n operator^(Z_n base, const Z& exp); 
-  Z_n operator^(Z_n base, const Cifra exp); 
-  Z_n operator^(Z_n base, const CifraSigno exp); 
+  Z_n operator^(Z_n base, const Digit exp); 
+  Z_n operator^(Z_n base, const SignedDigit exp); 
 
 
 }

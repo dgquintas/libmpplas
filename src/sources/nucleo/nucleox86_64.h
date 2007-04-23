@@ -9,11 +9,11 @@
    *                                                                 *
    ******************************************************************/ 
 
-  /** Suma b�sica de dos Cifras para x86_64.
+  /** Suma b�sica de dos Digits para x86_64.
    *
-   * @sa Add(Cifra arg1, Cifra arg2)
+   * @sa Add(Digit arg1, Digit arg2)
    */
-    inline Cifra Add(Cifra arg1, Cifra arg2, Cifra& overflow)
+    inline Digit Add(Digit arg1, Digit arg2, Digit& overflow)
     {
       __asm__ ("xorq %[_of], %[_of];"
                "addq %[_arg2], %[_arg1]; "
@@ -26,11 +26,11 @@
       return arg1; 
     }
 
-  /** Suma b�sica extendida de dos Cifras para x86_64.
+  /** Suma b�sica extendida de dos Digits para x86_64.
    *
-   * @sa Addx(Cifra arg1, Cifra arg2)
+   * @sa Addx(Digit arg1, Digit arg2)
    */
-    inline Cifra Addx(Cifra arg1, Cifra arg2, Cifra& overflow) 
+    inline Digit Addx(Digit arg1, Digit arg2, Digit& overflow) 
     { 
       __asm__ ("btrq $0, %[_of];"
                "adcq %[_arg2], %[_arg1];" 
@@ -44,11 +44,11 @@
     }
 
 
-  /** Resta b�sica de dos Cifras para x86_64.
+  /** Resta b�sica de dos Digits para x86_64.
    *
-   * @sa Sub(Cifra arg1, Cifra arg2)
+   * @sa Sub(Digit arg1, Digit arg2)
    */
-    inline Cifra Sub(Cifra arg1, Cifra arg2, Cifra& overflow) 
+    inline Digit Sub(Digit arg1, Digit arg2, Digit& overflow) 
     { 
       __asm__  ("xorq %[_of], %[_of];"
                "subq %[_arg2], %[_arg1];"
@@ -60,11 +60,11 @@
 
       return arg1; 
     }
-  /** Resta b�sica extendida de dos Cifras para x86_64.
+  /** Resta b�sica extendida de dos Digits para x86_64.
    *
-   * @sa Subx(Cifra arg1, Cifra arg2)
+   * @sa Subx(Digit arg1, Digit arg2)
    */
-    inline Cifra Subx(Cifra arg1, Cifra arg2, Cifra& overflow) 
+    inline Digit Subx(Digit arg1, Digit arg2, Digit& overflow) 
     { 
       __asm__  ("btrq $0, %[_of];" /* pone CF al valor del bit 0 de overflow */
                "sbbq %[_arg2], %[_arg1];"
@@ -76,11 +76,11 @@
       return arg1; 
     }
 
-  /** Producto de dos Cifras para x86_64.
+  /** Producto de dos Digits para x86_64.
    *
-   * @sa Mul(Cifra arg1,Cifra arg2)
+   * @sa Mul(Digit arg1,Digit arg2)
    */
-    inline Cifra Mul(Cifra arg1,Cifra arg2, Cifra& resto) 
+    inline Digit Mul(Digit arg1,Digit arg2, Digit& resto) 
     { 
       __asm__ (" mulq %[_arg2]" 
           : "=a" (arg1), "=d" (resto) 
@@ -90,11 +90,11 @@
       return arg1; 
     }
 
-  /** Producto de dos Cifras con suma para x86_64.
+  /** Producto de dos Digits con suma para x86_64.
    *
-   * @sa Addmul(Cifra arg1,Cifra arg2) 
+   * @sa Addmul(Digit arg1,Digit arg2) 
    */
-    inline Cifra Addmul(Cifra arg1,Cifra arg2, Cifra& resto) 
+    inline Digit Addmul(Digit arg1,Digit arg2, Digit& resto) 
     { 
       __asm__ (" mulq %[_arg2];"
                "addq %[_restoViejo],%[_ret];" 
@@ -106,11 +106,11 @@
       return arg1; 
     }
 
-  /** Cociente y resto de dos Cifras para x86_64. 
+  /** Cociente y resto de dos Digits para x86_64. 
    *
-   * @sa Div(Cifra arg1, Cifra arg2)
+   * @sa Div(Digit arg1, Digit arg2)
    */
-    inline Cifra Div(Cifra arg1, Cifra arg2, Cifra& resto) 
+    inline Digit Div(Digit arg1, Digit arg2, Digit& resto) 
     { 
       __asm__ (" divq %[_arg2]" 
           : "=a" (arg1), "=d" (resto) 
@@ -123,9 +123,9 @@
 
    /** Desplazamiento de bits a la izquierda para x86_64.
     *
-    *  @sa Shiftl(Cifra arg1,Cifra arg2)
+    *  @sa Shiftl(Digit arg1,Digit arg2)
     */
-    inline Cifra Shiftl(Cifra arg1,Cifra arg2, Cifra& resto) 
+    inline Digit Shiftl(Digit arg1,Digit arg2, Digit& resto) 
     { 
       __asm__ ("xorq %[_resto], %[_resto];"
                "shldq %%cl, %[_arg1], %[_resto]; "
@@ -139,9 +139,9 @@
 
   /** Desplazamiento de bits de la derecha para x86_64.
    *
-   * @sa Shiftlr(Cifra arg1,Cifra arg2)
+   * @sa Shiftlr(Digit arg1,Digit arg2)
    */
-    inline Cifra Shiftlr(Cifra arg1,Cifra arg2, Cifra& resto) 
+    inline Digit Shiftlr(Digit arg1,Digit arg2, Digit& resto) 
     { 
       __asm__ ("xorq %[_resto], %[_resto];"
                "shrdq %%cl, %[_arg1], %[_resto];"
@@ -155,22 +155,23 @@
 
   /** Encabezado de ceros para x86_64.
    *
-   * @sa Bfffo(Cifra arg1) 
+   * @sa Bfffo(Digit arg1) 
    */
-    inline Cifra Bfffo(Cifra arg1) 
+    inline Digit Bfffo(Digit arg1) 
     {
-      Cifra ret = (Constantes::BITS_EN_CIFRA-1), temp; 
-
-      if( (arg1) != (0))  { 
-        __asm__ (" bsrq %[_arg1], %[_temp]; " 
-            : [_temp] "=r" (temp) 
-            : [_arg1] "r" (arg1) 
-            ); 
-        ret -= temp; 
+      Cifra ret;
+      if( arg1 == 0 ){
+        return 1;
       }
-      else ret++; 
+      else{
+        __asm__ (" bsrq %[_arg1], %[_ret]; " 
+                 " incq %[_ret]; "
+            : [_ret] "=r" (ret) 
+            : [_arg1] "rm" (arg1) 
+            ); 
 
-      return ret; 
+        return ret; 
+      }
     }
 
 

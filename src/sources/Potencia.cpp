@@ -7,6 +7,7 @@
 #include "RedModular.h"
 #include "Potencia.h"
 #include "GCD.h"
+#include "DigitUtils.h"
 
 namespace mpplas{
 
@@ -14,9 +15,9 @@ namespace mpplas{
     : funcs(Funciones::getInstance())
   {}
 
-  Z Potencia::potencia(Z base, CifraSigno exp)
+  Z Potencia::potencia(Z base, SignedDigit exp)
   {
-    this->potencia(&base, exp);
+    this->potencia(base, exp);
     return base;
   }
 
@@ -31,14 +32,14 @@ namespace mpplas{
     this->potModular(&base, exp, mod);
     return base;
   }
+
   Z PotModular::inversa(const Z& base, const Z& mod)
   {
-
     Z inv;
     Z temp;
     GCDExt *gcdext; funcs->getFunc(gcdext);
     if( !(gcdext->gcdext(base, mod, inv, temp)).esUno() ){
-      throw Errors::ElementoNoInvertible();
+      throw Errors::NonInvertibleElement();
     }
 
     if( inv.signo() < 0 ){
@@ -55,7 +56,7 @@ namespace mpplas{
 
 
 
-  void PotVentanaDeslizante::potencia(Z* const base, CifraSigno e)
+  void PotVentanaDeslizante::potencia(Z* const base,const SignedDigit e)
   {
     if( e < 0 ){
       throw Errors::ExponenteNegativo();
@@ -71,21 +72,24 @@ namespace mpplas{
       return;
     }
 
-    Cifra k;
-    size_t n = Z(e).numBits(); //FIXME: que es esta chapuza? e es un tipo simple!
+    Digit k;
+    const size_t n = 1+(int)floor(log2(e)); 
 
     //ver pagina 11 Cohen
-    if( n <= 8 )
+    if( n <= 8 ){
       k = 1;
-    else if(n <= 24)
+    }
+    else if(n <= 24){
       k = 2;
-    else 
+    }
+    else {
       k = 3;
+    }
 
     //calculos previos
     Z g2(*base);
     g2.cuadrado();
-    Cifra guarda = ( 1 << (k-1) ) - 1; // 2^{k-1} - 1
+    Digit guarda = ( 1 << (k-1) ) - 1; // 2^{k-1} - 1
     std::vector<Z> ges(guarda+1); 
 
     // guarda >= 0 ; ges.size() >= 1
@@ -93,7 +97,7 @@ namespace mpplas{
 
     if( guarda >= 1 ){ //ges.size() >= 2
       ges.at(1) = *base * g2;
-      for(Cifra i = 2 ; i <= guarda; i++)
+      for(Digit i = 2 ; i <= guarda; i++)
         ges.at(i) = ges.at(i - 1) * g2;
     }
 
@@ -101,7 +105,7 @@ namespace mpplas{
 
     //  Z A; A.hacerUno();
     base->hacerUno();  
-    long i = Z(e).numBits() - 1; // -1 por considerar el 0
+    int i = numBits(e) - 1; // -1 por considerar el 0
     while(i >= 0){
       if( (e & (0x1 << i )) == 0 ){ // ¿ i-esimo bit == 0?
         base->cuadrado();
@@ -110,12 +114,13 @@ namespace mpplas{
       else{ // i-esimo bit 1
         //obtenemos el intervalo de bits (acabado en 1) que nos conceda la ventana
         size_t indice=0;
-        Cifra mask;
-        long l;
-        unsigned long cuadrados;
+        Digit mask;
+        int l;
+        size_t cuadrados;
         for( l = i+1-k; l <= i; l++){
-          if( l < 0) 
+          if( l < 0) {
             l = 0;
+          }
           if( (e & (0x1 << l) ) ){ // sera cierto al menos cuando n == i
             //se extraen los bits del intervalo [i,l] y se meten en
             //"indice"
@@ -140,45 +145,27 @@ namespace mpplas{
     return;
   }
   
-  void PotRightLeft::potencia(Z* const base, CifraSigno exponente)
+  void PotLeftRight::potencia(Z* const base, SignedDigit exponente)
   {
-    if( exponente < 0 )
+    if( exponente < 0 ){
       throw Errors::ExponenteNegativo();
+    }
 
-    if( base == NULL )
+    if( base == NULL ){
       throw Errors::PunteroNulo();
+    }
 
-    unsigned long doses = 0;
+    const int t = 1+(int)floor(log2(exponente));
     Z acum;
     acum.hacerUno();
+    Digit mask;
 
-    //para trabajar con una base más pequeña => factores más pequeños
-    //=> menor tiempo para las multiplicaciones. Obviamente luego se
-    //vuelve a compensar esto con << doses
-    while( base->esPar() ){
-      doses++;
-      base->operator>>=(1UL);
-    }
-
-    while( true ){
-      if( exponente & 0x1 ){ // exponente impar
-        acum *= (*base); 
-        if(exponente == 0)
-          break;
-        base->cuadrado();  
+    for(int i= t; i >= 0; i--){
+      mask = 1 << i;
+      acum.cuadrado();
+      if( exponente & mask ){
+        acum *= (*base);
       }
-      else{ //exponente par
-        if(exponente == 0)
-          break;
-        base->cuadrado();
-      }
-      exponente >>= 1;
-    }
-
-    if(doses){
-      if( (Cifra)exponente > Constantes::SYSTEM_SIZE_T_MAX/doses )
-        throw Errors::TooBig();
-      acum <<= (exponente*doses);
     }
 
     base->operator=(acum); //FIXME
@@ -215,7 +202,7 @@ namespace mpplas{
 
     for(int i = (e.numBits()-1); i >= 0 ; i--){
       montgomeryCuad(base, mod, modPrima);
-      if( (e[(i / Constantes::BITS_EN_CIFRA)] & (1 << (i % Constantes::BITS_EN_CIFRA))) )
+      if( (e[(i / Constants::BITS_EN_CIFRA)] & (1 << (i % Constants::BITS_EN_CIFRA))) )
         //i-esimo bit de "e" es uno...
         montgomeryMult(base,xTilde, mod, modPrima);
     }
@@ -233,13 +220,13 @@ namespace mpplas{
     size_t n = mod.longitud() ; // exponente de R
     Z A; A.hacerCero(); 
 
-    MiVec<Cifra> u(n);
+    MiVec<Digit> u(n);
 
     size_t i;
 
     for( i=0; i < x->longitud() ; i++){
       u[i] = ((A[0] + ((*x)[i]*y[0]))*modPrima)[0];
-      A = ((A + ((*x)[i]*y) + (u[i]*mod)) >> Constantes::BITS_EN_CIFRA);
+      A = ((A + ((*x)[i]*y) + (u[i]*mod)) >> Constants::BITS_EN_CIFRA);
     }
     for( ; i < n ; i++){ // los x[i] serían 0
       u[i] = (A[0]*modPrima)[0];
@@ -269,9 +256,9 @@ namespace mpplas{
 
   Z PotMontgomery::montInverse(const Z&a, const Z& mod){
     Z r;
-    Cifra k;
-    const Cifra n = mod.numBits();
-    const Cifra m = mod.longitud() * Constantes::BITS_EN_CIFRA;
+    Digit k;
+    const Digit n = mod.numBits();
+    const Digit m = mod.longitud() * Constants::BITS_EN_CIFRA;
     if( a.numBits() > m ){
       throw Errors::TooBig();
     }
@@ -290,15 +277,15 @@ namespace mpplas{
    
   
   void PotMontgomery::almostMontgomeryInverse(
-      const Z& a, const Z& mod, Z& r, Cifra& k)
+      const Z& a, const Z& mod, Z& r, Digit& k)
   {
     Z u(mod);
     Z v(a);
     r.hacerCero();
-    Z s((Cifra)1);
+    Z s((Digit)1);
 
     k = 0;
-    while( v > (Cifra)0 ){
+    while( v > (Digit)0 ){
       if( u.esPar() ){
         u >>= 1; // u = u / 2
         s <<= 1; // s = s * 2
@@ -358,21 +345,21 @@ namespace mpplas{
     base->hacerUno();
 
     const int initialBitPos = (e.numBits()-1);
-    int cifraPos = initialBitPos >> Constantes::LOG_2_BITS_EN_CIFRA;
-    Cifra inCifraPosMask = 1;
-    inCifraPosMask <<= ( initialBitPos & ((1<<Constantes::LOG_2_BITS_EN_CIFRA)-1) ); //ie, i % BITS_EN_CIFRA
+    int cifraPos = initialBitPos >> Constants::LOG_2_BITS_EN_CIFRA;
+    Digit inDigitPosMask = 1;
+    inDigitPosMask <<= ( initialBitPos & ((1<<Constants::LOG_2_BITS_EN_CIFRA)-1) ); //ie, i % BITS_EN_CIFRA
     for(int i = initialBitPos; i >= 0 ; i--){
       base->cuadrado(); 
       redbarrett->redBarrett(base, mod, mu);
       
-      if( (e[cifraPos] & inCifraPosMask ) ){ //si el i-esimo bit de "e" es uno...
+      if( (e[cifraPos] & inDigitPosMask ) ){ //si el i-esimo bit de "e" es uno...
         base->operator*=(valorInicial); 
         redbarrett->redBarrett(base, mod,mu);
       }
-      inCifraPosMask >>= 1;
-      if( !inCifraPosMask ){
+      inDigitPosMask >>= 1;
+      if( !inDigitPosMask ){
         cifraPos--;
-        inCifraPosMask = 1; inCifraPosMask <<= (Constantes::BITS_EN_CIFRA -1);
+        inDigitPosMask = 1; inDigitPosMask <<= (Constants::BITS_EN_CIFRA -1);
       }
     }
 
@@ -381,7 +368,7 @@ namespace mpplas{
 
 /**********************/
   
-  void PotVentanaDeslizanteR::potenciaR(R* base, CifraSigno e)
+  void PotVentanaDeslizanteR::potenciaR(R* base, SignedDigit e)
   {
     if( e < 0 )
       throw Errors::NoImplementado();
@@ -396,8 +383,8 @@ namespace mpplas{
       return;
     }
 
-    Cifra k;
-    size_t n = Z(e).numBits();
+    Digit k;
+    const size_t n = numBits(e);
 
     //ver pagina 11 Cohen
     if( n <= 8 )
@@ -410,7 +397,7 @@ namespace mpplas{
     //calculos previos
     R g2(*base);
     g2.cuadrado();
-    Cifra guarda = ( 1 << (k-1) ) - 1; // 2^{k-1} - 1
+    Digit guarda = ( 1 << (k-1) ) - 1; // 2^{k-1} - 1
     std::vector<R> ges(guarda+1); 
 
     // guarda >= 0 ; ges.size() >= 1
@@ -418,7 +405,7 @@ namespace mpplas{
 
     if( guarda >= 1 ){ //ges.size() >= 2
       ges.at(1) = *base * g2;
-      for(Cifra i = 2 ; i <= guarda; i++)
+      for(Digit i = 2 ; i <= guarda; i++)
         ges.at(i) = ges.at(i - 1) * g2;
     }
 
@@ -426,7 +413,7 @@ namespace mpplas{
 
     //  Z A; A.hacerUno();
     base->hacerUno();  
-    long i = Z(e).numBits() - 1; // -1 por considerar el 0
+    int i = numBits(e) - 1; // -1 por considerar el 0
     while(i >= 0){
       if( (e & (0x1 << i )) == 0 ){ // ¿ i-esimo bit == 0?
         base->cuadrado();
@@ -436,9 +423,9 @@ namespace mpplas{
       else{ // i-esimo bit 1
         //obtenemos el intervalo de bits (acabado en 1) que nos conceda la ventana
         size_t indice=0;
-        Cifra mask;
-        long l;
-        unsigned long cuadrados;
+        Digit mask;
+        int l;
+        size_t cuadrados;
         for( l = i+1-k; l <= i; l++){
           if( l < 0) 
             l = 0;

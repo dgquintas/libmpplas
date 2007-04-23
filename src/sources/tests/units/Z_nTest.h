@@ -26,36 +26,36 @@ namespace com_uwyn_qtunit{
     protected:
     /* The actual tests */
     void testAdditionWithZ();
-    void testAdditionWithCifra();
-    void testAdditionWithCifraSigno();
+    void testAdditionWithDigit();
+    void testAdditionWithSignedDigit();
 
     void testSubstractionWithZ();
-    void testSubstractionWithCifra();
-    void testSubstractionWithCifraSigno();
+    void testSubstractionWithDigit();
+    void testSubstractionWithSignedDigit();
 
     void testProductWithZ();
-    void testProductWithCifra();
-    void testProductWithCifraSigno();
+    void testProductWithDigit();
+    void testProductWithSignedDigit();
 
     void testDivisionWithZ();
     void testDivisionWithZThrows();
-    void testDivisionWithCifra();
-    void testDivisionWithCifraThrows();
-    void testDivisionWithCifraSigno();
-    void testDivisionWithCifraSignoThrows();
+    void testDivisionWithDigit();
+    void testDivisionWithDigitThrows();
+    void testDivisionWithSignedDigit();
+    void testDivisionWithSignedDigitThrows();
 
     void testExponentiationWithZ();
-    void testExponentiationWithCifra();
-    void testExponentiationWithCifraSigno();
-    void testExponentiationWithCifraSignoThrows();
+    void testExponentiationWithDigit();
+    void testExponentiationWithSignedDigit();
+    void testExponentiationWithSignedDigitThrows();
 
     private:
     Z integer;
     Z_n *modularInteger;
     Z modulus;
     Z primeModulus;
-    Cifra cifra;
-    CifraSigno cifraSigno;
+    Digit cifra;
+    SignedDigit cifraSigno;
 
     Funciones* const funcs;
     RandomRapido *rnd;

@@ -20,8 +20,8 @@ namespace mpplas{
 //  class RedModularEspecial
 //  {
 //    public:
-//      virtual void redModularEspecial(Z* num, const CifraSigno t, const CifraSigno c) = 0;
-//      virtual Z redModularEspecial(Z num, const CifraSigno t, const CifraSigno c);
+//      virtual void redModularEspecial(Z* num, const SignedDigit t, const SignedDigit c) = 0;
+//      virtual Z redModularEspecial(Z num, const SignedDigit t, const SignedDigit c);
 //  };
  
   
@@ -118,7 +118,7 @@ namespace mpplas{
        * @param c Sustraendo del módulo 
        * anteriormente citado.
        */
-      virtual void redModularALaMersenne(Z* num, const CifraSigno t, const CifraSigno c);
+      virtual void redModularALaMersenne(Z* num, const SignedDigit t, const SignedDigit c);
 
       virtual ~RedModularALaMersenne(){}
 

@@ -7,12 +7,14 @@
 
 #include "ZTest.h"
 #include "Z_nTest.h"
+#include "ZM_nTest.h"
 #include "KernelTest.h"
 #include "RSATest.h"
 #include "RandomTest.h"
 #include "MatrixZTest.h"
 #include "MatrixRTest.h"
 #include "VectorZTest.h"
+#include "VectorRTest.h"
 #include "FunctionsTest.h"
 #include "OpenMPTest.h"
 #include "ReductionTest.h"
@@ -29,12 +31,14 @@ namespace com_uwyn_qtunit
 	private:
 		ZTest _zTest;
     Z_nTest _z_nTest;
+    ZM_nTest _zM_nTest;
     KernelTest _kernelTest;
     RSATest _rsaTest;
     RandomTest _randomTest;
     MatrixZTest _matrixZTest;
-    MatrixRTest _matrixRTest;
+//    MatrixRTest _matrixRTest;
     VectorZTest _vectorZTest;
+    VectorRTest _vectorRTest;
     FunctionsTest _functionsTest;
 #ifdef _OPENMP
     OpenMPTest _openMPTest;

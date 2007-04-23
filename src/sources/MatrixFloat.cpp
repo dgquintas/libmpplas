@@ -27,7 +27,7 @@ namespace mpplas
   //////////////////////////////////////////////
 
   MatrixFloat operator-(MatrixFloat m){
-//    m *= ((CifraSigno)-1);
+//    m *= ((SignedDigit)-1);
     return m;
   }
 

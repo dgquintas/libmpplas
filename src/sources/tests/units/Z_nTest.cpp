@@ -22,28 +22,28 @@ Z_nTest::Z_nTest()
   funcs->getFunc(rnd);
 
   addTest(Z_nTest, testAdditionWithZ);
-  addTest(Z_nTest, testAdditionWithCifra);
-  addTest(Z_nTest, testAdditionWithCifraSigno);
+  addTest(Z_nTest, testAdditionWithDigit);
+  addTest(Z_nTest, testAdditionWithSignedDigit);
 
   addTest(Z_nTest, testSubstractionWithZ);
-  addTest(Z_nTest, testSubstractionWithCifra);
-  addTest(Z_nTest, testSubstractionWithCifraSigno);
+  addTest(Z_nTest, testSubstractionWithDigit);
+  addTest(Z_nTest, testSubstractionWithSignedDigit);
 
   addTest(Z_nTest, testProductWithZ);
-  addTest(Z_nTest, testProductWithCifra);
-  addTest(Z_nTest, testProductWithCifraSigno);
+  addTest(Z_nTest, testProductWithDigit);
+  addTest(Z_nTest, testProductWithSignedDigit);
 
   addTest(Z_nTest, testDivisionWithZ);
   addTest(Z_nTest, testDivisionWithZThrows);
-  addTest(Z_nTest, testDivisionWithCifra);
-  addTest(Z_nTest, testDivisionWithCifraThrows);
-  addTest(Z_nTest, testDivisionWithCifraSigno);
-  addTest(Z_nTest, testDivisionWithCifraSignoThrows);
+  addTest(Z_nTest, testDivisionWithDigit);
+  addTest(Z_nTest, testDivisionWithDigitThrows);
+  addTest(Z_nTest, testDivisionWithSignedDigit);
+  addTest(Z_nTest, testDivisionWithSignedDigitThrows);
 
   addTest(Z_nTest, testExponentiationWithZ);
-  addTest(Z_nTest, testExponentiationWithCifra);
-  addTest(Z_nTest, testExponentiationWithCifraSigno);
-  addTest(Z_nTest, testExponentiationWithCifraSignoThrows);
+  addTest(Z_nTest, testExponentiationWithDigit);
+  addTest(Z_nTest, testExponentiationWithSignedDigit);
+  addTest(Z_nTest, testExponentiationWithSignedDigitThrows);
 
 }
 
@@ -52,8 +52,8 @@ void Z_nTest::setUp(){
   modulus = rnd->leerBits(brand(500,1000));
   modularInteger = new Z_n(rnd->leerBits(brand(1000,2000)), modulus);
   //anotherModularInteger = new Z_n(funcs.getRandomRapido()->leerBits(1414), modulus);
-  cifra = rnd->leerCifra();
-  cifraSigno = rnd->leerCifraSigno();
+  cifra = rnd->leerDigit();
+  cifraSigno = rnd->leerSignedDigit();
   if( cifraSigno > 0 ){
     cifraSigno *= -1;  //force a negative number
   }
@@ -84,7 +84,7 @@ void Z_nTest::testAdditionWithZ(){
 
   qassertTrue( pariStr == thisStr );
 }
-void Z_nTest::testAdditionWithCifra(){
+void Z_nTest::testAdditionWithDigit(){
   Z_n res = (*modularInteger) + cifra; 
  
   ostringstream oss;
@@ -104,7 +104,7 @@ void Z_nTest::testAdditionWithCifra(){
 
   qassertTrue( pariStr == thisStr );
 }
-void Z_nTest::testAdditionWithCifraSigno(){
+void Z_nTest::testAdditionWithSignedDigit(){
   Z_n res = (*modularInteger) + cifraSigno; 
  
   ostringstream oss;
@@ -146,7 +146,7 @@ void Z_nTest::testSubstractionWithZ(){
 
   qassertTrue(pariStr == thisStr );
 }
-void Z_nTest::testSubstractionWithCifra(){
+void Z_nTest::testSubstractionWithDigit(){
   Z_n res = (*modularInteger) - cifra; 
  
   ostringstream oss;
@@ -166,7 +166,7 @@ void Z_nTest::testSubstractionWithCifra(){
 
   qassertTrue(pariStr == thisStr );
 }
-void Z_nTest::testSubstractionWithCifraSigno(){
+void Z_nTest::testSubstractionWithSignedDigit(){
   Z_n res = (*modularInteger) - cifraSigno; 
  
   ostringstream oss;
@@ -207,7 +207,7 @@ void Z_nTest::testProductWithZ(){
   
   qassertTrue(pariStr == thisStr );
 }
-void Z_nTest::testProductWithCifra(){
+void Z_nTest::testProductWithDigit(){
   Z_n res = (*modularInteger) * cifra; 
  
   ostringstream oss;
@@ -227,7 +227,7 @@ void Z_nTest::testProductWithCifra(){
 
   qassertTrue(pariStr == thisStr );
 }
-void Z_nTest::testProductWithCifraSigno(){
+void Z_nTest::testProductWithSignedDigit(){
   Z_n res = (*modularInteger) * cifraSigno; 
  
   ostringstream oss;
@@ -284,7 +284,7 @@ void Z_nTest::testDivisionWithZThrows(){
 
   try{
     Z_n res = (*modularInteger) / integer ; 
-  } catch( Errors::ElementoNoInvertible){
+  } catch( Errors::NonInvertibleElement){
     return;
   }
   catch(exception& e){
@@ -295,7 +295,7 @@ void Z_nTest::testDivisionWithZThrows(){
   //this point shouldn't be reached 
   qassertTrue(false);
 }
-void Z_nTest::testDivisionWithCifra(){
+void Z_nTest::testDivisionWithDigit(){
   //make sure the modulus is prime (ie, invertible)
   GenPrimos* genPrimos=0;
   funcs->getFunc(genPrimos);
@@ -323,14 +323,14 @@ void Z_nTest::testDivisionWithCifra(){
 
 }
 
-void Z_nTest::testDivisionWithCifraThrows(){
+void Z_nTest::testDivisionWithDigitThrows(){
   this->modulus = rnd->leerBits(500)*cifra;  //make sure the modulus isn't 
   //coprime with the divisor
   delete this->modularInteger; //get rid of the one set up by setUp()
   this->modularInteger = new Z_n(rnd->leerBits(1234), modulus);
   try{
     Z_n res = (*modularInteger) / cifra ; 
-  } catch( Errors::ElementoNoInvertible){
+  } catch( Errors::NonInvertibleElement){
     return;
   }
 
@@ -339,7 +339,7 @@ void Z_nTest::testDivisionWithCifraThrows(){
   qassertTrue(false);
 
 }
-void Z_nTest::testDivisionWithCifraSigno(){
+void Z_nTest::testDivisionWithSignedDigit(){
   //make sure the modulus is prime (ie, invertible)
   GenPrimos* genPrimos=0;
   funcs->getFunc(genPrimos);
@@ -365,7 +365,7 @@ void Z_nTest::testDivisionWithCifraSigno(){
 
   qassertTrue(pariStr == thisStr );
 }
-void Z_nTest::testDivisionWithCifraSignoThrows(){
+void Z_nTest::testDivisionWithSignedDigitThrows(){
   this->modulus = rnd->leerBits(500)*cifraSigno;  //make sure the modulus isn't 
   //coprime with the divisor
   delete this->modularInteger; //get rid of the one set up by setUp()
@@ -373,7 +373,7 @@ void Z_nTest::testDivisionWithCifraSignoThrows(){
 
   try{
     Z_n res = (*modularInteger) / cifraSigno ; 
-  } catch( Errors::ElementoNoInvertible){
+  } catch( Errors::NonInvertibleElement){
     return;
   }
   catch(exception& e){
@@ -406,7 +406,7 @@ void Z_nTest::testExponentiationWithZ(){
 
   qassertTrue(pariStr == thisStr );
 }
-void Z_nTest::testExponentiationWithCifra(){
+void Z_nTest::testExponentiationWithDigit(){
   //make sure the modulus is coprime with the base
     GenPrimos* genPrimos=0;
   funcs->getFunc(genPrimos);
@@ -433,7 +433,7 @@ void Z_nTest::testExponentiationWithCifra(){
 
   qassertTrue(pariStr == thisStr );
 }
-void Z_nTest::testExponentiationWithCifraSigno(){ 
+void Z_nTest::testExponentiationWithSignedDigit(){ 
   //make sure the modulus is coprime with the base
    GenPrimos* genPrimos=0;
   funcs->getFunc(genPrimos);
@@ -461,12 +461,12 @@ void Z_nTest::testExponentiationWithCifraSigno(){
 
   qassertTrue(pariStr == thisStr );
 }
-void Z_nTest::testExponentiationWithCifraSignoThrows(){
+void Z_nTest::testExponentiationWithSignedDigitThrows(){
   //make sure the modulus isn't coprime with the base
   this->modularInteger->operator*=(this->modulus);
   try{
     Z_n res = (*modularInteger) ^ cifraSigno ;
-  } catch( Errors::ElementoNoInvertible){
+  } catch( Errors::NonInvertibleElement){
     return;
   }
   catch(exception& e){

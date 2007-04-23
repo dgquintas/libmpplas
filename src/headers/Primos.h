@@ -74,7 +74,7 @@ namespace mpplas{
        * @return true si @a entero es primo.\n
        *         false si es compuesto.
        */
-      virtual bool esPrimo(const CifraSigno p) = 0;
+      virtual bool esPrimo(const SignedDigit p) = 0;
 
       virtual ~TestPrimoMersenne(){}
 
@@ -166,7 +166,7 @@ namespace mpplas{
   class TMersenneLucasLehmer : public TestPrimoMersenne
   {
     public:
-      virtual bool esPrimo(const CifraSigno p) ;
+      virtual bool esPrimo(const SignedDigit p) ;
 
       virtual ~TMersenneLucasLehmer(){}
   };

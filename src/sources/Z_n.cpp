@@ -19,14 +19,14 @@ namespace mpplas{
       }
     }
 
-  Z_n::Z_n(Cifra mod)
+  Z_n::Z_n(Digit mod)
     : Z(), n_(mod)
     {
 //      n_ = Z::convertir(mod);
     }
 
 
-  Z_n::Z_n(CifraSigno mod)
+  Z_n::Z_n(SignedDigit mod)
     : Z()
     {
       if( mod < 0 ){
@@ -47,7 +47,7 @@ namespace mpplas{
         this->operator%=(n_);
     }
 
-  Z_n::Z_n(const Z& num, Cifra mod, bool reducir)
+  Z_n::Z_n(const Z& num, Digit mod, bool reducir)
     : Z(num), n_(mod)
     {
 
@@ -57,7 +57,7 @@ namespace mpplas{
     }
 
 
-  Z_n::Z_n(const Z& num, CifraSigno mod, bool reducir)
+  Z_n::Z_n(const Z& num, SignedDigit mod, bool reducir)
     : Z(num), n_(mod)
     {
       if( n_.esNegativo() ){
@@ -107,7 +107,7 @@ namespace mpplas{
   {
     Z::operator-=(der);
 
-    if( *this < (Cifra)0 )
+    if( *this < (Digit)0 )
       Z::operator%=(n_);
 
     return *this;
@@ -134,7 +134,7 @@ namespace mpplas{
 
 
   /* simple prec */
-  Z_n& Z_n::operator+=(const CifraSigno derC)
+  Z_n& Z_n::operator+=(const SignedDigit derC)
   {
     Z::operator+=(derC);
 
@@ -148,7 +148,7 @@ namespace mpplas{
     return *this;
   }
 
-  Z_n& Z_n::operator-=(const CifraSigno derC)
+  Z_n& Z_n::operator-=(const SignedDigit derC)
   {
 
     Z::operator-=(derC);
@@ -156,14 +156,14 @@ namespace mpplas{
     //substraction is less expensive than division.
     //Besides, given the fact that derC is a basic type,
     //we can't have gone very far away from the modulus n_
-    while( *this < (Cifra)0 ){
+    while( *this < (Digit)0 ){
       Z::operator+=(n_);
     }
 
     return *this;
   }
 
-  Z_n& Z_n::operator*=(const CifraSigno derC)
+  Z_n& Z_n::operator*=(const SignedDigit derC)
   {
 
     Z::operator*=(derC);
@@ -173,7 +173,7 @@ namespace mpplas{
     return *this;
   }
 
-  Z_n& Z_n::operator/=(const CifraSigno derC)
+  Z_n& Z_n::operator/=(const SignedDigit derC)
   {
     Z_n derEntero(Z(derC), n_);
 
@@ -188,9 +188,9 @@ namespace mpplas{
   }
 
 
-  Z_n& Z_n::operator+=(const Cifra derC)
+  Z_n& Z_n::operator+=(const Digit derC)
   {
-    Cifra der = (derC % n_).toCifra();
+    Digit der = (derC % n_).toDigit();
 
     Z::operator+=(der);
 
@@ -200,21 +200,21 @@ namespace mpplas{
     return *this;
   }
 
-  Z_n& Z_n::operator-=(const Cifra derC)
+  Z_n& Z_n::operator-=(const Digit derC)
   { 
-    Cifra der = (derC % n_).toCifra();
+    Digit der = (derC % n_).toDigit();
 
     Z::operator-=(der);
 
-    if( *this < (Cifra)0 )
+    if( *this < (Digit)0 )
       Z::operator+=(n_);
 
     return *this;
   }
 
-  Z_n& Z_n::operator*=(const Cifra derC)
+  Z_n& Z_n::operator*=(const Digit derC)
   {
-    Cifra der = (derC % n_).toCifra();
+    Digit der = (derC % n_).toDigit();
 
     Z::operator*=(der);
     Z::operator%=(n_);
@@ -223,9 +223,9 @@ namespace mpplas{
     return *this;
   }
 
-  Z_n& Z_n::operator/=(const Cifra derC)
+  Z_n& Z_n::operator/=(const Digit derC)
   {
-    Cifra der = (derC % n_).toCifra();
+    Digit der = (derC % n_).toDigit();
 
     Z_n inv(n_);
     Z derEntero(der);
@@ -240,7 +240,7 @@ namespace mpplas{
   }
 
 
-  Z_n& Z_n::operator^=(const Cifra e)
+  Z_n& Z_n::operator^=(const Digit e)
   {
     Funciones *funcs = Funciones::getInstance();
 
@@ -250,7 +250,7 @@ namespace mpplas{
     return *this;
   }
 
-  Z_n& Z_n::operator^=(const CifraSigno e) 
+  Z_n& Z_n::operator^=(const SignedDigit e) 
   {
     Funciones *funcs = Funciones::getInstance();
 
@@ -345,13 +345,13 @@ namespace mpplas{
   }
 
 
-  Z_n operator+(const CifraSigno corto, Z_n largo)
+  Z_n operator+(const SignedDigit corto, Z_n largo)
   {
     largo += corto;
     return largo;
   }
 
-  Z_n operator-(const CifraSigno corto, Z_n largo)
+  Z_n operator-(const SignedDigit corto, Z_n largo)
   {
     Z temp(corto);
     temp %= largo.modulo();
@@ -366,13 +366,13 @@ namespace mpplas{
     return Z_n(temp, largo.modulo(), false);
   }
 
-  Z_n operator*(const CifraSigno corto, Z_n largo)
+  Z_n operator*(const SignedDigit corto, Z_n largo)
   {
     largo *= corto;
     return largo;
   }
 
-  Z_n operator/(const CifraSigno corto, const Z_n& largo)
+  Z_n operator/(const SignedDigit corto, const Z_n& largo)
   {
     Z_n cortoZn(Z(corto), largo.modulo() );
 
@@ -384,22 +384,22 @@ namespace mpplas{
 
 
 
-  Z_n operator+(Z_n largo, const CifraSigno corto)
+  Z_n operator+(Z_n largo, const SignedDigit corto)
   {
     largo += corto;
     return largo;
   }
-  Z_n operator-(Z_n largo, const CifraSigno corto)
+  Z_n operator-(Z_n largo, const SignedDigit corto)
   {
     largo -= corto;
     return largo;
   }
-  Z_n operator*(Z_n largo, const CifraSigno corto)
+  Z_n operator*(Z_n largo, const SignedDigit corto)
   {
     largo *= corto;
     return largo;
   }
-  Z_n operator/(Z_n largo, const CifraSigno corto)
+  Z_n operator/(Z_n largo, const SignedDigit corto)
   {
     if( corto == 0 )
       throw Errors::DivisionPorCero(); 
@@ -417,13 +417,13 @@ namespace mpplas{
 
 
 
-  Z_n operator+(const Cifra corto, Z_n largo)
+  Z_n operator+(const Digit corto, Z_n largo)
   {
     largo += corto;
     return largo;
   }
 
-  Z_n operator-(const Cifra corto, Z_n largo)
+  Z_n operator-(const Digit corto, Z_n largo)
   {
     Z temp(corto);
     temp %= largo.modulo();
@@ -437,13 +437,13 @@ namespace mpplas{
     return Z_n(temp, largo.modulo(),false) ;
   }
 
-  Z_n operator*(const Cifra corto, Z_n largo)
+  Z_n operator*(const Digit corto, Z_n largo)
   {
     largo *= corto;
     return largo;
   }
 
-  Z_n operator/(const Cifra corto, const Z_n& largo)
+  Z_n operator/(const Digit corto, const Z_n& largo)
   {
     if( largo.esCero() )
       throw Errors::DivisionPorCero();
@@ -458,23 +458,23 @@ namespace mpplas{
 
 
 
-  Z_n operator+(Z_n largo, const Cifra corto)
+  Z_n operator+(Z_n largo, const Digit corto)
   {
     largo += corto;
     return largo;
   }
-  Z_n operator-(Z_n largo, const Cifra corto)
+  Z_n operator-(Z_n largo, const Digit corto)
   {
     largo -= corto;
     return largo;
   }
-  Z_n operator*(Z_n largo, const Cifra corto)
+  Z_n operator*(Z_n largo, const Digit corto)
   {
     largo *= corto;
     return largo;
   }
 
-  Z_n operator/(Z_n largo, const Cifra corto)
+  Z_n operator/(Z_n largo, const Digit corto)
   {
     if( corto == 0 )
       throw Errors::DivisionPorCero();
@@ -497,13 +497,13 @@ namespace mpplas{
     return base;
   }
 
-  Z_n operator^(Z_n base, const Cifra exp)
+  Z_n operator^(Z_n base, const Digit exp)
   {
     base ^= exp;
     return base;
   }
 
-  Z_n operator^(Z_n base, const CifraSigno exp)
+  Z_n operator^(Z_n base, const SignedDigit exp)
   {
     base ^= exp;
     return base;

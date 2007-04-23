@@ -41,11 +41,12 @@ files = Split("""
     RedModular.cpp
     Semillero.cpp
     SimbolosLegendre.cpp
-    SystemInfo.cpp
     Trascendentes.cpp
     Z.cpp
     Z_n.cpp
+    ZM_n.cpp
     VectorZ.cpp
+    VectorR.cpp
     MatrixZ.cpp
     MatrixR.cpp
     """)

@@ -239,7 +239,7 @@ class RPowMethod : public xmlrpc_c::method {
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
         mpplas::R op1(paramList.getString(0));
-        mpplas::CifraSigno op2;
+        mpplas::SignedDigit op2;
         std::stringstream ss(paramList.getString(1));
         ss >> op2;
 

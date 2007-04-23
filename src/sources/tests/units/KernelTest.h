@@ -40,13 +40,13 @@ namespace com_uwyn_qtunit{
       void testBfffo();
 
     private:
-      Cifra one;
-      Cifra two;
-      Cifra three;
-      Cifra zero;
+      Digit one;
+      Digit two;
+      Digit three;
+      Digit zero;
 
-      Cifra overflow;
-      Cifra resto;
+      Digit overflow;
+      Digit resto;
 
   };
 }

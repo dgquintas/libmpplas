@@ -25,24 +25,24 @@ namespace mpplas{
 
   size_t Z::precisionSalida_ = 0;
 
-  Z Z::Zero((Cifra)0);
+  Z Z::Zero((Digit)0);
 
   // implementacion constructores
   Z::Z()
-    : coefPoliB_(1,(Cifra)0), signo_(1)
+    : coefPoliB_(1,(Digit)0), signo_(1)
     {}
 
   Z::Z(const Z& otro)
     : coefPoliB_(otro.coefPoliB_), signo_(otro.signo_)
     {}
 
-//  Z Z::convertir(const Cifra origen)
+//  Z Z::convertir(const Digit origen)
 //  {
 //    Z temp(origen);
 //    return temp;
 //  }
 //
-//  Z Z::convertir(const CifraSigno origen)
+//  Z Z::convertir(const SignedDigit origen)
 //  {
 //    Z temp(origen);
 //    return temp;
@@ -61,7 +61,7 @@ namespace mpplas{
 //    return temp;
 //  }
 //
-//  Z Z::convertir(const MiVec<Cifra>& vec)
+//  Z Z::convertir(const MiVec<Digit>& vec)
 //  {
 //    Z temp; temp.coefPoliB_ = vec;
 //    temp.limpiarCeros();
@@ -69,7 +69,7 @@ namespace mpplas{
 //  }
 
   /* constructores privados para el uso de la funcion de conversion */
-  Z::Z(const CifraSigno otro)
+  Z::Z(const SignedDigit otro)
     : coefPoliB_(1)
     {
       coefPoliB_[0] = labs(otro);
@@ -79,7 +79,7 @@ namespace mpplas{
         signo_ = 1;
     }
 
-  Z::Z(const Cifra otro)
+  Z::Z(const Digit otro)
     : coefPoliB_(1,otro)
     {
       signo_ = 1;
@@ -90,7 +90,7 @@ namespace mpplas{
     std::ostringstream cadStream;
     cadStream.setf(std::ios_base::fixed);
     cadStream.unsetf(std::ios_base::showpoint);
-    cadStream.precision(Constantes::MAX_EXP10_DOUBLE); 
+    cadStream.precision(Constants::MAX_EXP10_DOUBLE); 
     cadStream << floor(otro);
     std::string cadena = cadStream.str();
     size_t inicio = cadena.find_first_of('.');
@@ -121,7 +121,7 @@ namespace mpplas{
     return;
   }
   
-  Z::Z(const MiVec<Cifra>& vec)
+  Z::Z(const MiVec<Digit>& vec)
     : coefPoliB_(vec)
   {
     signo_ = 1;
@@ -146,7 +146,7 @@ namespace mpplas{
     return *this;
   }
 
-  Z& Z::operator=(const Cifra der)
+  Z& Z::operator=(const Digit der)
   {
     coefPoliB_.clear();
     coefPoliB_.push_back(der);
@@ -219,13 +219,13 @@ namespace mpplas{
     return !(operator>(der));
   }
 
-  bool Z::operator>(const CifraSigno der) const
+  bool Z::operator>(const SignedDigit der) const
   {
 
 
     if( (signo_ > 0) )
       if(der >= 0)
-        return vCPUVectorial::mayorque( coefPoliB_, (Cifra)der );
+        return vCPUVectorial::mayorque( coefPoliB_, (Digit)der );
       else // der < 0
         return true;
     else // signo_ < 0 
@@ -234,16 +234,16 @@ namespace mpplas{
       else // der < 0
         // ambos son negativos. Por tanto el mayor ser� el menor
         // en valor absoluto
-        return vCPUVectorial::menorque( coefPoliB_, (Cifra)labs(der) );
+        return vCPUVectorial::menorque( coefPoliB_, (Digit)labs(der) );
   }  
 
-  bool Z::operator<(const CifraSigno der) const
+  bool Z::operator<(const SignedDigit der) const
   {
 
 
     if( (signo_ > 0) )
       if(der >= 0)
-        return vCPUVectorial::menorque( coefPoliB_, (Cifra)der );
+        return vCPUVectorial::menorque( coefPoliB_, (Digit)der );
       else // der < 0
         return false;
     else // signo_ < 0 
@@ -252,16 +252,16 @@ namespace mpplas{
       else // der < 0
         // ambos son negativos. Por tanto el menor ser� el mayor
         // en valor absoluto
-        return vCPUVectorial::mayorque( coefPoliB_, (Cifra)labs(der) );
+        return vCPUVectorial::mayorque( coefPoliB_, (Digit)labs(der) );
   }
 
-  bool Z::operator==(const CifraSigno der) const
+  bool Z::operator==(const SignedDigit der) const
   {
 
 
     if( (signo_ > 0) )
       if(der >= 0)
-        return vCPUVectorial::igual( coefPoliB_, (Cifra)der );
+        return vCPUVectorial::igual( coefPoliB_, (Digit)der );
       else // der < 0
         return false;
     else // signo_ < 0 
@@ -270,20 +270,20 @@ namespace mpplas{
       else // der < 0
         //ambos negativos; ser�n iguales si son iguales en valor
         //absoluto
-        return vCPUVectorial::igual( coefPoliB_, (Cifra)labs(der) );
+        return vCPUVectorial::igual( coefPoliB_, (Digit)labs(der) );
   }
-  bool Z::operator!=(const CifraSigno der) const
+  bool Z::operator!=(const SignedDigit der) const
   {
     return !(operator==(der));
   }
-  bool Z::operator>=(const CifraSigno der) const
+  bool Z::operator>=(const SignedDigit der) const
   {
     if( operator>(der) || operator==(der) )
       return true;
     else
       return false;
   }
-  bool Z::operator<=(const CifraSigno der) const
+  bool Z::operator<=(const SignedDigit der) const
   {
     if( operator<(der) || operator==(der) )
       return true;
@@ -291,7 +291,7 @@ namespace mpplas{
       return false;
   }
 
-  bool Z::operator>(const Cifra der) const
+  bool Z::operator>(const Digit der) const
   {
 
 
@@ -301,7 +301,7 @@ namespace mpplas{
       return false;
   }  
 
-  bool Z::operator<(const Cifra der) const
+  bool Z::operator<(const Digit der) const
   {
 
 
@@ -311,7 +311,7 @@ namespace mpplas{
       return true;
   }
 
-  bool Z::operator==(const Cifra der) const
+  bool Z::operator==(const Digit der) const
   {
 
 
@@ -320,18 +320,18 @@ namespace mpplas{
     else // signo_ < 0 
       return false;
   }
-  bool Z::operator!=(const Cifra der) const
+  bool Z::operator!=(const Digit der) const
   {
     return !(operator==(der));
   }
-  bool Z::operator>=(const Cifra der) const
+  bool Z::operator>=(const Digit der) const
   {
     if( operator>(der) || operator==(der) )
       return true;
     else
       return false;
   }
-  bool Z::operator<=(const Cifra der) const
+  bool Z::operator<=(const Digit der) const
   {
     if( operator<(der) || operator==(der) )
       return true;
@@ -546,7 +546,7 @@ namespace mpplas{
       derMenor = false;     
     
     if( derMenor ){
-      this->coefPoliB_.resize(der.coefPoliB_.size(),(Cifra)0);
+      this->coefPoliB_.resize(der.coefPoliB_.size(),(Digit)0);
       for(size_t i = 0; i < der.coefPoliB_.size(); i++)
         this->coefPoliB_[i] &= der.coefPoliB_[i];
     }
@@ -634,9 +634,9 @@ namespace mpplas{
       throw Errors::TooBig();
     }
 
-    Cifra n = coefPoliB_[0];
-    Cifra m;
-    Cifra mTemp = 1;
+    Digit n = coefPoliB_[0];
+    Digit m;
+    Digit mTemp = 1;
     this->hacerUno();
 
     unsigned long doses = 0;
@@ -647,7 +647,7 @@ namespace mpplas{
       }
       // m is now odd
       
-      if( mTemp <= Constantes::CIFRA_MAX/m ){
+      if( mTemp <= Constants::CIFRA_MAX/m ){
         //mTemp * m fits inside a basic word
         mTemp *= m;
         continue;
@@ -657,7 +657,7 @@ namespace mpplas{
         mTemp = m;
       }
     }
-    if(mTemp > 1) // Hay valores acumulados en la Cifra mTemp. Incoporarlos
+    if(mTemp > 1) // Hay valores acumulados en la Digit mTemp. Incoporarlos
       (*this) *= mTemp;
 
     (*this) <<= doses;
@@ -704,13 +704,13 @@ namespace mpplas{
     t = (size_t)(*this)[0] % 64; // FIXME: hacer el n % 64 con ops de bits
     r = (size_t)(*this)[0] % 45045; // 45045 = 63*65*11
 
-    if (Constantes::Q64[t] == false) 
+    if (Constants::Q64[t] == false) 
       return false;
-    if (Constantes::Q63[r % 63] == false)  
+    if (Constants::Q63[r % 63] == false)  
       return false;
-    if (Constantes::Q65[r % 65] == false) 
+    if (Constants::Q65[r % 65] == false) 
       return false;
-    if (Constantes::Q11[r % 11] == false)
+    if (Constants::Q11[r % 11] == false)
       return false;
 
     Z raizCuad(*this);
@@ -731,25 +731,25 @@ namespace mpplas{
     //TODO
 //  }
 
-  Z& Z::operator+=(const CifraSigno corto)
+  Z& Z::operator+=(const SignedDigit corto)
   {
 
 
-    Cifra cortoCifra;
+    Digit cortoDigit;
     if( corto >= 0 )
-      cortoCifra = (Cifra)corto;
+      cortoDigit = (Digit)corto;
     else //corto < 0
-      cortoCifra = (Cifra)labs(corto);
+      cortoDigit = (Digit)labs(corto);
 
     if( (signo_ > 0) ){
       if( (corto > 0) ){
-        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoDigit);
       }
       else{ // corto  < 0
-        if( vCPUVectorial::mayorque(coefPoliB_, cortoCifra) )
-          coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoCifra);
+        if( vCPUVectorial::mayorque(coefPoliB_, cortoDigit) )
+          coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoDigit);
         else{
-          coefPoliB_ = vCPUVectorial::restaMP(cortoCifra, coefPoliB_);
+          coefPoliB_ = vCPUVectorial::restaMP(cortoDigit, coefPoliB_);
           signo_ = -1;
         }
       }
@@ -757,15 +757,15 @@ namespace mpplas{
     else{ // this < 0
       if( (corto > 0) ){
         // (-a) + b = b - a
-        if( vCPUVectorial::mayorque(coefPoliB_, cortoCifra) )
-          coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoCifra);
+        if( vCPUVectorial::mayorque(coefPoliB_, cortoDigit) )
+          coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoDigit);
         else{
-          coefPoliB_ = vCPUVectorial::restaMP(cortoCifra, coefPoliB_);
+          coefPoliB_ = vCPUVectorial::restaMP(cortoDigit, coefPoliB_);
           signo_ = 1;
         }
       }
       else{ // corto < 0
-        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoDigit);
         //mantener el signo "-"
       }
     }
@@ -775,47 +775,47 @@ namespace mpplas{
   }
 
 
-  Z& Z::operator-=(const CifraSigno corto)
+  Z& Z::operator-=(const SignedDigit corto)
   {
 
 
-    Cifra cortoCifra;
+    Digit cortoDigit;
     if( corto >= 0 )
-      cortoCifra = (Cifra)corto;
+      cortoDigit = (Digit)corto;
     else //corto < 0
-      cortoCifra = (Cifra)labs(corto);
+      cortoDigit = (Digit)labs(corto);
 
     if( (signo_ > 0) ){
       if( (corto > 0) ){
         // a - b
-        if(  vCPUVectorial::menorque(coefPoliB_, cortoCifra) ){ // a < b 
-          coefPoliB_ = vCPUVectorial::restaMP(cortoCifra, coefPoliB_);
+        if(  vCPUVectorial::menorque(coefPoliB_, cortoDigit) ){ // a < b 
+          coefPoliB_ = vCPUVectorial::restaMP(cortoDigit, coefPoliB_);
           signo_ = -1;
         }
         else // b <= a
-          coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoCifra);
+          coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoDigit);
         // se mantiene el signo +
       }
       else{ // corto  < 0
         // a - (-b) = a + b
-        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoDigit);
         //se mantiene el signo +
       }
     }
     else{ // this < 0
       if( (corto > 0) ){
         // (-a) - b = -(a + b)
-        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoDigit);
         // se mantiene el signo -
       }
       else{ // corto < 0
         // (-a) - (-b) = b - a
-        if( vCPUVectorial::menorque(coefPoliB_, cortoCifra ) ){ // a < b
-          coefPoliB_ = vCPUVectorial::restaMP(cortoCifra, coefPoliB_);
+        if( vCPUVectorial::menorque(coefPoliB_, cortoDigit ) ){ // a < b
+          coefPoliB_ = vCPUVectorial::restaMP(cortoDigit, coefPoliB_);
           signo_ = 1;
         }
         else // b <= a
-          coefPoliB_ = vCPUVectorial::restaMP( coefPoliB_, cortoCifra );
+          coefPoliB_ = vCPUVectorial::restaMP( coefPoliB_, cortoDigit );
         // se deja el signo -
       }
     }
@@ -824,37 +824,37 @@ namespace mpplas{
 
   }
 
-  Z& Z::operator*=(const CifraSigno corto)
+  Z& Z::operator*=(const SignedDigit corto)
   {
 
 
-    Cifra cortoCifra;
+    Digit cortoDigit;
     if( corto >= 0 )
-      cortoCifra = (Cifra)corto;
+      cortoDigit = (Digit)corto;
     else //corto < 0
-      cortoCifra = (Cifra)labs(corto);
+      cortoDigit = (Digit)labs(corto);
 
     if( (signo_ > 0) ){
       if( (corto > 0) ){
         // a * b
-        coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoDigit);
         // se mantiene el signo +
       }
       else{ // corto  < 0
         // a * (-b) = -(ab)
-        coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoDigit);
         signo_ = -1;
       }
     }
     else{ // this < 0
       if( (corto > 0) ){
         // (-a) * b = -(ab)
-        coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoDigit);
         // se deja el signo -
       }
       else{ // corto < 0
         // (-a) * (-b) = ab
-        coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoDigit);
         signo_ = 1;
       }
     }
@@ -864,42 +864,42 @@ namespace mpplas{
   } 
 
 
-  Z& Z::operator/=(const CifraSigno corto)
+  Z& Z::operator/=(const SignedDigit corto)
   {
     if( corto == 0 ){
       throw Errors::DivisionPorCero();
     }
 
 
-    Cifra cortoCifra;
+    Digit cortoDigit;
     if( corto >= 0 ){
-      cortoCifra = (Cifra)corto;
+      cortoDigit = (Digit)corto;
     }
     else{ //corto < 0
-      cortoCifra = (Cifra)labs(corto);
+      cortoDigit = (Digit)labs(corto);
     }
 
     if( (signo_ > 0) ){
       if( (corto > 0) ){
         // a / b
-        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoCifra)).first;
+        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoDigit)).first;
         // se mantiene el signo +
       }
       else{ // corto  < 0
         // a / (-b) = -(a / b)
-        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoCifra)).first;
+        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoDigit)).first;
         signo_ = -1;
       }
     }
     else{ // this < 0
       if( (corto > 0) ){
         // (-a) / b = -(a / b)
-        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoCifra)).first;
+        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoDigit)).first;
         // se deja el signo -
       }
       else{ // corto < 0
         // (-a) / (-b) = a / b
-        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoCifra)).first;
+        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoDigit)).first;
         signo_ = 1;
       }
     }
@@ -908,7 +908,7 @@ namespace mpplas{
 
   }
 
-  Z& Z::operator%=(const CifraSigno divisorSigned)
+  Z& Z::operator%=(const SignedDigit divisorSigned)
   {
     if( divisorSigned == 0 ){
       throw Errors::DivisionPorCero();
@@ -916,11 +916,11 @@ namespace mpplas{
 
     this->operator%=(Z(divisorSigned));
 
-    //  Cifra divisor;
+    //  Digit divisor;
     //  if( divisorSigned >= 0 )
-    //    divisor = (Cifra)divisorSigned;
+    //    divisor = (Digit)divisorSigned;
     //  else
-    //    divisor = (Cifra)labs(divisorSigned);
+    //    divisor = (Digit)labs(divisorSigned);
     //  
     //  if( divisorSigned > 0){ // divisor > 0
     //    if( signo_ > 0 ){
@@ -966,28 +966,28 @@ namespace mpplas{
 
 
 
-  Z& Z::operator&=(const CifraSigno derSigno)
+  Z& Z::operator&=(const SignedDigit derSigno)
   {
-    Cifra der = (Cifra)labs(derSigno);
+    Digit der = (Digit)labs(derSigno);
 
-    this->coefPoliB_.resize(1,(Cifra)0);
+    this->coefPoliB_.resize(1,(Digit)0);
     this->coefPoliB_[0] &= der;
 
     return *this;
   }  
 
-  Z& Z::operator|=(const CifraSigno derSigno)
+  Z& Z::operator|=(const SignedDigit derSigno)
   {
-    Cifra der = (Cifra)labs(derSigno);
+    Digit der = (Digit)labs(derSigno);
 
     this->coefPoliB_[0] |= der;
 
     return *this;
   }  
 
-   Z& Z::XOR(const CifraSigno derSigno)
+   Z& Z::XOR(const SignedDigit derSigno)
    {
-     Cifra der = (Cifra)labs(derSigno);
+     Digit der = (Digit)labs(derSigno);
 
      this->coefPoliB_[0] xor_eq der;
 
@@ -996,112 +996,112 @@ namespace mpplas{
 
   
 
-  Z& Z::operator+=(const Cifra corto)
+  Z& Z::operator+=(const Digit corto)
   {
 
 
-    Cifra cortoCifra;
-    cortoCifra = (Cifra)corto;
+    Digit cortoDigit;
+    cortoDigit = (Digit)corto;
 
     if( signo_ > 0 ){
-      coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoCifra);
+      coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoDigit);
       return *this;
     }
     else{ // signo_ < 0
-      if( vCPUVectorial::mayorque(coefPoliB_, cortoCifra) )
-        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoCifra);
+      if( vCPUVectorial::mayorque(coefPoliB_, cortoDigit) )
+        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoDigit);
       else{
-        coefPoliB_ = vCPUVectorial::restaMP(cortoCifra, coefPoliB_);
+        coefPoliB_ = vCPUVectorial::restaMP(cortoDigit, coefPoliB_);
         signo_ = 1;
       }
       return *this;
     }
   }
-  Z& Z::operator-=(const Cifra corto)
+  Z& Z::operator-=(const Digit corto)
   {
-    Cifra cortoCifra;
-    cortoCifra = (Cifra)corto;
+    Digit cortoDigit;
+    cortoDigit = (Digit)corto;
 
 
     if( signo_ > 0 ){ // a - b
-      if(  vCPUVectorial::menorque(coefPoliB_, cortoCifra) ){ // a < b 
-        coefPoliB_ = vCPUVectorial::restaMP(cortoCifra, coefPoliB_);
+      if(  vCPUVectorial::menorque(coefPoliB_, cortoDigit) ){ // a < b 
+        coefPoliB_ = vCPUVectorial::restaMP(cortoDigit, coefPoliB_);
         signo_ = -1;
       }
       else // b <= a
-        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoCifra);
+        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoDigit);
       // se mantiene el signo +
       return *this;
     }
     else{ //signo_ < 0 
-      coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoCifra);
+      coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoDigit);
       // se mantiene el signo -
       return *this;
     }
   }
 
-  Z& Z::operator*=(const Cifra corto)
+  Z& Z::operator*=(const Digit corto)
   {
 
 
-    Cifra cortoCifra;
-    cortoCifra = (Cifra)corto;
+    Digit cortoDigit;
+    cortoDigit = (Digit)corto;
 
     if( signo_ > 0 ){ // a * b
-      coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoCifra);
+      coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoDigit);
       // se mantiene el signo +
       return *this;
     }
     else{ //signo_< 0
       // (-a) * b = -(ab)
-      coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoCifra);
+      coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoDigit);
       // se deja el signo -
       return *this;
     }
   } 
 
 
-  Z& Z::operator/=(const Cifra corto)
+  Z& Z::operator/=(const Digit corto)
   {
     if( corto == 0 )
       throw Errors::DivisionPorCero();
 
 
 
-    Cifra cortoCifra;
-    cortoCifra = (Cifra)corto;
+    Digit cortoDigit;
+    cortoDigit = (Digit)corto;
 
     if( signo_ > 0 ){ // a / b
-      coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoCifra)).first;
+      coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoDigit)).first;
       // se mantiene el signo +
       return *this;
     }
     else{ //signo_ < 0
       // (-a) / b = -(a / b)
-      coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoCifra)).first;
+      coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoDigit)).first;
       // se deja el signo -
       return *this;
     }
   }
 
-  Z& Z::operator%=(const Cifra corto)
+  Z& Z::operator%=(const Digit corto)
   {
     if( corto == 0 )
       throw Errors::DivisionPorCero();
 
     this->operator%=(Z(corto));
 
-    //  Cifra cortoCifra;
-    //  cortoCifra = (Cifra)corto;
+    //  Digit cortoDigit;
+    //  cortoDigit = (Digit)corto;
     //
     //  if( signo_ > 0 ){
-    //    coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoCifra)).second;
+    //    coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoDigit)).second;
     //    // se mantiene el signo +
     //  }
     //  else{ //signo_ < 0
-    //    coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoCifra)).second;
+    //    coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoDigit)).second;
     //    if( !(this->esCero()) )
-    //      this->operator+=(cortoCifra); // ajuste por dividendo negativo
+    //      this->operator+=(cortoDigit); // ajuste por dividendo negativo
     //    signo_ = 1;
     //    //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
     //    //ser�a una unidad menor que la parte entera, ya que ser�a
@@ -1115,22 +1115,22 @@ namespace mpplas{
   }  
 
 
-  Z& Z::operator&=(const Cifra der)
+  Z& Z::operator&=(const Digit der)
   {
-    this->coefPoliB_.resize(1,(Cifra)0);
+    this->coefPoliB_.resize(1,(Digit)0);
     this->coefPoliB_[0] &= der;
 
     return *this;
   }  
 
-  Z& Z::operator|=(const Cifra der)
+  Z& Z::operator|=(const Digit der)
   {
     this->coefPoliB_[0] |= der;
 
     return *this;
   }  
 
-  Z& Z::XOR(const Cifra der)
+  Z& Z::XOR(const Digit der)
   {
     this->coefPoliB_[0] xor_eq der;
 
@@ -1139,7 +1139,7 @@ namespace mpplas{
 
   
 
-  Z& Z::operator^=(const Cifra e)
+  Z& Z::operator^=(const Digit e)
   {
     Funciones *funcs = Funciones::getInstance();
     Potencia* p; funcs->getFunc(p);
@@ -1155,18 +1155,18 @@ namespace mpplas{
       throw Errors::TooBig();
     }
 
-    Cifra exponente = exp[0];
+    Digit exponente = exp[0];
 
     return operator^=(exponente);
   }
 
-  Z& Z::operator^=(const CifraSigno exp)
+  Z& Z::operator^=(const SignedDigit exp)
   {
     if( exp < 0 ){
       throw Errors::ExponenteNegativo();
     }
 
-    return operator^=((Cifra)labs(exp));
+    return operator^=((Digit)labs(exp));
   }
 
 
@@ -1195,16 +1195,16 @@ namespace mpplas{
     }
 
     if(signo_ > 0){
-      if(coefPoliB_[0] < Constantes::CIFRA_MAX)
+      if(coefPoliB_[0] < Constants::CIFRA_MAX)
         coefPoliB_[0]++;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, (Cifra)1);
+        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, (Digit)1);
     }
     else{ //signo_ < 0
       if(coefPoliB_[0] > 0)
         coefPoliB_[0]--;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, (Cifra)1);
+        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, (Digit)1);
     }
 
 
@@ -1220,16 +1220,16 @@ namespace mpplas{
 
 
     if(signo_ > 0){
-      if(coefPoliB_[0] < Constantes::CIFRA_MAX)
+      if(coefPoliB_[0] < Constants::CIFRA_MAX)
         coefPoliB_[0]++;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, (Cifra)1);
+        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, (Digit)1);
     }
     else{ //signo_ < 0
       if(coefPoliB_[0] > 0)
         coefPoliB_[0]--;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, (Cifra)1);
+        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, (Digit)1);
     }
 
 
@@ -1250,13 +1250,13 @@ namespace mpplas{
       if(coefPoliB_[0] > 0)
         coefPoliB_[0]--;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, (Cifra)1);
+        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, (Digit)1);
     }
     else{ //signo_ < 0
-      if(coefPoliB_[0] < Constantes::CIFRA_MAX)
+      if(coefPoliB_[0] < Constants::CIFRA_MAX)
         coefPoliB_[0]++;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, (Cifra)1);
+        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, (Digit)1);
     }
 
 
@@ -1278,13 +1278,13 @@ namespace mpplas{
       if(coefPoliB_[0] > 0)
         coefPoliB_[0]--;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, (Cifra)1);
+        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, (Digit)1);
     }
     else{ //signo_ < 0
-      if(coefPoliB_[0] < Constantes::CIFRA_MAX)
+      if(coefPoliB_[0] < Constants::CIFRA_MAX)
         coefPoliB_[0]++;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, (Cifra)1);
+        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, (Digit)1);
     }
 
 
@@ -1295,11 +1295,11 @@ namespace mpplas{
   {
 
     size_t componentes = coefPoliB_.size() - 1;
-    return (( Constantes::BITS_EN_CIFRA * componentes) + vCPUVectorial::numBits(coefPoliB_[componentes]));
+    return (( Constants::BITS_EN_CIFRA * componentes) + vCPUVectorial::numBits(coefPoliB_[componentes]));
 
   }
 
-  CifraSigno Z::redondear(size_t exceso) 
+  SignedDigit Z::redondear(size_t exceso) 
   {
 
     return vCPUVectorial::redondear(coefPoliB_, exceso, signo_);
@@ -1405,7 +1405,7 @@ namespace mpplas{
     GCD* gcd; funcs->getFunc(gcd);
     
     if( this->esPar() )
-      p = Z((Cifra)2);
+      p = Z((Digit)2);
     else{
       q = (*this);
       while(true){
@@ -1473,7 +1473,7 @@ namespace mpplas{
     if( this->esCero() ){
       this->hacerUno();
     };
-    coefPoliB_.insert(coefPoliB_.begin(), n, (Cifra)0);
+    coefPoliB_.insert(coefPoliB_.begin(), n, (Digit)0);
     
     return *this;
   }
@@ -1490,8 +1490,8 @@ namespace mpplas{
   std::ostream& 
     operator<<(std::ostream& out, Z num) 
     {
-      std::stack<Cifra> pila;  
-      Cifra resto;
+      std::stack<Digit> pila;  
+      Digit resto;
       std::ostringstream oss;
 
 
@@ -1501,31 +1501,31 @@ namespace mpplas{
       }
 
       if( Z::precisionSalida_ == 0){ //sin limitacion
-        Cifra potenciaInicial = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
+        Digit potenciaInicial = (Digit)pow(10.0,Constants::MAX_EXP10_CIFRA);
         while( num.longitud() > 1 ){
           resto = (num % potenciaInicial)[0]; 
           num /= potenciaInicial; 
           pila.push(resto);
         }
 
-        //"num" es ahora la primera cifra del n� en base 10^{Constantes::MAX_EXP10_CIFRA}
+        //"num" es ahora la primera cifra del n� en base 10^{Constants::MAX_EXP10_CIFRA}
         
         oss << num[0];
 
         while( !pila.empty() ){
-          oss << std::setfill('0') << setw(Constantes::MAX_EXP10_CIFRA) <<  pila.top();
+          oss << std::setfill('0') << setw(Constants::MAX_EXP10_CIFRA) <<  pila.top();
           pila.pop();
         }
       }
       else{ //precisionSalida_ > 0 ==> limitacion
-        size_t digitos10 = (size_t)ceil(num.numBits() * Constantes::LOG_10_2);
+        size_t digitos10 = (size_t)ceil(num.numBits() * Constants::LOG_10_2);
         size_t digitos10Mostrados = 0;
 
         if(num.esCero()){
           oss << "0";
         }
         else{
-          Cifra potenciaInicial = (Cifra)10;
+          Digit potenciaInicial = (Digit)10;
           while( !num.esCero() ){
             resto = (num % potenciaInicial)[0]; 
             num /= potenciaInicial; 
@@ -1588,17 +1588,17 @@ namespace mpplas{
   
   void _parseNumber( std::istream &in, Z& res ){
     char c;
-    Cifra n = 0;
+    Digit n = 0;
     int numDigits = 0;
     res.hacerCero();
-    static Cifra const potenciaInicial = (Cifra)pow(10.0,Constantes::MAX_EXP10_CIFRA);
+    static Digit const potenciaInicial = (Digit)pow(10.0,Constants::MAX_EXP10_CIFRA);
 
     while( in.get(c) ) {
       if( std::isdigit(c) ) {
         n *= 10;
         ++numDigits;
         n += c - '0';  //FIXME: is this portable?
-        if( numDigits >= Constantes::MAX_EXP10_CIFRA ){ //shouldn't ever be >
+        if( numDigits >= Constants::MAX_EXP10_CIFRA ){ //shouldn't ever be >
           //put into the number to return
           res *= potenciaInicial;
           res += n;
@@ -1613,7 +1613,7 @@ namespace mpplas{
     } //while
 
     if( numDigits > 0 ){ //still sth to process: flush it
-      res *= (Cifra)pow(10.0,numDigits);
+      res *= (Digit)pow(10.0,numDigits);
       res += n;
     }
   
@@ -1725,26 +1725,26 @@ namespace mpplas{
 
 
   /* ahora operaciones con longs implicados */
-  Z operator+(const CifraSigno corto, Z largo)
+  Z operator+(const SignedDigit corto, Z largo)
   {
     largo += corto;
     return largo;
   }
 
-  Z operator-(const CifraSigno corto, Z largo)
+  Z operator-(const SignedDigit corto, Z largo)
   {
     largo -= corto;
     largo.cambiarSigno();
     return largo;
   }
 
-  Z operator*(const CifraSigno corto, Z largo)
+  Z operator*(const SignedDigit corto, Z largo)
   {
     largo *= corto;
     return largo;
   }
 
-  Z operator/(const CifraSigno corto, const Z& largo)
+  Z operator/(const SignedDigit corto, const Z& largo)
   {
     if( largo.esCero() )
       throw Errors::DivisionPorCero();
@@ -1758,7 +1758,7 @@ namespace mpplas{
     //  }
     //  else 
     //  if( largo < corto ){
-    //    Z cociente = Z::convertir((Cifra)labs(corto) / largo[0]); 
+    //    Z cociente = Z::convertir((Digit)labs(corto) / largo[0]); 
     //    //if( corto < 0 ) // => largo tb sera negativo, asi q cociente positivo FIXME: PROBAR TO ESTO
     //    if( corto >= 0) 
     //      if( largo.esNegativo() )
@@ -1773,7 +1773,7 @@ namespace mpplas{
     //  }
   }
 
-  Z operator%(const CifraSigno corto, const Z& largo)
+  Z operator%(const SignedDigit corto, const Z& largo)
   {
     if( largo.esCero() )
       throw Errors::DivisionPorCero();
@@ -1781,39 +1781,39 @@ namespace mpplas{
     return( (Z(corto) % largo ) );
   }
 
-  Z operator&(const CifraSigno corto, Z largo)
+  Z operator&(const SignedDigit corto, Z largo)
   {
     largo &= corto;
     return largo;
   }
-  Z operator|(const CifraSigno corto, Z largo)
+  Z operator|(const SignedDigit corto, Z largo)
   {
     largo |= corto;
     return largo;
   }
-  Z XOR(const CifraSigno corto, Z largo)
+  Z XOR(const SignedDigit corto, Z largo)
   {
     largo.XOR(corto);
     return largo;
   }
 
 
-  Z operator+(Z largo, const CifraSigno corto)
+  Z operator+(Z largo, const SignedDigit corto)
   {
     largo += corto;
     return largo;
   }
-  Z operator-(Z largo, const CifraSigno corto)
+  Z operator-(Z largo, const SignedDigit corto)
   {
     largo -= corto;
     return largo;
   }
-  Z operator*(Z largo, const CifraSigno corto)
+  Z operator*(Z largo, const SignedDigit corto)
   {
     largo *= corto;
     return largo;
   }
-  Z operator/(Z largo, const CifraSigno corto)
+  Z operator/(Z largo, const SignedDigit corto)
   {
     if( corto == 0 )
       throw Errors::DivisionPorCero();
@@ -1821,7 +1821,7 @@ namespace mpplas{
     largo /= corto;
     return largo;
   }
-  Z operator%(Z largo, const CifraSigno corto)
+  Z operator%(Z largo, const SignedDigit corto)
   {
     if( corto == 0 )
       throw Errors::DivisionPorCero();
@@ -1829,17 +1829,17 @@ namespace mpplas{
     largo %= corto;
     return largo;
   }
-  Z operator&(Z largo, const CifraSigno corto)
+  Z operator&(Z largo, const SignedDigit corto)
   {
     largo &= corto;
     return largo;
   }
-  Z operator|(Z largo, const CifraSigno corto)
+  Z operator|(Z largo, const SignedDigit corto)
   {
     largo |= corto;
     return largo;
   }
-  Z XOR(Z largo, const CifraSigno corto)
+  Z XOR(Z largo, const SignedDigit corto)
   {
     largo.XOR(corto);
     return largo;
@@ -1847,26 +1847,26 @@ namespace mpplas{
 
 
 
-  Z operator+(const Cifra corto, Z largo)
+  Z operator+(const Digit corto, Z largo)
   {
     largo += corto;
     return largo;
   }
 
-  Z operator-(const Cifra corto, Z largo)
+  Z operator-(const Digit corto, Z largo)
   {
     largo -= corto;
     largo.cambiarSigno();
     return largo;
   }
 
-  Z operator*(const Cifra corto, Z largo)
+  Z operator*(const Digit corto, Z largo)
   {
     largo *= corto;
     return largo;
   }
 
-  Z operator/(const Cifra corto, const Z& largo)
+  Z operator/(const Digit corto, const Z& largo)
   {
     if( largo.esCero() )
       throw Errors::DivisionPorCero();
@@ -1887,7 +1887,7 @@ namespace mpplas{
       }
   }
 
-  Z operator%(const Cifra corto, const Z& largo)
+  Z operator%(const Digit corto, const Z& largo)
   {
     if( largo.esCero() )
       throw Errors::DivisionPorCero();
@@ -1905,17 +1905,17 @@ namespace mpplas{
         return cero;
       }
   }
-  Z operator&(const Cifra corto, Z largo)
+  Z operator&(const Digit corto, Z largo)
   {
     largo &= corto;
     return largo;
   }
-  Z operator|(const Cifra corto, Z largo)
+  Z operator|(const Digit corto, Z largo)
   {
     largo |= corto;
     return largo;
   }
-  Z XOR(const Cifra corto, Z largo)
+  Z XOR(const Digit corto, Z largo)
   {
     largo.XOR(corto);
     return largo;
@@ -1924,22 +1924,22 @@ namespace mpplas{
 
   
 
-  Z operator+(Z largo, const Cifra corto)
+  Z operator+(Z largo, const Digit corto)
   {
     largo += corto;
     return largo;
   }
-  Z operator-(Z largo, const Cifra corto)
+  Z operator-(Z largo, const Digit corto)
   {
     largo -= corto;
     return largo;
   }
-  Z operator*(Z largo, const Cifra corto)
+  Z operator*(Z largo, const Digit corto)
   {
     largo *= corto;
     return largo;
   }
-  Z operator/(Z largo, const Cifra corto)
+  Z operator/(Z largo, const Digit corto)
   {
     if( corto == 0 )
       throw Errors::DivisionPorCero();
@@ -1947,7 +1947,7 @@ namespace mpplas{
     largo /= corto;
     return largo;
   }
-  Z operator%(Z largo, const Cifra corto)
+  Z operator%(Z largo, const Digit corto)
   {
     if( corto == 0 )
       throw Errors::DivisionPorCero();
@@ -1955,17 +1955,17 @@ namespace mpplas{
     largo %= corto;
     return largo;
   }
-  Z operator&(Z largo, const Cifra corto)
+  Z operator&(Z largo, const Digit corto)
   {
     largo &= corto;
     return largo;
   }
-  Z operator|(Z largo, const Cifra corto)
+  Z operator|(Z largo, const Digit corto)
   {
     largo |= corto;
     return largo;
   }
-  Z XOR(Z largo, const Cifra corto)
+  Z XOR(Z largo, const Digit corto)
   {
     largo.XOR(corto);
     return largo;
@@ -1976,7 +1976,7 @@ namespace mpplas{
 
 
   /* comparacion */
-  bool operator<(const CifraSigno corto, const Z& largo)
+  bool operator<(const SignedDigit corto, const Z& largo)
   {
     if( (largo < corto) || (largo == corto) )
       return false;
@@ -1984,7 +1984,7 @@ namespace mpplas{
       return true;
   }
 
-  bool operator>(const CifraSigno corto, const Z& largo)
+  bool operator>(const SignedDigit corto, const Z& largo)
   {
     if( (largo > corto) || (largo == corto) )
       return false;
@@ -1992,7 +1992,7 @@ namespace mpplas{
       return true;
   }
 
-  bool operator<=(const CifraSigno corto, const Z& largo)
+  bool operator<=(const SignedDigit corto, const Z& largo)
   {
     if( (largo < corto) )
       return false;
@@ -2000,7 +2000,7 @@ namespace mpplas{
       return true;
   }
 
-  bool operator>=(const CifraSigno corto, const Z& largo)
+  bool operator>=(const SignedDigit corto, const Z& largo)
   {
     if( (largo > corto) )
       return false;
@@ -2008,7 +2008,7 @@ namespace mpplas{
       return true;
   }
 
-  bool operator==(const CifraSigno corto, const Z& largo)
+  bool operator==(const SignedDigit corto, const Z& largo)
   {
     if( (largo == corto) )
       return true;
@@ -2016,7 +2016,7 @@ namespace mpplas{
       return false;
   }
 
-  bool operator!=(const CifraSigno corto, const Z& largo)
+  bool operator!=(const SignedDigit corto, const Z& largo)
   {
     if( (largo != corto) )
       return true;
@@ -2027,7 +2027,7 @@ namespace mpplas{
 
 
 
-  bool operator<(const Cifra corto, const Z& largo)
+  bool operator<(const Digit corto, const Z& largo)
   {
     if( (largo < corto) || (largo == corto) )
       return false;
@@ -2035,7 +2035,7 @@ namespace mpplas{
       return true;
   }
 
-  bool operator>(const Cifra corto, const Z& largo)
+  bool operator>(const Digit corto, const Z& largo)
   {
     if( (largo > corto) || (largo == corto) )
       return false;
@@ -2043,7 +2043,7 @@ namespace mpplas{
       return true;
   }
 
-  bool operator<=(const Cifra corto, const Z& largo)
+  bool operator<=(const Digit corto, const Z& largo)
   {
     if( (largo < corto) )
       return false;
@@ -2051,7 +2051,7 @@ namespace mpplas{
       return true;
   }
 
-  bool operator>=(const Cifra corto, const Z& largo)
+  bool operator>=(const Digit corto, const Z& largo)
   {
     if( (largo > corto) )
       return false;
@@ -2059,7 +2059,7 @@ namespace mpplas{
       return true;
   }
 
-  bool operator==(const Cifra corto, const Z& largo)
+  bool operator==(const Digit corto, const Z& largo)
   {
     if( (largo == corto) )
       return true;
@@ -2067,7 +2067,7 @@ namespace mpplas{
       return false;
   }
 
-  bool operator!=(const Cifra corto, const Z& largo)
+  bool operator!=(const Digit corto, const Z& largo)
   {
     if( (largo != corto) )
       return true;
@@ -2092,19 +2092,19 @@ namespace mpplas{
     return base;
   }
 
-  Z operator^(Z base, const Cifra exp)
+  Z operator^(Z base, const Digit exp)
   {
     base ^= exp;
     return base;
   }
 
-  Z operator^(Z base, const CifraSigno exp)
+  Z operator^(Z base, const SignedDigit exp)
   {
     if( exp < 0 ){
       throw Errors::ExponenteNegativo();
     }
 
-    base ^= ((Cifra)labs(exp));
+    base ^= ((Digit)labs(exp));
     return base;
   }
 
@@ -2119,7 +2119,7 @@ namespace mpplas{
       cociente->hacerPositivo();
       resto->hacerPositivo();
 
-      std::pair< MiVec<Cifra>, MiVec<Cifra> > resultados;
+      std::pair< MiVec<Digit>, MiVec<Digit> > resultados;
 
       if( divisor.esPositivo() ){ 
         if( dividendo.esPositivo() ){
@@ -2178,34 +2178,34 @@ namespace mpplas{
       return;
     }
 
-  void divMod(const Z& dividendo, const CifraSigno divisor, Z* cociente, Z* resto)
+  void divMod(const Z& dividendo, const SignedDigit divisor, Z* cociente, Z* resto)
     throw (Errors::DivisionPorCero)
     {
 
       bool divisorPositivo;
-      Cifra divisorCifra;
+      Digit divisorDigit;
 
       if( divisor == 0 )
         throw Errors::DivisionPorCero();
 
       if( divisor < 0 ){
         divisorPositivo = false;
-        divisorCifra = (Cifra)labs(divisor);
+        divisorDigit = (Digit)labs(divisor);
       }
       else{
         divisorPositivo = true;
-        divisorCifra = (Cifra)divisor;
+        divisorDigit = (Digit)divisor;
       }
 
       //por precaucion, no sea que se hayan pasado cosas ya trajinadas
       cociente->hacerPositivo();
       resto->hacerPositivo();
 
-      std::pair< MiVec<Cifra>, MiVec<Cifra> > resultados;
+      std::pair< MiVec<Digit>, MiVec<Digit> > resultados;
 
       if( divisorPositivo ){ 
         if( dividendo.esPositivo() ){
-          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorCifra);
+          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorDigit);
 
           cociente->coefPoliB_ = resultados.first;
 
@@ -2213,7 +2213,7 @@ namespace mpplas{
 
         }
         else{ //dividendo < 0
-          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorCifra);
+          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorDigit);
 
           cociente->coefPoliB_ = resultados.first;
           cociente->hacerNegativo();
@@ -2232,7 +2232,7 @@ namespace mpplas{
       }
       else{ // divisor negativo
         if( dividendo.esPositivo()){
-          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorCifra);
+          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorDigit);
 
           cociente->coefPoliB_ = resultados.first;
           cociente->hacerNegativo();
@@ -2248,7 +2248,7 @@ namespace mpplas{
           // Por otra parte, el modulo siempre tiene el signo del divisor
         }
         else{ // dividendo negativo
-          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorCifra);
+          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorDigit);
 
           cociente->coefPoliB_ = resultados.first;
 
@@ -2261,7 +2261,7 @@ namespace mpplas{
     }
 
 
-  void divMod(const Z& dividendo, const Cifra divisor, Z* cociente, Z* resto)
+  void divMod(const Z& dividendo, const Digit divisor, Z* cociente, Z* resto)
     throw (Errors::DivisionPorCero)
     {
 
@@ -2273,7 +2273,7 @@ namespace mpplas{
       cociente->hacerPositivo();
       resto->hacerPositivo();
 
-      std::pair< MiVec<Cifra>, MiVec<Cifra> > resultados;
+      std::pair< MiVec<Digit>, MiVec<Digit> > resultados;
 
       if( dividendo.esPositivo() ){
         resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisor);
@@ -2328,13 +2328,13 @@ namespace mpplas{
     return x;
   }
 
-  Cifra raizCuadrada(Cifra x)
+  Digit raizCuadrada(Digit x)
   {
     if( (x == 1) || (x == 0 ) )
       return x;
 
-    Cifra n = (x >> 1);
-    Cifra y;
+    Digit n = (x >> 1);
+    Digit y;
 
     y = (n + (x/n)) >> 1;
 
@@ -2356,13 +2356,13 @@ namespace mpplas{
   {
     return x.numBits();
   }
-  size_t numBits(const Cifra x)
+  size_t numBits(const Digit x)
   {
     return vCPUVectorial::numBits(x);
   }
-  size_t numBits(const CifraSigno x)
+  size_t numBits(const SignedDigit x)
   {
-    return vCPUVectorial::numBits((Cifra)labs(x));
+    return vCPUVectorial::numBits((Digit)labs(x));
   }
 
 }

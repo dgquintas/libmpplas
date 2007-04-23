@@ -15,33 +15,12 @@ namespace mpplas
   {
     public:
       VectorR();
-      VectorR(size_t n);
-      VectorR(const VectorR&);
-      VectorR(const VectorZ&);
-      VectorR(const std::vector<R>&);
-      VectorR(const std::vector<Z>&);
-      VectorR(const std::string &);
-
-      VectorR& operator+=(const VectorR&) throw (Errores::NonConformantDimensions);
-      VectorR& operator+=(const R&);
-      VectorR& operator+=(const Cifra);
-      VectorR& operator+=(const CifraSigno);
-
-      VectorR& operator-=(const VectorR&);
-      VectorR& operator-=(const Z&);
-      VectorR& operator-=(const Cifra);
-      VectorR& operator-=(const CifraSigno);
-
-      VectorR& operator*=(const Z&);
-      VectorR& operator*=(const Cifra);
-      VectorR& operator*=(const CifraSigno);
-
-      VectorR& cross(const VectorR&);
-      VectorR& dot(const VectorR&);
-
-      VectorR& normalize();
-
-      R& norm();
+      VectorR(const size_t size);
+      VectorR(const size_t size, const R& ini);
+      VectorR(const VectorR& rhs); /**< Copy constructor */
+      VectorR(const std::vector<R>& rhs); /**< Constructor from a std::vector */
+      VectorR(const std::string &); /**< Parsing contructor from a textual representation */
+      //VectorR(const VectorZ&); TODO
 
   };
 

@@ -7,7 +7,7 @@
 
 #include "MiVec.h"
 #include "Z.h"
-#include "constantes.h"
+#include "constants.h"
 #include "AbstractMethod.h"
 #include <cassert>
 
@@ -33,21 +33,21 @@ namespace mpplas{
        * @a n bits aleatorios.
        */
       virtual Z leerBits(size_t n) = 0;
-      /** Obtención de una Cifra aleatoria.
+      /** Obtención de una Digit aleatoria.
        *
-       * @return Una Cifra aleatoria.
+       * @return Una Digit aleatoria.
        *
        * @note Esto es solo una atajo de para cuando se quieren
        * generar un número aleatorio de \f$BASE\f$ bits.
        */
-      virtual Cifra leerCifra(void);
+      virtual Digit leerDigit(void);
  
-      /** Get a random CifraSigno
+      /** Get a random SignedDigit
        *
-       * @return A random CifraSigno.
+       * @return A random SignedDigit.
        *
        */
-      virtual CifraSigno leerCifraSigno(void);
+      virtual SignedDigit leerSignedDigit(void);
 
       /** Obtención de un número aleatorio menor que otro dado.
        *

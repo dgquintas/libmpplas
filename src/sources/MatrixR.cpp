@@ -33,17 +33,6 @@ namespace mpplas
   
   //////////////////////////////////////////////
 
-  MatrixR operator-(MatrixR m){
-//    m *= ((CifraSigno)-1);
-    return m;
-  }
-
-
-  MatrixR::MatrixR(const std::string& str){
-    std::istringstream inStream(str);
-    operator>>(inStream,*this);
-    return;
-  }
 
 }
   

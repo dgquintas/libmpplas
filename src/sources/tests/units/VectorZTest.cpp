@@ -24,6 +24,10 @@ VectorZTest::VectorZTest()
   addTest(VectorZTest, testOperatorProductWithVectorZ);
 
   addTest( VectorZTest, testDot );
+  addTest( VectorZTest, testDotNonMember );
+
+  addTest( VectorZTest, testCross );
+
 
 }
 
@@ -76,18 +80,18 @@ void VectorZTest::testOperatorProductWithVectorZ(){
   VectorZ res("[423       24      162       2484     1780     186     0    -992        -9]");
 
 //  VectorZ res("[5221935 148140 666630 7666245 4394820 382695 0 -1530780 -12345]");
-  vecA *= vecB;
+  vecA.byElementProd( vecB);
 
   qassertTrue(vecA == res);
 }
 
 void VectorZTest::testDot(){
-  Z dotProd( dot(vecA, vecB) );
+  Z dotProd(vecA.dot(vecB));
 
   qassertEquals ( dotProd.toString() , "4058" );
 
   try{
-    dot( VectorZ("[1 2 3]"), VectorZ("[1 2]") );
+    VectorZ("[1 2 3]").dot( VectorZ("[1 2]") );
   }
   catch( Errors::NonConformantDimensions& e){
     return;
@@ -96,4 +100,32 @@ void VectorZTest::testDot(){
 
 }
 
+void VectorZTest::testDotNonMember(){
+  Z dotProd(dot(vecA,vecB));
+
+  qassertEquals ( dotProd.toString() , "4058" );
+
+  try{
+    dot( VectorZ("[1 2 3]") ,  VectorZ("[1 2]") );
+  }
+  catch( Errors::NonConformantDimensions& e){
+    return;
+  }
+  qassertTrue(false);
+
+}
+
+void VectorZTest::testCross(){
+
+  VectorZ a("[ 123 456 789 ]");
+  VectorZ b("[ 314 159 265 ]");
+
+  VectorZ res("[-4611   215151  -123627]");
+
+  a.cross(b);
+
+  qassertTrue( a == res );
+
+  return ;
+}
 

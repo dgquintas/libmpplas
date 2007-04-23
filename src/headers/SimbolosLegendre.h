@@ -114,7 +114,7 @@ class SimboloJacobi : public AbstractMethod
       virtual Z simboloKronecker( Z a,  Z b);
 
     private:
-      CifraSigno tabla[8];
+      SignedDigit tabla[8];
 
   };
 

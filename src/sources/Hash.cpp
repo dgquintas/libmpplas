@@ -24,7 +24,7 @@ namespace mpplas{
       finalizar();
 
     //para que todo sea DE VERDAD independiente de todo, no nos fiamos
-    //ni de que Cifra vaya a ser siempre de 32 bits... echamos mano de
+    //ni de que Digit vaya a ser siempre de 32 bits... echamos mano de
     //las rutinas de conversion desde cadenas.
     std::ostringstream cadStream;
     cadStream << resumen_[0] << resumen_[1] << resumen_[2] << resumen_[3];

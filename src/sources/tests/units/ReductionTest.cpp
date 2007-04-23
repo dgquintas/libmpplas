@@ -84,13 +84,9 @@ void ReductionTest::testMontgomeryReduction(){
   string pariStr(GENtostr( pariRes ));
   
   Z mPrima = _redMont.precomputaciones(primeMod);
-  cout << _integer << endl;
-  cout << primeMod << endl;
 
   _redMont.redMontgomery(&_integer, primeMod, mPrima);
 
-  cout << _integer << endl;
-  cout << pariStr << endl;
   qassertTrue( _integer.toString() == pariStr );
 
 }
@@ -113,7 +109,6 @@ void ReductionTest::testBarrettPrecomp(){
   Z mu( _redBarret.precomputaciones(mod) );
 
   string pariStr(GENtostr( pariRes ));
-  cout << pariStr << endl << mu << endl;
   qassertTrue( mu.toString() == pariStr );
 
 
@@ -133,7 +128,6 @@ void ReductionTest::testBarrettReduction(){
   Z mu( _redBarret.precomputaciones(mod) );
   _redBarret.redBarrett(&_integer, mod, mu);
   string pariStr(GENtostr( pariRes ));
-  cout << pariStr << endl << _integer << endl;
   qassertTrue( _integer.toString() == pariStr );
 
 

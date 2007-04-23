@@ -4,7 +4,7 @@
 
 #include "Semillero.h"
 #include "Funciones.h"
-#include "constantes.h"
+#include "constants.h"
 #include "err.h"
 #include "Hash.h"
 #include <ctime>
@@ -38,7 +38,7 @@ namespace mpplas{
     static size_t contador = 0;
 //    datosRnd_.resize( hash->numBitsResumen() >> 3);
     
-    if( (contador >= Constantes::UMBRAL_SEMILLA) || (contador == 0) ){ //contador==0 para la 1ª llamada
+    if( (contador >= Constants::UMBRAL_SEMILLA) || (contador == 0) ){ //contador==0 para la 1ª llamada
 			datosRnd_ = fuente_( hash->numBitsResumen() >> 3);
       contador = 1;
     }

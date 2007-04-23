@@ -9,12 +9,12 @@
 namespace mpplas{
 
 
-  Z GCD::gcd(Z u, Cifra v)
+  Z GCD::gcd(Z u, Digit v)
   {
     if( u.esNegativo() )
       u.hacerPositivo();
 
-    Cifra r;
+    Digit r;
     while( v != 0 ){
       r = (u % v)[0];
       u = v;
@@ -24,10 +24,10 @@ namespace mpplas{
     return u;
   }
 
-  Z GCD::gcd(Z u, CifraSigno v)
+  Z GCD::gcd(Z u, SignedDigit v)
   {
     v = labs(v);
-    return gcd(u, (Cifra)v);
+    return gcd(u, (Digit)v);
   }
   
   
@@ -45,24 +45,24 @@ namespace mpplas{
       v = temp;
     }
 
-    Cifra uHat;
-    Cifra vHat;
-    CifraSigno A,B,C,D,T;
-    Cifra q,q2;
-    Cifra THat;
+    Digit uHat;
+    Digit vHat;
+    SignedDigit A,B,C,D,T;
+    Digit q,q2;
+    Digit THat;
     Z t;
     Z w;
-    Cifra uPrima;
-    Cifra vPrima;
-    Cifra uPrimaSegunda;
-    Cifra vPrimaSegunda;
+    Digit uPrima;
+    Digit vPrima;
+    Digit uPrimaSegunda;
+    Digit vPrimaSegunda;
 
 
     while(true){
       if( v.longitud() == 1)
         return GCD::gcd(u,v[0]);
       else{
-        size_t p = u.numBits() - Constantes::BITS_EN_CIFRA;
+        size_t p = u.numBits() - Constants::BITS_EN_CIFRA;
         uHat = (u >> p)[0];
         vHat = (v >> p)[0];
 
@@ -97,7 +97,7 @@ namespace mpplas{
               //seria igual a la base y dado que uPrima / vPrima es 
               //siempre < base, es imposible que sean  iguales 
             else{
-              Z uZ = Z(Constantes::CIFRA_MAX); uZ++;
+              Z uZ = Z(Constants::CIFRA_MAX); uZ++;
               q2 = (uZ/vPrimaSegunda)[0]; /* el resultado de esa div sera siempre < base
                                              ya que uZ == base y vPrimaSegunda > 1 */
             }

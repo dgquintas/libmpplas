@@ -15,35 +15,17 @@ namespace mpplas
   {
     public:
       VectorZ();
-      VectorZ(size_t n);
-      VectorZ(const VectorZ&);
-      VectorZ(const std::vector<Z>&);
-      VectorZ(const std::string &);
+      VectorZ(const size_t size);
+      VectorZ(const size_t size, const Z& ini);
+      VectorZ(const VectorZ& rhs); /**< Copy constructor */
+      VectorZ(const std::vector<Z>& rhs); /**< Constructor from a std::vector */
+      VectorZ(const std::string &); /**< Parsing contructor from a textual representation */
 
-      VectorZ& operator+=(const VectorZ&) ;
-      VectorZ& operator+=(const Z&);
-      VectorZ& operator+=(const Cifra);
-      VectorZ& operator+=(const CifraSigno);
 
-      VectorZ& operator-=(const VectorZ&);
-      VectorZ& operator-=(const Z&);
-      VectorZ& operator-=(const Cifra);
-      VectorZ& operator-=(const CifraSigno);
 
-      VectorZ& operator*=(const VectorZ&);
-      VectorZ& operator*=(const Z&);
-      VectorZ& operator*=(const Cifra);
-      VectorZ& operator*=(const CifraSigno);
-
-      VectorZ& cross(const VectorZ&);
-
-      VectorZ& normalize();
-
-      Z& norm();
 
   };
 
-  Z dot(const VectorZ& lhs, const VectorZ& rhs);
 
 
 }

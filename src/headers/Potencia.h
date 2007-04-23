@@ -51,11 +51,11 @@ namespace mpplas{
 
        * 
        *  @note La razón de que el argumento @a exp sea de tipo
-       *  CifraSigno cuando no puede ser negativo es para evitar
+       *  SignedDigit cuando no puede ser negativo es para evitar
        *  problemas de conversión automática por parte de C++ entre
        *  tipos con y sin signo.
        */
-      virtual void potencia(Z* const base,  CifraSigno exp) = 0; 
+      virtual void potencia(Z* const base,  SignedDigit exp) = 0; 
 
       /** Potenciación.
        *
@@ -70,11 +70,11 @@ namespace mpplas{
        * @return El entero resultado de \f$base^{exp}\f$.
        * 
        *  @note La razón de que el argumento @a exp sea de tipo
-       *  CifraSigno cuando no puede ser negativo es para evitar
+       *  SignedDigit cuando no puede ser negativo es para evitar
        *  problemas de conversión automática por parte de C++ entre
        *  tipos con y sin signo.
        */
-      Z potencia(Z base,  CifraSigno exp); 
+      Z potencia(Z base,  SignedDigit exp); 
 
       virtual ~Potencia(){}
 
@@ -89,8 +89,8 @@ namespace mpplas{
   class PotenciaR : public AbstractMethod
   {
     public:
-      virtual void potenciaR(R* const base,  CifraSigno exp) = 0; 
-      R potenciaR(R base,  CifraSigno exp); 
+      virtual void potenciaR(R* const base,  SignedDigit exp) = 0; 
+      R potenciaR(R base,  SignedDigit exp); 
 
       virtual ~PotenciaR(){}
 
@@ -124,7 +124,7 @@ namespace mpplas{
        * @param exp Exponente de la operación de potenciación.
        * Si el módulo @a mod suministrado no es primo y se pasa un
        * valor de exponente negativo, se producirá un error de tipo
-       * "ElementoNoInvertible".
+       * "NonInvertibleElement".
        *
        * @param mod El módulo reductor.
        */
@@ -139,7 +139,7 @@ namespace mpplas{
        * @param exp Exponente de la operación de potenciación.
        * Si el módulo @a mod suministrado no es primo y se pasa un
        * valor de exponente negativo, se producirá un error de tipo
-       * "ElementoNoInvertible".
+       * "NonInvertibleElement".
        *
        * @param mod El módulo reductor.
        *
@@ -154,7 +154,7 @@ namespace mpplas{
        * @param base Entero a invertir.
        * 
        * @param mod El módulo reductor. Si este valor no es primo, se
-       * producirá un error de tipo "ElementoNoInvertible".
+       * producirá un error de tipo "NonInvertibleElement".
        *
        * @return El entero resultado de \f$base^{-1} \bmod mod\f$.
        */
@@ -182,7 +182,7 @@ namespace mpplas{
   class PotVentanaDeslizante : public Potencia
   {
     public:
-      virtual void potencia(Z* const base,  CifraSigno exp);
+      virtual void potencia(Z* const base,  SignedDigit exp);
 
       virtual ~PotVentanaDeslizante(){}
   };
@@ -192,26 +192,24 @@ namespace mpplas{
   class PotVentanaDeslizanteR : public PotenciaR
   {
     public:
-      virtual void potenciaR(R* const base,  CifraSigno exp);
+      virtual void potenciaR(R* const base,  SignedDigit exp);
 
       virtual ~PotVentanaDeslizanteR(){}
   };
 
   
-  /** Potenciación entera mediante el algoritmo "Derecha a izquierda".
+  /** Integer exponentiation by the "Left-to-right" algorithm
    *
-   * Descrito en The Art of Computer Programming, Vol.2 pág. 8 \n
-   *             Handbook of Applied Cryptography 614 \n
-   *             A course in computational algebraic number theory,
-   *             pág. 8
+   *
+   * Described in Handbook of Applied Cryptography 615 
    *
    */
-  class PotRightLeft : public Potencia
+  class PotLeftRight : public Potencia
   {
     public:
-      virtual void potencia(Z* const base,  CifraSigno exp);
+      virtual void potencia(Z* const base,  SignedDigit exp);
 
-      virtual ~PotRightLeft(){}
+      virtual ~PotLeftRight(){}
   };
   
 
@@ -233,7 +231,7 @@ namespace mpplas{
       void montgomeryMult(Z* const x, const Z& y,const Z& mod, const Z& modPrima);
       void montgomeryCuad(Z* const x, const Z& mod, const Z& modPrima);
 
-      void almostMontgomeryInverse(const Z& a, const Z& mod, Z& r, Cifra& k);
+      void almostMontgomeryInverse(const Z& a, const Z& mod, Z& r, Digit& k);
   };
  
   /** Potenciación modular entera utilizando reducción de Barrett.

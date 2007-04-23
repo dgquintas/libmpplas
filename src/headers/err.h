@@ -113,12 +113,12 @@ namespace mpplas{
     };
 
     /** Elemento no invertible en un grupo finito */
-    class ElementoNoInvertible : public InvalidArgument
+    class NonInvertibleElement : public InvalidArgument
     {
       public:
       virtual const char* what(void) const throw()
       {
-         return _("Invalid inversion");
+         return _("Tried to invert an non-invertible element");
       }
     };
 

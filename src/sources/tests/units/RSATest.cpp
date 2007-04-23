@@ -36,7 +36,7 @@ void RSATest::testRSA(){
   funcs->getFunc(genRandom);
   funcs->getFunc(genPrimos);
 
-  genPrimos->setRandomSeed((Cifra)123);
+  genPrimos->setRandomSeed((Digit)123);
   //se declaran 4 numeros enteros. 
   Z p,q,n,phi; 
  
@@ -49,7 +49,7 @@ void RSATest::testRSA(){
 
   //se sigue con las operaciones propias del RSA
   n = p*q;
-  phi = (p-(Cifra)1)*(q-(Cifra)1);
+  phi = (p-(Digit)1)*(q-(Digit)1);
 
   // y los enteros que representan las claves
   Z e, d;  

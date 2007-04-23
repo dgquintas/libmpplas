@@ -23,11 +23,12 @@ moduleFiles = Split("""
     KernelTest.cpp
     ZTest.cpp
     Z_nTest.cpp
+    ZM_nTest.cpp
     RSATest.cpp
     RandomTest.cpp
     MatrixZTest.cpp
-    MatrixRTest.cpp
     VectorZTest.cpp
+    VectorRTest.cpp
     FunctionsTest.cpp
     OpenMPTest.cpp
     ReductionTest.cpp

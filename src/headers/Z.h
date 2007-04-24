@@ -30,13 +30,13 @@ namespace mpplas
       Z( const Z& otro); /**< Constructor de copia.
                            @param otro Entero a copiar. */
 
-      explicit Z( const SignedDigit ); /**< construccion desde simple precision */
       Z( const Digit ); /**< construccion desde 'token' básico */
+      Z( const MiVec<Digit>& vec);
+      explicit Z( const SignedDigit ); /**< construccion desde simple precision */
       explicit Z( const double ); /**< construccion desde double  */
       explicit Z( const char* ); /**< construccion desde cadena de caracteres */
       explicit Z(const std::string& str); /**< construction from a std::string */
 
-      Z( const MiVec<Digit>& vec);
 
       ////////////////////////////////
       //   OPERADORES DE CONVERSION //
@@ -809,19 +809,31 @@ namespace mpplas
        *  operacion de comprobar si un número es uno.
        */
       bool esUno(void) const;  
-      
-      /** Comprobar signo positivo.
+ 
+      /** Checks if the integer is negative.
        * 
-       * \par Complejidad:
+       * \par Complexity.
        *      \f$ O(1) \f$
        *
-       * @return true si *this es un entero positivo o cero\n 
-       *         false si no.
+       * @return true if *this is a positive integer <b>or zero</b>\n 
+       *         false otherwise.
        *  
-       *  El objetivo de este método es ser un atajo para la frecuente 
-       *  operacion de comprobar si un número es positivo.
+       * @sa Z::isNegative()
        */
-      inline bool esPositivo(void) const { return signo_ > 0; }
+      inline bool isPositive(void) const { return signo_ > 0; }
+
+      /** Checks if the integer is negative.
+       * 
+       * \par Complexity.
+       *      \f$ O(1) \f$
+       *
+       * @return true if *this is a negative integer\n 
+       *         false otherwise.
+       *  
+       * @sa Z::isPositive()
+       */
+      inline bool isNegative(void) const { return signo_ < 0; }
+
 
       /** Comprobar signo negativo.
        * 

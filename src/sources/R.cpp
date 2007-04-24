@@ -858,8 +858,7 @@ namespace mpplas{
     
     if( numDigits > 0 ){ //still sth to process: flush it
       //first element, with only numDigits digits
-      int digitsInN = 1+(int)floor( log10(n) );
-      int toComplete = Constants::MAX_EXP10_CIFRA - digitsInN;
+      const int toComplete = Constants::MAX_EXP10_CIFRA - numDigits;
       n *= (Digit)pow(10.0, toComplete);
       res += R(n);
       res /= potenciaInicial; 

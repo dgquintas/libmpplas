@@ -95,7 +95,7 @@ void ReductionTest::testBarrettPrecomp(){
   Z mod(_rnd->leerBits(brand(300,2000)));
   _integer = _rnd->leerBits(brand(2000, 4000));
 
-  Z b2k(1);
+  Z b2k; b2k.hacerUno();
   b2k.potenciaBase( 2*mod.longitud() );
   
   GEN x, m;

@@ -76,7 +76,7 @@ void ExponentiationTest::testExpMontgomery(){
   potFunc.potModular(&_base,_expZ,_mod);
 
   string pariStr(GENtostr( pariRes ));
-  qassertTrue( _base.toString() == pariStr );
+  qassertEquals( _base.toString(), pariStr );
 }
 void ExponentiationTest::testExpBarrett(){
   Z _mod(rnd->leerBits( brand(1000,2000) ));

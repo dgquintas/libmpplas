@@ -64,7 +64,7 @@ void VectorRTest::testOperatorAddition(){
   vecA += vecB;
 
   for( int i = 0; i < vecB.getSize() ; i++ ){
-    qassertEquals(vecA(i).toString(5) , res(i).toString(5));
+    qassertEquals(res(i).toString(5) , vecA(i).toString(5));
   }
 
 }
@@ -77,7 +77,7 @@ void VectorRTest::testOperatorProductWithR(){
   vecB *= R("12345.666");
 
   for( int i = 0; i < vecB.getSize() ; i++ ){
-    qassertEquals(vecB(i).toString(5) , res(i).toString(5));
+    qassertEquals(res(i).toString(5),vecB(i).toString(5) );
   }
 }
 
@@ -93,7 +93,7 @@ void VectorRTest::testOperatorProductWithVectorR(){
 void VectorRTest::testDot(){
   R dotProd(vecA.dot(vecB));
 
-  qassertEquals( dotProd.toString(10) , "4471.2068955890" );
+  qassertEquals( "4471.2068955890",dotProd.toString(10) );
 
   try{
     VectorR("[1 2 3]").dot( VectorR("[1 2]") );
@@ -115,7 +115,7 @@ void VectorRTest::testCross(){
   a.cross(b);
  
   for( int i = 0; i < a.getSize() ; i++ ){
-    qassertEquals(a(i).toString(10) , res(i).toString(10));
+    qassertEquals(res(i).toString(10),a(i).toString(10) );
   }
 
   return ;

@@ -159,7 +159,7 @@
    */
     inline Digit Bfffo(Digit arg1) 
     {
-      Cifra ret;
+      Digit ret;
       if( arg1 == 0 ){
         return 1;
       }

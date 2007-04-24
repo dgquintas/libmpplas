@@ -89,7 +89,7 @@ namespace mpplas{
     const Z& rhsAsZ(rhs);
 
     thisAsZ -= rhsAsZ;
-    while( thisAsZ < 0 ){
+    while( thisAsZ.isNegative() ){
       thisAsZ += this->_mod;
     }
 

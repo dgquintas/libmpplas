@@ -257,6 +257,7 @@ namespace mpplas{
   Z PotMontgomery::montInverse(const Z&a, const Z& mod){
     Z r;
     Digit k;
+    Z dummyOne((Digit)1);
     const Digit n = mod.numBits();
     const Digit m = mod.longitud() * Constants::BITS_EN_CIFRA;
     if( a.numBits() > m ){
@@ -266,12 +267,11 @@ namespace mpplas{
     const Z modPrima( rm->precomputaciones(mod) ); 
     almostMontgomeryInverse(a,mod, r, k);
     if( k > m ){
-      montgomeryMult( &r, Z(1), mod, modPrima);
+      montgomeryMult( &r, dummyOne, mod, modPrima);
       k -= m;
     }
-    Z foo(1); 
-    foo <<= (m-k);
-     montgomeryMult(&r, foo, mod, modPrima);
+    dummyOne <<= (m-k);
+     montgomeryMult(&r, dummyOne, mod, modPrima);
     return r;
   }
    

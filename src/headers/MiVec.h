@@ -1,5 +1,5 @@
 /* 
- * $Id: MiVec.h 191 2007-02-16 20:32:03Z dgquintas $
+ * $Id$
  */
 
 #ifndef __MIVEC_H

@@ -1,5 +1,5 @@
 /*
- * $Id: VectorR.cpp 255 2007-04-11 18:45:04Z dgquintas $
+ * $Id$
  */
 
 #include <sstream>

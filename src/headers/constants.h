@@ -1,5 +1,5 @@
 /*
- * $Id: constantes.h 239 2007-03-25 22:46:31Z dgquintas $
+ * $Id$
  */
 
 

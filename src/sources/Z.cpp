@@ -1325,11 +1325,13 @@ namespace mpplas{
 
   bool Z::esCero(void) const
   {
-    if( coefPoliB_.size() > 1 )
+    if( coefPoliB_.size() > 1 ){
       return false;
+    }
 
-    if( coefPoliB_[0] != 0 )
+    if( coefPoliB_[0] != 0 ){
       return false;
+    }
 
     return true;
   }
@@ -2121,8 +2123,8 @@ namespace mpplas{
 
       std::pair< MiVec<Digit>, MiVec<Digit> > resultados;
 
-      if( divisor.esPositivo() ){ 
-        if( dividendo.esPositivo() ){
+      if( divisor.isPositive() ){ 
+        if( dividendo.isPositive() ){
           resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
 
           cociente->coefPoliB_ = resultados.first;
@@ -2149,7 +2151,7 @@ namespace mpplas{
         }
       }
       else{ // divisor negativo
-        if( dividendo.esPositivo()){
+        if( dividendo.isPositive()){
           resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
 
           cociente->coefPoliB_ = resultados.first;
@@ -2204,7 +2206,7 @@ namespace mpplas{
       std::pair< MiVec<Digit>, MiVec<Digit> > resultados;
 
       if( divisorPositivo ){ 
-        if( dividendo.esPositivo() ){
+        if( dividendo.isPositive() ){
           resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorDigit);
 
           cociente->coefPoliB_ = resultados.first;
@@ -2231,7 +2233,7 @@ namespace mpplas{
         }
       }
       else{ // divisor negativo
-        if( dividendo.esPositivo()){
+        if( dividendo.isPositive()){
           resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorDigit);
 
           cociente->coefPoliB_ = resultados.first;
@@ -2275,7 +2277,7 @@ namespace mpplas{
 
       std::pair< MiVec<Digit>, MiVec<Digit> > resultados;
 
-      if( dividendo.esPositivo() ){
+      if( dividendo.isPositive() ){
         resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisor);
 
         cociente->coefPoliB_ = resultados.first;

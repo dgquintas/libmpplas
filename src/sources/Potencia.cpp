@@ -175,9 +175,12 @@ namespace mpplas{
 
   void PotMontgomery::potModular(Z* const base, const Z& e, const Z& mod)
   {
+    static const Digit BASEMASK = ((Digit)1) << (Constants::BITS_EN_CIFRA -1);
+    
     if( base == NULL ){
       throw Errors::PunteroNulo();
     }
+
     if( mod.esPar() ){ //modulo par => No puede aplicarse Montgomery
       throw Errors::ModuloParEnMontgomery();
     }
@@ -200,11 +203,22 @@ namespace mpplas{
     montgomeryMult(&xTilde, r2,mod,modPrima ); // r2 = r^{2} mod n
     base->operator=(r); // r = r_inicial mod n
 
-    for(int i = (e.numBits()-1); i >= 0 ; i--){
+
+    const int initialBitPos = (e.numBits()-1);
+    int cifraPos = initialBitPos >> Constants::LOG_2_BITS_EN_CIFRA;
+    Digit inDigitPosMask = 1;
+    inDigitPosMask <<= ( initialBitPos & ((1<<Constants::LOG_2_BITS_EN_CIFRA)-1) ); //ie, i % BITS_EN_CIFRA
+    for(int i = initialBitPos; i >= 0 ; i--){
       montgomeryCuad(base, mod, modPrima);
-      if( (e[(i / Constants::BITS_EN_CIFRA)] & (1 << (i % Constants::BITS_EN_CIFRA))) )
-        //i-esimo bit de "e" es uno...
+      if( (e[cifraPos] & inDigitPosMask ) ){ 
+        //si el i-esimo bit de "e" es uno...
         montgomeryMult(base,xTilde, mod, modPrima);
+      }
+      inDigitPosMask >>= 1;
+      if( !inDigitPosMask ){
+        cifraPos--;
+        inDigitPosMask = BASEMASK;
+      }
     }
 
     Z uno; uno.hacerUno();
@@ -323,6 +337,9 @@ namespace mpplas{
  
   void ClasicoConBarrett::potModular(Z* const base, const Z& exp, const Z& mod)
   {
+
+    static const Digit BASEMASK = ((Digit)1) << (Constants::BITS_EN_CIFRA -1);
+
     if( base == NULL ){
       throw Errors::PunteroNulo();
     }
@@ -359,7 +376,7 @@ namespace mpplas{
       inDigitPosMask >>= 1;
       if( !inDigitPosMask ){
         cifraPos--;
-        inDigitPosMask = 1; inDigitPosMask <<= (Constants::BITS_EN_CIFRA -1);
+        inDigitPosMask = BASEMASK;
       }
     }
 

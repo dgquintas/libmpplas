@@ -831,7 +831,7 @@ namespace mpplas{
     }
 
   void _parseNumber( std::istream &in, R& res){
-    static R const potenciaInicial((Digit)pow(10.0,Constants::MAX_EXP10_CIFRA));
+    static R const potenciaInicial(Constants::MAX_BASE10_POWER_DIGIT);
     std::stack<Digit> stk;
     char c;
     Digit n = 0;

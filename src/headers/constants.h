@@ -10,6 +10,8 @@
 #include <stdint.h> //C99
 #include <cstdlib>
 
+#include "BasicTypedefs.h"
+
 #ifndef ARCHBITS
   #warning "Architecture bits not defined. Using 32"
   #define ARCHBITS 32
@@ -22,52 +24,26 @@
 #endif
 
 
+
+
 namespace mpplas{
-  /** Basic data type. 
-   *
-   * It represents the base considered for Z, and will be the 
-   * type used wherever a positive (machine-width) integer is needed.
-   */
-#if ARCHBITS == 64
-  typedef uint64_t Digit;
-#elif ARCHBITS == 32
-  typedef uint32_t Digit;
-#else 
-  #error Unsupported number of bits ARCHBITS
-#endif
 
-  /** Signed basic data type.
-   *
-   * It is the signed version of Digit. Will be used where signed single-precision
-   * integers are needed.
-   */
-#if ARCHBITS == 64
-  typedef int64_t SignedDigit;
-#elif ARCHBITS == 32
-  typedef int32_t SignedDigit;
-#else 
-  #error Unsupported number of bits ARCHBITS
-#endif
 
-//  /** Las arquitecturas soportadas */
-//  struct Arch {
-//    enum {
-//      x86,
-//      x86Prof,
-//      x86_64,
-//      x86_64Prof,
-//      generic,
-//      ppc
-//    };
-//  };
-//
-//  /** Las operaciones de la vCPUBasica */
-//  struct Operaciones {
-//    enum {
-//      Add, Addx, Sub, Subx, Addmul, Mul, Div, Shiftl, Shiftlr, Bfffo
-//    };
-//  };
+/** Based on C++ Templates by David Vandevoorde and Nicolai M. Josuttis.
+ * page 302.
+ * http://www.josuttis.com/tmplbook/meta/pow3.hpp.html
+ */
+  template<Digit B, Digit N>
+    class CTPow {
+      public:
+        enum { result = B * CTPow<B,N-1>::result };
+    };
 
+  template<Digit B>
+    class CTPow<B,1>{
+      public:
+        enum { result = B } ;
+    };
 
   
   /** Espacio de nombres contenedor de las constantes utilizadas a lo
@@ -163,6 +139,10 @@ namespace mpplas{
     * Es decir, el número de cifras decimales que "caben" en un 'Digit'
     * para \f$ \lfloor\log_{10} 2^{32}\rfloor = 9 \f$ */
     static const int MAX_EXP10_CIFRA = std::numeric_limits<Digit>::digits10;
+
+
+    static const Digit MAX_BASE10_POWER_DIGIT = CTPow<10, MAX_EXP10_CIFRA>::result;
+
  
     /** Mayor 'n' tal que \f$10^n \leq 2^{base}\f$.
      * 

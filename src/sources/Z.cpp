@@ -1503,10 +1503,9 @@ namespace mpplas{
       }
 
       if( Z::precisionSalida_ == 0){ //sin limitacion
-        Digit potenciaInicial = (Digit)pow(10.0,Constants::MAX_EXP10_CIFRA);
         while( num.longitud() > 1 ){
-          resto = (num % potenciaInicial)[0]; 
-          num /= potenciaInicial; 
+          resto = (num % Constants::MAX_BASE10_POWER_DIGIT)[0]; 
+          num /= Constants::MAX_BASE10_POWER_DIGIT; 
           pila.push(resto);
         }
 
@@ -1527,10 +1526,10 @@ namespace mpplas{
           oss << "0";
         }
         else{
-          Digit potenciaInicial = (Digit)10;
+          const Digit ten(10);
           while( !num.esCero() ){
-            resto = (num % potenciaInicial)[0]; 
-            num /= potenciaInicial; 
+            resto = (num % ten)[0]; 
+            num /= ten; 
             pila.push(resto);
             //      digitos10++;
           }
@@ -1593,7 +1592,6 @@ namespace mpplas{
     Digit n = 0;
     int numDigits = 0;
     res.hacerCero();
-    static Digit const potenciaInicial = (Digit)pow(10.0,Constants::MAX_EXP10_CIFRA);
 
     while( in.get(c) ) {
       if( std::isdigit(c) ) {
@@ -1602,7 +1600,7 @@ namespace mpplas{
         n += c - '0';  //FIXME: is this portable?
         if( numDigits >= Constants::MAX_EXP10_CIFRA ){ //shouldn't ever be >
           //put into the number to return
-          res *= potenciaInicial;
+          res *= Constants::MAX_BASE10_POWER_DIGIT;
           res += n;
           n = numDigits = 0;
         }

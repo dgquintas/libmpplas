@@ -11,8 +11,6 @@
 
 namespace mpplas{
 
-  
-
   ZM_n::ZM_n(const Z& mod) 
     : _mod(mod) 
   {
@@ -60,6 +58,11 @@ namespace mpplas{
 
     return *this;
   }
+
+
+////////////////////////////////////////////////////////
+
+
 
   ZM_n& ZM_n::operator+=(const ZM_n& rhs){
     Z& thisAsZ(*this);
@@ -124,9 +127,44 @@ namespace mpplas{
   }
 
 
+  ZM_n& ZM_n::operator^=(const Z& e){
+    const ZM_n original(*this);
+    *this = _r;
+    static const Digit BASEMASK = ((Digit)1) << (Constants::BITS_EN_CIFRA -1);
+
+    const int initialBitPos = (e.numBits()-1);
+    int cifraPos = initialBitPos >> Constants::LOG_2_BITS_EN_CIFRA;
+    Digit inDigitPosMask = 1;
+    inDigitPosMask <<= ( initialBitPos & ((1<<Constants::LOG_2_BITS_EN_CIFRA)-1) ); //ie, i % BITS_EN_CIFRA
+    for(int i = initialBitPos; i >= 0 ; i--){
+      this->square();
+      if( (e[cifraPos] & inDigitPosMask ) ){ 
+        //si el i-esimo bit de "e" es uno...
+        *this = _montgomeryProd(*this, original);
+      }
+      inDigitPosMask >>= 1;
+      if( !inDigitPosMask ){
+        cifraPos--;
+        inDigitPosMask = BASEMASK;
+      }
+    }
+
+    return *this;
+  }
+
+
+
 
   ZM_n& ZM_n::inverse(){
     *this = _newMontgomeryInverse(*this);
+
+    return *this;
+  }
+
+  ZM_n& ZM_n::square(){
+    this->cuadrado();
+
+    _montgomeryRed( *this );
 
     return *this;
   }
@@ -171,6 +209,11 @@ namespace mpplas{
     return lhs;
   }
 
+  ZM_n operator^(ZM_n base, const Z& exp){
+    base ^= exp;
+
+    return base;
+  }
 
   ///////////////////////////////////////
 

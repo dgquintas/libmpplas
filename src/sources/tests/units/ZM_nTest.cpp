@@ -29,8 +29,10 @@ ZM_nTest::ZM_nTest()
 
   addTest(ZM_nTest, testProductWithZ);
   addTest(ZM_nTest, testProductWithZM_n);
+  
+  addTest(ZM_nTest, testSquare);
 
-//  addTest(ZM_nTest, testExponentiation);
+  addTest(ZM_nTest, testExponentiation);
 //  addTest(ZM_nTest, testExponentiation);
 
 }
@@ -161,26 +163,41 @@ void ZM_nTest::testProductWithZM_n(){
   qassertTrue( pariStr == thisStr );
 }
 
+void ZM_nTest::testSquare(){
+  ZM_n res( *modularInteger );
+  res.square();
+
+  string tmp;
+  tmp += '(';
+  tmp += modularInteger->toZ().toString();
+  tmp += " * ";
+  tmp += modularInteger->toZ().toString();
+  tmp += ") % ";
+  tmp += modulus.toString();
+
+  string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
+  string thisStr = res.toZ().toString();
+
+  qassertEquals(  thisStr,pariStr );
+}
 
 
 
 
+void ZM_nTest::testExponentiation(){
+  ZM_n res(*modularInteger ^ integer) ; 
 
+  GEN x,y,m;
 
-//void ZM_nTest::testExponentiation(){
-//  ZM_n res(*modularInteger ^ integer) ; 
-//
-//  GEN x,y,m;
-//
-//  x = gp_read_str(const_cast<char*>(modularInteger->toZ().toString().c_str()));
-//  y = gp_read_str(const_cast<char*>(integer.toString().c_str()) );
-//  m = gp_read_str(const_cast<char*>(modulus.toString().c_str()));
-//
-//  GEN pariRes = Fp_pow(x,y,m);
-//
-//  string pariStr(GENtostr( pariRes ));
-//  string thisStr = res.toZ().toString();
-//
-//  qassertTrue(pariStr == thisStr );
-//}
+  x = gp_read_str(const_cast<char*>(modularInteger->toZ().toString().c_str()));
+  y = gp_read_str(const_cast<char*>(integer.toString().c_str()) );
+  m = gp_read_str(const_cast<char*>(modulus.toString().c_str()));
+
+  GEN pariRes = Fp_pow(x,y,m);
+
+  string pariStr(GENtostr( pariRes ));
+  string thisStr = res.toZ().toString();
+
+  qassertEquals(thisStr, pariStr );
+}
 

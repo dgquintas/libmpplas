@@ -7,6 +7,11 @@
 
 namespace mpplas{
 
+#ifndef ARCHBITS
+  #warning "Architecture bits not defined. Using 32"
+  #define ARCHBITS 32
+#endif
+
   /** Basic data type. 
    *
    * It represents the base considered for Z, and will be the 

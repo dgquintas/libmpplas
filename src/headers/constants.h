@@ -12,10 +12,6 @@
 
 #include "BasicTypedefs.h"
 
-#ifndef ARCHBITS
-  #warning "Architecture bits not defined. Using 32"
-  #define ARCHBITS 32
-#endif
 
 #ifdef __GNUC__
   #define __FUNC_CONST_ATTRIB __attribute__ ((const))

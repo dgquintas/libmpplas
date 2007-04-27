@@ -129,7 +129,7 @@ namespace mpplas{
 
   ZM_n& ZM_n::operator^=(const Z& e){
     const ZM_n original(*this);
-    *this = _r;
+    ((Z*)this)->operator=(_r);
     static const Digit BASEMASK = ((Digit)1) << (Constants::BITS_EN_CIFRA -1);
 
     const int initialBitPos = (e.numBits()-1);

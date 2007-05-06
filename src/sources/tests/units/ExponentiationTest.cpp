@@ -50,7 +50,7 @@ void ExponentiationTest::testSlidingWindowExp(){
   PotVentanaDeslizante potFunc;
   potFunc.potencia(&_base,_exp);
 
-  string pariStr(GENtostr( pariRes ));
+  std::string pariStr(GENtostr( pariRes ));
   qassertTrue( _base.toString() == pariStr );
 
 }
@@ -60,7 +60,7 @@ void ExponentiationTest::testExpLeftRight(){
   PotLeftRight potFunc;
   potFunc.potencia(&_base,_exp);
 
-  string pariStr(GENtostr( pariRes ));
+  std::string pariStr(GENtostr( pariRes ));
 
   qassertTrue ( _base.toString() == pariStr );
 
@@ -75,7 +75,7 @@ void ExponentiationTest::testExpMontgomery(){
   PotMontgomery potFunc;
   potFunc.potModular(&_base,_expZ,_mod);
 
-  string pariStr(GENtostr( pariRes ));
+  std::string pariStr(GENtostr( pariRes ));
   qassertEquals( _base.toString(), pariStr );
 }
 void ExponentiationTest::testExpBarrett(){
@@ -85,7 +85,7 @@ void ExponentiationTest::testExpBarrett(){
   ClasicoConBarrett potFunc;
   potFunc.potModular(&_base,_expZ,_mod);
 
-  string pariStr(GENtostr( pariRes ));
+  std::string pariStr(GENtostr( pariRes ));
   qassertTrue( _base.toString() == pariStr );
 
 }

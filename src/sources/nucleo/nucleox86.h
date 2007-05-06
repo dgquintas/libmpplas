@@ -1,18 +1,16 @@
 /* 
  * $Id$
  */
+#ifdef ARCH_x86
+namespace mpplas{
 
-  /******************************************************************
-   *                                                                 *
-   *               IMPLEMENTACI�N PARA ARQUITECTURA X86              *
-   *                                                                 *
-   ******************************************************************/ 
- 
+  namespace BasicCPU{
 
-  /** Suma b�sica de dos Digits para x86.
-   *
-   * @sa Add(Digit arg1, Digit arg2)
-   */
+   /**********************************
+   *   IMPLEMENTATION FOR X86
+   **********************************/ 
+
+
     inline Digit Add(Digit arg1, Digit arg2, Digit& overflow)
     {
       __asm__ ("xor %[_of], %[_of];"
@@ -26,10 +24,6 @@
       return arg1; 
     }
 
-  /** Suma b�sica extendida de dos Digits para x86.
-   *
-   * @sa Addx(Digit arg1, Digit arg2)
-   */
     inline Digit Addx(Digit arg1, Digit arg2, Digit& overflow) 
     { 
       __asm__ ("btr $0, %[_of];"
@@ -44,10 +38,6 @@
     }
 
 
-  /** Resta b�sica de dos Digits para x86.
-   *
-   * @sa Sub(Digit arg1, Digit arg2)
-   */
     inline Digit Sub(Digit arg1, Digit arg2, Digit& overflow) 
     { 
       __asm__ ("xor %[_of], %[_of];"
@@ -60,10 +50,6 @@
 
       return arg1; 
     }
-  /** Resta b�sica extendida de dos Digits para x86.
-   *
-   * @sa Subx(Digit arg1, Digit arg2)
-   */
     inline Digit Subx(Digit arg1, Digit arg2, Digit& overflow) 
     { 
       __asm__ ("btr $0, %[_of];" /* pone CF al valor del bit 0 de overflow */
@@ -76,10 +62,6 @@
       return arg1; 
     }
 
-  /** Producto de dos Digits para x86.
-   *
-   * @sa Mul(Digit arg1,Digit arg2)
-   */
     inline Digit Mul(Digit arg1,Digit arg2, Digit& resto) 
     { 
       __asm__ (" mull %[_arg2]" 
@@ -90,10 +72,6 @@
       return arg1; 
     }
 
-  /** Producto de dos Digits con suma para x86.
-   *
-   * @sa Addmul(Digit arg1,Digit arg2) 
-   */
     inline Digit Addmul(Digit arg1,Digit arg2, Digit& resto) 
     { 
       __asm__ (" mull %[_arg2];"
@@ -106,10 +84,6 @@
       return arg1; 
     }
 
-  /** Cociente y resto de dos Digits para x86. 
-   *
-   * @sa Div(Digit arg1, Digit arg2)
-   */
     inline Digit Div(Digit arg1, Digit arg2, Digit& resto) 
     { 
       __asm__ (" divl %[_arg2]" 
@@ -121,10 +95,6 @@
     }
 
 
-   /** Desplazamiento de bits a la izquierda para x86.
-    *
-    *  @sa Shiftl(Digit arg1,Digit arg2)
-    */
     inline Digit Shiftl(Digit arg1,Digit arg2, Digit& resto) 
     { 
       __asm__ ("xor %[_resto], %[_resto];"
@@ -137,10 +107,6 @@
       return arg1; 
     }
 
-  /** Desplazamiento de bits de la derecha para x86.
-   *
-   * @sa Shiftlr(Digit arg1,Digit arg2)
-   */
     inline Digit Shiftlr(Digit arg1,Digit arg2, Digit& resto) 
     { 
       __asm__ ("xor %[_resto], %[_resto];"
@@ -153,26 +119,23 @@
       return arg1; 
     }
 
-  /** Encabezado de ceros para x86.
-   *
-   * @sa Bfffo(Digit arg1) 
-   */
-    inline Digit Bfffo(Digit arg1) 
+    inline Digit Mnob(Digit arg) 
     {
       Digit ret;
-      if( arg1 == 0 ){
+      if( arg == 0 ){
         return 1;
       }
       else{
-        __asm__ (" bsrl %[_arg1], %[_ret]; \n\t" 
+        __asm__ (" bsrl %[_arg], %[_ret]; \n\t" 
                  " incl %[_ret]; \n\t"
             : [_ret] "=r" (ret) 
-            : [_arg1] "rm" (arg1) 
+            : [_arg] "rm" (arg) 
             ); 
 
         return ret; 
       }
     }
+  }
+}
 
-
-
+#endif

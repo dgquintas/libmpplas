@@ -6,30 +6,35 @@
 #include "Z.h"
 #include "Funciones.h"
 #include "Random.h"
-#include "constantes.h"
+#include "constants.h"
+#include "Profiling.h"
 
 using namespace std;
-using namespace numth;
+using namespace mpplas;
 
 
 int main()
 {
-  MiVec<Cifra> numVec;
+  Profiling& prof( Profiling::getReference() );
+
   RandomRapido *rnd = 0; 
   Funciones::getInstance()->getFunc(rnd);
-  rnd->ponerSemilla("12345");
+  rnd->ponerSemilla(Z("12345"));
   clock_t t0, t1;
   
-  const int i = 100000;
+  const int i = 1000;
   
-  Z num1 = rnd->leerBits(Constantes::BITS_EN_CIFRA * i);
-  Z num2 = rnd->leerBits(Constantes::BITS_EN_CIFRA * i);
+  Z num1 = rnd->leerBits(Constants::BITS_EN_CIFRA * i);
+  Z num2 = rnd->leerBits(Constants::BITS_EN_CIFRA * i);
 
-  t0 = clock();
+  prof.reset();
+  prof.startClock();
   num1 *= num2;
-  t1 = clock();
-
-  cout << ((float)(t1-t0))/CLOCKS_PER_SEC << endl;
+  double tpo = prof.stopClock();
+  ProfResults pr = prof.getResults();
+  cout << "grand total = " << pr.getTotalOps() << endl;
+  cout << "tpo = " << tpo << endl;
+  cout << pr << endl;
 
   return 0;
 }

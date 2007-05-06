@@ -37,7 +37,7 @@ namespace com_uwyn_qtunit{
       void testShiftl();
       void testShiftlr();
 
-      void testBfffo();
+      void testMnob();
 
     private:
       Digit one;

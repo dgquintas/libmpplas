@@ -152,6 +152,10 @@ namespace mpplas{
     return *this;
   }
 
+  ZM_n& ZM_n::operator^=(const SignedDigit e){
+    this->operator^=( Z(e) );
+    return *this;
+  }
 
 
 
@@ -214,6 +218,13 @@ namespace mpplas{
 
     return base;
   }
+ 
+  ZM_n operator^(ZM_n base, const SignedDigit exp){
+    base ^= exp;
+
+    return base;
+  }
+
 
   ///////////////////////////////////////
 

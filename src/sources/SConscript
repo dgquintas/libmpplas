@@ -1,5 +1,35 @@
 import time, sys, os, shutil
 
+filesStr = """
+    AlgebraUtils.cpp
+    CRT.cpp
+    Factor.cpp
+    Funciones.cpp
+    GCD.cpp
+    Hash.cpp
+    LCM.cpp
+    mp.cpp
+    Potencia.cpp
+    Primos.cpp
+    Profiling.cpp
+    ProfResults.cpp
+    ProfResult.cpp
+    Random.cpp
+    R.cpp
+    RedModular.cpp
+    Semillero.cpp
+    SimbolosLegendre.cpp
+    Trascendentes.cpp
+    Z.cpp
+    Z_n.cpp
+    ZM_n.cpp
+    VectorZ.cpp
+    VectorR.cpp
+    MatrixZ.cpp
+    MatrixR.cpp
+    """
+
+
 #############################################################
 #                    SUPPORT FUNCTIONS                      #
 #############################################################
@@ -18,38 +48,39 @@ def getNativelySupportedArchs():
 
   return tuple(natArchs)
 
+def manually_insert(inputPath,outputPath,condition):
+  import re
+  from os.path import dirname
+  from os import getcwd, chdir
+  oldPWD = getcwd()
+  chdir(dirname(inputPath))
+  input = open(inputPath,'r')
+  output = open(outputPath, 'w')
+  pragma_str = "#pragma __libmpplas_manual_include"
+  for line in input.xreadlines():
+    if line.strip()[:len(pragma_str)] == "#pragma __libmpplas_manual_include":
+      no_condition = False
+      cond_read = ""
+      if len(line.split()) == 2: #no cond
+        no_condition = True
+      else:
+        cond_read = line.split()[2]
+      include_line = input.next()
+      if cond_read == condition or no_condition:
+        m = re.match(r'#include "([a-zA-Z0-9\_\.]+)"', include_line.strip())
+        file_to_include = m.group(1)
+        output.write(open(file_to_include, 'r').read())
+    else:
+      output.write(line)
+  chdir(oldPWD)
 
 
 
 Import('env')
 
-env.Append( CPPPATH=['#/src/sources/nucleo'] )
 
-files = Split("""
-    AlgebraUtils.cpp
-    CRT.cpp
-    Factor.cpp
-    Funciones.cpp
-    GCD.cpp
-    Hash.cpp
-    LCM.cpp
-    mp.cpp
-    Potencia.cpp
-    Primos.cpp
-    Random.cpp
-    R.cpp
-    RedModular.cpp
-    Semillero.cpp
-    SimbolosLegendre.cpp
-    Trascendentes.cpp
-    Z.cpp
-    Z_n.cpp
-    ZM_n.cpp
-    VectorZ.cpp
-    VectorR.cpp
-    MatrixZ.cpp
-    MatrixR.cpp
-    """)
+
+
 
 env.Append(CCFLAGS = ' -pipe ')
 env.Append(CCFLAGS = ' -O' + env['optLevel'])
@@ -72,14 +103,14 @@ except ImportError:
   print "Platform support checking not supported by the Python installed: " + sys.version
   env['SYSTEMBITS'] = "32"
 
-if env['enableProf']:
-  env['arch'] += 'Prof'
 env.Append(CPPDEFINES = 'ARCH_' + env['arch'] )
 
 if env['arch'][:6] == 'x86_64':
   env.Append(CPPDEFINES = [('ARCHBITS', '64')])
+  env['archbits'] = 64
 else:
   env.Append(CPPDEFINES = [('ARCHBITS', '32')])
+  env['archbits'] = 32 
 
 
 if env['enableRelease']:
@@ -91,6 +122,26 @@ if env['enableRelease']:
 
 if env['enableDebug']:
   env.Append(CCFLAGS = ' -ggdb3')
+
+kernelsDir = '#/src/sources/nucleo/'
+if env['enableAOPProf']:
+  if not env.GetOption('clean'):
+    from os import system
+    from os import getcwd, chdir
+    oldCWD = getcwd()
+    chdir(str(Dir(kernelsDir)))
+    manually_insert( str(Dir(kernelsDir+ 'nucleo.h')) , str(Dir(kernelsDir+ 'aop/nucleo.h')) , env['arch'] )
+    kernelsDir += 'aop/'
+    Execute(Delete( './aop/out'))
+    chdir(str(Dir(kernelsDir)))
+    AOPCommand = "ac++ -DARCH_%s -DARCHBITS=%d -p . -I %s -d ./out"  \
+                  % (env['arch'], env['archbits'], Dir('#/src/headers') )
+    kernelsDir += 'out/'
+    print AOPCommand
+    system(AOPCommand)
+    chdir(oldCWD)
+
+env.Append( CPPPATH=[kernelsDir] )
 
 if env['enableWarnings']:
   env.Append(CCFLAGS = ' -Wall -W')
@@ -124,24 +175,32 @@ else:
   if not conf.CheckType('int32_t', '#include <stdint.h>\n', 'C++'):
     print 'Could not find C99 type "int32_t". Exiting...'
     Exit(1)
-  if env['enableOpenmp'] and conf.CheckCXXHeader('omp.h','<>'):
-    if( env['CXX'][:3] == 'g++' ): #gcc
-      tmpEnv = env.Copy()
-      env.Append(CPPFLAGS='-fopenmp', LIBS='-lgomp')
+  if env['enableOpenmp']:
+    if conf.CheckCXXHeader('omp.h','<>'):
+      if( env['CXX'][:3] == 'g++' ): #gcc
+        tmpEnv = env.Copy()
+        env.Append(CPPFLAGS='-fopenmp', LIBS='-lgomp')
+        
+      elif ( env['CXX'][:2] == 'ic' ): #intel c compiler
+        tmpEnv = env.Copy()
+        env.Append(CPPFLAGS='-openmp', LINKFLAGS='-openmp')
+        
+      if conf.CheckOpenMP():
+        print 'OpenMP support present'
+      else:
+        print 'OpenMP support *not* present'
+        env = tmpEnv #restore the previous environment
+        filesStr += ' omp_mock.cpp '
+    else: #failed omp.h header check
+      filesStr += ' omp_mock.cpp '
+  else:
+    filesStr += ' omp_mock.cpp '
       
-    elif ( env['CXX'][:2] == 'ic' ): #intel c compiler
-      tmpEnv = env.Copy()
-      env.Append(CPPFLAGS='-openmp', LINKFLAGS='-openmp')
-      
-    if conf.CheckOpenMP():
-      print 'OpenMP support present'
-    else:
-      print 'OpenMP support *not* present'
-      env = tmpEnv #restore the previous environment
-    
   env = conf.Finish()
   # configuring ends
 
+
+files = Split(filesStr)
 
 lib = env.SharedLibrary('mpplas', files)
 env.Default(lib)
@@ -150,6 +209,8 @@ Alias('all', lib)
 env.Install(env['INSTALL_DIR_LIB'], lib)
 Alias('install',env['INSTALL_DIR_LIB'])
 Alias('all', 'install')
+env.Clean('all', '#/src/sources/nucleo/aop/out/')
+env.Clean('lib', '#/src/sources/nucleo/aop/out/')
 
 env.Append(LIBPATH = [Dir(env['INSTALL_DIR_LIB'])])
 Export('env')

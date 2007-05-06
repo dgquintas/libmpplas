@@ -52,7 +52,7 @@ void ReductionTest::testMontgomeryPrecomp(){
 
   GEN pariRes = Fp_invsafe(x,m);
   qassertTrue( pariRes );
-  string pariStr(GENtostr( pariRes ));
+  std::string pariStr(GENtostr( pariRes ));
   dummy -= Z(pariStr);
 
   Z libsRes = _redMont.precomputaciones(_integer);
@@ -81,7 +81,7 @@ void ReductionTest::testMontgomeryReduction(){
   GEN pariRes = gmod(x,m);
 
   qassertTrue( pariRes );
-  string pariStr(GENtostr( pariRes ));
+  std::string pariStr(GENtostr( pariRes ));
   
   Z mPrima = _redMont.precomputaciones(primeMod);
 
@@ -108,7 +108,7 @@ void ReductionTest::testBarrettPrecomp(){
 
   Z mu( _redBarret.precomputaciones(mod) );
 
-  string pariStr(GENtostr( pariRes ));
+  std::string pariStr(GENtostr( pariRes ));
   qassertTrue( mu.toString() == pariStr );
 
 
@@ -127,7 +127,7 @@ void ReductionTest::testBarrettReduction(){
 
   Z mu( _redBarret.precomputaciones(mod) );
   _redBarret.redBarrett(&_integer, mod, mu);
-  string pariStr(GENtostr( pariRes ));
+  std::string pariStr(GENtostr( pariRes ));
   qassertTrue( _integer.toString() == pariStr );
 
 

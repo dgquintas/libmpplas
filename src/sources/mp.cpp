@@ -4,13 +4,14 @@
 
 #include <algorithm>
 #include <utility>
+#include <iostream>
 
 #include "mp.h"
 #include "nucleo.h"
 
 
 namespace mpplas{
-  void vCPUVectorial::stats(){ vCPUBasica::stats(); }
+
   /*** OPERACIONES BASICAS EN VECTORES UNSIGNED ***/
   /*** DESPLAZAMIENTO ***/
   void vCPUVectorial::lShift(mpplas::MiVec <Digit>& a, const size_t n)
@@ -34,7 +35,7 @@ namespace mpplas{
     if(fraccion){
       a.push_back(0);
       for( unsigned long i = a.size() - 2;  ; i--){
-        a[i] = vCPUBasica::Shiftl(a[i],fraccion, resto);
+        a[i] = BasicCPU::Shiftl(a[i],fraccion, resto);
         //      a[i+1] = Add(a[i+1], resto);
         a[i+1] |= resto;
         if( i == 0 )
@@ -71,9 +72,9 @@ namespace mpplas{
 
     Digit resto = 0;
     if(fraccion){
-      a[0] = vCPUBasica::Shiftlr(a[0], fraccion, resto);
+      a[0] = BasicCPU::Shiftlr(a[0], fraccion, resto);
       for(unsigned long i = 1; i < a.size() ; i++){
-        a[i] = vCPUBasica::Shiftlr(a[i], n, resto);
+        a[i] = BasicCPU::Shiftlr(a[i], n, resto);
         //      a[i-1] = Add(a[i-1],resto);
         a[i-1] |= resto;
       }
@@ -84,7 +85,7 @@ namespace mpplas{
   }
 
     size_t vCPUVectorial::numBits(const Digit num) {
-      return vCPUBasica::Bfffo(num);
+      return BasicCPU::Mnob(num);
     }
 
 
@@ -286,14 +287,14 @@ namespace mpplas{
       size_t i;
       Digit overflow = 0;
       for(i = 0; i < tamB; i++){
-        c[i]= vCPUBasica::Addx((*mayor)[i],(*menor)[i], overflow);
+        c[i]= BasicCPU::Addx((*mayor)[i],(*menor)[i], overflow);
         // el propio "loop" del n� del desbordarse es 
         // equivalente al modulo. FIXME: no te fies de
         // esto
       }
 
       for(; i < tamA; i++){
-        c[i] = vCPUBasica::Addx((*mayor)[i],0, overflow);
+        c[i] = BasicCPU::Addx((*mayor)[i],0, overflow);
       }
 
       if( i < c.size() ){
@@ -314,10 +315,10 @@ namespace mpplas{
       size_t i;
 
       Digit overflow = 0;
-      c[0]= vCPUBasica::Addx(a[0],b, overflow);
+      c[0]= BasicCPU::Addx(a[0],b, overflow);
 
       for(i=1; i < tamA; i++)
-        c[i] = vCPUBasica::Addx(a[i],0, overflow);
+        c[i] = BasicCPU::Addx(a[i],0, overflow);
 
       if( i < c.size() )
         c[i] = overflow;
@@ -346,10 +347,10 @@ namespace mpplas{
       Digit overflow = 0;
       size_t i;
       for(i = 0; i < tamB; i++)
-        c[i] = vCPUBasica::Subx(a[i],b[i], overflow);
+        c[i] = BasicCPU::Subx(a[i],b[i], overflow);
 
       for(; i < tamA; i++)
-        c[i] = vCPUBasica::Subx(a[i],0, overflow);
+        c[i] = BasicCPU::Subx(a[i],0, overflow);
 
 
       limpiarCeros(c);
@@ -364,10 +365,10 @@ namespace mpplas{
       mpplas::MiVec<Digit> c(tamA,0);
 
       Digit overflow = 0;
-      c[0] = vCPUBasica::Subx(a[0],b, overflow);
+      c[0] = BasicCPU::Subx(a[0],b, overflow);
 
       for(size_t i=1; i < tamA; i++)
-        c[i] = vCPUBasica::Subx(a[i],0, overflow);
+        c[i] = BasicCPU::Subx(a[i],0, overflow);
 
       limpiarCeros(c);
 
@@ -380,7 +381,7 @@ namespace mpplas{
 
       mpplas::MiVec<Digit> c(1);
       Digit overflow = 0;
-      c[0] = vCPUBasica::Sub(a,b[0], overflow);
+      c[0] = BasicCPU::Sub(a,b[0], overflow);
 
       limpiarCeros(c);
 
@@ -426,24 +427,24 @@ namespace mpplas{
         // para que al compilar con optimizaciones no se de
         // el caso de que se utilize "u" sin haberse inicializado
         // en el punto (1) posterior 
-          v = vCPUBasica::Add(c, w[i], overflow);
+          v = BasicCPU::Add(c, w[i], overflow);
           u = overflow;
 
           resto = v; //para su uso por Addmul
 
-          v = vCPUBasica::Addmul(a[0],b[i], resto);
+          v = BasicCPU::Addmul(a[0],b[i], resto);
           u += resto;
 
           w[i] = v;
           c = u;
           
         for(size_t j=1; j < tamA; j++){
-          v = vCPUBasica::Add(c, w[i+j], overflow);
+          v = BasicCPU::Add(c, w[i+j], overflow);
           u = overflow;
 
           resto = v; //para su uso por Addmul
 
-          v = vCPUBasica::Addmul(a[j],b[i], resto);
+          v = BasicCPU::Addmul(a[j],b[i], resto);
           u += resto;
 
           w[i+j] = v;
@@ -467,11 +468,11 @@ namespace mpplas{
       Digit resto = 0, overflow = 0;
       int i;
       for(i=0; i < tamA; i++){
-        c[i] = vCPUBasica::Addmul(a[i],b, resto);    
+        c[i] = BasicCPU::Addmul(a[i],b, resto);    
       }
 
       // i == tamA
-      c[i] = vCPUBasica::Add(c[i], resto, overflow);
+      c[i] = BasicCPU::Add(c[i], resto, overflow);
 
       limpiarCeros(c);
 
@@ -563,9 +564,9 @@ namespace mpplas{
         Digit cA, cB; // versiones para "carry" de "u"
 
         // (uA uB v) = x[i]*x[i] + w[2*i]
-        v = vCPUBasica::Mul(x[i],x[i], resto);
+        v = BasicCPU::Mul(x[i],x[i], resto);
         uB = resto;
-        v = vCPUBasica::Add(v, w[2*i], overflow);
+        v = BasicCPU::Add(v, w[2*i], overflow);
         uB += overflow; //ya que aqui no va a darse nunca un 2� overflow
         uA = 0;
 
@@ -581,23 +582,23 @@ namespace mpplas{
 
 
           //      (A)
-          v = vCPUBasica::Mul(x[j],x[i], resto);
+          v = BasicCPU::Mul(x[j],x[i], resto);
           uB = resto;
-          v = vCPUBasica::Shiftl(v, 1, resto); // *2 
+          v = BasicCPU::Shiftl(v, 1, resto); // *2 
           Digit restoTemp = resto;
-          uB = vCPUBasica::Shiftl(uB, 1, resto); // *2
+          uB = BasicCPU::Shiftl(uB, 1, resto); // *2
           uA = resto;
-          uB = vCPUBasica::Add(uB, restoTemp, overflow);
+          uB = BasicCPU::Add(uB, restoTemp, overflow);
           uA += overflow; 
 
           //     (B)
-          v = vCPUBasica::Add(v,w[i+j], overflow);
-          uB = vCPUBasica::Addx(uB,0, overflow);
+          v = BasicCPU::Add(v,w[i+j], overflow);
+          uB = BasicCPU::Addx(uB,0, overflow);
           uA += overflow;
 
           //     (C)
-          v = vCPUBasica::Add(v,cB, overflow);
-          uB = vCPUBasica::Addx(uB,cA, overflow);
+          v = BasicCPU::Add(v,cB, overflow);
+          uB = BasicCPU::Addx(uB,cA, overflow);
           uA += overflow;
 
           w[i+j] = v;
@@ -642,9 +643,7 @@ namespace mpplas{
       //obtenemos el digito mas significativo del divisor
       //=> siempre sera el se�alado por size() - 1 (o deberia serlo)
 
-      d = Constants::BITS_EN_CIFRA - vCPUBasica::Bfffo(b[tamB]); // n� de ceros a la izq
-      // del 1er bit del long 
-      // en cuestion 
+      d = Constants::BITS_EN_CIFRA - BasicCPU::Mnob(b[tamB]); 
 
       // multiplicar dividendo y divisor por 2^d
       if( menorque(a,b) ) // si el dividendo es menor que el divisor...
@@ -675,7 +674,7 @@ namespace mpplas{
           _q = Constants::CIFRA_MAX; // base-1
         else{
           Digit resto = a[j];
-          _q = vCPUBasica::Div(a[j-1],b[tamB], resto);
+          _q = BasicCPU::Div(a[j-1],b[tamB], resto);
         }
 
         mpplas::MiVec<Digit>b2;
@@ -714,7 +713,7 @@ namespace mpplas{
 //        bool centinela = false;
 //        bool segundaVez = false;
 //        bool terceraVez = false;
-//        Digit restoGuardado = vCPUBasica::resto;
+//        Digit restoGuardado = BasicCPU::resto;
 //        do{
 //          if(terceraVez)
 //            break; //se demuestra que como maximo se comete un error de 2 en _q
@@ -795,7 +794,7 @@ namespace mpplas{
       mpplas::MiVec<Digit> q(a.size());
 
       for(SignedDigit j=a.size()-1; j>=0; j--){
-        q[j] = vCPUBasica::Div(a[j], b, resto);
+        q[j] = BasicCPU::Div(a[j], b, resto);
       }
 
       //No es necesario llevar cuenta del resto aparte ya que la CPU

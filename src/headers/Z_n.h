@@ -93,6 +93,7 @@ namespace mpplas{
       Z_n& operator^=(const SignedDigit e);
       Z_n& operator^=(const Z& e);
    
+      Z_n& inverse();
       
       Z_n& cuadrado(void);
       

@@ -13,11 +13,7 @@
 #include <cassert>
 #include <memory>
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
-using namespace std;
+#include "SingletonMixIn.h"
 
 namespace mpplas{
 
@@ -28,11 +24,9 @@ namespace mpplas{
    * algoritmos básicos") en lo relativo al repositorio de
    * funciones. 
    */
-  class Funciones
+  class Funciones : public SingletonMixIn<Funciones>
   {
     public:
-
-      static Funciones* getInstance() ;
 
       void setFunc(AbstractMethod* const m){
         _get_lock();
@@ -49,50 +43,20 @@ namespace mpplas{
           return;
         }
 
-
-      ~Funciones();
+      virtual ~Funciones();
 
     private:
-#ifdef _OPENMP
-      omp_nest_lock_t lock;
-#endif
-
-      Funciones() {
-#ifdef _OPENMP
-        omp_init_nest_lock(&lock);
-#endif
-      };
-
-
-      inline void _get_lock(){
-#ifdef _OPENMP
-        omp_set_nest_lock(&lock);
-#endif
-          //if not defined, there's no need to do anything
-          return;
-      }
-      
-      inline void _release_lock(){
-#ifdef _OPENMP
-        omp_unset_nest_lock(&lock);
-#endif
-          //if not defined, there's no need to do anything
-          return;
-      }
-
-
-
-      static const auto_ptr< Funciones > singletonInstance;
+      Funciones();
 
       void _set(AbstractMethod* const m){
-        const string name(typeid(*m).name());
+        const std::string name(typeid(*m).name());
         _methods[name] = m;
       };
 
 
       template<typename T>
         void _get(T* &m) {
-          const string name(typeid(T).name());
+          const std::string name(typeid(T).name());
           if( _methods.find(name) == _methods.end() ){
             // if not method instance has been set for method type,
             // its default (::DFL type) one is used.
@@ -107,7 +71,9 @@ namespace mpplas{
         }
 
 
-      map<string, AbstractMethod* > _methods;
+      std::map<std::string, AbstractMethod* > _methods;
+
+      friend class SingletonMixIn< Funciones >;
 
   };
 

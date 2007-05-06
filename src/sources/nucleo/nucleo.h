@@ -5,17 +5,15 @@
 #ifndef __NUCLEO_H
 #define __NUCLEO_H
 
-#include "constants.h"
-#include "err.h"
 #include <cstring>
 #include <ctime>
 
-
+#include "constants.h"
+#include "err.h"
 
 namespace mpplas{
 
-  namespace vCPUBasica{
-
+  namespace BasicCPU{
 
     /** Basic summation of two Digits
      *
@@ -192,80 +190,51 @@ namespace mpplas{
      almacena en resto los BITS_EN_CIFRA de la parte baja. Se asume que 0 <= b < lg2 B.*/
     inline Digit Shiftlr(Digit arg1,Digit arg2, Digit& resto) ;
  
-    
-    /** Encabezado de ceros.
+    /** Minimum number of bits.
      *
-     * Devuelve en el número de ceros binarios a la izquierda del primer uno.
-     *  Esto es, el número de posiciones que habria que desplazar el número binario
-     *  hacia la izquierda para que su cifra más significativa fuera 1. 
+     * Returns the minimum number of bits needed to represent @arg.
      *
-     *  Acronim of "Bit Field Find First One set"
+     * \par Definition:
+     *  \$f Nnob(x) = \floor{ \log_2{arg} } + 1 \$f
      *
-     * \par Definición:
-     *    Bfffo(a) = Menor natural \f$ n \f$ tal que \f$ a \cdot
-     *    2^{n} \geq BASE/2 \f$
-     * 
-     * @param arg1 Entero a considerar.
+     * @param arg The Digit to consider.
      *
-     * @return El número de ceros binarios a la izquierda del primer uno.
+     * @return The minimum number of bits needed to represent @arg.
      */
-    /* c = Bfffo(a) devuelve en c el número de ceros binarios a la izquierda del primer uno.
-       Esto es, el número de posiciones que habria que desplazar el número binario
-       hacia la izquierda para que su cifra más significativa fuera 1. */
-    inline Digit Bfffo(Digit arg1) __FUNC_CONST_ATTRIB;
+    inline Digit Mnob(Digit arg1) __FUNC_CONST_ATTRIB;
 
+  };
 
-    inline void stats() {};
-
+}
 #ifdef ARCH_x86
-  #include "nucleox86.h"
   #define ARCH_DEFINED
 #endif
 
 #ifdef ARCH_x86_64
-  #include "nucleox86_64.h"
   #define ARCH_DEFINED
 #endif
 
 #ifdef ARCH_generic
-  #include "nucleogeneric.h"
-  #define ARCH_DEFINED
-#endif
-
-#ifdef ARCH_ppc
-  #include "nucleoppc.h"
   #define ARCH_DEFINED
 #endif
 
 #ifndef ARCH_DEFINED
   #warning "ARCH not supported or not defined. Using x86"
-  #include "nucleox86.h"
   #define ARCH_DEFINED
   #define ARCHBITS 32
 #endif
 
 
-  };
+#pragma __libmpplas_manual_include x86
+  #include "nucleox86.h"
+
+#pragma __libmpplas_manual_include x86_64
+  #include "nucleox86_64.h"
+
+#pragma __libmpplas_manual_include generic
+  #include "nucleogeneric.h"
 
 
-//    protected:
-    /** Digit que representa el acarreo en las operaciones de suma y
-     * resta. */
-//    Digit overflow; 
 
-    /** 
-     * Digit que representa:
-     * <ul>
-     * <li> Parte alta del resultado de una multiplicación
-     * <li> Parte alta del dividendo previamente a la división
-     * <li> Resto de una división tras la misma
-     * <li> Parte baja tras un desplazamiento hacia la izquierda
-     * <li> Parte alta tras un desplazamiento hacia la derecha
-     * </ul>
-     */
-//    Digit resto;
- 
-  
-}
 
 #endif

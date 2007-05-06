@@ -9,6 +9,7 @@
 #include <utility>
 #include <limits>
 #include <cassert>
+
 #include "err.h"
 #include "MiVec.h"
 #include "constants.h"
@@ -75,7 +76,8 @@ namespace mpplas{
     void karatsuba(MiVec<Digit>& resultado, const MiVec<Digit>& x, const MiVec<Digit>& y);
     void cuadKaratsuba(MiVec<Digit>& resultado, const MiVec<Digit>& x);
     
-    void stats(); 
+    void ProfStats();
+    void ProfReset();
   }
 }
 

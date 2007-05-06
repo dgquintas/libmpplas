@@ -269,6 +269,10 @@ namespace mpplas{
     return *this;
   }
 
+  Z_n& Z_n::inverse(){
+    this->operator^=((SignedDigit)-1);
+    return *this;
+  }
 
 
   std::istream& 

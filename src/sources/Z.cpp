@@ -1514,7 +1514,7 @@ namespace mpplas{
         oss << num[0];
 
         while( !pila.empty() ){
-          oss << std::setfill('0') << setw(Constants::MAX_EXP10_CIFRA) <<  pila.top();
+          oss << std::setfill('0') << std::setw(Constants::MAX_EXP10_CIFRA) <<  pila.top();
           pila.pop();
         }
       }

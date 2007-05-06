@@ -9,9 +9,9 @@ opts.AddOptions(
     EnumOption('arch', 'Target architecture', 'x86',
                 allowed_values=('generic','x86','x86Prof','ppc','x86_64','x86_64Prof')),
     
-    BoolOption('enableProf','Use the profiling version of the kernel', 0),
    # BoolOption('enableExtraOpt', 'Use extra optimization flags', 1),
     BoolOption('enableDebug', 'Generate debug symbols', 0),
+    BoolOption('enableAOPProf', 'Enable the profiling mechanisms via AOP', 0),
     BoolOption('enableOpenmp', 'Use OpenMP (if available)', 1),
     BoolOption('enableRelease', 'Generate a RELEASE version (optimized)', 0),
     BoolOption('enableWarnings', 'Compile with -Wall and similar flags', 0)

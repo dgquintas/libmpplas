@@ -2,17 +2,17 @@
  * $Id$
  */
 
+#ifdef ARCH_x86_64
 
-  /******************************************************************
-   *                                                                 *
-   *            IMPLEMENTACI�N PARA ARQUITECTURA X86_64              *
-   *                                                                 *
-   ******************************************************************/ 
+namespace mpplas{
 
-  /** Suma b�sica de dos Digits para x86_64.
-   *
-   * @sa Add(Digit arg1, Digit arg2)
-   */
+  namespace BasicCPU{
+
+
+  /**********************************
+   *   IMPLEMENTATION FOR X86_64
+   **********************************/ 
+
     inline Digit Add(Digit arg1, Digit arg2, Digit& overflow)
     {
       __asm__ ("xorq %[_of], %[_of];"
@@ -26,10 +26,6 @@
       return arg1; 
     }
 
-  /** Suma b�sica extendida de dos Digits para x86_64.
-   *
-   * @sa Addx(Digit arg1, Digit arg2)
-   */
     inline Digit Addx(Digit arg1, Digit arg2, Digit& overflow) 
     { 
       __asm__ ("btrq $0, %[_of];"
@@ -44,10 +40,6 @@
     }
 
 
-  /** Resta b�sica de dos Digits para x86_64.
-   *
-   * @sa Sub(Digit arg1, Digit arg2)
-   */
     inline Digit Sub(Digit arg1, Digit arg2, Digit& overflow) 
     { 
       __asm__  ("xorq %[_of], %[_of];"
@@ -60,10 +52,6 @@
 
       return arg1; 
     }
-  /** Resta b�sica extendida de dos Digits para x86_64.
-   *
-   * @sa Subx(Digit arg1, Digit arg2)
-   */
     inline Digit Subx(Digit arg1, Digit arg2, Digit& overflow) 
     { 
       __asm__  ("btrq $0, %[_of];" /* pone CF al valor del bit 0 de overflow */
@@ -76,10 +64,6 @@
       return arg1; 
     }
 
-  /** Producto de dos Digits para x86_64.
-   *
-   * @sa Mul(Digit arg1,Digit arg2)
-   */
     inline Digit Mul(Digit arg1,Digit arg2, Digit& resto) 
     { 
       __asm__ (" mulq %[_arg2]" 
@@ -90,10 +74,6 @@
       return arg1; 
     }
 
-  /** Producto de dos Digits con suma para x86_64.
-   *
-   * @sa Addmul(Digit arg1,Digit arg2) 
-   */
     inline Digit Addmul(Digit arg1,Digit arg2, Digit& resto) 
     { 
       __asm__ (" mulq %[_arg2];"
@@ -106,10 +86,6 @@
       return arg1; 
     }
 
-  /** Cociente y resto de dos Digits para x86_64. 
-   *
-   * @sa Div(Digit arg1, Digit arg2)
-   */
     inline Digit Div(Digit arg1, Digit arg2, Digit& resto) 
     { 
       __asm__ (" divq %[_arg2]" 
@@ -121,10 +97,6 @@
     }
 
 
-   /** Desplazamiento de bits a la izquierda para x86_64.
-    *
-    *  @sa Shiftl(Digit arg1,Digit arg2)
-    */
     inline Digit Shiftl(Digit arg1,Digit arg2, Digit& resto) 
     { 
       __asm__ ("xorq %[_resto], %[_resto];"
@@ -137,10 +109,6 @@
       return arg1; 
     }
 
-  /** Desplazamiento de bits de la derecha para x86_64.
-   *
-   * @sa Shiftlr(Digit arg1,Digit arg2)
-   */
     inline Digit Shiftlr(Digit arg1,Digit arg2, Digit& resto) 
     { 
       __asm__ ("xorq %[_resto], %[_resto];"
@@ -153,11 +121,7 @@
       return arg1; 
     }
 
-  /** Encabezado de ceros para x86_64.
-   *
-   * @sa Bfffo(Digit arg1) 
-   */
-    inline Digit Bfffo(Digit arg1) 
+    inline Digit Mnob(Digit arg1) 
     {
       Digit ret;
       if( arg1 == 0 ){
@@ -173,6 +137,7 @@
         return ret; 
       }
     }
+  }
+}
 
-
-
+#endif

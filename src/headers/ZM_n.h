@@ -53,6 +53,7 @@ namespace mpplas{
       ZM_n& operator/=(const ZM_n&);
 
       ZM_n& operator^=(const Z& e);
+      ZM_n& operator^=(const SignedDigit e);
 
       ZM_n& square(void);
       ZM_n& inverse(void);
@@ -105,6 +106,7 @@ namespace mpplas{
 
 
   ZM_n operator^(ZM_n base, const Z& exp); 
+  ZM_n operator^(ZM_n base, const SignedDigit exp);
 
 
 }

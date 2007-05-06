@@ -5,9 +5,6 @@
 #ifndef __NUCLEO_H
 #define __NUCLEO_H
 
-#include <cstring>
-#include <ctime>
-
 #include "constants.h"
 #include "err.h"
 

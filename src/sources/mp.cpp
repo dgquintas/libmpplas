@@ -20,26 +20,18 @@ namespace mpplas{
       return;
     }
     
-    unsigned long componentes = n / Constants::BITS_EN_CIFRA;
-    unsigned long fraccion = n % Constants::BITS_EN_CIFRA;
+    const size_t componentes = n / Constants::BITS_EN_CIFRA; //FIXME: this is optimizable: the divisor is a power of 2
+    const size_t fraccion = n % Constants::BITS_EN_CIFRA; //FIXME: idem
 
-    //  for(unsigned long i=0; i < componentes; i++){
-    //    //desplazamos a la izquierda componente a componente
-    //    //o lo que es lo mismo, se inserta una componente toda ceros
-    //    //en el principio
-    //    a.insert(a.begin(), 0);
-    //  }
     a.insert(a.begin(), componentes, 0);
 
     Digit resto = 0;
     if(fraccion){
       a.push_back(0);
-      for( unsigned long i = a.size() - 2;  ; i--){
+      for( int i = a.size() - 2; i >= 0 ; i--){
         a[i] = BasicCPU::Shiftl(a[i],fraccion, resto);
         //      a[i+1] = Add(a[i+1], resto);
         a[i+1] |= resto;
-        if( i == 0 )
-          break;
       }
     }
 
@@ -56,13 +48,14 @@ namespace mpplas{
 
   void vCPUVectorial::rShift(mpplas::MiVec <Digit> &a, const size_t n)
   {
-    if( (a.size() == 1) && (a[0] == 0) ) 
+    if( (a.size() == 1) && (a[0] == 0) ) {
       return;
+    }
 
-    unsigned long componentes = n / Constants::BITS_EN_CIFRA;
-    unsigned long fraccion = n % Constants::BITS_EN_CIFRA;
+    const size_t componentes = n / Constants::BITS_EN_CIFRA;
+    const size_t fraccion = n % Constants::BITS_EN_CIFRA;
 
-    for(unsigned long i=0; i < componentes; i++){
+    for(int i=0; i < componentes; i++){
       //desplazamos a la derecha componente a componente
       //o lo que es lo mismo, se inserta una componente toda ceros
       //en el principio y se borra la comp. del final
@@ -73,7 +66,7 @@ namespace mpplas{
     Digit resto = 0;
     if(fraccion){
       a[0] = BasicCPU::Shiftlr(a[0], fraccion, resto);
-      for(unsigned long i = 1; i < a.size() ; i++){
+      for(int i = 1; i < a.size() ; i++){
         a[i] = BasicCPU::Shiftlr(a[i], n, resto);
         //      a[i-1] = Add(a[i-1],resto);
         a[i-1] |= resto;
@@ -91,50 +84,55 @@ namespace mpplas{
 
   long vCPUVectorial::redondear(const mpplas::MiVec<Digit>& numero, size_t exceso, const int8_t signo)
   {
-    unsigned long indice = exceso - 1;
-    unsigned long componente = indice/Constants::BITS_EN_CIFRA;
-    unsigned long bcomponente = indice % Constants::BITS_EN_CIFRA;
-    unsigned long mascara = (1UL << bcomponente);
+    const size_t indice = exceso - 1;
+    size_t componente = indice/Constants::BITS_EN_CIFRA;
+    size_t bcomponente = indice % Constants::BITS_EN_CIFRA;
+    Digit mascara = ((Digit)1) << bcomponente;
 
     // RTE = round to even
     
     assert(componente < numero.size());
     if( numero[componente] & mascara ){ //1er bit de parte frac. es 1 -> posible RTE
-      mascara = mascara >> 1; //seguimos probando bits mas a la der.
+      mascara >>= 1; //seguimos probando bits mas a la der.
       while(true){ //saldremos via break
         Digit compActual = numero[componente];
         while(mascara){
-          if(compActual & mascara) //bit posterior al 1� es 1 => parte frac >0.5
+          if(compActual & mascara){ //bit posterior al 1� es 1 => parte frac >0.5
             return signo;
-          mascara = mascara >> 1;
+          }
+          mascara >>= 1;
         }
         //aqu�, mascara = 0
         //la "revivimos"
         if(componente != 0){
-          mascara = (1UL << (Constants::BITS_EN_CIFRA-1));
+          mascara = ( ((Digit)1) << (Constants::BITS_EN_CIFRA-1));
           componente--;
         }
-        else //componente == 0
+        else{ //componente == 0
           break;
+        }
       }
       //aqu�, todos excepto el primer bit decimal, han sido 0 =>
       //=> la parte frac. es exactamente 0.5
       //veamos si el digito a la izq del primer "conflictivo" es par o impar
       componente = exceso/Constants::BITS_EN_CIFRA;
       bcomponente = exceso % Constants::BITS_EN_CIFRA;
-      mascara = (1UL << bcomponente);
-      if( numero[componente] & mascara ) // el n� de impar
+      mascara = ( ((Digit)1) << bcomponente);
+      if( numero[componente] & mascara ) { // el n� de impar
         return signo;
-      else //n� par
+      }
+      else {//n� par
         return 0;
+      }
     }
-    else //1er bit frac. es 0 => parte frac <0.5
+    else { //1er bit frac. es 0 => parte frac <0.5
       return 0;
+    }
   }
 
 
   /*** COMPARACION ***/
-  bool vCPUVectorial::mayorque(mpplas::MiVec<Digit> a, mpplas::MiVec<Digit> b, bool limpiar) 
+  bool vCPUVectorial::mayorque(mpplas::MiVec<Digit> a, mpplas::MiVec<Digit> b, const bool limpiar) 
   {
     if(limpiar){
       limpiarCeros(a);
@@ -162,7 +160,7 @@ namespace mpplas{
 
   }
 
-  bool vCPUVectorial::menorque(mpplas::MiVec<Digit> a, mpplas::MiVec<Digit> b, bool limpiar ) 
+  bool vCPUVectorial::menorque(mpplas::MiVec<Digit> a, mpplas::MiVec<Digit> b, const bool limpiar ) 
   {
     if(limpiar){
       limpiarCeros(a);
@@ -190,7 +188,7 @@ namespace mpplas{
 
   }
 
-  bool vCPUVectorial::igual(mpplas::MiVec<Digit> a, mpplas::MiVec<Digit> b, bool limpiar ) 
+  bool vCPUVectorial::igual(mpplas::MiVec<Digit> a, mpplas::MiVec<Digit> b,const  bool limpiar ) 
   {
     if(limpiar){
       limpiarCeros(a);
@@ -206,7 +204,7 @@ namespace mpplas{
 
   }
 
-  bool vCPUVectorial::mayorque(mpplas::MiVec<Digit> vec, Digit num, bool limpiar ) 
+  bool vCPUVectorial::mayorque(mpplas::MiVec<Digit> vec, Digit num, const bool limpiar ) 
   {
     if(limpiar){
       limpiarCeros(vec);
@@ -221,7 +219,7 @@ namespace mpplas{
     }
   }
 
-  bool vCPUVectorial::menorque(mpplas::MiVec<Digit> vec, Digit num, bool limpiar ) 
+  bool vCPUVectorial::menorque(mpplas::MiVec<Digit> vec, Digit num, const bool limpiar ) 
   {
     if(limpiar){
       limpiarCeros(vec);
@@ -234,7 +232,7 @@ namespace mpplas{
       return (vec[0] < num);
   }
 
-  bool vCPUVectorial::igual(mpplas::MiVec<Digit> vec, Digit num, bool limpiar )  
+  bool vCPUVectorial::igual(mpplas::MiVec<Digit> vec, Digit num, const bool limpiar )  
   {
     if(limpiar){
       limpiarCeros(vec);

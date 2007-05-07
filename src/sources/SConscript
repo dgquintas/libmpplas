@@ -116,6 +116,10 @@ else:
 if env['enableRelease']:
   env.Append(CPPDEFINES = ['RELEASE','NDEBUG'])
  
+if env['enableSIMD']:
+  env.Append(CPPDEFINES = ['USESIMD'])
+  env.Append(CPPFLAGS='-msse')
+
 
 #if env['enableExtraOpt']: 
 #  env.Append(CCFLAGS = ' -ffast-math')  #FIXME: esto con icc no chuta
@@ -210,7 +214,7 @@ env.Install(env['INSTALL_DIR_LIB'], lib)
 Alias('install',env['INSTALL_DIR_LIB'])
 Alias('all', 'install')
 env.Clean('all', '#/src/sources/nucleo/aop/out/')
-env.Clean('lib', '#/src/sources/nucleo/aop/out/')
+env.Clean('all', '#/src/sources/nucleo/aop/nucleo.h')
 
 env.Append(LIBPATH = [Dir(env['INSTALL_DIR_LIB'])])
 Export('env')

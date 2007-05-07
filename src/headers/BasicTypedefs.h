@@ -5,6 +5,7 @@
 #ifndef __BASIC_TYPEDEFS
 #define __BASIC_TYPEDEFS
 
+
 namespace mpplas{
 
 #ifndef ARCHBITS
@@ -35,27 +36,15 @@ namespace mpplas{
 #elif ARCHBITS == 32
   typedef int32_t SignedDigit;
 #else 
-#error Unsupported number of bits ARCHBITS
+  #error Unsupported number of bits ARCHBITS
 #endif
 
-  //  /** Las arquitecturas soportadas */
-  //  struct Arch {
-  //    enum {
-  //      x86,
-  //      x86Prof,
-  //      x86_64,
-  //      x86_64Prof,
-  //      generic,
-  //      ppc
-  //    };
-  //  };
-  //
-  //  /** Las operaciones de la vCPUBasica */
-  //  struct Operaciones {
-  //    enum {
-  //      Add, Addx, Sub, Subx, Addmul, Mul, Div, Shiftl, Shiftlr, Bfffo
-  //    };
-  //  };
+#ifdef USESIMD
+  #include <xmmintrin.h>
+#else
+  typedef struct { float f[4]; } __attribute__ ((aligned (16))) __m128;
+#endif
+  typedef __m128 SIMDDigit;
 }
 
 #endif

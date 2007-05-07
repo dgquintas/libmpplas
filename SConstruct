@@ -14,7 +14,8 @@ opts.AddOptions(
     BoolOption('enableAOPProf', 'Enable the profiling mechanisms via AOP', 0),
     BoolOption('enableOpenmp', 'Use OpenMP (if available)', 1),
     BoolOption('enableRelease', 'Generate a RELEASE version (optimized)', 0),
-    BoolOption('enableWarnings', 'Compile with -Wall and similar flags', 0)
+    BoolOption('enableWarnings', 'Compile with -Wall and similar flags', 0),
+    BoolOption('enableSIMD', 'Use SIMD kernel (if available)', 0)
     )   
 
 env = Environment( options = opts, ENV=os.environ)

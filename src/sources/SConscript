@@ -48,12 +48,14 @@ def getNativelySupportedArchs():
 
   return tuple(natArchs)
 
-def manually_insert(inputPath,outputPath,condition):
+
+def manually_insert(inputPath,outputPath,conditions):
   import re
-  from os.path import dirname
-  from os import getcwd, chdir
+  from os.path import dirname,abspath
+  from os import getcwd, chdir, remove
+  from tempfile import mkstemp
   oldPWD = getcwd()
-  chdir(dirname(inputPath))
+  chdir(dirname(abspath(inputPath)))
   input = open(inputPath,'r')
   output = open(outputPath, 'w')
   pragma_str = "#pragma __libmpplas_manual_include"
@@ -66,15 +68,21 @@ def manually_insert(inputPath,outputPath,condition):
       else:
         cond_read = line.split()[2]
       include_line = input.next()
-      if cond_read == condition or no_condition:
+      if cond_read in conditions or no_condition:
         m = re.match(r'#include "([a-zA-Z0-9\_\.]+)"', include_line.strip())
         file_to_include = m.group(1)
-        output.write(open(file_to_include, 'r').read())
+        #parse input file for possible substitutions as well
+        tmpOutFile = mkstemp()[1]
+        manually_insert( file_to_include, tmpOutFile, conditions)
+        tmpOutFileDesc = open(tmpOutFile, 'r')
+        output.write(tmpOutFileDesc.read())
+        tmpOutFileDesc.close()
+        remove( tmpOutFile )
     else:
       output.write(line)
   chdir(oldPWD)
-
-
+  input.close()
+  output.close()
 
 Import('env')
 
@@ -116,9 +124,6 @@ else:
 if env['enableRelease']:
   env.Append(CPPDEFINES = ['RELEASE','NDEBUG'])
  
-if env['enableSIMD']:
-  env.Append(CPPDEFINES = ['USESIMD'])
-  env.Append(CPPFLAGS='-msse')
 
 
 #if env['enableExtraOpt']: 
@@ -127,29 +132,41 @@ if env['enableSIMD']:
 if env['enableDebug']:
   env.Append(CCFLAGS = ' -ggdb3')
 
-kernelsDir = '#/src/sources/nucleo/'
-if env['enableAOPProf']:
-  if not env.GetOption('clean'):
-    from os import system
-    from os import getcwd, chdir
-    oldCWD = getcwd()
-    chdir(str(Dir(kernelsDir)))
-    manually_insert( str(Dir(kernelsDir+ 'nucleo.h')) , str(Dir(kernelsDir+ 'aop/nucleo.h')) , env['arch'] )
-    kernelsDir += 'aop/'
-    Execute(Delete( './aop/out'))
-    chdir(str(Dir(kernelsDir)))
-    AOPCommand = "ac++ -DARCH_%s -DARCHBITS=%d -p . -I %s -d ./out"  \
-                  % (env['arch'], env['archbits'], Dir('#/src/headers') )
-    kernelsDir += 'out/'
-    print AOPCommand
-    system(AOPCommand)
-    chdir(oldCWD)
 
-env.Append( CPPPATH=[kernelsDir] )
 
 if env['enableWarnings']:
   env.Append(CCFLAGS = ' -Wall -W')
 #options processing ends
+
+def CheckSIMD(context):
+  context.Message('Checking for SIMD instructions support... ')
+  ret = context.TryRun(
+    r"""
+      #include <iostream>
+      #include <string>
+      int main(){
+      std::string res("[");
+      uint32_t eax, edx, ecx;
+      eax = 1;
+      asm ( "cpuid;"
+        : "=d"(edx), "=c"(ecx)
+        : "a"(eax)
+        );
+      if( edx & (1L << 23) ){ res += "\"MMX\"" ; }
+      if( edx & (1L << 25) ){ res += ", \"SSE\"" ; }
+      if( edx & (1L << 26) ){ res += ", \"SSE2\"" ;}
+      if( ecx & (1L) ){ res += ", \"SSE3\"" ; }
+      if( ecx & (1L << 9) ){ res += ", \"SSSE3\"" ; } 
+      res += "]";
+      std::cout << res ;
+      return 0;
+      }
+    """, '.cpp')
+  if ret[0]:
+    context.env["SIMD"] = ret[1]
+  context.Result(ret[0])
+  return ret[0]
+      
 
 def CheckOpenMP(context):
   context.Message('Checking for OpenMP support... ')
@@ -172,13 +189,30 @@ if env.GetOption('clean'):
   if os.path.exists(File(env['CONFIG_LOG']).abspath):
     os.remove(File(env['CONFIG_LOG']).abspath)
 else:
-  conf = Configure(env,log_file=env['CONFIG_LOG'],custom_tests = {'CheckOpenMP':CheckOpenMP} )
+  conf = Configure(env,log_file=env['CONFIG_LOG'],custom_tests = {'CheckOpenMP':CheckOpenMP , 'CheckSIMD':CheckSIMD} )
   if not conf.CheckType('uint32_t', '#include <stdint.h>\n', 'C++'):
     print 'Could not find C99 type "uint32_t". Exiting...'
     Exit(1)
+
   if not conf.CheckType('int32_t', '#include <stdint.h>\n', 'C++'):
     print 'Could not find C99 type "int32_t". Exiting...'
     Exit(1)
+
+  if env['enableSIMD'] != 'nosimd' and conf.CheckSIMD():
+    msg = "SIMD instructions present: " + str(env['SIMD']) + ". "
+    if env['enableSIMD'] == "sse2" and "SSE2" in env['SIMD']:
+      env.Append(CPPFLAGS='-msse2')
+      msg += "Using SSE2"
+    elif env['enableSIMD'] == "sse" and "SSE" in env['SIMD']:
+      env.Append(CPPFLAGS='-msse')
+      msg += "Using SSE"
+    print msg
+  else: # simd = nosimd
+    print "SIMD instructions *not* present or disabled"
+    env.Append(CPPDEFINES = 'USESIMD_' + 'nosimd' )
+  
+  env.Append(CPPDEFINES = 'USESIMD_' + env['enableSIMD'] )
+
   if env['enableOpenmp']:
     if conf.CheckCXXHeader('omp.h','<>'):
       if( env['CXX'][:3] == 'g++' ): #gcc
@@ -202,6 +236,31 @@ else:
       
   env = conf.Finish()
   # configuring ends
+
+kernelsDir = '#/src/sources/nucleo/'
+if env['enableAOPProf']:
+  if not env.GetOption('clean'):
+    from os import system
+    from os import getcwd, chdir
+    oldCWD = getcwd()
+    chdir(str(Dir(kernelsDir)))
+    manually_insert( str(Dir(kernelsDir+ 'nucleo.h')) , str(Dir(kernelsDir+ 'aop/nucleo.h')) , ( env['arch'], env['enableSIMD'] ) )
+    kernelsDir += 'aop/'
+    Execute(Delete( './aop/out'))
+    chdir(str(Dir(kernelsDir)))
+    simdDefs = ""
+    if env['enableSIMD'] == "sse2":
+      simdDefs = "-D__SSE2__ -D__SSE__ -D__MMX__"
+    elif env['enableSIMD'] == "sse":
+      simdDefs = "-D__SSE__ -D__MMX__"
+    AOPCommand = "ac++ -DUSESIMD_%s %s -DARCH_%s -DARCHBITS=%d -p . -I %s -d ./out"  \
+                  % ( env['enableSIMD'], simdDefs, env['arch'], env['archbits'], Dir('#/src/headers') )
+    kernelsDir += 'out/'
+    print AOPCommand
+    system(AOPCommand)
+    chdir(oldCWD)
+
+env.Append( CPPPATH=[kernelsDir] )
 
 
 files = Split(filesStr)

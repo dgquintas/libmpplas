@@ -39,12 +39,28 @@ namespace mpplas{
   #error Unsupported number of bits ARCHBITS
 #endif
 
-#ifdef USESIMD
-  #include <xmmintrin.h>
-#else
+#ifdef USESIMD_nosimd
   typedef struct { float f[4]; } __attribute__ ((aligned (16))) __m128;
+  typedef struct { double d[2]; } __attribute__ ((aligned (16))) __m128d;
+  typedef struct { char int32_t[4]; } __attribute__ ((aligned (16))) __m128i;
 #endif
-  typedef __m128 SIMDDigit;
+
+#ifdef USESIMD_sse
+  #include <xmmintrin.h>
+  typedef struct { double d[2]; } __attribute__ ((aligned (16))) __m128d;
+  typedef struct { char int32_t[4]; } __attribute__ ((aligned (16))) __m128i;
+#endif
+
+#ifdef USESIMD_sse2
+  #include <emmintrin.h>
+#endif
+
+  union SIMDDigit {
+    __m128 f;
+    __m128d d;
+    __m128i i;
+  };
+
 }
 
 #endif

@@ -57,126 +57,23 @@ namespace mpplas{
         SIMDCPUImpl<T>::Unpack(out,src); 
       }
 
-
-
-    ////////////////////////////////
-
-    //FIXME: sacar a .h aparte
-
-
-#ifdef USESIMD
-#include <xmmintrin.h>
+#ifdef USESIMD_nosimd
+#pragma __libmpplas_manual_include nosimd 
+  #include "kernelSIMDgeneric.h"
 #endif
 
-    template<>
-      inline void SIMDCPUImpl<float>::Add(SIMDDigit& out,const SIMDDigit& arg1, const SIMDDigit& arg2){
-#ifdef USESIMD
-        out = _mm_add_ps(arg1, arg2);
-#else
-        const float* const a( &(arg1.f[0]) );
-        const float* const b( &(arg2.f[0]) );
-        float* c( &(out.f[0]) );
-
-        c[0] = a[0] + b[0];
-        c[1] = a[1] + b[1];
-        c[2] = a[2] + b[2];
-        c[3] = a[3] + b[3];
-
+    
+#ifdef USESIMD_sse
+#pragma __libmpplas_manual_include sse
+  #include "kernelSIMDSSE.h"
 #endif
-      }
 
-
-    template<>
-      inline void SIMDCPUImpl<float>::Sub(SIMDDigit& out,const SIMDDigit& arg1, const SIMDDigit& arg2){
-#ifdef USESIMD
-        out = _mm_sub_ps(arg1, arg2);
-#else
-        const float* const a( &(arg1.f[0]) );
-        const float* const b( &(arg2.f[0]) );
-        float* c( &(out.f[0]) );
-
-        c[0] = a[0] - b[0];
-        c[1] = a[1] - b[1];
-        c[2] = a[2] - b[2];
-        c[3] = a[3] - b[3];
-
+#ifdef USESIMD_sse2
+#pragma __libmpplas_manual_include sse2
+  #include "kernelSIMDSSE2.h"
 #endif
-      }
 
 
-
-    template<>
-      inline void SIMDCPUImpl<float>::Mul(SIMDDigit& out,const SIMDDigit& arg1, const SIMDDigit& arg2){
-#ifdef USESIMD
-        out = _mm_mul_ps(arg1, arg2);
-#else
-        const float* const a( &(arg1.f[0]) );
-        const float* const b( &(arg2.f[0]) );
-        float* c( &(out.f[0]) );
-
-        c[0] = a[0] * b[0];
-        c[1] = a[1] * b[1];
-        c[2] = a[2] * b[2];
-        c[3] = a[3] * b[3];
-
-#endif
-      }
-
-    template<>
-      inline void SIMDCPUImpl<float>::Div(SIMDDigit& out,const SIMDDigit& arg1, const SIMDDigit& arg2){
-#ifdef USESIMD
-        out = _mm_div_ps(arg1, arg2);
-#else
-        const float* const a( &(arg1.f[0]) );
-        const float* const b( &(arg2.f[0]) );
-        float* c( &(out.f[0]) );
-
-        c[0] = a[0] / b[0];
-        c[1] = a[1] / b[1];
-        c[2] = a[2] / b[2];
-        c[3] = a[3] / b[3];
-
-#endif
-      }
-
-
-
-    /** 
-     * @pre @a src must be 16-byte aligned 
-     */
-    template<>
-      inline void SIMDCPUImpl<float>::Pack(SIMDDigit& out, const float* const src){
-#ifdef USESIMD
-        out = _mm_load_ps(src);
-#else
-        float* c( &(out.f[0]) );
-
-        c[0] = src[0];
-        c[1] = src[1];
-        c[2] = src[2];
-        c[3] = src[3];
-
-#endif
-      }
-
-
-    /** 
-     * @pre @a out must be 16-byte aligned 
-     */
-    template<>
-      inline void SIMDCPUImpl<float>::Unpack(float* const out, const SIMDDigit& src ){
-#ifdef USESIMD
-        _mm_store_ps(out,src);
-#else
-        const float* const c( &(src.f[0]) );
-
-        out[0] = c[0];
-        out[1] = c[1];
-        out[2] = c[2];
-        out[3] = c[3];
-
-#endif
-      }
   }
 }
 

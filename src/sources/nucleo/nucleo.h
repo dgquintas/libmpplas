@@ -202,16 +202,6 @@ namespace mpplas{
 
   };
 
-  namespace SIMDCPU {
-    template<typename T>
-      inline SIMDDigit Add(SIMDDigit arg1, SIMDDigit arg2) ;
-    template<typename T>
-      inline SIMDDigit Sub(SIMDDigit arg1, SIMDDigit arg2) ;
-    template<typename T>
-      inline SIMDDigit Mul(SIMDDigit arg1, SIMDDigit arg2) ;
-    template<typename T>
-      inline SIMDDigit Div(SIMDDigit arg1, SIMDDigit arg2) ;
-  };
 
 }
 #ifdef ARCH_x86

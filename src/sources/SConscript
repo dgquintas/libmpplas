@@ -201,10 +201,10 @@ else:
   if env['enableSIMD'] != 'nosimd' and conf.CheckSIMD():
     msg = "SIMD instructions present: " + str(env['SIMD']) + ". "
     if env['enableSIMD'] == "sse2" and "SSE2" in env['SIMD']:
-      env.Append(CPPFLAGS='-msse2')
+      env.Append(CPPFLAGS=' -msse2 ')
       msg += "Using SSE2"
     elif env['enableSIMD'] == "sse" and "SSE" in env['SIMD']:
-      env.Append(CPPFLAGS='-msse')
+      env.Append(CPPFLAGS=' -msse ')
       msg += "Using SSE"
     print msg
   else: # simd = nosimd
@@ -217,11 +217,11 @@ else:
     if conf.CheckCXXHeader('omp.h','<>'):
       if( env['CXX'][:3] == 'g++' ): #gcc
         tmpEnv = env.Copy()
-        env.Append(CPPFLAGS='-fopenmp', LIBS='-lgomp')
+        env.Append(CPPFLAGS=' -fopenmp ', LIBS='-lgomp')
         
       elif ( env['CXX'][:2] == 'ic' ): #intel c compiler
         tmpEnv = env.Copy()
-        env.Append(CPPFLAGS='-openmp', LINKFLAGS='-openmp')
+        env.Append(CPPFLAGS=' -openmp ', LINKFLAGS='-openmp')
         
       if conf.CheckOpenMP():
         print 'OpenMP support present'

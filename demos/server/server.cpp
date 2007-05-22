@@ -303,7 +303,7 @@ class ModInverseMethod : public xmlrpc_c::method {
         try {
           res = pmod->inversa(op1,op2);
         }
-        catch(mpplas::Errors::ElementoNoInvertible e){
+        catch(mpplas::Errors::NonInvertibleElement e){
           res.hacerCero();
           throw(girerr::error(e.what()));
         }

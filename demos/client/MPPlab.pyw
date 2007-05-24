@@ -1,32 +1,19 @@
-
-"""PyCrust is a python shell and namespace browser application."""
-
-# The next two lines, and the other code below that makes use of
-# ``__main__`` and ``original``, serve the purpose of cleaning up the
-# main namespace to look as much as possible like the regular Python
-# shell environment.
 import __main__
 original = __main__.__dict__.keys()
-
-__author__ = "Patrick K. O'Brien <pobrien@orbtech.com>"
-__cvsid__ = "$Id: PyCrust.py,v 1.8 2005/12/30 23:00:55 RD Exp $"
-__revision__ = "$Revision: 1.8 $"[11:-2]
 
 import wx
 import Client
 
 class App(wx.App):
-    """PyCrust standalone application."""
-
     def OnInit(self):
         import os
         import wx
         from wx import py
 
-        img = wx.Bitmap("logo.png", wx.BITMAP_TYPE_PNG)
+        img = wx.Bitmap("splash.png", wx.BITMAP_TYPE_PNG)
         splash = wx.SplashScreen(img, wx.SPLASH_CENTRE_ON_SCREEN|wx.SPLASH_TIMEOUT, 10000, None, -1)
 
-        self.SetAppName("pycrust")
+        self.SetAppName("MPPlab")
         confDir = wx.StandardPaths.Get().GetUserDataDir()
         if not os.path.exists(confDir):
             os.mkdir(confDir)
@@ -39,7 +26,30 @@ class App(wx.App):
 ##        self.frame.historyFileName = os.path.join(confDir,'pycrust_history')
         self.frame.Show()
         self.SetTopWindow(self.frame)
-	splash.Destroy()
+        splash.Destroy()
+        if globals().get('updated'):
+          dlg = wx.MessageDialog(self.frame, "An update is available. Update?", 
+              "Update available", 
+              wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION )
+          res = dlg.ShowModal()
+          if res == wx.ID_YES:
+            import Client 
+            backupFileName = Client.performUpdate()
+            if backupFileName and len(backupFileName) > 0:
+              successDlg = wx.MessageDialog(self.frame, 
+                  "Updating successful.\n" + 
+                  ("A copy of the old version was made to %s\n" % backupFileName) +
+                  "Please, restart the application to use the new version", 
+                  "Success!",
+                  wx.OK | wx.ICON_INFORMATION )
+              successDlg.ShowModal()
+              successDlg.Destroy()
+
+          else: # res == wx.ID_NO
+            pass
+
+          dlg.Destroy()
+
         return True
     
     

@@ -1,5 +1,10 @@
-from distutils.core import setup
-import py2exe
+# encoding: utf-8
 
-setup(windows=['pycrust.py'])
+from distutils.core import setup
+
+setup(name='MPPlab',
+    version='0.0.1',
+    description='bla',
+    author='David García Quintas',
+    py_modules=['MPPlab'])
 

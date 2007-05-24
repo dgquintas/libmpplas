@@ -1,3 +1,9 @@
+# encoding: utf-8
+
+#
+# $Id$
+#
+
 from RPCServer import RPCServer
 from Configuration import Configuration
 from xmlrpclib import Fault
@@ -10,11 +16,13 @@ def __elemsToStr(ls):
 
 global filteredMethods
 global global_rpcServer
+global global_config
 
 def initializeClient():
-  global_config = Configuration()
+  global global_config
   global global_rpcServer
-  global_rpcServer = RPCServer.getInstance( global_config.url )
+  global_config = Configuration()
+  global_rpcServer = RPCServer.getInstance( global_config.RPCServerURL )
 
   global filteredMethods
   filteredMethods = filter(lambda mName: mName[:7] != 'system.', 
@@ -51,10 +59,45 @@ def initializeClient():
 
   return globals()
 
-
-
 def listFuncs():
   return filteredMethods
+
+def checkForUpdates():
+  import md5
+  updated = False
+  if global_config.checkForUpdates:
+    latestOne = global_config.clientLatestUpdate
+    localOneHandler = open(global_config.clientFilename, 'r') 
+    localOne = md5.new( localOneHandler.read() ).hexdigest()
+    localOneHandler.close()
+
+    if latestOne != localOne:
+      updated = True
+    else:
+      updated = False
+
+    return updated
+
+def performUpdate():
+  import shutil
+  backupFname = global_config.clientFilename + '.bak'
+  shutil.copy(global_config.clientFilename, backupFname)
+  localOneHandler = open(global_config.clientFilename, 'w') 
+  localOneHandler.write( global_config.remoteFileContents )
+  localOneHandler.close()
+  localOneHandler.close()
+
+  return backupFname
+
+def hasBeenUpdated(self):
+  return self.hasBeenUpdated
+
+
+######################################################
+#
+#  Client implementation begins here
+#
+######################################################
 
 class Z(object):
 
@@ -180,5 +223,7 @@ class R(object):
 import sys
 if __name__ == '__main__':
   sys.exit("Not meant to be used standalone")
+  
+  
 
 

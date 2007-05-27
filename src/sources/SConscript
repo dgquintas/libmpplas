@@ -117,13 +117,13 @@ env.Append(CPPDEFINES = 'ARCH_' + env['arch'] )
 
 if env['arch'][:6] == 'x86_64':
   env.Append(CPPDEFINES = [('ARCHBITS', '64')])
-  env['archbits'] = 64
+  env['ARCHBITS'] = '64'
   env.Append(CCFLAGS = ' -m64 ')
   env.Append(LINKFLAGS = ' -m64 ')
 
 else:
   env.Append(CPPDEFINES = [('ARCHBITS', '32')])
-  env['archbits'] = 32 
+  env['ARCHBITS'] = '32' 
   env.Append(CCFLAGS = ' -m32 ')
   env.Append(LINKFLAGS = ' -m32 ')
 

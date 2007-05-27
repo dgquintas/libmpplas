@@ -8,8 +8,8 @@ import os.path
 Import('myenv')
 
 myenv.Append(CPPPATH = '#/extra/include')
-myenv.Append(CPPPATH = ('#/extra/include' + myenv['SYSTEMBITS']))
-myenv.Append(LIBPATH= ('#/extra/lib' + myenv['SYSTEMBITS']))
+myenv.Append(CPPPATH = ('#/extra/include' + myenv['ARCHBITS']))
+myenv.Append(LIBPATH= ('#/extra/lib' + myenv['ARCHBITS']))
 
 myenv.Append(LIBS = [ 'pthread', 'm', 'pari', 'qtunit'])
 if not myenv['ENV'].has_key('QTDIR'):

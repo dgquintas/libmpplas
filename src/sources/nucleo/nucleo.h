@@ -5,8 +5,8 @@
 #ifndef __NUCLEO_H
 #define __NUCLEO_H
 
-#include "constants.h"
-#include "err.h"
+#include "BasicTypedefs.h"
+#include "CPUInfo.h"
 
 namespace mpplas{
 
@@ -199,6 +199,10 @@ namespace mpplas{
      * @return The minimum number of bits needed to represent @arg.
      */
     inline Digit Mnob(Digit arg1) __FUNC_CONST_ATTRIB;
+
+
+    
+
 
   };
 

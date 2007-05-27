@@ -9,7 +9,7 @@
 #include <string>
 #include "Z.h"
 #include "err.h"
-#include "nucleo.h"
+#include "BasicTypedefs.h"
 
 using namespace mpplas;
 namespace com_uwyn_qtunit{

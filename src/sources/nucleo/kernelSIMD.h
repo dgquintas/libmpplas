@@ -26,14 +26,17 @@ namespace mpplas{
         static inline void Mul(SIMDDigit& out, const SIMDDigit& arg1, const SIMDDigit& arg2);
         static inline void Div(SIMDDigit& out, const SIMDDigit& arg1, const SIMDDigit& arg2);
 
+        static inline void Sum(T& out, SIMDDigit arg1);
+
         static inline void Pack(SIMDDigit& out, const T* const src);
         static inline void Unpack(T* const out, const SIMDDigit& src);
-      };
 
+        static const short ELEMENTS_PER_DIGIT;
+      };
 
     template<typename T>
       inline void Add(SIMDDigit& out, const SIMDDigit& arg1, const SIMDDigit& arg2){
-        SIMDCPUImpl<T>::Add(out,arg1,arg2); 
+        SIMDCPUImpl<T>::Add(out,arg1,arg2);
       }
     template<typename T>
       inline void Sub(SIMDDigit& out, const SIMDDigit& arg1, const SIMDDigit& arg2){
@@ -49,6 +52,11 @@ namespace mpplas{
       }
 
     template<typename T>
+      inline void Sum(T& out, const SIMDDigit& arg1){
+        SIMDCPUImpl<T>::Sum(out,arg1); 
+      }
+
+    template<typename T>
       inline void Pack(SIMDDigit& out, const T* const src){
         SIMDCPUImpl<T>::Pack(out,src); 
       }
@@ -56,6 +64,8 @@ namespace mpplas{
       inline void Unpack(T* const out, const SIMDDigit& src){
         SIMDCPUImpl<T>::Unpack(out,src); 
       }
+  }
+}
 
 #ifdef USESIMD_nosimd
 #pragma __libmpplas_manual_include nosimd 
@@ -73,9 +83,6 @@ namespace mpplas{
   #include "kernelSIMDSSE2.h"
 #endif
 
-
-  }
-}
 
 
 #endif

@@ -7,17 +7,11 @@
 #define __CONSTANTS_H_
 
 #include <limits>
-#include <stdint.h> //C99
 #include <cstdlib>
 
 #include "BasicTypedefs.h"
 
 
-#ifdef __GNUC__
-  #define __FUNC_CONST_ATTRIB __attribute__ ((const))
-#else
-  #define __FUNC_CONST_ATTRIB 
-#endif
 
 
 
@@ -45,6 +39,8 @@ namespace mpplas{
   /** Espacio de nombres contenedor de las constantes utilizadas a lo
    * largo de la librería. */
   namespace Constants{
+
+
     
 #ifdef ARCH_x86
     static const char* const ARCH_STRING = "x86";

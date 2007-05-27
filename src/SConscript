@@ -1,6 +1,12 @@
 Import('env')
 
 env.Append(CPPPATH = [Dir('#/src/headers')])
+from os import popen
+
+cmd = "svn info -R | grep '^Last Changed Rev' | cut -f 4 -d\" \" | sort -rg | head -1"
+pipe = popen(cmd)
+
+env['SVN_REV'] = pipe.read().strip()
 
 Export('env')
 

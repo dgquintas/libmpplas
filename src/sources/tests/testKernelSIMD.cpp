@@ -1,11 +1,15 @@
 #include <cstdio>
 #include <cstring>
 #include "kernelSIMD.h"
+#include "SystemInfo.h"
 
 using namespace std;
 using namespace mpplas;
 
 int main(){
+
+  printf("%d\n", SystemInfo::getRevisionNumber());
+  printf("%s %s\n", SystemInfo::getBuildDate(), SystemInfo::getBuildTime());
 
   SIMDDigit a,b,c;
 
@@ -36,6 +40,9 @@ int main(){
   SIMDCPU::Unpack<int16_t>(ci,c);
   printf("%d %d %d %d %d %d %d %d\n", ci[0], ci[1], ci[2], ci[3], ci[4], ci[5], ci[6], ci[7]);
 
+  int16_t sumI;
+  SIMDCPU::Sum<int16_t>(sumI, a);
+  printf("Sum: %d\n", sumI);
 
 
   float av[4] __attribute__((aligned(16))) = 
@@ -66,6 +73,9 @@ int main(){
   SIMDCPU::Unpack<float>(cv,c);
   printf("%f %f %f %f\n", cv[0], cv[1], cv[2], cv[3]);
 
+  float sumF;
+  SIMDCPU::Sum<float>(sumF, a);
+  printf("Sum: %f\n", sumF);
 
   double ad[2] __attribute__((aligned(16))) = 
   { 1.2234212, 3.5251 };
@@ -92,6 +102,10 @@ int main(){
   SIMDCPU::Div<double>(c,a,b);
   SIMDCPU::Unpack<double>(cd,c);
   printf("%f %f\n", cd[0], cd[1]);
+ 
+  double sumD;
+  SIMDCPU::Sum<double>(sumD, a);
+  printf("Sum: %f\n", sumD);
 
 
 

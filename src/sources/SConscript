@@ -2,6 +2,7 @@ import time, sys, os, shutil
 
 filesStr = """
     AlgebraUtils.cpp
+    CPUInfo_x86.cpp
     CRT.cpp
     Factor.cpp
     Funciones.cpp
@@ -19,6 +20,7 @@ filesStr = """
     RedModular.cpp
     Semillero.cpp
     SimbolosLegendre.cpp
+    SystemInfo.cpp
     Trascendentes.cpp
     Z.cpp
     Z_n.cpp
@@ -209,7 +211,6 @@ else:
     print msg
   else: # simd = nosimd
     print "SIMD instructions *not* present or disabled"
-    env.Append(CPPDEFINES = 'USESIMD_' + 'nosimd' )
   
   env.Append(CPPDEFINES = 'USESIMD_' + env['enableSIMD'] )
 
@@ -262,6 +263,8 @@ if env['enableAOPProf']:
 
 env.Append( CPPPATH=[kernelsDir] )
 
+
+env.Append(CPPDEFINES = [('SVN_REV', env['SVN_REV'])])
 
 files = Split(filesStr)
 

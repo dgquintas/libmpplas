@@ -8,7 +8,7 @@ using namespace std;
 
 int main(){
 
-  Vector<int> vec("[1324 21 3 4 5 6 -7542 8 9]");
+  Vector<float> vec("[1324.32 21.32 3.1 4435.2 5.325 6.3 -75423.1 -328.1 -9]");
 
   cout << vec << endl;
   cout << vec.toString() << endl;

@@ -33,14 +33,9 @@ env['INSTALL_DIR_BIN'] = '#/bin'
 env['INSTALL_DIR_LIB'] = '#/lib'
 env['INSTALL_DIR_TESTS'] = '#/bin/tests'
 
-
 Export('env')
 
 SConscript(dirs="src", duplicate=0)
 
 #SConscript("doc/SConscript")
-
-
-
-
 

@@ -20,6 +20,11 @@ namespace mpplas{
         MUL, ADDMUL, 
         DIV, SHIFTL, SHIFTLR, 
         MNOB,
+        /* SIMD OPS */
+        SIMDADD, SIMDSUB,
+        SIMDMUL, SIMDDIV,
+        SIMDSUM,
+        SIMDPACK, SIMDUNPACK,
         __OpsEnum_SIZE
       };
 

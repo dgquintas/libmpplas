@@ -1,16 +1,32 @@
+/* 
+ * $Id$
+ *
+ */
 
-/* FLOAT */
+#ifndef __KERNELSIMDGENERIC_H
+#define __KERNELSIMDGENERIC_H
+
+namespace mpplas{
+
+  namespace SIMDCPU{ 
+
+    /* FLOAT */
 #ifndef __FLOAT_SIMD
-  template<>
+
+    template<> 
+      const short SIMDCPUImpl<float>::ELEMENTS_PER_DIGIT= 4;
+
+
+    template<>
       inline void SIMDCPUImpl<float>::Add(SIMDDigit& out,const SIMDDigit& arg1, const SIMDDigit& arg2){
         const float* const a( (const float* const) (&(arg1.f)) );
         const float* const b( (const float* const) (&(arg2.f)) );
         float* const  c( (float* const) (&(out.f)) );
 
-        c[0] = a[0] + b[0];
-        c[1] = a[1] + b[1];
-        c[2] = a[2] + b[2];
-        c[3] = a[3] + b[3];
+
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          c[i] = a[i] + b[i];
+        }
       }
 
 
@@ -20,10 +36,9 @@
         const float* const b( (const float* const) (&(arg2.f)) );
         float*  const c( (float* const)(&(out.f)) );
 
-        c[0] = a[0] - b[0];
-        c[1] = a[1] - b[1];
-        c[2] = a[2] - b[2];
-        c[3] = a[3] - b[3];
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          c[i] = a[i] - b[i];
+        }
 
       }
 
@@ -35,11 +50,10 @@
         const float* const b( (const float* const) (&(arg2.f)) );
         float* const c( (float* const) (&(out.f)) );
 
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          c[i] = a[i] * b[i];
+        }
 
-        c[0] = a[0] * b[0];
-        c[1] = a[1] * b[1];
-        c[2] = a[2] * b[2];
-        c[3] = a[3] * b[3];
       }
 
     template<>
@@ -49,11 +63,20 @@
         float* const c( (float* const) (&(out.f)) );
 
 
-        c[0] = a[0] / b[0];
-        c[1] = a[1] / b[1];
-        c[2] = a[2] / b[2];
-        c[3] = a[3] / b[3];
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          c[i] = a[i] / b[i];
+        }
 
+      }
+
+    template<>
+      inline void SIMDCPUImpl<float>::Sum(float& out,SIMDDigit arg1){
+        const float* const in( (const float* const) (&(arg1.f)) );
+        out = 0.0f;
+
+        for( int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          out += in[i];
+        }
       }
 
 
@@ -62,37 +85,39 @@
       inline void SIMDCPUImpl<float>::Pack(SIMDDigit& out, const float* const src){
         float* const c( (float* const) (&(out.f)) );
 
-        c[0] = src[0];
-        c[1] = src[1];
-        c[2] = src[2];
-        c[3] = src[3];
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          c[i] = src[i];
+        }
+
       }
 
 
     template<>
       inline void SIMDCPUImpl<float>::Unpack(float* const out, const SIMDDigit& src ){
         const float* const c( (const float* const) (&(src.f)) );
-
-        out[0] = c[0];
-        out[1] = c[1];
-        out[2] = c[2];
-        out[3] = c[3];
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          out[i] = c[i];
+        }
       }
 #endif
 
 
-/* DOUBLE */
+    /* DOUBLE */
 #ifndef __DOUBLE_SIMD
-  template<>
+
+    template<> 
+      const short SIMDCPUImpl<double>::ELEMENTS_PER_DIGIT= 2;
+
+    template<>
       inline void SIMDCPUImpl<double>::Add(SIMDDigit& out,const SIMDDigit& arg1, const SIMDDigit& arg2){
         const double* const a( (const double* const) (&(arg1.d)) );
         const double* const b( (const double* const) (&(arg2.d)) );
         double* const c( (double* const) (&(out.d)) );
 
-        c[0] = a[0] + b[0];
-        c[1] = a[1] + b[1];
-        c[2] = a[2] + b[2];
-        c[3] = a[3] + b[3];
+
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          c[i] = a[i] + b[i];
+        }
       }
 
 
@@ -102,11 +127,10 @@
         const double* const b( (const double* const) (&(arg2.d)) );
         double* const c( (double* const) (&(out.d)) );
 
-        c[0] = a[0] - b[0];
-        c[1] = a[1] - b[1];
-        c[2] = a[2] - b[2];
-        c[3] = a[3] - b[3];
 
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          c[i] = a[i] - b[i];
+        }
       }
 
 
@@ -117,10 +141,10 @@
         const double* const b( (const double* const) (&(arg2.d)) );
         double* const c( (double* const) (&(out.d)) );
 
-        c[0] = a[0] * b[0];
-        c[1] = a[1] * b[1];
-        c[2] = a[2] * b[2];
-        c[3] = a[3] * b[3];
+
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          c[i] = a[i] * b[i];
+        }
       }
 
     template<>
@@ -129,23 +153,32 @@
         const double* const b( (const double* const) (&(arg2.d)) );
         double* const c( (double* const) (&(out.d)) );
 
-        c[0] = a[0] / b[0];
-        c[1] = a[1] / b[1];
-        c[2] = a[2] / b[2];
-        c[3] = a[3] / b[3];
+
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          c[i] = a[i] / b[i];
+        }
 
       }
 
+    template<>
+      inline void SIMDCPUImpl<double>::Sum(double& out,SIMDDigit arg1){
+        const double* const in( (const double* const) (&(arg1.d)) );
+        out = 0.0;
+
+        for( int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          out += in[i];
+        }
+      }
 
 
     template<>
       inline void SIMDCPUImpl<double>::Pack(SIMDDigit& out, const double* const src){
         double* const c( (double* const) (&(out.d)) );
 
-        c[0] = src[0];
-        c[1] = src[1];
-        c[2] = src[2];
-        c[3] = src[3];
+
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          c[i] = src[i];
+        }
       }
 
 
@@ -153,10 +186,9 @@
       inline void SIMDCPUImpl<double>::Unpack(double* const out, const SIMDDigit& src ){
         const double* const c( (const double* const) (&(src.d)) );
 
-        out[0] = c[0];
-        out[1] = c[1];
-        out[2] = c[2];
-        out[3] = c[3];
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          out[i] = c[i];
+        }
       }
 
 #endif
@@ -166,19 +198,22 @@
 
 
 
+    /* INT 16 */
 #ifndef __INT_SIMD
-/* INT 16 */
-  template<>
+
+    template<> 
+      const short SIMDCPUImpl<int16_t>::ELEMENTS_PER_DIGIT= 8;
+
+
+    template<>
       inline void SIMDCPUImpl<int16_t>::Add(SIMDDigit& out,const SIMDDigit& arg1, const SIMDDigit& arg2){
         const int16_t* const a( (const int16_t* const) (&(arg1.i)) );
         const int16_t* const b( (const int16_t* const) (&(arg2.i)) );
         int16_t* c( (int16_t* const) (&(out.i)) );
 
-
-        c[0] = a[0] + b[0];
-        c[1] = a[1] + b[1];
-        c[2] = a[2] + b[2];
-        c[3] = a[3] + b[3];
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          c[i] = a[i] + b[i];
+        }
       }
 
 
@@ -188,11 +223,9 @@
         const int16_t* const b( (const int16_t* const) (&(arg2.i)) );
         int16_t* c( (int16_t* const) (&(out.i)) );
 
-
-        c[0] = a[0] - b[0];
-        c[1] = a[1] - b[1];
-        c[2] = a[2] - b[2];
-        c[3] = a[3] - b[3];
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          c[i] = a[i] - b[i];
+        }
 
       }
 
@@ -204,10 +237,10 @@
         const int16_t* const b( (const int16_t* const) (&(arg2.i)) );
         int16_t* c( (int16_t* const) (&(out.i)) );
 
-        c[0] = a[0] * b[0];
-        c[1] = a[1] * b[1];
-        c[2] = a[2] * b[2];
-        c[3] = a[3] * b[3];
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          c[i] = a[i] * b[i];
+        }
+
       }
 
     template<>
@@ -216,23 +249,31 @@
         const int16_t* const b( (const int16_t* const) (&(arg2.i)) );
         int16_t* c( (int16_t* const) (&(out.i)) );
 
-        c[0] = a[0] / b[0];
-        c[1] = a[1] / b[1];
-        c[2] = a[2] / b[2];
-        c[3] = a[3] / b[3];
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          c[i] = a[i] / b[i];
+        }
 
       }
 
+    template<>
+      inline void SIMDCPUImpl<int16_t>::Sum(int16_t& out,SIMDDigit arg1){
+        const int16_t* const in( (const int16_t* const) (&(arg1.i)) );
+        out = 0;
+
+        for( int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          out += in[i];
+        }
+      }
 
 
     template<>
       inline void SIMDCPUImpl<int16_t>::Pack(SIMDDigit& out, const int16_t* const src){
         int16_t* const c( (int16_t* const) (&(out.i)) );
 
-        c[0] = src[0];
-        c[1] = src[1];
-        c[2] = src[2];
-        c[3] = src[3];
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          c[i] = src[i];
+        }
+
       }
 
 
@@ -240,11 +281,14 @@
       inline void SIMDCPUImpl<int16_t>::Unpack(int16_t* const out, const SIMDDigit& src ){
         const int16_t* const c( (const int16_t* const) (&(src.i)) );
 
-        out[0] = c[0];
-        out[1] = c[1];
-        out[2] = c[2];
-        out[3] = c[3];
+        for(int i=0; i < ELEMENTS_PER_DIGIT; i++){
+          out[i] = c[i];
+        }
+
       }
+    #endif
+  }
+}
 
 
 #endif

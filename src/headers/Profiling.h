@@ -25,6 +25,8 @@ namespace mpplas{
       ProfResults& getResults();
       const ProfResults& getResults() const;
 
+
+
       virtual ~Profiling();
 
     private:

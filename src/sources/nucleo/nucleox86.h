@@ -2,6 +2,9 @@
  * $Id$
  */
 #ifdef ARCH_x86
+
+#include "CPUInfo_x86.h"
+
 namespace mpplas{
 
   namespace BasicCPU{
@@ -135,6 +138,9 @@ namespace mpplas{
         return ret; 
       }
     }
+
+
+
   }
 }
 

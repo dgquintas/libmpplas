@@ -5,6 +5,13 @@
 #ifndef __BASIC_TYPEDEFS
 #define __BASIC_TYPEDEFS
 
+#include <stdint.h> //C99
+
+#ifdef __GNUC__
+  #define __FUNC_CONST_ATTRIB __attribute__ ((const))
+#else
+  #define __FUNC_CONST_ATTRIB 
+#endif
 
 namespace mpplas{
 
@@ -60,6 +67,8 @@ namespace mpplas{
     __m128d d;
     __m128i i;
   };
+
+
 
 }
 

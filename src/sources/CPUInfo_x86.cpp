@@ -51,7 +51,8 @@ namespace mpplas{
   //////////////////////////////////////////////////////////////
 
   inline void CPUInfo_x86::_invokeCPUID(uint32_t eax){
-    asm volatile("pushl %%ebx      \n\t" /* save %ebx */
+    asm volatile(
+        "pushl %%ebx      \n\t" /* save %ebx */
         "cpuid            \n\t"
         "movl %%ebx, %1   \n\t" /* save what cpuid just put in %ebx */
         "popl %%ebx       \n\t" /* restore the old %ebx */

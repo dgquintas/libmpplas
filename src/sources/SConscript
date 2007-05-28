@@ -212,7 +212,10 @@ else:
     if env['enableSIMD'] == "sse2" and "SSE2" in env['SIMD']:
       env.Append(CPPFLAGS=' -msse2 ')
       msg += "Using SSE2"
-    elif env['enableSIMD'] == "sse" and "SSE" in env['SIMD']:
+    elif env['enableSIMD'] == "sse" or "SSE" in env['SIMD']:
+      # it's an or because if we are here is either by choice or because
+      # we asked for sse2 but it is not supported. Therefore, if sse is,
+      # we go for it
       env.Append(CPPFLAGS=' -msse ')
       msg += "Using SSE"
     print msg

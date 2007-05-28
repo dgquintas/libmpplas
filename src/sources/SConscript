@@ -3,6 +3,7 @@ import time, sys, os, shutil
 filesStr = """
     AlgebraUtils.cpp
     CPUInfo_x86.cpp
+    CPUInfo_x86_64.cpp
     CRT.cpp
     Factor.cpp
     Funciones.cpp
@@ -107,11 +108,9 @@ try:
       sys.stdout.flush()
     else:
       print ''
-#  env['SYSTEMBITS'] = platform.architecture()[0][:2]
 
 except ImportError:
   print "Platform support checking not supported by the Python installed: " + sys.version
-#  env['SYSTEMBITS'] = "32"
 
 env.Append(CPPDEFINES = 'ARCH_' + env['arch'] )
 

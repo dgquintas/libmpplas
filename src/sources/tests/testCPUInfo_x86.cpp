@@ -19,6 +19,13 @@ int main(){
   for( int i = 0 ; i < ci.getSIMDCapabilities().size() ; i++){
     cout << ci.getSIMDCapabilities()[i] << " ";
   }
+  cout << endl;
+
+  cout << ci.getModelName() << endl;
+  cout << ci.getArchName() << endl;
+  cout << ci.getDigitBitWidth() << endl;
+
+
 
   cout << endl;
 

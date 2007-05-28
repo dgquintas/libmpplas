@@ -1,6 +1,6 @@
 #include "SystemInfo.h"
 #include "CPUInfo_x86.h"
-// #include "CPUInfo_x86_64.h" TODO
+#include "CPUInfo_x86_64.h" 
 
 #ifndef SVN_REV
   #define SVN_REV -1

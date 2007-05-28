@@ -1,6 +1,7 @@
 #include <cstring>
 
 #include "CPUInfo_x86.h"
+#include "Utils.h"
 
 namespace mpplas{
 
@@ -16,6 +17,7 @@ namespace mpplas{
     _l1Size = _l2Size = _l3Size = 0;
     _getCacheSizes();
     _getSIMDInfo();
+    _getModelName();
 
   }
 
@@ -31,7 +33,7 @@ namespace mpplas{
   }
 
   std::string CPUInfo_x86::getModelName() const {
-    return std::string("");
+    return _modelName;
   }
 
 
@@ -70,6 +72,63 @@ namespace mpplas{
       if( _regs[EDX] & (1L << 26) ){ _simdCap.push_back("SSE2") ; }
       if( _regs[ECX] & (1L) )      { _simdCap.push_back("SSE3") ; }
       if( _regs[ECX] & (1L << 9) ) { _simdCap.push_back("SSSE3") ; }
+  }
+
+  void CPUInfo_x86::_getModelName(){
+    static char* BRAND_TABLE[24] = {
+      /* 00H */ "This processor does not support the brand identification feature",
+      /* 01H */ "Intel(R) Celeron(R) processor",
+      /* 02H */ "Intel(R) Pentium(R) III processor",
+      /* 03H */ "Intel(R) Pentium(R) III Xeon(R) processor / Intel(R) Celeron(R) processor",
+      /* 04H */ "Intel(R) Pentium(R) III processor",
+      /* 05H */ "",
+      /* 06H */ "Mobile Intel(R) Pentium(R) III processor-M",
+      /* 07H */ "Mobile Intel(R) Celeron(R) processor1",
+      /* 08H */ "Intel(R) Pentium(R) 4 processor",
+      /* 09H */ "Intel(R) Pentium(R) 4 processor",
+      /* 0AH */ "Intel(R) Celeron(R) processor1",
+      /* 0BH */ "Intel(R) Xeon(R) processor / Intel(R) Xeon(R) processor MP",
+      /* 0CH */ "Intel(R) Xeon(R) processor MP",
+      /* 0DH */ "",
+      /* 0EH */ "Mobile Intel(R) Pentium(R) 4 processor-M / Intel(R) Xeon(R) processor",
+      /* 0FH */ "Mobile Intel(R) Celeron(R) processor",
+      /* 10H */ "",
+      /* 11H */ "Mobile Genuine Intel(R) processor",
+      /* 12H */ "Intel(R) Celeron(R) M processor",
+      /* 13H */ "Mobile Intel(R) Celeron(R) processor",
+      /* 14H */ "Intel(R) Celeron(R) processor",
+      /* 15H */ "Mobile Genuine Intel(R) processor",
+      /* 16H */ "Intel(R) Pentium(R) M processor",
+      /* 17H */ "Mobile Intel(R) Celeron(R) processor"
+    };
+
+    _invokeCPUID(0x80000000);
+    if( _regs[EAX] & 0x80000000 ){
+
+      char brand[48];
+
+      _invokeCPUID( 0x80000002 );
+      memcpy(&brand[0], _regs, sizeof(uint32_t)*4);
+
+      _invokeCPUID( 0x80000003 );
+      memcpy(&brand[16], _regs, sizeof(uint32_t)*4);
+
+      _invokeCPUID( 0x80000004 );
+      memcpy(&brand[32], _regs, sizeof(uint32_t)*4);
+
+      _modelName = std::string(brand);
+    }
+    else{
+      _invokeCPUID(1);
+
+      const short idx = _regs[EBX] & 0xff;
+      _modelName = std::string(BRAND_TABLE[ idx ]);
+    }
+
+
+    _modelName = Utils::strip(_modelName);
+
+    return;
   }
 
   void CPUInfo_x86::_getCacheSizes(){
@@ -187,5 +246,7 @@ namespace mpplas{
     }
 
   }
+
+
 
 } //namespace

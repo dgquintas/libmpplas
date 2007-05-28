@@ -9,7 +9,10 @@
 
 namespace mpplas{
 
-  class CPUInfo_x86 : public CPUInfo, public SingletonMixIn< CPUInfo_x86 >  {
+  class CPUInfo_x86 : public CPUInfo, 
+                      public SingletonMixIn< CPUInfo_x86 >  
+  
+  {
     
     public:
 
@@ -25,7 +28,7 @@ namespace mpplas{
 
       virtual int getDigitBitWidth() const;
 
-    private:
+    protected:
 
       CPUInfo_x86();
 
@@ -34,6 +37,7 @@ namespace mpplas{
       inline void _invokeCPUID(uint32_t eax);
       void _getCacheSizes();
       void _getSIMDInfo();
+      void _getModelName();
 
       int _l1Size;
       int _l2Size;

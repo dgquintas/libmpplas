@@ -2,8 +2,6 @@ import time, sys, os, shutil
 
 filesStr = """
     AlgebraUtils.cpp
-    CPUInfo_x86.cpp
-    CPUInfo_x86_64.cpp
     CRT.cpp
     Factor.cpp
     Funciones.cpp
@@ -119,12 +117,14 @@ if env['arch'][:6] == 'x86_64':
   env['ARCHBITS'] = '64'
   env.Append(CCFLAGS = ' -m64 ')
   env.Append(LINKFLAGS = ' -m64 ')
+  filesStr += ' CPUInfo_x86_64.cpp '
 
 else:
   env.Append(CPPDEFINES = [('ARCHBITS', '32')])
   env['ARCHBITS'] = '32' 
   env.Append(CCFLAGS = ' -m32 ')
   env.Append(LINKFLAGS = ' -m32 ')
+  filesStr += ' CPUInfo_x86.cpp '
 
 
 if env['enableRelease']:

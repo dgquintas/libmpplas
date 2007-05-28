@@ -25,11 +25,6 @@ int main(){
   cout << ci.getArchName() << endl;
   cout << ci.getDigitBitWidth() << endl;
 
-
-
-  cout << endl;
-
-
   return 0;
 }
 

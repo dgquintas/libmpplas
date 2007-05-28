@@ -217,6 +217,7 @@ else:
       # we asked for sse2 but it is not supported. Therefore, if sse is,
       # we go for it
       env.Append(CPPFLAGS=' -msse ')
+      env['enableSIMD'] = "sse"
       msg += "Using SSE"
     print msg
   else: # simd = nosimd

@@ -150,6 +150,9 @@ def CheckSIMD(context):
     r"""
       #include <iostream>
       #include <string>
+
+      #include <stdint.h>
+    
       int main(){
       std::string res("[");
       uint32_t eax, edx, ecx;

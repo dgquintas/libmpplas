@@ -6,7 +6,12 @@
 
 
 import Client
-globals().update( Client.initializeClient() )
+from sys import argv
+
+if len(argv) > 1:
+  globals().update( Client.initializeClient(argv[1]) )
+else:
+  globals().update( Client.initializeClient() )
 if Client.checkForUpdates():
   #updated version available
   globals()['updated'] = True

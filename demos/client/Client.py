@@ -6,7 +6,7 @@
 
 from RPCServer import RPCServer
 from Configuration import Configuration
-from xmlrpclib import Fault
+from xmlrpclib import Fault,MultiCall
 
 def __elemsToStr(ls):
   newl = []
@@ -18,10 +18,10 @@ global filteredMethods
 global global_rpcServer
 global global_config
 
-def initializeClient():
+def initializeClient(configFileName = 'config.cfg'):
   global global_config
   global global_rpcServer
-  global_config = Configuration()
+  global_config = Configuration(configFileName)
   global_rpcServer = RPCServer.getInstance( global_config.RPCServerURL )
 
   global filteredMethods
@@ -53,9 +53,16 @@ def initializeClient():
     
     return result
 """
-
+  multiCallRPC = MultiCall(global_rpcServer)
   for mName in filteredMethods:
-    exec proxyFuncsSrc % {'methodName': mName, 'methodHelp': global_rpcServer.system.methodHelp(mName)} in globals()
+    multiCallRPC.system.methodHelp(mName)
+  
+  methodsHelp = zip(filteredMethods, multiCallRPC())
+  for methodAndHelpPair in methodsHelp:
+    exec proxyFuncsSrc % \
+    {'methodName': methodAndHelpPair[0], 
+     'methodHelp': methodAndHelpPair[1]
+    } in globals()
 
   return globals()
 

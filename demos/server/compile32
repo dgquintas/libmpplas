@@ -1,0 +1,4 @@
+g++ server.cpp -o server -I ../../src/headers/ -L ../../lib/ -lmpplas \
+`$HOME/xmlrpc-c/bin/xmlrpc-c-config \
+c++2 abyss-server server-util --cflags --libs` -DARCH_x86 \
+-g3 -DARCHBITS=32 -DUSESIMD_nosimd

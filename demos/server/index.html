@@ -126,45 +126,45 @@ try{
 }
 
 showFuncs = function(){
-    var rslt = eval("service.system.listMethods()");
-    rslt = "" + rslt;
-    var txInfo = document.getElementById("txInfo");
-    var splitted = rslt.split(",")
-	
+  var rslt = eval("service.system.listMethods()");
+  rslt = "" + rslt;
+  var txInfo = document.getElementById("txInfo");
+  var splitted = rslt.split(",")
+
     for(var i = 0; i < splitted.length; i++){
-	var doc = eval("service.system.methodHelp('"+ splitted[i] +"')")
-	splitted[i] = "<b>" + splitted[i] + "</b>" + ": " + doc
+      var doc = eval("service.system.methodHelp('"+ splitted[i] +"')")
+        splitted[i] = "<b>" + splitted[i] + "</b>" + ": " + doc
     }
 
-    txInfo.innerHTML = splitted.join("<br />")
+  txInfo.innerHTML = splitted.join("<br />")
 }
 
 onSubmit = function(){
-    var evalStr = document.getElementById("txEval").value;
-    var txRslt = document.getElementById("txResult");
-    
-    txRslt.innerHTML = "";
-    
-    try{
-        rslt = eval("service." + evalStr);
-	rslt = "" + rslt;
-	var arr = new Array()
-	for(var i = 0 ; i < rslt.length; i+=70){	
-		arr.push( rslt.substr(i, 70) );
-	}
-	
-        txRslt.innerHTML = arr.join("<br/>");
-	scrollWindow()
-    }catch(e){
-        var em;
-        if(e.toTraceString){
-            em=e.toTraceString();
-        }else{
-           em = e.message;
-        }
-        txRslt.innerHTML = "Error trace: \n\n" + em;
+  var evalStr = document.getElementById("txEval").value;
+  var txRslt = document.getElementById("txResult");
+
+  txRslt.innerHTML = "";
+
+  try{
+    rslt = eval("service." + evalStr);
+    rslt = "" + rslt;
+    var arr = new Array()
+      for(var i = 0 ; i < rslt.length; i+=70){	
+        arr.push( rslt.substr(i, 70) );
+      }
+
+    txRslt.innerHTML = arr.join("<br/>");
+    scrollWindow()
+  }catch(e){
+    var em;
+    if(e.toTraceString){
+      em=e.toTraceString();
+    }else{
+      em = e.message;
     }
-    return false;
+    txRslt.innerHTML = "Error trace: \n\n" + em;
+  }
+  return false;
 }
 
 // ]]>

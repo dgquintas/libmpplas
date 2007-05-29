@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <vector>
 #include <sstream>
+#include <utility>
 
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/girerr.hpp>
@@ -19,6 +20,23 @@
 #include "CRT.h"
 #include "Potencia.h"
 #include "Funciones.h"
+#include "SystemInfo.h"
+
+
+/* XML-RPC SIGNATURES 
+ *
+ *  case 'i':  "int";              
+ *  case 'b':  "boolean";          
+ *  case 'd':  "double";           
+ *  case 's':  "string";           
+ *  case '8':  "dateTime.iso8601"; 
+ *  case '6':  "base64";           
+ *  case 'S':  "struct";           
+ *  case 'A':  "array";            
+ *  case 'n':  "nil";              
+ *
+ */
+
 
 /***********************************************
  ************** INTEGERS ***********************
@@ -482,29 +500,74 @@ class CRTMethod : public xmlrpc_c::method {
 /***********************************************
  ****************    MISC   ********************
  ***********************************************/
-//class SysInfoMethod : public xmlrpc_c::method { //TODO
-//  public:
-//    
-//    CRTMethod() {
-//      this->_signature = "s:";
-//      this->_help = "This method returns some information about the host system;
-//
-//      mpplas::Funciones::getInstance()->getFunc(crt);
-//    }
-//
-//    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
-//
-//      paramList.verifyEnd(0);
-//      if ( y.size() != m.size() ){
-//          throw(girerr::error("This method does not take any parameter"));
-//      }
-//
-//
-//      *retvalP = xmlrpc_c::value_string( (crt->crt(yZ, mZ)).toString() );
-//    }
-//
-//  private:
-//};
+class SysInfoMethod : public xmlrpc_c::method { 
+  public:
+
+    SysInfoMethod() {
+      this->_signature = "S:";
+      this->_help = "This method returns a map with some information about the host system";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const retvalP) {
+
+      paramList.verifyEnd(0);
+      std::map<std::string, xmlrpc_c::value> structData;
+
+
+      std::pair<std::string, xmlrpc_c::value> buildDate("BuildDate", 
+          xmlrpc_c::value_string(mpplas::SystemInfo::getBuildDate()));
+      std::pair<std::string, xmlrpc_c::value> buildTime("BuildTime", 
+          xmlrpc_c::value_string(mpplas::SystemInfo::getBuildTime()));
+      std::pair<std::string, xmlrpc_c::value> revisionNumber("RevisionNumber", 
+          xmlrpc_c::value_int( mpplas::SystemInfo::getRevisionNumber() ));
+
+
+      const mpplas::CPUInfo& ci(mpplas::SystemInfo::getCPUInfo() );
+      std::map<std::string, xmlrpc_c::value> cpuInfoData;
+      std::pair<std::string, xmlrpc_c::value> l1Size("CacheL1Size",
+          xmlrpc_c::value_int( ci.getCacheL1Size() ));
+      std::pair<std::string, xmlrpc_c::value> l2Size("CacheL2Size",
+          xmlrpc_c::value_int( ci.getCacheL2Size() ));
+      std::pair<std::string, xmlrpc_c::value> l3Size("CacheL3Size",
+          xmlrpc_c::value_int( ci.getCacheL3Size() ));
+      std::pair<std::string, xmlrpc_c::value> modelName("ModelName",
+          xmlrpc_c::value_string(ci.getModelName()));
+      std::pair<std::string, xmlrpc_c::value> archName("ArchName",
+          xmlrpc_c::value_string(ci.getArchName()));
+      std::pair<std::string, xmlrpc_c::value> digitBitWidth("DigitBitWidth",
+          xmlrpc_c::value_int( ci.getDigitBitWidth() ));
+
+      std::vector<xmlrpc_c::value> arrayData;
+      std::vector<std::string> simdCap = ci.getSIMDCapabilities();
+      for(int i=0; i < simdCap.size(); i++){
+        arrayData.push_back(xmlrpc_c::value_string( simdCap[i] ));
+      }
+
+      std::pair<std::string, xmlrpc_c::value> simdCapabilities("SIMDCapabilities",
+          xmlrpc_c::value_array( xmlrpc_c::value_array(arrayData) ));
+
+      cpuInfoData.insert(l1Size);
+      cpuInfoData.insert(l2Size);
+      cpuInfoData.insert(l3Size);
+      cpuInfoData.insert(modelName);
+      cpuInfoData.insert(archName);
+      cpuInfoData.insert(digitBitWidth);
+      cpuInfoData.insert(simdCapabilities);
+
+      std::pair<std::string, xmlrpc_c::value> cpuInfo("CPUInfo", xmlrpc_c::value_struct(cpuInfoData) );
+
+      structData.insert(buildDate);
+      structData.insert(buildTime);
+      structData.insert(revisionNumber);
+      structData.insert(cpuInfo);
+
+      // Make an XML-RPC struct out of it
+      *retvalP  = xmlrpc_c::value_struct(structData);
+    }
+
+  private:
+
+};
 
 
 int main(int const, const char ** const) {
@@ -540,6 +603,8 @@ int main(int const, const char ** const) {
         xmlrpc_c::methodPtr const GCDMethodP(new GCDMethod);
         
         xmlrpc_c::methodPtr const CRTMethodP(new CRTMethod);
+        
+        xmlrpc_c::methodPtr const SysInfoMethodP(new SysInfoMethod);
 
         myRegistry.addMethod("zAdd", ZAddMethodP);
         myRegistry.addMethod("zSub", ZSubMethodP);
@@ -570,6 +635,8 @@ int main(int const, const char ** const) {
         myRegistry.addMethod("gcd", GCDMethodP);
         
         myRegistry.addMethod("crt", CRTMethodP);
+        
+        myRegistry.addMethod("systemInfo", SysInfoMethodP);
 
 
         

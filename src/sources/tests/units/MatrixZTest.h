@@ -7,6 +7,8 @@
 
 #include "qtunit/TestCase.h"
 #include "MatrixZ.h"
+#include "Funciones.h"
+#include "Random.h"
 
 using namespace mpplas;
 
@@ -28,9 +30,13 @@ namespace com_uwyn_qtunit{
       void testCopyConstructor();
       void testToString();
       void testSetDiagonal();
+      void testProduct();
 
     private:
-      MatrixZ mat;
+      MatrixZ _A;
+      MatrixZ _B;
+      RandomRapido* rnd;
+      Funciones& funcs;
   };
 }
 

@@ -15,7 +15,6 @@ using namespace mpplas;
 ExponentiationTest::ExponentiationTest()
   : funcs( Funciones::getInstance() )
 {
-  pari_init(1000000, 0);
 
   addTest(ExponentiationTest, testSlidingWindowExp );
   addTest(ExponentiationTest, testSlidingWindowExpR );

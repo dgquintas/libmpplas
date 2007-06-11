@@ -15,7 +15,6 @@ ReductionTest::ReductionTest()
   : _redMont(), _redBarret(), _redMersenne(), _funcs(Funciones::getInstance())
 {
 
-  pari_init(1000000, 0);
 
   _funcs->getFunc(_rnd);
   _funcs->getFunc(_primeGen);

@@ -17,7 +17,6 @@ using namespace com_uwyn_qtunit;
 ZM_nTest::ZM_nTest() 
   : funcs(Funciones::getInstance())
 {
-  pari_init(1000000, 0);
 
   funcs->getFunc(rnd);
 

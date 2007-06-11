@@ -5,11 +5,16 @@
 #include "NumthTestSuite.h"
 
 #include <stdexcept>
+#include <pari/pari.h>
+
 
 using namespace com_uwyn_qtunit;
 
 NumthTestSuite::NumthTestSuite() 
 {
+
+  pari_init(10000000, 0);
+
   addTestUnit(_randomTest);
   addTestUnit(_kernelTest);
 	addTestUnit(_zTest);

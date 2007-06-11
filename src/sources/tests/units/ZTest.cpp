@@ -16,7 +16,6 @@ using namespace com_uwyn_qtunit;
 ZTest::ZTest()
   : funcs(Funciones::getInstance()), uno((Digit)1), dos((Digit)2), cero((Digit)0)
 {
-  pari_init(1000000, 0);
   
   funcs->getFunc(rnd);
 

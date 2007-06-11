@@ -77,10 +77,9 @@ void VectorZTest::testOperatorProductWithZ(){
 }
 
 void VectorZTest::testOperatorProductWithVectorZ(){
-  VectorZ res("[423       24      162       2484     1780     186     0    -992        -9]");
+  VectorZ res("[423 24 162 2484 1780 186 0 -992 -9]");
 
-//  VectorZ res("[5221935 148140 666630 7666245 4394820 382695 0 -1530780 -12345]");
-  vecA.byElementProd( vecB);
+  vecA.byElementProd(vecB);
 
   qassertTrue(vecA == res);
 }
@@ -120,7 +119,7 @@ void VectorZTest::testCross(){
   VectorZ a("[ 123 456 789 ]");
   VectorZ b("[ 314 159 265 ]");
 
-  VectorZ res("[-4611   215151  -123627]");
+  VectorZ res("[-4611 215151 -123627]");
 
   a.cross(b);
 

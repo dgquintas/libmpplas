@@ -2,6 +2,8 @@
 
 #include "CPUInfo_x86.h"
 #include "Utils.h"
+#include "BasicTypedefs.h"
+#include "CompilationConfig.h"
 
 namespace mpplas{
 
@@ -38,7 +40,7 @@ namespace mpplas{
 
 
   std::string CPUInfo_x86::getArchName() const {
-    return std::string("x86");
+    return std::string(CompilationConfig::TARGET_ARCH);
   }
 
   std::vector<std::string> CPUInfo_x86::getSIMDCapabilities() const {
@@ -46,7 +48,7 @@ namespace mpplas{
   }
 
   int CPUInfo_x86::getDigitBitWidth() const {
-    return 32;
+    return sizeof(Digit)*8;
   }
   
 

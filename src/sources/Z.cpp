@@ -25,7 +25,8 @@ namespace mpplas{
 
   size_t Z::precisionSalida_ = 0;
 
-  Z Z::Zero((Digit)0);
+  Z Z::ZERO((Digit)0);
+  Z Z::ONE((Digit)1);
 
   // implementacion constructores
   Z::Z()

@@ -1172,7 +1172,8 @@ namespace mpplas
 
 
       /** TODO */
-      static Z Zero;
+      static Z ZERO;
+      static Z ONE;
 
     protected:
 

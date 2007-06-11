@@ -929,8 +929,9 @@ namespace mpplas{
 
   R operator^(R base, const Z& exp)
   {
-    if( exp.longitud() > 1 )
+    if( exp.longitud() > 1 ){
       throw Errors::TooBig();
+    }
 
     base ^= exp;
     return base;

@@ -85,6 +85,49 @@ def manually_insert(inputPath,outputPath,conditions):
   input.close()
   output.close()
 
+def dumpConfigToCpp(env, outFilename):
+  from datetime import datetime
+  out = open(outFilename,'w')
+  txt = """
+/* Automatically generated on %s 
+ *  for source revision #%d  */
+
+namespace mpplas{
+  namespace CompilationConfig {
+    const int OPT_LEVEL = %d;
+    const char* const TARGET_ARCH = "%s";
+    const bool DEBUG_ENABLED = %s;
+    const bool PROFILING_ENABLED = %s;
+    const bool OPENMP_ENABLED =%s;
+    const bool RELEASE_VERSION = %s;
+    const int SOURCE_REVISION = %d;
+    const char* const SIMD_KERNEL = "%s";
+    const char* const COMPILER_CMD = "%s";
+    const char* const BUILD_DATE = __DATE__;
+    const char* const BUILD_TIME = __TIME__;
+  }
+};
+"""
+
+  res = txt % \
+       (datetime.now().ctime(),
+        int(env['SVN_REV']),
+        int(env['optLevel']), 
+        env['arch'], 
+        str(bool(env['enableDebug'])).lower(), 
+        str(bool(env['enableAOPProf'])).lower(), 
+        str(bool(env['enableOpenmp'])).lower(),
+        str(bool(env['enableRelease'])).lower(),
+        int(env['SVN_REV']),
+        env['enableSIMD'],
+        env.subst( env['SHCXXCOM'] )
+        )
+
+  out.write(res);
+  out.close();  
+
+
+
 Import('env')
 
 
@@ -226,24 +269,19 @@ else:
   env.Append(CPPDEFINES = 'USESIMD_' + env['enableSIMD'] )
 
   if env['enableOpenmp']:
-    if conf.CheckCXXHeader('omp.h','<>'):
+    if conf.CheckOpenMP():
+      print 'OpenMP support present'
       if( env['CXX'][:3] == 'g++' ): #gcc
-        tmpEnv = env.Copy()
         env.Append(CPPFLAGS=' -fopenmp ', LIBS='-lgomp')
         
       elif ( env['CXX'][:2] == 'ic' ): #intel c compiler
-        tmpEnv = env.Copy()
         env.Append(CPPFLAGS=' -openmp ', LINKFLAGS='-openmp')
-        
-      if conf.CheckOpenMP():
-        print 'OpenMP support present'
-      else:
-        print 'OpenMP support *not* present'
-        env = tmpEnv #restore the previous environment
-        filesStr += ' omp_mock.cpp '
-    else: #failed omp.h header check
+
+    else: # openmp check failed
+      print 'OpenMP support *not* present'
       filesStr += ' omp_mock.cpp '
-  else:
+      env['enableOpenmp'] = False
+  else: # openmp not selected as an scons option
     filesStr += ' omp_mock.cpp '
       
   env = conf.Finish()
@@ -256,7 +294,7 @@ if env['enableAOPProf']:
     from os import getcwd, chdir
     oldCWD = getcwd()
     chdir(str(Dir(kernelsDir)))
-    manually_insert( str(Dir(kernelsDir+ 'nucleo.h')) , str(Dir(kernelsDir+ 'aop/nucleo.h')) , ( env['arch'], env['enableSIMD'] ) )
+    manually_insert( str( str(Dir(kernelsDir)) + '/nucleo.h') , str(str(Dir(kernelsDir)) + '/aop/nucleo.h'), ( env['arch'], env['enableSIMD'] ) )
     kernelsDir += 'aop/'
     Execute(Delete( './aop/out'))
     chdir(str(Dir(kernelsDir)))
@@ -265,8 +303,8 @@ if env['enableAOPProf']:
       simdDefs = "-D__SSE2__ -D__SSE__ -D__MMX__"
     elif env['enableSIMD'] == "sse":
       simdDefs = "-D__SSE__ -D__MMX__"
-    AOPCommand = "ac++ -DUSESIMD_%s %s -DARCH_%s -DARCHBITS=%d -p . -I %s -d ./out"  \
-                  % ( env['enableSIMD'], simdDefs, env['arch'], env['archbits'], Dir('#/src/headers') )
+    AOPCommand = "ac++ -DUSESIMD_nosimd %s -DARCH_%s -DARCHBITS=%s -p . -I %s -d ./out"  \
+                  % ( simdDefs, env['arch'], env['ARCHBITS'], Dir('#/src/headers') )
     kernelsDir += 'out/'
     print AOPCommand
     system(AOPCommand)
@@ -275,9 +313,16 @@ if env['enableAOPProf']:
 env.Append( CPPPATH=[kernelsDir] )
 
 
-env.Append(CPPDEFINES = [('SVN_REV', env['SVN_REV'])])
+#env.Append(CPPDEFINES = [('SVN_REV', env['SVN_REV'])])
+
+dumpConfigToCpp(env,str(File('#/src/headers/CompilationConfig.h')))
 
 files = Split(filesStr)
+def print_cmd_line(s, target, source, env):
+  sys.stdout.write("Building %s -> %s...\n" %
+    (' and '.join([str(x) for x in source]),
+    ' and '.join([str(x) for x in target])))
+env['PRINT_CMD_LINE_FUNC'] = print_cmd_line
 
 lib = env.SharedLibrary('mpplas', files)
 env.Default(lib)

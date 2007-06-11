@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <vector>
+#include <iostream>
 #include <sstream>
 #include <utility>
 
@@ -13,6 +14,7 @@
 
 #include "MiVec.h"
 #include "Z.h"
+#include "MatrixZ.h"
 #include "R.h"
 #include "Random.h"
 #include "Primos.h"
@@ -21,6 +23,8 @@
 #include "Potencia.h"
 #include "Funciones.h"
 #include "SystemInfo.h"
+#include "BasicTypedefs.h"
+#include "Profiling.h"
 
 
 /* XML-RPC SIGNATURES 
@@ -338,6 +342,74 @@ class ModInverseMethod : public xmlrpc_c::method {
 
 
 
+
+
+
+/***********************************************
+ ************** INTEGER MATRICES ****************
+ ***********************************************/
+
+class MZAddMethod : public xmlrpc_c::method {
+  public:
+    
+    MZAddMethod() {
+      this->_signature = "s:ss";
+      this->_help = "This method adds two integer matrices together";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        mpplas::MatrixZ const op1(paramList.getString(0));
+        mpplas::MatrixZ const op2(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        *retvalP = xmlrpc_c::value_string( (op1+op2).toString() );
+      }
+};
+class MZMulMethod : public xmlrpc_c::method {
+  public:
+    
+    MZMulMethod() {
+      this->_signature = "s:ss";
+      this->_help = "This method multiplies two integer matrices";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        mpplas::MatrixZ const op1(paramList.getString(0));
+        mpplas::MatrixZ const op2(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        *retvalP = xmlrpc_c::value_string( (op1*op2).toString() );
+      }
+};
+
+
+class MZPPrintMethod : public xmlrpc_c::method {
+  public:
+    
+    MZPPrintMethod() {
+      this->_signature = "s:s";
+      this->_help = "This method returns an alternative representation of the matrix, more human readable";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        mpplas::MatrixZ const op1(paramList.getString(0));
+
+        paramList.verifyEnd(1);
+
+        std::ostringstream oss;
+        oss << op1;
+
+        *retvalP = xmlrpc_c::value_string( oss.str() );
+      }
+};
+
+
+
 /***********************************************
  ************** RANDOM Z ***********************
  ***********************************************/
@@ -516,10 +588,33 @@ class SysInfoMethod : public xmlrpc_c::method {
 
       std::pair<std::string, xmlrpc_c::value> buildDate("BuildDate", 
           xmlrpc_c::value_string(mpplas::SystemInfo::getBuildDate()));
+
       std::pair<std::string, xmlrpc_c::value> buildTime("BuildTime", 
           xmlrpc_c::value_string(mpplas::SystemInfo::getBuildTime()));
+
       std::pair<std::string, xmlrpc_c::value> revisionNumber("RevisionNumber", 
           xmlrpc_c::value_int( mpplas::SystemInfo::getRevisionNumber() ));
+
+      std::pair<std::string, xmlrpc_c::value> optimizationLevel("OptimizationLevel", 
+          xmlrpc_c::value_int( mpplas::SystemInfo::getOptimizationLevel() ));
+
+      std::pair<std::string, xmlrpc_c::value> isProfilingEnabled("ProfilingEnabled", 
+          xmlrpc_c::value_boolean( mpplas::SystemInfo::isProfilingEnabled() ));
+
+      std::pair<std::string, xmlrpc_c::value> isOpenMPEnabled("OpenMPEnabled", 
+          xmlrpc_c::value_boolean( mpplas::SystemInfo::isOpenMPEnabled() ));
+
+      std::pair<std::string, xmlrpc_c::value> isReleaseVersion("ReleaseVersion", 
+          xmlrpc_c::value_boolean( mpplas::SystemInfo::isReleaseVersion() ));
+
+      std::pair<std::string, xmlrpc_c::value> simdKernel("SIMDKernel", 
+          xmlrpc_c::value_string( mpplas::SystemInfo::getSIMDKernel() ));
+
+      std::pair<std::string, xmlrpc_c::value> compilerCmd("CompilerCmd", 
+          xmlrpc_c::value_string( mpplas::SystemInfo::getCompilerCmd() ));
+
+
+
 
 
       const mpplas::CPUInfo& ci(mpplas::SystemInfo::getCPUInfo() );
@@ -559,6 +654,12 @@ class SysInfoMethod : public xmlrpc_c::method {
       structData.insert(buildDate);
       structData.insert(buildTime);
       structData.insert(revisionNumber);
+      structData.insert(optimizationLevel );
+      structData.insert(isProfilingEnabled );
+      structData.insert(isOpenMPEnabled );
+      structData.insert(isReleaseVersion );
+      structData.insert(simdKernel );
+      structData.insert(compilerCmd );
       structData.insert(cpuInfo);
 
       // Make an XML-RPC struct out of it
@@ -569,6 +670,100 @@ class SysInfoMethod : public xmlrpc_c::method {
 
 };
 
+/////////////// PROFILING //////////////////////////////
+
+class StartProfilingClockMethod: public xmlrpc_c::method { 
+  public:
+
+    StartProfilingClockMethod() {
+      this->_signature = "n:";
+      this->_help = "This method marks the starting point in time for profiling clock";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const retvalP) {
+
+      paramList.verifyEnd(0);
+      mpplas::Profiling::getReference().startClock();
+
+      *retvalP = xmlrpc_c::value_nil();
+    }
+
+};
+class StopProfilingClockMethod: public xmlrpc_c::method { 
+  public:
+
+    StopProfilingClockMethod() {
+      this->_signature = "d:";
+      this->_help = "This method returns the time elapsed since the profiling clock was set to run";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const retvalP) {
+
+      paramList.verifyEnd(0);
+      double x =  mpplas::Profiling::getReference().stopClock();
+      *retvalP = xmlrpc_c::value_double(x);
+    }
+
+};
+
+class GetProfilingResultsMethod: public xmlrpc_c::method { 
+  public:
+
+    GetProfilingResultsMethod() {
+      this->_signature = "A:";
+      this->_help = "This method returns an array containing the profiling counters"
+       "for each thread.";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const retvalP) {
+
+      paramList.verifyEnd(0);
+      std::vector<xmlrpc_c::value> threadsArray;
+
+      const mpplas::Profiling& prof( mpplas::Profiling::getReference() );
+      for( int i = 0; i < prof.getNumThreads(); i++){
+        const mpplas::ProfResult& profForThreadN( prof[i] );
+        std::map<std::string, xmlrpc_c::value> threadResults;
+        
+        for( int j=0; j < mpplas::BasicCPU::__OpsEnum_SIZE; j++ ){
+          const std::pair<std::string, xmlrpc_c::value> opTmp(
+              mpplas::BasicCPU::OpsNames[j], 
+              xmlrpc_c::value_int( profForThreadN[j] )
+          );
+          threadResults.insert( opTmp );
+        }
+        threadsArray.push_back(xmlrpc_c::value_struct(threadResults));
+      }
+
+      // Make an XML-RPC struct out of it
+      *retvalP  = xmlrpc_c::value_array(threadsArray);
+
+    }
+
+};
+
+class ResetProfilingCountersMethod: public xmlrpc_c::method { 
+  public:
+
+    ResetProfilingCountersMethod() {
+      this->_signature = "n:";
+      this->_help = "This method resets the profiling counters";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const retvalP) {
+
+      paramList.verifyEnd(0);
+      mpplas::Profiling::getReference().reset();
+
+      *retvalP = xmlrpc_c::value_nil();
+
+    }
+
+};
+
+
+
+///////////////////////////////////////////////////////////////////////////////////
 
 int main(int const, const char ** const) {
 
@@ -606,6 +801,17 @@ int main(int const, const char ** const) {
         
         xmlrpc_c::methodPtr const SysInfoMethodP(new SysInfoMethod);
 
+
+        xmlrpc_c::methodPtr const StartProfilingClockMethodP(
+            new StartProfilingClockMethod);
+        xmlrpc_c::methodPtr const StopProfilingClockMethodP(
+            new StopProfilingClockMethod);
+        xmlrpc_c::methodPtr const GetProfilingResultsMethodP(
+            new GetProfilingResultsMethod);
+        xmlrpc_c::methodPtr const ResetProfilingCountersMethodP(
+            new ResetProfilingCountersMethod);
+
+
         myRegistry.addMethod("zAdd", ZAddMethodP);
         myRegistry.addMethod("zSub", ZSubMethodP);
         myRegistry.addMethod("zMul", ZMulMethodP);
@@ -622,6 +828,17 @@ int main(int const, const char ** const) {
 
         myRegistry.addMethod("zFactorial", ZFactorialMethodP);
 
+        xmlrpc_c::methodPtr const MZAddMethodP(new MZAddMethod);
+        xmlrpc_c::methodPtr const MZMulMethodP(new MZMulMethod);
+        myRegistry.addMethod("mzAdd", MZAddMethodP);
+        myRegistry.addMethod("mzMul", MZMulMethodP);
+
+
+        xmlrpc_c::methodPtr const MZPPrintMethodP(new MZPPrintMethod);
+        myRegistry.addMethod("_mzPPrint", MZPPrintMethodP);
+
+
+
         
         myRegistry.addMethod("modExp", ModExpMethodP);
         myRegistry.addMethod("modInverse", ModInverseMethodP);
@@ -637,6 +854,16 @@ int main(int const, const char ** const) {
         myRegistry.addMethod("crt", CRTMethodP);
         
         myRegistry.addMethod("systemInfo", SysInfoMethodP);
+        
+        
+        myRegistry.addMethod("startProfClock", 
+            StartProfilingClockMethodP);
+        myRegistry.addMethod("stopProfClock", 
+            StopProfilingClockMethodP);
+        myRegistry.addMethod("getProfRes", 
+            GetProfilingResultsMethodP);
+        myRegistry.addMethod("resetProf", 
+            ResetProfilingCountersMethodP);
 
 
         

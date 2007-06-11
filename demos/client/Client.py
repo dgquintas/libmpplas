@@ -15,49 +15,61 @@ def __elemsToStr(ls):
   return newl
 
 global filteredMethods
-global global_rpcServer
 global global_config
+
+def beginBatch():
+  RPCServer.getInstance().setBatch(True)
+
+def runBatch(reset = True):
+  res = RPCServer.getInstance().getBatchServer()()
+  if reset:
+    RPCServer.getInstance().resetBatch()
+  return [x for x in res]
+
+def endBatch():
+  RPCServer.getInstance().setBatch(False)
 
 def initializeClient(configFileName = 'config.cfg'):
   global global_config
-  global global_rpcServer
   global_config = Configuration(configFileName)
-  global_rpcServer = RPCServer.getInstance( global_config.RPCServerURL )
+  rpcServer = RPCServer.getInstance( global_config.RPCServerURL )
 
   global filteredMethods
-  filteredMethods = filter(lambda mName: mName[:7] != 'system.', 
-                            global_rpcServer.system.listMethods())
+  filteredMethods = filter(lambda mName: mName[:7] != 'system.' and mName[0] != '_', 
+                            rpcServer.getInteractiveServer().system.listMethods())
 
   proxyFuncsSrc = """def %(methodName)s(*args):
     \"\"\"%(methodHelp)s\"\"\"
-    opType = '%(methodName)s'[0]
+    methodName = '%(methodName)s'[:2]
     newArgs = []
+    rpcServer = RPCServer.getInstance()
     for arg in args:
       if type(arg) in ( type(()), type([]) ):
         newArgs.append( __elemsToStr(arg) )
       else:
         newArgs.append(str(arg))
     try:
-      result = global_rpcServer.%(methodName)s(*newArgs)
+      result = rpcServer.getServer().%(methodName)s(*newArgs)
     except Fault, e:
       raise "Exception from the server: " + e.faultString   
     except:
       raise
     
     if type(result) == type(""):
-      if opType == 'z':
+      if methodName[0] == 'z':
         result = Z(result)
-      elif opType == 'r':
+      elif methodName[0] == 'r':
         result = R(result)
+      elif methodName[:2] == 'mz':
+        result = MZ(result)
     # else, do not chage its type   
     
     return result
 """
-  multiCallRPC = MultiCall(global_rpcServer)
   for mName in filteredMethods:
-    multiCallRPC.system.methodHelp(mName)
+    rpcServer.getBatchServer().system.methodHelp(mName)
   
-  methodsHelp = zip(filteredMethods, multiCallRPC())
+  methodsHelp = zip(filteredMethods, rpcServer.getBatchServer()())
   for methodAndHelpPair in methodsHelp:
     exec proxyFuncsSrc % \
     {'methodName': methodAndHelpPair[0], 
@@ -169,6 +181,8 @@ class Z(object):
     return self.__integerStr
 
 
+#######################################################################
+
 class R(object):
 
   def __init__(self, rStr=""):
@@ -225,6 +239,54 @@ class R(object):
   def __str__(self):
     return self.__realStr
 
+
+###############################################################################
+
+class MZ(object): #matrix Z
+
+  def __init__(self, mzStr=""):
+    self.__matrixZStr = str(mzStr)
+
+  def __add__(self, anotherMZ): 
+    return mzAdd(self.__matrixZStr, anotherMZ.__matrixZStr )
+  def __iadd__(self, anotherMZ): 
+    self.__matrixZStr = str( mzAdd( self.__matrixZStr, anotherMZ.__matrixZStr ) )
+    return self
+ 
+  def __mul__(self, anotherMZ): 
+    return mzMul(self.__matrixZStr, anotherMZ.__matrixZStr )
+  def __imul__(self, anotherMZ): 
+    self.__matrixZStr = str( mzMul( self.__matrixZStr, anotherMZ.__matrixZStr ) )
+    return self
+
+
+  def __getitem__(self, row):
+    pyRep = self.__strToPyRep( self.__matrixZStr )
+    return pyRep[row]
+
+  def __repr__(self):
+    return 'MZ("' + self.__matrixZStr + '")'
+
+  def __str__(self):
+    return rpcServer.getInteractiveServer()._mzPPrint(self.__matrixZStr)
+
+  def __strToPyRep(self, str):
+    res = []
+    str = str.strip()
+    str = str[1:-1].strip() #remove the external [ ]
+    rows = str.split(';')
+    for i in rows:
+      res.append( i.split() )
+
+    return res
+
+  def __PyRepToStr(self, pyRep):
+    strRows = []
+    map( lambda row: strRows.append(" ".join(row)), py)
+    str = " ; ".join(strRows)
+    str = "[ " + str +" ]"
+
+    return str
 
 
 import sys

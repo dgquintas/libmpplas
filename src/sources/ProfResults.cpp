@@ -50,6 +50,10 @@ namespace mpplas {
     return total;
   }
 
+  size_t ProfResults::getNumThreads() const{
+    return omp_get_num_threads();
+  }
+
   void ProfResults::reset(){
     for( int i = 0; i < _perThreadResults.size(); i++){
       _perThreadResults[i].reset();

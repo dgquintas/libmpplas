@@ -3,6 +3,7 @@
  */
 
 #include "Profiling.h"
+#include "SystemInfo.h"
 
 namespace mpplas {
 
@@ -31,11 +32,20 @@ namespace mpplas {
     return _profResults[thread];
   }
 
+  size_t Profiling::getNumThreads() const{
+    return _profResults.getNumThreads();
+  }
+
   ProfResults& Profiling::getResults() {
     return _profResults;
   }
   const ProfResults& Profiling::getResults() const{
     return _profResults;
+  }
+
+
+  bool Profiling::isEnabled() const {
+    return SystemInfo::isProfilingEnabled();
   }
 
 

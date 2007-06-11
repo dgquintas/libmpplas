@@ -46,21 +46,19 @@ namespace mpplas{
   #error Unsupported number of bits ARCHBITS
 #endif
 
-#ifdef USESIMD_nosimd
-  typedef struct { float f[4]; } __attribute__ ((aligned (16))) __m128;
-  typedef struct { double d[2]; } __attribute__ ((aligned (16))) __m128d;
-  typedef struct { char int32_t[4]; } __attribute__ ((aligned (16))) __m128i;
-#endif
 
 #ifdef USESIMD_sse
   #include <xmmintrin.h>
   typedef struct { double d[2]; } __attribute__ ((aligned (16))) __m128d;
   typedef struct { char int32_t[4]; } __attribute__ ((aligned (16))) __m128i;
+#elif USESIMD_sse2
+  #include <emmintrin.h>
+#else  // USESIMD_nosimd or nothing
+  typedef struct { float f[4]; } __attribute__ ((aligned (16))) __m128;
+  typedef struct { double d[2]; } __attribute__ ((aligned (16))) __m128d;
+  typedef struct { char int32_t[4]; } __attribute__ ((aligned (16))) __m128i;
 #endif
 
-#ifdef USESIMD_sse2
-  #include <emmintrin.h>
-#endif
 
   union SIMDDigit {
     __m128 f;
@@ -68,7 +66,29 @@ namespace mpplas{
     __m128i i;
   };
 
+  namespace BasicCPU{
 
+    enum OpsEnum { 
+      ADD = 0, ADDX, 
+      SUB, SUBX, 
+      MUL, ADDMUL, 
+      DIV, SHIFTL, SHIFTLR, 
+      MNOB,
+      __OpsEnum_SIZE
+        //    /* SIMD OPS */
+        //    SIMDADD, SIMDSUB,
+        //    SIMDMUL, SIMDDIV,
+        //    SIMDSUM,
+        //    SIMDPACK, SIMDUNPACK,
+        //    __OpsEnum_SIZE
+    };
+    static const char* const OpsNames[] = {
+      "ADD", "ADDX",
+      "SUB", "SUBX",
+      "MUL", "ADDMUL",
+      "DIV", "SHIFTL", "SHIFTLR",
+      "MNOB" };
+  };
 
 }
 

@@ -1,4 +1,5 @@
 #include "Profiling.h"
+#include "BasicTypedefs.h"
 
 aspect ProfilingTrace {
   
@@ -8,34 +9,34 @@ aspect ProfilingTrace {
     {}
   
     advice execution("% mpplas::BasicCPU::Add(...)") : after() {
-      _profInstance[ omp_get_thread_num() ][ mpplas::ProfResult::ADD ]++;
+      _profInstance[ omp_get_thread_num() ][ mpplas::BasicCPU::ADD ]++;
     }
     advice execution("% mpplas::BasicCPU::Addx(...)") : after() {
-      _profInstance[ omp_get_thread_num() ][ mpplas::ProfResult::ADDX ]++;
+      _profInstance[ omp_get_thread_num() ][ mpplas::BasicCPU::ADDX ]++;
     }
     advice execution("% mpplas::BasicCPU::Sub(...)") : after() {
-      _profInstance[ omp_get_thread_num() ][ mpplas::ProfResult::SUB ]++;
+      _profInstance[ omp_get_thread_num() ][ mpplas::BasicCPU::SUB ]++;
     }
     advice execution("% mpplas::BasicCPU::Subx(...)") : after() {
-      _profInstance[ omp_get_thread_num() ][ mpplas::ProfResult::SUBX ]++;
+      _profInstance[ omp_get_thread_num() ][ mpplas::BasicCPU::SUBX ]++;
     }
     advice execution("% mpplas::BasicCPU::Addmul(...)") : after() {
-      _profInstance[ omp_get_thread_num() ][ mpplas::ProfResult::ADDMUL ]++;
+      _profInstance[ omp_get_thread_num() ][ mpplas::BasicCPU::ADDMUL ]++;
     }
     advice execution("% mpplas::BasicCPU::Mul(...)") : after() {
-      _profInstance[ omp_get_thread_num() ][ mpplas::ProfResult::MUL ]++;
+      _profInstance[ omp_get_thread_num() ][ mpplas::BasicCPU::MUL ]++;
     }
     advice execution("% mpplas::BasicCPU::Div(...)") : after() {
-      _profInstance[ omp_get_thread_num() ][ mpplas::ProfResult::DIV ]++;
+      _profInstance[ omp_get_thread_num() ][ mpplas::BasicCPU::DIV ]++;
     }
     advice execution("% mpplas::BasicCPU::Shiftl(...)") : after() {
-      _profInstance[ omp_get_thread_num() ][ mpplas::ProfResult::SHIFTL ]++;
+      _profInstance[ omp_get_thread_num() ][ mpplas::BasicCPU::SHIFTL ]++;
     }
     advice execution("% mpplas::BasicCPU::Shiftlr(...)") : after() {
-      _profInstance[ omp_get_thread_num() ][ mpplas::ProfResult::SHIFTLR ]++;
+      _profInstance[ omp_get_thread_num() ][ mpplas::BasicCPU::SHIFTLR ]++;
     }
     advice execution("% mpplas::BasicCPU::Mnob(...)") : after() {
-      _profInstance[ omp_get_thread_num() ][ mpplas::ProfResult::MNOB ]++;
+      _profInstance[ omp_get_thread_num() ][ mpplas::BasicCPU::MNOB ]++;
     }
 
 

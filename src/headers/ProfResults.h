@@ -27,6 +27,8 @@ namespace mpplas{
 
       OpsCount getTotalOps() const;
 
+      size_t getNumThreads() const;
+
 
     private:
       std::vector< ProfResult > _perThreadResults;

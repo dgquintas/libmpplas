@@ -7,6 +7,8 @@
 
 #include <iostream>
 
+#include "BasicTypedefs.h"
+
 namespace mpplas{
 
   typedef long OpsCount;
@@ -14,19 +16,6 @@ namespace mpplas{
   class ProfResult {
 
     public:
-      enum OpsEnum { 
-        ADD = 0, ADDX, 
-        SUB, SUBX, 
-        MUL, ADDMUL, 
-        DIV, SHIFTL, SHIFTLR, 
-        MNOB,
-        /* SIMD OPS */
-        SIMDADD, SIMDSUB,
-        SIMDMUL, SIMDDIV,
-        SIMDSUM,
-        SIMDPACK, SIMDUNPACK,
-        __OpsEnum_SIZE
-      };
 
       ProfResult();
       void reset();
@@ -40,7 +29,7 @@ namespace mpplas{
 
 
     private:
-      OpsCount _opsCount[__OpsEnum_SIZE] ;
+      OpsCount _opsCount[BasicCPU::__OpsEnum_SIZE] ;
 
       friend std::ostream& operator<<(std::ostream&, const ProfResult&);
 

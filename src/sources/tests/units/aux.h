@@ -6,9 +6,11 @@
 #define __AUX_H
 
 #include <cstdlib>
+#include <ctime>
 #include <cassert>
 
 inline int brand(int a, int b){
+  srand( time(NULL) );
 
   assert(a < b);
 

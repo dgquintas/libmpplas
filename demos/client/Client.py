@@ -268,7 +268,7 @@ class MZ(object): #matrix Z
     return 'MZ("' + self.__matrixZStr + '")'
 
   def __str__(self):
-    return rpcServer.getInteractiveServer()._mzPPrint(self.__matrixZStr)
+    return RPCServer.getInstance().getInteractiveServer()._mzPPrint(self.__matrixZStr)
 
   def __strToPyRep(self, str):
     res = []

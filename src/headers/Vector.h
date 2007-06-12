@@ -14,6 +14,7 @@
 #include "AlgebraUtils.h"
 #include "Matrix.h"
 #include "constants.h"
+#include "R.h"
 
 namespace mpplas 
 {
@@ -47,8 +48,8 @@ namespace mpplas
       Vector<T>& transpose();
       Vector<T>& cross(const Vector<T>&);
       T dot(const Vector<T>& rhs);
-      Vector<T>& normalize();
-      T norm();
+//      Vector<T>& normalize();
+      R norm(const int p = 2);
 
 
       /** Input operator for Vector 
@@ -79,8 +80,8 @@ namespace mpplas
    * @return The transposed version of @a src.
    */
   template<typename T> Vector<T> transpose( Vector<T> src ); 
-  template<typename T> Vector<T> normalize( Vector<T> src );
-  template<typename T> T norm( Vector<T> src );
+//  template<typename T> Vector<T> normalize( Vector<T> src );
+  template<typename T> R norm( Vector<T> src, const int p = 2 );
   template<typename T> T dot( Vector<T> lhs, const Vector<T>& rhs);
   template<typename T> Vector<T> cross( Vector<T> lhs, const Vector<T>& rhs);
 

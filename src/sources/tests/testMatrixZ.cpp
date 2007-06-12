@@ -1,4 +1,4 @@
-#include "VectorZ.h"
+#include "MatrixZ.h"
 #include <iostream>
 
 
@@ -7,17 +7,11 @@ using namespace std;
 
 
 int main(){
+  MatrixZ mat("[1 -235; 2 -34; 5 6]");
+  MatrixZ mat2("[1 2 3; 4 64 -12]");
 
- // MatrixZ mat("[1 -235; 2 -34]");
- VectorZ vec("[5221935 148140 666630 7666245 4394820 382695 0 -1530780 -12345]");
-//  MatrixZ mat2("[1 2; 3 4]");
-
-  cout << vec << endl;
-//  mat2.transpose();
-//  cout << mat2 << endl;
-//  cout << mat2.toString() << endl;
-
-//  cout << (mat == mat2) << endl;
+  mat *= mat2;
+  cout << mat << endl;
 
   return 0;
 }

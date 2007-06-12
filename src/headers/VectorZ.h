@@ -21,9 +21,6 @@ namespace mpplas
       VectorZ(const std::vector<Z>& rhs); /**< Constructor from a std::vector */
       VectorZ(const std::string &); /**< Parsing contructor from a textual representation */
 
-
-
-
   };
 
 

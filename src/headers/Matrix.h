@@ -48,6 +48,13 @@ namespace mpplas
         inline const T& operator()(size_t i) const;
         inline T& operator()(size_t i, size_t j);
         inline const T& operator()(size_t i, size_t j) const;
+  
+        Matrix<T>& operator()(size_t n1, size_t m1, 
+                              size_t n2, size_t m2);
+        const Matrix<T>& operator()(size_t n1, size_t m1, 
+                                    size_t n2, size_t m2) const;
+
+
         
         bool operator==(const Matrix<T>& rhs) const;
 
@@ -78,7 +85,8 @@ namespace mpplas
          *
          * @return A reference to *this, the result matrix.
          *
-         * @throw Errors::NonConformantDimensions If the matrices have different dimensions
+         * @throw Errors::NonConformantDimensions If the matrices have different 
+         * dimensions
          */
         Matrix<T>& byElementProd( const Matrix<T>& rhs);
 
@@ -109,7 +117,8 @@ namespace mpplas
          *
          * @return A reference to *this, the result matrix.
          *
-         * @throw Errors::NonConformantDimensions If the matrices have different dimensions
+         * @throw Errors::NonConformantDimensions If the matrices have 
+         * different dimensions
          */
         Matrix<T>& byElementDiv( const Matrix<T>& rhs);
 
@@ -133,8 +142,10 @@ namespace mpplas
          * @return The number of elements in the matrix.
          */
         inline size_t getSize() const;
-        inline Dimensions getDimensions() const;
+        inline const Dimensions& getDimensions() const;
         void setDimensions(const Dimensions& dims);
+        inline const size_t getNumRows() const;
+        inline const size_t getNumColumns() const;
 
         std::string toString() const;
 
@@ -154,7 +165,21 @@ namespace mpplas
 
   template<typename T>
     Matrix<T> operator-(Matrix<T> m); /**< Unary negation, sign inversion */
-#include "MatrixImpl.h"
+
+  template<typename T>
+    Matrix<T> operator+(Matrix<T> lhs, const Matrix<T>& rhs){
+      lhs += rhs;
+      return lhs;
+    }
+
+  template<typename T>
+    Matrix<T> operator*(Matrix<T> lhs, const Matrix<T>& rhs){
+      lhs *= rhs;
+      return lhs;
+    }
+
+     
+    #include "MatrixImpl.h"
 
 }
 

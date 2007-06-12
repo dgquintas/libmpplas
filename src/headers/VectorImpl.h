@@ -90,14 +90,15 @@ Vector<T>& Vector<T>::transpose(){
   return *this;
 }
 
-template<typename T>
-Vector<T>& Vector<T>::normalize(){
-  return *this; //TODO
-}
+//template<typename T>
+//Vector<T>& Vector<T>::normalize(){
+//  return *this; //TODO
+//}
+
 
 template<typename T>
-T Vector<T>::norm(){
-
+R Vector<T>::norm(const int p){
+  
   return T(); //TODO
 }
 
@@ -168,13 +169,13 @@ Vector<T> cross( Vector<T> lhs, const Vector<T>& rhs ){
   return lhs.cross(rhs);
 }
 
-template<typename T>
-Vector<T> normalize( Vector<T> src ){
-  return src.normalize();
-}
+//template<typename T>
+//Vector<T> normalize( Vector<T> src ){
+//  return src.normalize();
+//}
 
 template<typename T>
-T norm( Vector<T> src ){
+R norm( Vector<T> src ){
   return src.norm();
 }
 

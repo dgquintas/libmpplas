@@ -92,6 +92,20 @@ inline const T& Matrix<T>::operator()(size_t i, size_t j) const{
 }
 
 
+//TODO
+//template<typename T>
+//Matrix<T>& Matrix<T>::operator()(size_t n1, size_t m1,
+//                                 size_t n2, size_t m2){
+//
+//
+//}
+//template<typename T>
+//const Matrix<T>& Matrix<T>::operator()(size_t n1, size_t m1,
+//                                       size_t n2, size_t m2) const {
+//
+//}
+
+
 //////////////////////////////////////////////
 
 
@@ -239,7 +253,24 @@ Matrix<T>& Matrix<T>::operator-=(const SignedDigit rhs)
 //////////////////////////////////////////////
   template<typename T>
 Matrix<T>& Matrix<T>::operator*=(const Matrix<T>& rhs) {
-  return *this; //TODO
+  const size_t I = this->getDimensions().getRows();
+  const size_t K = this->getDimensions().getColumns();
+  const size_t J = rhs.getDimensions().getColumns();
+  T sum;
+
+  const Matrix<T> thisOrig(*this);
+  this->setAll( T(0) );
+  this->setDimensions( Dimensions( this->getDimensions().getRows(), J) );
+
+  for (size_t i = 0; i < I; i++) {
+    for (size_t j = 0; j < J; j++) {
+      for (size_t k = 0; k < K; k++) {
+        (*this)(i,j) += thisOrig(i,k) * rhs(k,j);
+      }
+    }
+  }
+
+  return *this;
 }
 
 
@@ -338,14 +369,13 @@ Matrix<T>& Matrix<T>::byElementDiv( const Matrix<T>& rhs){
 
 template<typename T>
 Matrix<T>& Matrix<T>::transpose(){
-  const size_t _n = _dims.getRows();
-  const size_t _m = _dims.getColumns();
+  const size_t n = _dims.getRows();
 #pragma omp parallel for schedule(guided) 
-  for(int i=0; i < _n-1; i++){
-    for(int j=1; j < _m; j++){
-      T tmp(this->operator()(i,j));
-      this->operator()(i,j) = this->operator()(j,i);
-      this->operator()(j,i) = tmp;
+  for(int i=0; i < n; i++){
+    for(int j=i+1; j < n; j++){
+      const T tmp((*this)(i,j));
+      (*this)(i,j) = (*this)(j,i);
+      (*this)(j,i) = tmp;
     }
   }
 }
@@ -384,14 +414,26 @@ void Matrix<T>::setAll(T n){
 
 
 template<typename T>
-size_t Matrix<T>::getSize() const{
+inline size_t Matrix<T>::getSize() const{
   return this->getDimensions().getProduct();
 }
 
 template<typename T>
-Dimensions Matrix<T>::getDimensions() const{
+inline const Dimensions& Matrix<T>::getDimensions() const{
   return _dims;
 }
+
+template<typename T>
+inline const size_t Matrix<T>::getNumRows() const {
+  return this->getDimensions().getRows();
+}
+
+template<typename T>
+inline const size_t Matrix<T>::getNumColumns() const {
+  return this->getDimensions().getColumns();
+}
+
+
 
 
 template<typename T>

@@ -296,6 +296,7 @@ if env['enableAOPProf']:
   if not env.GetOption('clean'):
     from os import system
     from os import getcwd, chdir
+    from os.path import join as pjoin
     oldCWD = getcwd()
     chdir(str(Dir(kernelsDir)))
     manually_insert( str( str(Dir(kernelsDir)) + '/nucleo.h') , str(str(Dir(kernelsDir)) + '/aop/nucleo.h'), ( env['arch'], env['enableSIMD'] ) )
@@ -308,10 +309,12 @@ if env['enableAOPProf']:
     elif env['enableSIMD'] == "sse":
       simdDefs = "-D__SSE__ -D__MMX__"
     AOPConfigFilename = 'puma.config'
-    AOPConfigGenCommand = 'ag++ -m%s --gen_config -o %s' % ( env['ARCHBITS'] , AOPConfigFilename )
+    AGpp = pjoin( str(Dir('#/extra/aop')), 'ag++')
+    ACpp = pjoin( str(Dir('#/extra/aop')), 'ac++')
+    AOPConfigGenCommand = '%s -m%s --gen_config -o %s' % (AGpp, env['ARCHBITS'] , AOPConfigFilename )
     AOPCommand =  \
-      "ac++ -DUSESIMD_nosimd %s -DARCH_%s -DARCHBITS=%s -p . -I %s --config %s -d ./out"  \
-          % ( simdDefs, env['arch'], env['ARCHBITS'], Dir('#/src/headers'), AOPConfigFilename )
+      "%s -DUSESIMD_nosimd %s -DARCH_%s -DARCHBITS=%s -p . -I %s --config %s -d ./out"  \
+          % ( ACpp, simdDefs, env['arch'], env['ARCHBITS'], Dir('#/src/headers'), AOPConfigFilename )
     kernelsDir += 'out/'
     print AOPConfigGenCommand
     system(AOPConfigGenCommand)

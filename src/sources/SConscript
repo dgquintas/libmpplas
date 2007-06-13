@@ -307,9 +307,14 @@ if env['enableAOPProf']:
       simdDefs = "-D__SSE2__ -D__SSE__ -D__MMX__"
     elif env['enableSIMD'] == "sse":
       simdDefs = "-D__SSE__ -D__MMX__"
-    AOPCommand = "ac++ -DUSESIMD_nosimd %s -DARCH_%s -DARCHBITS=%s -p . -I %s -d ./out"  \
-                  % ( simdDefs, env['arch'], env['ARCHBITS'], Dir('#/src/headers') )
+    AOPConfigFilename = 'puma.config'
+    AOPConfigGenCommand = 'ag++ -m%s --gen_config -o %s' % ( env['ARCHBITS'] , AOPConfigFilename )
+    AOPCommand =  \
+      "ac++ -DUSESIMD_nosimd %s -DARCH_%s -DARCHBITS=%s -p . -I %s --config %s -d ./out"  \
+          % ( simdDefs, env['arch'], env['ARCHBITS'], Dir('#/src/headers'), AOPConfigFilename )
     kernelsDir += 'out/'
+    print AOPConfigGenCommand
+    system(AOPConfigGenCommand)
     print AOPCommand
     system(AOPCommand)
     chdir(oldCWD)

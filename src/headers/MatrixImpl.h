@@ -4,27 +4,42 @@
 
   template<typename T>
   Matrix<T>::Matrix()
-: _dims(1,1), _data(1) 
-{}
+: _dims(1,1)
+{
+  //for GCC to compile when using SIMD types
+  _data.reserve(1);
+}
 
   template<typename T>
   Matrix<T>::Matrix(const size_t nAndm) 
-: _dims(nAndm,nAndm), _data(nAndm*nAndm) 
-{} 
+: _dims(nAndm,nAndm)
+{
+  //for GCC to compile when using SIMD types
+  _data.reserve(nAndm*nAndm);
+
+} 
 
   template<typename T>
   Matrix<T>::Matrix(const size_t n, const size_t m)
-: _dims(n,m), _data(n*m) 
-{} 
+: _dims(n,m)
+{
+  //for GCC to compile when using SIMD types
+  _data.reserve(n*m);
+
+} 
 
   template<typename T>
   Matrix<T>::Matrix(const Dimensions& dims)
-: _dims(dims), _data( _dims.getProduct() )
-{}
+: _dims(dims)
+{
+  //for GCC to compile when using SIMD types
+  _data.reserve(_dims.getProduct());
+
+}
 
   template<typename T>
   Matrix<T>::Matrix(const Matrix<T>& rhs)
-: _data(rhs._data), _dims(rhs._dims) //copy constr
+:  _dims(rhs._dims), _data(rhs._data)
 {}
 
 template<typename T>
@@ -259,7 +274,7 @@ Matrix<T>& Matrix<T>::operator*=(const Matrix<T>& rhs) {
   T sum;
 
   const Matrix<T> thisOrig(*this);
-  this->setAll( T(0) );
+  this->setToZero();
   this->setDimensions( Dimensions( this->getDimensions().getRows(), J) );
 
   for (size_t i = 0; i < I; i++) {
@@ -408,6 +423,12 @@ template<typename T>
 void Matrix<T>::setAll(T n){
   std::fill( _data.begin(), _data.end(), n );
   return ;
+}
+
+template<typename T>
+void Matrix<T>::setToZero(){
+  this->setAll( T::ZERO );
+  return;
 }
 
 ////////////////////////////////////

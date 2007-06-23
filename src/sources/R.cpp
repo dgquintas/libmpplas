@@ -15,6 +15,9 @@ namespace mpplas{
   size_t R::precision_ = 300;
   size_t R::precisionSalida_ = 20;
 
+  R R::ZERO((Digit)0);
+  R R::ONE((Digit)1);
+  
   R::R() 
     : exponente_(0)  
   {

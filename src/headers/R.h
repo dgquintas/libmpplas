@@ -536,8 +536,10 @@ namespace mpplas
       int8_t signo(void) const { return mantisa_.signo(); }
 
     
+    static R ZERO;
+    static R ONE;
     
-    private:
+    protected:
 
     SignedDigit exponente_;
     Z mantisa_;

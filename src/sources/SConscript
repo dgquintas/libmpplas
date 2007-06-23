@@ -28,6 +28,7 @@ filesStr = """
     VectorR.cpp
     MatrixZ.cpp
     MatrixR.cpp
+    MatrixFloat.cpp
     """
 
 

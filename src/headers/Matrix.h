@@ -134,6 +134,7 @@ namespace mpplas
         T getDeterminant();
         void setDiagonal(T n);
         void setAll(T n);
+        void setToZero();
 
         /** Number of elements in the matrix.
          *

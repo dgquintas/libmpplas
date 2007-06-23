@@ -1,24 +1,25 @@
 #include "MatrixFloat.h"
+#include "kernelSIMD.h"
 
 namespace mpplas
 {
   MatrixFloat::MatrixFloat()
-    : Matrix<float>()
+    : Matrix<__m128>()
   {}
 
   MatrixFloat::MatrixFloat(const MatrixFloat& m)
-    : Matrix<float>(m)
+    : Matrix<__m128>(m)
   {}
-  MatrixFloat::MatrixFloat(const Matrix<float>& m)
-    : Matrix<float>(m)
+  MatrixFloat::MatrixFloat(const Matrix<__m128>& m)
+    : Matrix<__m128>(m)
   {}
 
 
 
   MatrixFloat::MatrixFloat(const size_t nAndm)
-    : Matrix<float>(nAndm) {}
+    : Matrix<__m128>(nAndm) {}
   MatrixFloat::MatrixFloat(const size_t n, const size_t m)
-    : Matrix<float>(n,m) {}
+    : Matrix<__m128>(n,m) {}
 
   //////////////////////////////////////////////
   
@@ -29,6 +30,11 @@ namespace mpplas
   MatrixFloat operator-(MatrixFloat m){
 //    m *= ((SignedDigit)-1);
     return m;
+  }
+
+  std::istream& operator>>(std::istream& is, MatrixFloat& m){
+    std::cout << "bla" << std::endl;
+    return is;
   }
 
 

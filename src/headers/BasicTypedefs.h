@@ -61,6 +61,14 @@ namespace mpplas{
 
 
   union SIMDDigit {
+    SIMDDigit() {}
+    SIMDDigit(const __m128& sp)
+      : f(sp) {}
+    SIMDDigit(const __m128d& dp)
+      : d(dp) {}
+    SIMDDigit(const __m128i& epi16)
+      : i(epi16) {}
+
     __m128 f;
     __m128d d;
     __m128i i;

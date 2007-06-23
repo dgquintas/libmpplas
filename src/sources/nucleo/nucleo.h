@@ -236,8 +236,8 @@ namespace mpplas{
 #pragma __libmpplas_manual_include generic
   #include "nucleogeneric.h"
 
-#pragma __libmpplas_manual_include 
-  #include "kernelSIMD.h"
+//#pragma __libmpplas_manual_include 
+//  #include "kernelSIMD.h"
 
 
 #endif

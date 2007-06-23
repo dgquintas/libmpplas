@@ -17,6 +17,10 @@ namespace mpplas{
     /* DOUBLE */
 #define __DOUBLE_SIMD
 
+    template<> 
+      const short SIMDCPUImpl<double>::ELEMENTS_PER_DIGIT= 2;
+
+
     template<>
       inline void SIMDCPUImpl<double>::Add(SIMDDigit& out,const SIMDDigit& arg1, const SIMDDigit& arg2){
         out.d = _mm_add_pd(arg1.d, arg2.d);
@@ -70,6 +74,9 @@ namespace mpplas{
 
     /* INT 16 */
 #define __INT_SIMD
+
+    template<> 
+      const short SIMDCPUImpl<int16_t>::ELEMENTS_PER_DIGIT= 8;
 
     template<>
       inline void SIMDCPUImpl<int16_t>::Add(SIMDDigit& out,const SIMDDigit& arg1, const SIMDDigit& arg2){

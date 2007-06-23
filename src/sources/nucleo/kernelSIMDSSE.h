@@ -15,8 +15,12 @@ namespace mpplas{
 
 
 
+
     /* FLOAT */
 #define __FLOAT_SIMD
+    template<> 
+      const short SIMDCPUImpl<float>::ELEMENTS_PER_DIGIT= 4;
+
     template<>
       inline void SIMDCPUImpl<float>::Add(SIMDDigit& out,const SIMDDigit& arg1, const SIMDDigit& arg2){
         out.f = _mm_add_ps(arg1.f, arg2.f);

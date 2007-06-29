@@ -129,7 +129,7 @@ namespace mpplas{
       typedef GenPrimos DFL;
 
     private:
-      RandomRapido* _rnd;
+      RandomFast* _rnd;
   };
 
 

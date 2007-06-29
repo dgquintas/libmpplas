@@ -12,6 +12,8 @@
 
 
 #include <string>
+
+#include "Ring.h"
 #include "MiVec.h"
 #include "err.h"
 #include "constants.h"
@@ -19,7 +21,7 @@
 namespace mpplas
 {
   /** Clase para la representación de enteros. */
-  class Z 
+  class Z  : public Ring<Z,false /* not a division ring */>
   {
 
     public:
@@ -391,7 +393,7 @@ namespace mpplas
        * \note
        * Esta función invoca a la versión con argumento Digit. En
        * cualquier caso, depende de la implementación particular de la
-       * clase Potencia accesible mediante la clase Funciones.
+       * clase Potencia accesible mediante la clase Functions.
        * 
        */
       Z& operator^=(const Z& exp); 
@@ -406,7 +408,7 @@ namespace mpplas
        *
        * \note
        * Esta función depende de la implementación particular de la
-       * clase Potencia accesible mediante la clase Funciones.
+       * clase Potencia accesible mediante la clase Functions.
        */
       Z& operator^=(Digit exp); 
 
@@ -426,7 +428,7 @@ namespace mpplas
        * \note
        * Esta función invoca a la versión con argumento Digit. En
        * cualquier caso, depende de la implementación particular de la
-       * clase Potencia accesible mediante la clase Funciones.
+       * clase Potencia accesible mediante la clase Functions.
        * 
        */
       Z& operator^=(SignedDigit exp); 
@@ -1169,11 +1171,46 @@ namespace mpplas
       inline 
         static void precisionSalida(size_t nueva) 
         { precisionSalida_ = nueva; return;}
-
-
+ 
       /** TODO */
       static Z ZERO;
       static Z ONE;
+
+      /* Ring and Group methods */
+        static bool isUnitaryRing(){
+          return true;
+        };
+        static const Z& getMultIdentity() {
+          return ONE ;
+        };
+
+        static bool isMultCommutative() {
+          return true;
+        }
+        static bool isMultAssociative() {
+          return true;
+        }
+
+
+
+        static const Z& getGroupIdentity() {
+          return ZERO;
+        };
+        Z getGroupInverse()  const{
+          Z tmp(*this);
+          tmp.cambiarSigno();
+          return tmp;
+        };
+
+        static bool isGroupCyclic() {
+          return true;
+        }
+
+        static const Z& getGroupGenerator() {
+          return ONE;
+        }
+
+
 
     protected:
 
@@ -1198,7 +1235,7 @@ namespace mpplas
       /** Operador obtencion del número */
       friend std::istream& operator>>(std::istream&, Z&); 
 
-      /** Funciones (procedimientos) para el calculo simultaneao de cociente y módulo.
+      /** Functions (procedimientos) para el calculo simultaneao de cociente y módulo.
        *
        *  @par Complejidad:
        *       \f$O(n \cdot m) \quad / \quad n=tam(dividendo) y m=tam(divisor)\f$

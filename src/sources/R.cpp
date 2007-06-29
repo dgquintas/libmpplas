@@ -7,7 +7,7 @@
 #include <sstream>
 
 #include "R.h"
-#include "Funciones.h" 
+#include "Functions.h" 
 #include "Potencia.h"
 
 namespace mpplas{
@@ -289,7 +289,7 @@ namespace mpplas{
     //  mantisa_ ^= exponente;
     //  exponente_ *= exponente;
 
-    Funciones *funcs = Funciones::getInstance();
+    Functions *funcs = Functions::getInstance();
     PotenciaR *potR; funcs->getFunc(potR);
       
     potR->potenciaR(this, exponente);

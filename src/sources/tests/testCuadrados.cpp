@@ -15,7 +15,7 @@ using namespace numth;
 int main()
 {
   MiVec<Cifra> numVec;
-  RandomRapido *rnd = 0; 
+  RandomFast *rnd = 0; 
   Funciones::getInstance()->getFunc(rnd);
   rnd->ponerSemilla("12345");
   

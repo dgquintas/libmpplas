@@ -6,7 +6,7 @@
 #include "Primos.h"
 #include "Random.h"
 #include "Z_n.h"
-#include "Funciones.h"
+#include "Functions.h"
 #include "GCD.h"
 #include "RedModular.h"
 #include "Potencia.h"
@@ -21,10 +21,10 @@ namespace mpplas{
 
   bool RabinMiller::esPrimo(const Z& p, Z* testigo) 
   {
-    Funciones *funcs = Funciones::getInstance();
+    Functions *funcs = Functions::getInstance();
     GCD* gcd;
     funcs->getFunc(gcd);
-    RandomRapido* rnd; funcs->getFunc(rnd);
+    RandomFast* rnd; funcs->getFunc(rnd);
     
     if( p == (Digit)2 ){
       return true;
@@ -49,7 +49,7 @@ namespace mpplas{
         if(i >= 303 ){ 
           //por si a alguien se le ocurre la "brillante" idea de poner un numero
           //de iteraciones asi de grande
-          z = rnd->leerBits( std::min((size_t)16,p.numBits()-1) );
+          z = rnd->getInteger( std::min((size_t)16,p.numBits()-1) );
           (*testigo) = z;
         }
         else{
@@ -159,7 +159,7 @@ namespace mpplas{
         if(i >= 303 ) 
           //por si a alguien se le ocurre la "brillante" idea de poner un numero
           //de iteraciones asi de grande
-          z = rnd->leerBits( std::min((size_t)16,p.numBits()-1) );
+          z = rnd->getInteger( std::min((size_t)16,p.numBits()-1) );
         else
           z = Z(Constants::TABLA_PRIMOS_2000[i]);
 
@@ -199,7 +199,7 @@ namespace mpplas{
       2p-1 is composite;
     */
 
-    Funciones *funcs = Funciones::getInstance();
+    Functions *funcs = Functions::getInstance();
     RedModularALaMersenne* redmodmers; funcs->getFunc(redmodmers);
 
     TestPrimoProb *primTest; funcs->getFunc(primTest);
@@ -224,20 +224,20 @@ namespace mpplas{
 
   GenPrimos::GenPrimos()
   {
-    Funciones::getInstance()->getFunc(_rnd);
+    Functions::getInstance()->getFunc(_rnd);
   }
 
   void GenPrimos::setRandomSeed(const Z& seed)
   {
-    _rnd->ponerSemilla(seed);
+    _rnd->setSeed(seed);
   }
 
   Z GenPrimos::leerPrimoProb(size_t bits)
   {
-    Funciones *funcs = Funciones::getInstance();
+    Functions *funcs = Functions::getInstance();
     TestPrimoProb* test; funcs->getFunc(test);
 
-    Z n(_rnd->leerBits(bits));
+    Z n(_rnd->getInteger(bits));
 
     //poner a 1 los bits más y menos significativos 
     //poner a 1 el bit mas significativo hace que el nº
@@ -292,7 +292,7 @@ namespace mpplas{
 
   Z GenPrimos::siguientePrimoProb(const Z& comienzo)
   {
-    Funciones *funcs = Funciones::getInstance();
+    Functions *funcs = Functions::getInstance();
     TestPrimoProb* test; funcs->getFunc(test);
 
     //caso especial
@@ -352,7 +352,7 @@ namespace mpplas{
 
   Z GenPrimos::leerPrimoFuerte(size_t bits)
   {
-    Funciones *funcs = Funciones::getInstance();
+    Functions *funcs = Functions::getInstance();
     TestPrimoProb* testPrim; funcs->getFunc(testPrim);
     
     Z s,t;

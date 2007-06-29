@@ -4,7 +4,7 @@
 
 
 #include "CRT.h"
-#include "Funciones.h"
+#include "Functions.h"
 #include "RedModular.h"
 #include "Potencia.h"
 
@@ -12,7 +12,7 @@ namespace mpplas{
   
   Z CRTGarner::crt(MiVec<Z> y, MiVec<Z> m)
   {
-    Funciones* const funcs = Funciones::getInstance();
+    Functions* const funcs = Functions::getInstance();
     PotModular* potModular; funcs->getFunc(potModular);
     size_t t = y.size();
     MiVec<Z> C(t);

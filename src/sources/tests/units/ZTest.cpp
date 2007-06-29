@@ -14,7 +14,7 @@ using namespace com_uwyn_qtunit;
 
 
 ZTest::ZTest()
-  : funcs(Funciones::getInstance()), uno((Digit)1), dos((Digit)2), cero((Digit)0)
+  : funcs(Functions::getInstance()), uno((Digit)1), dos((Digit)2), cero((Digit)0)
 {
   
   funcs->getFunc(rnd);
@@ -35,8 +35,8 @@ ZTest::ZTest()
 
 void ZTest::setUp(){
 
-  z1 = rnd->leerBits(brand(2000,5000));
-  z2 = rnd->leerBits(brand(2000,5000));
+  z1 = rnd->getInteger(brand(2000,5000));
+  z2 = rnd->getInteger(brand(2000,5000));
 
 //  this->uno = Z::convertir((Digit)1);
 //  this->dos = Z::convertir((Digit)2);
@@ -159,7 +159,7 @@ void ZTest::testExponentiation(){
   qassertTrue( (dos ^ uno) == dos );
   qassertTrue( (dos ^ cero) == uno );
 
-  z2  = rnd->leerBits(brand(4,6));
+  z2  = rnd->getInteger(brand(4,6));
   Z res = (z1 ^ z2) ;
    
   string tmp;
@@ -212,7 +212,7 @@ void ZTest::testModulusByZeroThrows(){
 
 
 void ZTest::testFactorial(){
-  Digit rand = (rnd->leerDigit()) % (1UL<<14);
+  Digit rand = (rnd->getDigit()) % (1UL<<14);
 
   Z res(rand);
 

@@ -2,7 +2,7 @@
  * $Id$ 
  */
 #include "Random.h"
-#include "Funciones.h"
+#include "Functions.h"
 #include "Seedbank.h"
 #include "Primos.h"
 #include "GCD.h"
@@ -11,28 +11,24 @@
 namespace mpplas{
 
   /* IMPLEMENTACION MIEMBROS NO PUROS DE Random */
-  Digit Random::leerDigit(void)
+  Digit Random::getDigit(void)
   {
-    Digit temp;
-    temp = (this->leerBits(Constants::BITS_EN_CIFRA)).toDigit();
-
+    const Digit temp( (this->getInteger(Constants::BITS_EN_CIFRA)).toDigit());
     return temp;
   }
-  SignedDigit Random::leerSignedDigit(void)
+  SignedDigit Random::getSignedDigit(void)
   {
-    SignedDigit temp;
-    temp = (this->leerBits(Constants::BITS_EN_CIFRASIGNO)).toSignedDigit();
-
+    const SignedDigit temp( (this->getInteger(Constants::BITS_EN_CIFRASIGNO)).toSignedDigit());
     return temp;
   }
 
-  Z Random::leerEntero(const Z& bound)
+  Z Random::getIntegerBounded(const Z& bound)
   {
-    size_t bitsCota = bound.numBits();  
-    Z temp(this->leerBits(bitsCota));
+    const size_t bitsCota = bound.numBits();  
+    Z temp(this->getInteger(bitsCota));
 
     while( temp >= bound ){
-      temp = this->leerBits(bitsCota);
+      temp = this->getInteger(bitsCota);
     }
 
     return temp;
@@ -41,19 +37,19 @@ namespace mpplas{
   /* IMPL. NumThRC4Gen */
   NumThRC4Gen::NumThRC4Gen()
   {
-    Seedbank semillero;
+    Seedbank seedbank;
     
-    //una semilla de 16 bytes parece razonable...
+    //una seed de 16 bytes parece razonable...
     //Por una parte, las funciones hash más habituales (SHA, MD* ...)
     //tienen este o mayor tamaño de resumen.
     //Por otra, la busqueda en un espacio de 2^{16*8} = 2^{128} parece
     //suficientemente grande como para estar razonablemente a salvo de
     //la fuerza bruta.
-    semilla_ = semillero.leerSemilla(16); 
-    inicializar_();
+    _seed = seedbank.getSeed(16); 
+    _initialize();
   }
 
-  Z NumThRC4Gen::leerBits(size_t n)
+  Z NumThRC4Gen::getInteger(size_t n)
   {
     const size_t n_bytes = (n+7) >> 3;
     MiVec<uint8_t> bytesRand(n_bytes);
@@ -61,17 +57,17 @@ namespace mpplas{
     uint8_t t;
     uint8_t temp;
     for(size_t c = 0; c < n_bytes; c++){
-      i_ = (i_+1) & 0xff;
-      j_ = (j_+s_[i_]) & 0xff;
+      _i = (_i+1) & 0xff;
+      _j = (_j+_s[_i]) & 0xff;
       
       //intercambiar s[i] <-> s[j]
-      temp = s_[i_];
-      s_[i_] = s_[j_];
-      s_[j_] = temp;
+      temp = _s[_i];
+      _s[_i] = _s[_j];
+      _s[_j] = temp;
 
-      t = (s_[i_] + s_[j_]) & 0xff;
+      t = (_s[_i] + _s[_j]) & 0xff;
 
-      bytesRand[c] = s_[t];
+      bytesRand[c] = _s[t];
     }
       
     const size_t numDigits = ((n_bytes+(Constants::BYTES_EN_CIFRA-1)) / Constants::BYTES_EN_CIFRA); 
@@ -85,7 +81,7 @@ namespace mpplas{
       }
     }
 
-    //y ultima iteracion
+    //last iteration
     size_t j;
     if( n_bytes % Constants::BYTES_EN_CIFRA ){
       for(j = 0; j < (n_bytes % Constants::BYTES_EN_CIFRA)-1; j++){
@@ -112,42 +108,44 @@ namespace mpplas{
     
   }
 
-  void NumThRC4Gen::ponerSemilla(const Z& semilla)
+  void NumThRC4Gen::setSeed(const Z& seed)
   {
-    semilla_ = semilla;
-    inicializar_();
+    _seed = seed;
+    _initialize();
     return;
   }
 
-  void NumThRC4Gen::inicializar_(void)
+  void NumThRC4Gen::_initialize(void)
   {
-    size_t longSemilla = semilla_.longitud();
+    const size_t lengthSeed(_seed.longitud());
 
     Digit mascara;
-    size_t posSemilla = 0;
-    for(size_t m = 0; m < 256; m++)
-      s_[m] = m;
+    size_t posSeed = 0;
+    for(size_t m = 0; m < 256; m++){
+      _s[m] = m;
+    }
     
     for(size_t m = 0; m < 256; ){
       mascara = 0xff;
-      posSemilla++;
-      if ( posSemilla == longSemilla ) 
-        posSemilla = 0;
+      posSeed++;
+      if ( posSeed == lengthSeed ) {
+        posSeed = 0;
+      }
 
-      for(int n = 0; n < Constants::BYTES_EN_CIFRA ; n++){
-        k_[m] = semilla_[ posSemilla ] & mascara;
+      for(size_t n = 0; n < Constants::BYTES_EN_CIFRA ; n++){
+        _k[m] = _seed[ posSeed ] & mascara;
         m++;
         mascara <<= 8;
       }
     }
-    i_ = 0; j_ = 0;
+    _i = 0; _j = 0;
     uint8_t temp;
-    for( ; i_ < 256; i_++){
-      j_ = (j_ + s_[i_] + k_[i_]) & 0xff;
+    for( ; _i < 256; _i++){
+      _j = (_j + _s[_i] + _k[_i]) & 0xff;
       //intercambiar s[i] <-> s[j]
-      temp = s_[i_];
-      s_[i_] = s_[j_];
-      s_[j_] = temp;
+      temp = _s[_i];
+      _s[_i] = _s[_j];
+      _s[_j] = temp;
     }
 
     return;
@@ -172,24 +170,23 @@ namespace mpplas{
      * De cada X_i se consideraran tan solo los 16 bits inferiores.
      */
   congruentGen::congruentGen(void)
-    : a_(9301UL), b_(49297UL), m_(233280UL)
+    : _a(9301UL), _b(49297UL), _m(233280UL)
   {
-    const Seedbank semillero;
+    Seedbank seedbank;
 
     //ATENCION!!!
-    //una semilla de sizeof(ulong) (normalmente = 4) es algo relativamente
+    //una semilla de sizeof(Digit) (normalmente = 4) es algo relativamente
     //PEQUEÑO. El espacio de claves es de aprox. tan solo 2^{4*8} =
     //2^32 ~ 4 millones es insuficiente para aplicaciones de alta
     //seguridad. 
     //Pero por otra parte, el generador por congruencias lineales es
     //inherentemente inseguro... vease Scheier pag. 369
-    Xi_ = (unsigned long)(semillero.leerSemilla(sizeof(unsigned long)))[0]; 
-
+    _Xi = (Digit)(seedbank.getSeed(sizeof(Digit)))[0]; 
     return;
   }
   
       
-  Z congruentGen::leerBits(size_t n)
+  Z congruentGen::getInteger(size_t n)
   {
     size_t n_bytes = (n+7)/8;
     MiVec<uint8_t> bytesRand(n_bytes);
@@ -200,17 +197,17 @@ namespace mpplas{
     // rellenar bytesRand
     size_t c = 0;
     while( c < n_bytes ){
-      //esto de los pares/impares es cosa mia, dado que el modulo m_
+      //esto de los pares/impares es cosa mia, dado que el modulo _m
       //no llega (el por omisión al menos) para suplir 32 bits, se
       //usan solo 16... y dado que se van generando byte a byte se van 
-      //cogiendo la parte alta de los 16 bits bajos de Xi_ y la baja
-      bytesRand[c++] = (Xi_ & 0xff00) >> 8;
+      //cogiendo la parte alta de los 16 bits bajos de _Xi y la baja
+      bytesRand[c++] = (_Xi & 0xff00) >> 8;
       if( c >= n_bytes ) break;
-      bytesRand[c++] = Xi_ & 0x00ff;
+      bytesRand[c++] = _Xi & 0x00ff;
       // Generar el siguiente número de la secuencia
-      Xi_ = a_ * Xi_;
-      Xi_ += b_;
-      Xi_ %= m_;
+      _Xi = _a * _Xi;
+      _Xi += _b;
+      _Xi %= _m;
     }
 
     size_t i;
@@ -241,67 +238,67 @@ namespace mpplas{
     
   }
 
-  void congruentGen::ponerSemilla(const Z& semilla)
+  void congruentGen::setSeed(const Z& seed)
   {
-    Xi_ = semilla[0] % m_;
+    _Xi = seed[0] % _m;
     return;
   }
 
 
 
   BBSGen::BBSGen(void)
-    : calidad_(256)
+    : _quality(256)
   {
-    inicializar_();
+    _initialize();
   }
 
-  void BBSGen::ponerCalidad(size_t n)
+  void BBSGen::setQuality(size_t n)
   {
-    calidad_ = n;
-    inicializar_(); // tras un cambio de la calidad, hay que recomputar los primos
+    _quality = n;
+    _initialize(); // tras un cambio de la calidad, hay que recomputar los primos
   }
 
-  void BBSGen::inicializar_(void)
+  void BBSGen::_initialize(void)
   {
     //1º, encontrar 2 primos p y q de Blum ( p = 3 (mod 4) <=>
     // (-1/p) == -1 
-    Funciones *funcs = Funciones::getInstance();
+    Functions *funcs = Functions::getInstance();
     GenPrimos* gprimos; funcs->getFunc(gprimos);
 //    SimboloLegendre* slegendre = funcs->simboloLegendre();
     GCD* gcd; funcs->getFunc(gcd);
-    RandomRapido* rnd; funcs->getFunc(rnd);
+    RandomFast* rnd; funcs->getFunc(rnd);
  
     Z p,q;
     Z menosUno; menosUno.hacerUno(); menosUno.hacerNegativo();
     
 //    do{
-//      p = gprimos->leerPrimoProb(calidad_);
+//      p = gprimos->leerPrimoProb(_quality);
 //    } while( slegendre->simboloLegendre(menosUno, p) != (SignedDigit)-1 );
 //    
 //    do{
-//      q = gprimos->leerPrimoProb(calidad_);
+//      q = gprimos->leerPrimoProb(_quality);
 //    } while( slegendre->simboloLegendre(menosUno, q) != (SignedDigit)-1 );
  
     do{
-      p = gprimos->leerPrimoProb(calidad_);
+      p = gprimos->leerPrimoProb(_quality);
     } while( (p[0] & 0x3) != 3 ); // p & 0x3 == p mod 4
     
     do{
-      q = gprimos->leerPrimoProb(calidad_);
+      q = gprimos->leerPrimoProb(_quality);
     } while( (q[0] & 0x3) != 3 );
 
     
-    n_ = p*q;
+    _n = p*q;
     do{
-      Xi_ = rnd->leerEntero(n_);
-    }while( gcd->gcd(Xi_, n_) != (Digit)1);
+      _Xi = rnd->getIntegerBounded(_n);
+    }while( gcd->gcd(_Xi, _n) != (Digit)1);
 
-    Xi_.cuadradoModular(n_); 
+    _Xi.cuadradoModular(_n); 
     
     return;
   }
     
-  Z BBSGen::leerBits(size_t num)
+  Z BBSGen::getInteger(size_t num)
   {
     
     Z resultado; resultado.hacerCero();
@@ -313,25 +310,25 @@ namespace mpplas{
     //considerar Log_2{x} = numBits(x) - 1. Cuando x SI sea potencia
     //de 2, sera Log_2{x} = numBits(x)
     //De todas formas, se considerará siempre el primer caso (por ser
-    //el más "conservador") y de cada Xi_ se tomarán sus 
+    //el más "conservador") y de cada _Xi se tomarán sus 
     //max(1,numBits(n)-1) bits de menos peso
     
-    size_t n = numBits(Xi_);
+    size_t n = numBits(_Xi);
     Digit longConsiderada = std::max(numBits((Digit)n)-1,(size_t)1);
     Digit mascara = (1UL << longConsiderada)-1;
     while(num){
-      Xi_.cuadradoModular(n_); 
+      _Xi.cuadradoModular(_n); 
       if(num < (2*longConsiderada) ){
-        resultado[0] |= (Xi_[0] & mascara);
+        resultado[0] |= (_Xi[0] & mascara);
         resultado <<= num;
         
         mascara = (1UL << num)-1;
-        Xi_.cuadradoModular(n_); 
-        resultado[0] |= (Xi_[0] & mascara);
+        _Xi.cuadradoModular(_n); 
+        resultado[0] |= (_Xi[0] & mascara);
         break;
       }
       else{
-        resultado[0] |= (Xi_[0] & mascara);
+        resultado[0] |= (_Xi[0] & mascara);
         resultado <<= longConsiderada;
         num -= longConsiderada;
       }
@@ -341,11 +338,11 @@ namespace mpplas{
   }
     
  
-  bool FIPS_140_1::pruebaRandom(Random& generadorRandom)
+  bool FIPS_140_1::testRandom(Random& generadorRandom)
   {
     // Menezes p 183. VER TABLA DE NOTE 5.32 PARA EXPLICACION DE LOS
     // NUMEROS MAGICOS
-    Z muestra(generadorRandom.leerBits(20000));
+    Z muestra(generadorRandom.getInteger(20000));
   
     size_t unos;
     float estadisticoPoker;

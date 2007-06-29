@@ -15,7 +15,7 @@ using namespace mpplas;
 using namespace com_uwyn_qtunit;
 
 Z_nTest::Z_nTest() 
-  : funcs(Funciones::getInstance())
+  : funcs(Functions::getInstance())
 {
 
   funcs->getFunc(rnd);
@@ -47,12 +47,12 @@ Z_nTest::Z_nTest()
 }
 
 void Z_nTest::setUp(){
-  integer = rnd->leerBits(brand(2000,5000));
-  modulus = rnd->leerBits(brand(500,1000));
-  modularInteger = new Z_n(rnd->leerBits(brand(1000,2000)), modulus);
-  //anotherModularInteger = new Z_n(funcs.getRandomRapido()->leerBits(1414), modulus);
-  cifra = rnd->leerDigit();
-  cifraSigno = rnd->leerSignedDigit();
+  integer = rnd->getInteger(brand(2000,5000));
+  modulus = rnd->getInteger(brand(500,1000));
+  modularInteger = new Z_n(rnd->getInteger(brand(1000,2000)), modulus);
+  //anotherModularInteger = new Z_n(funcs.getRandomFast()->getInteger(1414), modulus);
+  cifra = rnd->getDigit();
+  cifraSigno = rnd->getSignedDigit();
   if( cifraSigno > 0 ){
     cifraSigno *= -1;  //force a negative number
   }
@@ -258,7 +258,7 @@ void Z_nTest::testDivisionWithZ(){
   funcs->getFunc(genPrimos);
   this->modulus = genPrimos->leerPrimoProb(128);  
   delete this->modularInteger; //get rid of the one set up by setUp()
-  this->modularInteger = new Z_n(rnd->leerBits(1234), modulus);
+  this->modularInteger = new Z_n(rnd->getInteger(1234), modulus);
   Z_n res = (*modularInteger) / integer ; 
 
   string tmp;
@@ -275,10 +275,10 @@ void Z_nTest::testDivisionWithZ(){
   qassertTrue(pariStr == thisStr );
 }
 void Z_nTest::testDivisionWithZThrows(){
-  this->modulus = rnd->leerBits(500)*integer;  //make sure the modulus isn't 
+  this->modulus = rnd->getInteger(500)*integer;  //make sure the modulus isn't 
   //coprime with the divisor
   delete this->modularInteger; //get rid of the one set up by setUp()
-  this->modularInteger = new Z_n(rnd->leerBits(1234), modulus);
+  this->modularInteger = new Z_n(rnd->getInteger(1234), modulus);
 
 
   try{
@@ -300,7 +300,7 @@ void Z_nTest::testDivisionWithDigit(){
   funcs->getFunc(genPrimos);
   this->modulus = genPrimos->leerPrimoProb(128);  
   delete this->modularInteger; //get rid of the one set up by setUp()
-  this->modularInteger = new Z_n(rnd->leerBits(1234), modulus);
+  this->modularInteger = new Z_n(rnd->getInteger(1234), modulus);
   Z_n res = (*modularInteger) / cifra ; 
 
   ostringstream oss;
@@ -323,10 +323,10 @@ void Z_nTest::testDivisionWithDigit(){
 }
 
 void Z_nTest::testDivisionWithDigitThrows(){
-  this->modulus = rnd->leerBits(500)*cifra;  //make sure the modulus isn't 
+  this->modulus = rnd->getInteger(500)*cifra;  //make sure the modulus isn't 
   //coprime with the divisor
   delete this->modularInteger; //get rid of the one set up by setUp()
-  this->modularInteger = new Z_n(rnd->leerBits(1234), modulus);
+  this->modularInteger = new Z_n(rnd->getInteger(1234), modulus);
   try{
     Z_n res = (*modularInteger) / cifra ; 
   } catch( Errors::NonInvertibleElement){
@@ -344,7 +344,7 @@ void Z_nTest::testDivisionWithSignedDigit(){
   funcs->getFunc(genPrimos);
   this->modulus = genPrimos->leerPrimoProb(128);  
   delete this->modularInteger; //get rid of the one set up by setUp()
-  this->modularInteger = new Z_n(rnd->leerBits(1234), modulus);
+  this->modularInteger = new Z_n(rnd->getInteger(1234), modulus);
   Z_n res = (*modularInteger) / cifraSigno ; 
 
   ostringstream oss;
@@ -365,10 +365,10 @@ void Z_nTest::testDivisionWithSignedDigit(){
   qassertTrue(pariStr == thisStr );
 }
 void Z_nTest::testDivisionWithSignedDigitThrows(){
-  this->modulus = rnd->leerBits(500)*cifraSigno;  //make sure the modulus isn't 
+  this->modulus = rnd->getInteger(500)*cifraSigno;  //make sure the modulus isn't 
   //coprime with the divisor
   delete this->modularInteger; //get rid of the one set up by setUp()
-  this->modularInteger = new Z_n(rnd->leerBits(1234), modulus);
+  this->modularInteger = new Z_n(rnd->getInteger(1234), modulus);
 
   try{
     Z_n res = (*modularInteger) / cifraSigno ; 
@@ -411,7 +411,7 @@ void Z_nTest::testExponentiationWithDigit(){
   funcs->getFunc(genPrimos);
   this->modulus = genPrimos->leerPrimoProb(128);
   delete this->modularInteger;
-  this->modularInteger = new Z_n(rnd->leerBits(1234), modulus);
+  this->modularInteger = new Z_n(rnd->getInteger(1234), modulus);
 
   Z_n res = (*modularInteger) ^ cifra ;
 
@@ -439,7 +439,7 @@ void Z_nTest::testExponentiationWithSignedDigit(){
 
   this->modulus = genPrimos->leerPrimoProb(128);
   delete this->modularInteger;
-  this->modularInteger = new Z_n(rnd->leerBits(1234), modulus);
+  this->modularInteger = new Z_n(rnd->getInteger(1234), modulus);
 
   Z_n res = (*modularInteger) ^ cifraSigno ;
 

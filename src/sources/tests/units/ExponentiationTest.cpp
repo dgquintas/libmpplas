@@ -5,7 +5,6 @@
 #include <string>
 #include "Random.h"
 #include "Primos.h"
-#include "Funciones.h"
 #include "ExponentiationTest.h"
 #include "aux.h"
 
@@ -13,7 +12,7 @@ using namespace com_uwyn_qtunit;
 using namespace mpplas;
 
 ExponentiationTest::ExponentiationTest()
-  : funcs( Funciones::getInstance() )
+  : funcs( Functions::getInstance() )
 {
 
   addTest(ExponentiationTest, testSlidingWindowExp );
@@ -26,9 +25,9 @@ ExponentiationTest::ExponentiationTest()
   funcs->getFunc(primes);
 }
 void ExponentiationTest::setUp(){
-  _base = rnd->leerBits( brand(100,200 ) );
-  _exp  = rnd->leerSignedDigit() % brand(500, 1500);
-  _expZ = rnd->leerBits( brand(1000,2000) );
+  _base = rnd->getInteger( brand(100,200 ) );
+  _exp  = rnd->getSignedDigit() % brand(500, 1500);
+  _expZ = rnd->getInteger( brand(1000,2000) );
  
 
   x = gp_read_str(const_cast<char*>(_base.toString().c_str()));
@@ -65,7 +64,7 @@ void ExponentiationTest::testExpLeftRight(){
 
 }
 void ExponentiationTest::testExpMontgomery(){
-  Z _mod(rnd->leerBits( brand(1000,2000) ));
+  Z _mod(rnd->getInteger( brand(1000,2000) ));
   if( _mod.esPar() ){
     _mod++;
   }
@@ -78,7 +77,7 @@ void ExponentiationTest::testExpMontgomery(){
   qassertEquals( _base.toString(), pariStr );
 }
 void ExponentiationTest::testExpBarrett(){
-  Z _mod(rnd->leerBits( brand(1000,2000) ));
+  Z _mod(rnd->getInteger( brand(1000,2000) ));
   GEN m = gp_read_str(const_cast<char*>(_mod.toString().c_str()));
   GEN pariRes = Fp_pow(x,Y,m);
   ClasicoConBarrett potFunc;

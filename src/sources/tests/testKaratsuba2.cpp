@@ -17,7 +17,7 @@ int main()
 {
   Profiling& prof( Profiling::getReference() );
 
-  RandomRapido *rnd = 0; 
+  RandomFast *rnd = 0; 
   Funciones::getInstance()->getFunc(rnd);
   rnd->ponerSemilla(Z("12345"));
   clock_t t0, t1;

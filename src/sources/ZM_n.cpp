@@ -5,7 +5,7 @@
 #include <cassert>
 
 #include "ZM_n.h"
-#include "Funciones.h"
+#include "Functions.h"
 #include "Potencia.h"
 
 
@@ -230,7 +230,7 @@ namespace mpplas{
 
 
   void ZM_n::_precomputations(Z& mPrime) {
-    Funciones* const funcs(Funciones::getInstance());
+    Functions* const funcs(Functions::getInstance());
     
     mPrime.hacerUno();
     mPrime.potenciaBase(1);

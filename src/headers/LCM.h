@@ -64,7 +64,7 @@ namespace mpplas{
       typedef LCMViaGCD DFL;
 
     protected:
-      Funciones* const funcs;
+      Functions* const funcs;
   };
 
   

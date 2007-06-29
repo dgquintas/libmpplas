@@ -7,7 +7,7 @@
 
 #include "qtunit/TestCase.h"
 #include <string>
-#include "Funciones.h"
+#include "Functions.h"
 #include "RedModular.h"
 #include "Random.h"
 #include "Primos.h"
@@ -39,8 +39,8 @@ namespace com_uwyn_qtunit{
       RedBarrett _redBarret;
       RedModularALaMersenne _redMersenne;
     
-      Funciones* const _funcs;
-      RandomRapido *_rnd;
+      Functions* const _funcs;
+      RandomFast *_rnd;
       GenPrimos *_primeGen;
 
       Z _integer;

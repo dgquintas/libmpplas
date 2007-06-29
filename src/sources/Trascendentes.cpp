@@ -3,7 +3,7 @@
  */
 
 #include "Trascendentes.h"
-#include "Funciones.h"
+#include "Functions.h"
 #include <iostream>
 
 using namespace std;
@@ -163,7 +163,7 @@ namespace mpplas{
 
   R SenFase::seno(const R& x)
   {
-    Funciones *funcs = Funciones::getInstance();
+    Functions *funcs = Functions::getInstance();
     Pi* pi; funcs->getFunc(pi);
 
     R piMedios = pi->pi();
@@ -178,7 +178,7 @@ namespace mpplas{
 
   R CosTaylor::coseno(const R& x)
   {
-    Funciones *funcs = Funciones::getInstance();
+    Functions *funcs = Functions::getInstance();
     Pi* pi; funcs->getFunc(pi);
 
     size_t precVieja = R::precision();
@@ -248,7 +248,7 @@ namespace mpplas{
     // less than 1.
     
     R result; 
-    Funciones *funcs = Funciones::getInstance();
+    Functions *funcs = Functions::getInstance();
     ArcoTangente *arctan; funcs->getFunc(arctan);
     size_t precisionVieja=0;
     if( prec ){

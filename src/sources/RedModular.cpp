@@ -3,7 +3,7 @@
  */
 
 #include "RedModular.h"
-#include "Funciones.h"
+#include "Functions.h"
 #include "Potencia.h"
 #include <algorithm>
 
@@ -91,7 +91,7 @@ namespace mpplas{
 
   Z RedMontgomery::precomputaciones(const Z& modulo)
   {
-    Funciones *funcs = Funciones::getInstance();
+    Functions *funcs = Functions::getInstance();
     Z modPrima;
     
     modPrima.potenciaBase(1);

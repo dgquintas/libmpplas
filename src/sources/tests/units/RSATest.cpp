@@ -4,7 +4,7 @@
 
 #include <string>
 #include "RSATest.h"
-#include "Funciones.h"
+#include "Functions.h"
 #include "Z.h"
 #include "Random.h"
 #include "Primos.h"
@@ -30,8 +30,8 @@ void RSATest::tearDown(){
 
 void RSATest::testRSA(){
 
-  Funciones* const funcs = Funciones::getInstance();
-  RandomRapido* genRandom;
+  Functions* const funcs = Functions::getInstance();
+  RandomFast* genRandom;
   GenPrimos* genPrimos;
   funcs->getFunc(genRandom);
   funcs->getFunc(genPrimos);
@@ -59,7 +59,7 @@ void RSATest::testRSA(){
   GCD* gcd; funcs->getFunc(gcd);
   PotModular* potMod; funcs->getFunc(potMod);
   do{
-    e = genRandom->leerEntero(n);
+    e = genRandom->getIntegerBounded(n);
   } while( !(gcd->gcd(e,phi).esUno()) );
 
   //y la clave de desencriptacion la inversa de "e" modulo "phi"

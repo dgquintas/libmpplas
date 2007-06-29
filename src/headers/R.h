@@ -17,15 +17,17 @@
 #include <cmath>
 #include <limits>
 #include <sstream>
+
 #include "constants.h"
 #include "err.h"
 #include "Z.h"
+#include "Field.h"
 
 namespace mpplas
 {
 
 /** Clase para la representación de enteros. */
-  class R
+  class R: public Field<R>
   {
     public:
    // constructores
@@ -188,7 +190,7 @@ namespace mpplas
        * \note
        * Esta función invoca a la versión con argumento SignedDigit. En
        * cualquier caso, depende de la implementación particular de la
-       * clase Potencia accesible mediante la clase Funciones.
+       * clase Potencia accesible mediante la clase Functions.
        * 
        */
     R& operator^=(const Z& exp); 
@@ -538,7 +540,51 @@ namespace mpplas
     
     static R ZERO;
     static R ONE;
-    
+     
+    /* Ring, Group and Field methods */
+
+    R getMultInverse() const {
+      R tmp(ONE);
+      tmp /= (*this);
+      return tmp;
+    }
+
+
+    static bool isUnitaryRing(){
+      return true;
+    };
+    static const R& getMultIdentity() {
+      return ONE ;
+    };
+
+    static bool isMultCommutative() {
+      return true;
+    }
+    static bool isMultAssociative() {
+      return true;
+    }
+
+
+
+    static const R& getGroupIdentity() {
+      return ZERO;
+    };
+    R getGroupInverse()  const{
+      R tmp(*this);
+      tmp.cambiarSigno();
+      return tmp;
+    };
+
+    static bool isGroupCyclic() {
+      return true;
+    }
+
+    static const R& getGroupGenerator() {
+      return ONE;
+    }
+
+
+
     protected:
 
     SignedDigit exponente_;

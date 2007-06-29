@@ -19,7 +19,7 @@ int main()
 
   //esto no es estrictamente necesario: para acceder de forma resumida
   //al generador del numeros aleatorios en cuestion
-  RandomRapido* genRandom; funcs->getFunc(genRandom);
+  RandomFast* genRandom; funcs->getFunc(genRandom);
   genRandom->ponerSemilla(Z("34"));
   //idem para el generador de primos
   GenPrimos* genPrimos; funcs->getFunc(genPrimos);

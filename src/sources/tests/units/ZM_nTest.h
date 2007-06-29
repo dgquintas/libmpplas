@@ -5,7 +5,7 @@
 #include <string>
 #include "Z.h"
 #include "ZM_n.h"
-#include "Funciones.h"
+#include "Functions.h"
 #include "Random.h"
 #include "Primos.h"
 #include <sstream>
@@ -44,8 +44,8 @@ namespace com_uwyn_qtunit{
     ZM_n* modularInteger;
     ZM_n* modularInteger2;
 
-    Funciones* const funcs;
-    RandomRapido *rnd;
+    Functions* const funcs;
+    RandomFast *rnd;
 
   };
 }

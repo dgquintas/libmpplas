@@ -9,7 +9,7 @@ using namespace numth;
 int main()
 {
   Funciones funcs;
-  RandomRapido* rnd = funcs.getRandomRapido();
+  RandomFast* rnd = funcs.getRandomFast();
   TestPrimoProb* test = funcs.testPrimoProb();
   GCD* gcd = funcs.getGCD();
   PotModular* potMod = funcs.getPotModular();

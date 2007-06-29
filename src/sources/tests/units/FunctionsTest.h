@@ -7,7 +7,7 @@
 
 #include "qtunit/TestCase.h"
 #include <string>
-#include "Funciones.h"
+#include "Functions.h"
 
 namespace com_uwyn_qtunit{
 
@@ -21,7 +21,7 @@ namespace com_uwyn_qtunit{
       /* The actual tests */
       void test();
     private:
-      mpplas::Funciones* const funcs;
+      mpplas::Functions* const funcs;
   };
 }
 #endif

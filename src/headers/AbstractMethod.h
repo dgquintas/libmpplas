@@ -2,6 +2,8 @@
 #define __ABSTRACTMETHOD_H
 
 namespace mpplas{
+
+  /** Abstract base class for methods provided by the @a Functions mechanism. */
   class AbstractMethod{
     public:
       virtual ~AbstractMethod(){}// = 0; //force the class to be abstract

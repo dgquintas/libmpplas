@@ -17,7 +17,7 @@ namespace mpplas{
   class BBSGen;
   class FIPS_140_1 ;
 
-  /** (Pseudo)Random number generation interface 
+  /** (Pseudo)Random number generator (PRNG).
    *
    * Base class for methods implementing (pseudo)random number generators.
    * 
@@ -31,20 +31,20 @@ namespace mpplas{
        *
        * @return An integer made up of @a n random bits.
        */
-      virtual Z leerBits(size_t n) = 0;
+      virtual Z getInteger(size_t n) = 0;
       /** Get a random Digit
        *
        * @return A random Digit.
        *
        */
-      virtual Digit leerDigit(void);
+      Digit getDigit(void);
  
       /** Get a random SignedDigit
        *
        * @return A random SignedDigit.
        *
        */
-      virtual SignedDigit leerSignedDigit(void);
+      SignedDigit getSignedDigit(void);
 
       /** Get a bounded random integer.
        *
@@ -52,7 +52,7 @@ namespace mpplas{
        *
        * @return A random integer less than @a bound.
        */
-      virtual Z leerEntero(const Z& bound);
+      Z getIntegerBounded(const Z& bound);
 
       virtual ~Random() {}
 
@@ -71,7 +71,7 @@ namespace mpplas{
    * RandomnessTest).
    * 
    */
-  class RandomRapido : public Random
+  class RandomFast : public Random
   {
     public:
       /** Sets the generator's seed.
@@ -83,7 +83,7 @@ namespace mpplas{
        * @param seed Integer representing the seed.
        *
        */
-      virtual void ponerSemilla(const Z& seed) = 0;
+      virtual void setSeed(const Z& seed) = 0;
 
       /** Default implementation */
       typedef NumThRC4Gen DFL;
@@ -101,7 +101,7 @@ namespace mpplas{
    * derive any, past or future, value of the random sequence.
    * 
    */
-  class RandomSeguro : public Random
+  class RandomSecure : public Random
   {
     public:
       /** Set the quality of the cryptographically secure random
@@ -118,133 +118,130 @@ namespace mpplas{
        * CSPRNG process.
        *
        */
-      virtual void ponerCalidad(size_t n) = 0;
+      virtual void setQuality(size_t n) = 0;
 
       /** Default implementation */
       typedef BBSGen DFL;
   };
 
-  /** Interfaz para los algoritmos que implementen tests de
-   * aleatoreidad.
+  /** Randomness test.
    *
-   * Clase base para los algoritmos que implementen tests de
-   * aleatoreidad.
+   * Base class for methods implementing tests of randomness.
+   *
    */
   class RandomnessTest : public AbstractMethod
   {
     public:
-      /** Determinar si un generador de números pseudoaleatorios supera el tests.
+      /** Test if a given (pseudo)random number generator (PRNG) passes the test.
        *
-       * @param generadorRandom El generador a probar.
+       * @param prng The PRNG to test.
        *
-       * @return true si el generador @a generadorRandom supera el
-       * test.\n
-       *         false si no.
-       */
-      virtual bool pruebaRandom(Random& generadorRandom) = 0;
+       * @return @a true if the generator @a prng passes the test. @a false otherwise. */
+      virtual bool testRandom(Random& prng) = 0;
 
       virtual ~RandomnessTest() {}
 
-
+      /** Default implementation */
       typedef FIPS_140_1 DFL;
   };
   
-  /* IMPLEMENTACIONES */
-  /** Algoritmo NumThRC4 (RC4) para la generación rápida de números
-   * pseudoaleatorios.
+  /* CONCRETE METHODS */
+  /** NumThRC4 (RC4) algorithm for the fast (pseudo)random number generation.
    *
-   * Descrito en Applied Cryptography, página 397, punto 17.1\n
+   * Described in Applied Cryptography, page 397, section 17.1
    * 
-   * @note Es el método que la librería utiliza por omisión.
+   * @note This is the library's default method for RandomFast 
    */
-  class NumThRC4Gen : public RandomRapido
+  class NumThRC4Gen : public RandomFast
   {
     public:
       NumThRC4Gen();
 
       virtual ~NumThRC4Gen(){}
       
-      virtual Z leerBits(size_t n);
-      virtual void ponerSemilla(const Z& semilla);
+      virtual Z getInteger(size_t n);
+      virtual void setSeed(const Z& semilla);
       
     private:
-      uint8_t s_[256];
-      uint8_t k_[256];
-      size_t i_;
-      size_t j_;
-      Z semilla_;
-      void inicializar_(void);
+      uint8_t _s[256];
+      uint8_t _k[256];
+      size_t _i;
+      size_t _j;
+      Z _seed;
+      void _initialize(void);
   };
 
-  /** Algoritmo para la generación rápida de números
-   * pseudoaleatorios mediante congruencias lineales.
+  /** Fast linear congruences (pseudo)random number generator.
    *
-   * Descrito en Applied Cryptography, página 369, punto 16.1\n
-   * The Art of Computer Programming Vol. 2, pág. 9, punto 3.2.1
-   * 
-   */
-  class congruentGen : public RandomRapido
+   * Described in 
+   * <ul>
+   * <li>Applied Cryptography, page 369, section 16.1</li>
+   * <li>The Art of Computer Programming Vol. 2, page 9, section 3.2.1</li>
+   * </ul>  */
+  class congruentGen : public RandomFast
   {
     public:
       congruentGen(void);
 
       virtual ~congruentGen(){}
 
-      virtual Z leerBits(size_t n);
-      virtual void ponerSemilla(const Z& semilla);
+      virtual Z getInteger(size_t n);
+      virtual void setSeed(const Z& seed);
 
       //FIXME: dar la opcion de modificar la "a", "b", "m" del metodo?
       
     private:
-      unsigned long a_;
-      unsigned long b_;
-      unsigned long m_;
+      unsigned long _a;
+      unsigned long _b;
+      unsigned long _m;
 
-      unsigned long Xi_;
+      unsigned long _Xi;
   };
 
-  /** Algoritmo Blum-Blum-Shub para la generación de números
-   * pseudoaleatorios criptográficamente seguros.
+  /** Blum-Blum-Shub algorithm for the generation of 
+   * cryptographic secure (pseudo)random numbers.
    *
-   * Descrito en Handbook of Applied Cryptography, página 186, algoritmo 5.40\n
-   * Applied Cryptography, página 417, punto 17.9\n
-   * Cryptographic Secure Pseudo-Random Bits Generation: The Blum-
-   * Blum-Shub Generator, Pascal Junod, 1999
+   * Described in 
+   * <ul>
+   * <li>Handbook of Applied Cryptography, page 186, algorithm 5.40</li>
+   * <li>Applied Cryptography, page 417, section 17.9</li>
+   * <li>Cryptographic Secure Pseudo-Random Bits Generation: 
+   * The Blum-Blum-Shub Generator, Pascal Junod, 1999</li>
+   * </ul>
    *
-   * @note Es el método que la librería utiliza por omisión.
-   */
-  class BBSGen : public RandomSeguro
+   * @note This is the library's default method for RandomFast  */
+  class BBSGen : public RandomSecure
   {
     public:
       BBSGen(void);
       
-      virtual Z leerBits(size_t n);
-      virtual void ponerCalidad(size_t n);
+      virtual Z getInteger(size_t n);
+      virtual void setQuality(size_t n);
 
       virtual ~BBSGen(){}
 
     private:
-      size_t calidad_;
-      Z n_; // producto de los primos p y q de la inicializacion
-      Z Xi_;
+      size_t _quality;
+      Z _n; // producto de los primos p y q de la inicializacion
+      Z _Xi;
 
-      void inicializar_(void);
+      void _initialize(void);
   };
   
 
 
 
 
-  /** Implementación del conjunto de tests FIPS 140-1.
+  /** FIPS 140-1 randomness tests implementation.
    *
-   * Descrito en Handbook of Applied Cryptography, página 183, algoritmo 5.32\n
+   * Described in Handbook of Applied Cryptography, page 183, algorithm 5.32
    *
-   * @note Es el método que la librería utiliza por omisión.
+   * @note This is the library's default method for RandomFast 
    */
   class FIPS_140_1 : public RandomnessTest
   {
     public:
-      virtual bool pruebaRandom(Random& generadorRandom);
+      virtual bool testRandom(Random& generadorRandom);
       virtual ~FIPS_140_1(){}
       
     protected:

@@ -8,7 +8,7 @@
 #include "R.h"
 #include "Z.h"
 #include "AbstractMethod.h"
-#include "Funciones.h"
+#include "Functions.h"
 
 namespace mpplas{
 
@@ -82,7 +82,7 @@ namespace mpplas{
       typedef PotVentanaDeslizante DFL;
 
     protected:
-      Funciones* const funcs;
+      Functions* const funcs;
   };
  
 
@@ -165,7 +165,7 @@ namespace mpplas{
       typedef ClasicoConBarrett DFL;
     
     protected:
-      Funciones* const funcs;
+      Functions* const funcs;
 
   };
 

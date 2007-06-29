@@ -3,7 +3,7 @@
  */
 
 #include "Seedbank.h"
-#include "Funciones.h"
+#include "Functions.h"
 #include "constants.h"
 #include "err.h"
 #include "Hash.h"
@@ -18,10 +18,9 @@
 namespace mpplas{
 
   Seedbank::Seedbank(void)
-  {
-  }
+  { }
     
-  Z Seedbank::leerSemillaSegura(size_t numBytes)
+  Z Seedbank::getSecureSeed(const size_t numBytes)
   {
 		_randomData = _source(numBytes);
 		
@@ -31,31 +30,30 @@ namespace mpplas{
      return resultado;
   }
   
-  Z Seedbank::leerSemilla(size_t numBytes)
+  Z Seedbank::getSeed(const size_t numBytes)
   {
-    Funciones *funcs = Funciones::getInstance();
+    Functions *funcs = Functions::getInstance();
     Hash* hash; funcs->getFunc(hash);
-    static size_t contador = 0;
-//    _randomData.resize( hash->numBitsResumen() >> 3);
+    static size_t counter = 0;
     
-    if( (contador >= Constants::UMBRAL_SEMILLA) || (contador == 0) ){ //contador==0 para la 1ª llamada
+    if( (counter >= Constants::UMBRAL_SEMILLA) || (counter == 0) ){ //counter==0 para la 1ª llamada
 			_randomData = _source( hash->numBitsResumen() >> 3);
-      contador = 1;
+      counter = 1;
     }
-    contador += numBytes;
+    counter += numBytes;
 
     MiVec<uint8_t> resultadosTemp;
-    MiVec<uint8_t> agitador(1,(uint8_t)0); //un dato que agite un poco las cosas al hacer hashing
-    agitador[0] = ((unsigned long)time(NULL)) & 0xff;
+    MiVec<uint8_t> salt(1,(uint8_t)0); //un dato que agite un poco las cosas al hacer hashing
+    salt[0] = ((unsigned long)time(NULL)) & 0xff;
     
     size_t nTemp = numBytes;
     MiVec<uint8_t> datosRndTemp( hash->numBitsResumen() >> 3);
     while( true ){
       hash->inicializar();
       hash->actualizar(_randomData);
-      hash->actualizar(agitador);
+      hash->actualizar(salt);
       hash->finalizar();
-      agitador[0]++;
+      salt[0]++;
 
       hash->obtenerEnteroResumen().escribirBytes(datosRndTemp.begin(), datosRndTemp.end());
       
@@ -64,8 +62,9 @@ namespace mpplas{
                              datosRndTemp.end() 
                            ); 
       nTemp -= (hash->numBitsResumen() >> 3);
-      if( (nTemp > numBytes) || (nTemp == 0) ) // es decir, cuando se produzca underflow => nTemp < 0
+      if( (nTemp > numBytes) || (nTemp == 0) ){ // es decir, cuando se produzca underflow => nTemp < 0
         break;
+      }
     }
 
     Z resultado;
@@ -75,7 +74,7 @@ namespace mpplas{
   }
 
 
-  MiVec<uint8_t> Seedbank::_source(size_t numBytes)
+  MiVec<uint8_t> Seedbank::_source(const size_t numBytes)
   {
 		MiVec<uint8_t> rnd(numBytes);
 #ifdef __WIN32__
@@ -96,8 +95,7 @@ namespace mpplas{
 
 #else
     //Se *supone* estar en un sistema tipo UNIX con /dev/urandom
-		std::ifstream* urandom;
-    urandom = new std::ifstream("/dev/urandom", std::ios::in | std::ios::binary );
+		std::ifstream* const urandom(new std::ifstream("/dev/urandom", std::ios::in | std::ios::binary ));
     if( !urandom->is_open() ){
         throw Errors::FuenteEntropiaInvalida();
     }
@@ -107,17 +105,14 @@ namespace mpplas{
     }
 
 		urandom->close();
-		if(urandom){
-			delete urandom;
-    }
+    delete urandom; //deleting a null pointer has no effect anyway
 #endif	
 		
 		return rnd;
 	}
 
   Seedbank::~Seedbank(void)
-  {
-  }
+  { }
     
 }
     

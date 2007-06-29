@@ -5,10 +5,13 @@
 #ifndef __EXPONENTIATIONTEST_H
 #define __EXPONENTIATIONTEST_H
 
-#include "qtunit/TestCase.h"
 #include <string>
-#include "Potencia.h"
 #include <pari/pari.h>
+
+#include "qtunit/TestCase.h"
+#include "Potencia.h"
+#include "Functions.h"
+
 
 using namespace mpplas;
 
@@ -36,7 +39,7 @@ namespace com_uwyn_qtunit{
     R _baseR;
     Z _expZ;
     SignedDigit _exp;
-    Funciones* const funcs;
+    Functions* const funcs;
     Random* rnd;
     GenPrimos* primes;
 

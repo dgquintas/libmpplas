@@ -23,13 +23,13 @@ void RandomTest::tearDown(){
 
 void RandomTest::testRC4(){
   NumThRC4Gen rc4gen;
-  qassertTrue(fips_.pruebaRandom(rc4gen));
+  qassertTrue(fips_.testRandom(rc4gen));
 }
 void RandomTest::testCongruent(){
   congruentGen congruentGen;
-  qassertTrue(fips_.pruebaRandom(congruentGen));
+  qassertTrue(fips_.testRandom(congruentGen));
 }
 void RandomTest::testBBS(){
   BBSGen bbsgen;
-  qassertTrue(fips_.pruebaRandom(bbsgen));
+  qassertTrue(fips_.testRandom(bbsgen));
 }

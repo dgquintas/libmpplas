@@ -15,7 +15,7 @@ using namespace mpplas;
 using namespace com_uwyn_qtunit;
 
 ZM_nTest::ZM_nTest() 
-  : funcs(Funciones::getInstance())
+  : funcs(Functions::getInstance())
 {
 
   funcs->getFunc(rnd);
@@ -37,13 +37,13 @@ ZM_nTest::ZM_nTest()
 }
 
 void ZM_nTest::setUp(){
-  integer = rnd->leerBits(brand(2000,5000));
-  modulus = rnd->leerBits(brand(500,1000));
+  integer = rnd->getInteger(brand(2000,5000));
+  modulus = rnd->getInteger(brand(500,1000));
   if( modulus.esPar() ){
     modulus++;
   }
-  modularInteger = new ZM_n(rnd->leerBits(brand(1000,2000)), modulus);
-  modularInteger2 = new ZM_n(rnd->leerBits(brand(1000,2000)), modulus);
+  modularInteger = new ZM_n(rnd->getInteger(brand(1000,2000)), modulus);
+  modularInteger2 = new ZM_n(rnd->getInteger(brand(1000,2000)), modulus);
 }
 
 

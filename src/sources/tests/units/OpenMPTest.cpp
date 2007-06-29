@@ -13,18 +13,18 @@ using namespace mpplas;
 using namespace com_uwyn_qtunit;
 
 OpenMPTest::OpenMPTest()
-  : funcs(Funciones::getInstance()){
+  : funcs(Functions::getInstance()){
   addTest( OpenMPTest, testParallelFor);
 }
 
 void OpenMPTest::setUp(){
   funcs->getFunc(rnd);
-  factor = rnd->leerBits(256);
+  factor = rnd->getInteger(256);
   integers = new Z[NUM_THREADS];
   integersPAR = new Z[NUM_THREADS];
   integersSEQ = new Z[NUM_THREADS];
   for(int i = 0; i < NUM_THREADS; i++){
-    integers[i] = rnd->leerBits(512);
+    integers[i] = rnd->getInteger(512);
   }
 
 }

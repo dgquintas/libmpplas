@@ -8,7 +8,7 @@
 using namespace com_uwyn_qtunit;
 
 FunctionsTest::FunctionsTest()
-  : funcs(mpplas::Funciones::getInstance())
+  : funcs(mpplas::Functions::getInstance())
 {
   addTest(FunctionsTest, test);
 }

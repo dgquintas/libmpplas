@@ -15,7 +15,7 @@
 
 
 #include "Z.h"
-#include "Funciones.h"
+#include "Functions.h"
 #include "mp.h"
 #include "Potencia.h"
 #include "Primos.h"
@@ -30,8 +30,8 @@ namespace mpplas{
 
   // implementacion constructores
   Z::Z()
-    : coefPoliB_(1,(Digit)0), signo_(1)
-    {}
+    : coefPoliB_(1,(Digit)0), signo_(1) 
+  {}
 
   Z::Z(const Z& otro)
     : coefPoliB_(otro.coefPoliB_), signo_(otro.signo_)
@@ -1142,7 +1142,7 @@ namespace mpplas{
 
   Z& Z::operator^=(const Digit e)
   {
-    Funciones *funcs = Funciones::getInstance();
+    Functions *funcs = Functions::getInstance();
     Potencia* p; funcs->getFunc(p);
     p->potencia(this, e);
 
@@ -1403,7 +1403,7 @@ namespace mpplas{
     //cohen p 42
     Z p,q;
     Z a;
-    Funciones *funcs = Funciones::getInstance();
+    Functions *funcs = Functions::getInstance();
     TestPrimoProb* primTest; funcs->getFunc(primTest);
     GCD* gcd; funcs->getFunc(gcd);
     

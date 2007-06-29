@@ -4,7 +4,7 @@ filesStr = """
     AlgebraUtils.cpp
     CRT.cpp
     Factor.cpp
-    Funciones.cpp
+    Functions.cpp
     GCD.cpp
     Hash.cpp
     LCM.cpp
@@ -17,7 +17,7 @@ filesStr = """
     Random.cpp
     R.cpp
     RedModular.cpp
-    Semillero.cpp
+    Seedbank.cpp
     SimbolosLegendre.cpp
     SystemInfo.cpp
     Trascendentes.cpp

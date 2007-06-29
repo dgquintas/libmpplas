@@ -14,7 +14,7 @@ using namespace com_uwyn_qtunit;
 
 
 MatrixZTest::MatrixZTest()
-  : funcs( Funciones::getReference() )
+  : funcs( Functions::getReference() )
 {
 
   funcs.getFunc(rnd) ;
@@ -40,10 +40,10 @@ void MatrixZTest::setUp(){
   _B = MatrixZ( m,k );
 
   for( int i = 0; i < _A.getSize(); i++ ){
-    _A(i) = rnd->leerBits(elemsSize);
+    _A(i) = rnd->getInteger(elemsSize);
   }
   for( int i = 0; i < _B.getSize(); i++ ){
-    _B(i) = rnd->leerBits(elemsSize);
+    _B(i) = rnd->getInteger(elemsSize);
   }
 }
 

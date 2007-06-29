@@ -12,7 +12,7 @@
 namespace mpplas{
 
   Potencia::Potencia()
-    : funcs(Funciones::getInstance())
+    : funcs(Functions::getInstance())
   {}
 
   Z Potencia::potencia(Z base, SignedDigit exp)
@@ -24,7 +24,7 @@ namespace mpplas{
 
 
   PotModular::PotModular()
-    : funcs(Funciones::getInstance())
+    : funcs(Functions::getInstance())
   {}
 
   Z PotModular::potModular(Z base, const Z& exp, const Z& mod)

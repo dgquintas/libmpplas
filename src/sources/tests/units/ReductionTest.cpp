@@ -12,7 +12,7 @@ using namespace com_uwyn_qtunit;
 using namespace mpplas;
 
 ReductionTest::ReductionTest()
-  : _redMont(), _redBarret(), _redMersenne(), _funcs(Funciones::getInstance())
+  : _redMont(), _redBarret(), _redMersenne(), _funcs(Functions::getInstance())
 {
 
 
@@ -62,7 +62,7 @@ void ReductionTest::testMontgomeryPrecomp(){
 
 void ReductionTest::testMontgomeryReduction(){
   Z primeMod(_primeGen->leerPrimoProb(128));
-  _integer = _rnd->leerBits(256);
+  _integer = _rnd->getInteger(256);
   int n = primeMod.longitud();
   Z R; R.hacerCero();
   R.potenciaBase(n);
@@ -91,8 +91,8 @@ void ReductionTest::testMontgomeryReduction(){
 }
 
 void ReductionTest::testBarrettPrecomp(){ 
-  Z mod(_rnd->leerBits(brand(300,2000)));
-  _integer = _rnd->leerBits(brand(2000, 4000));
+  Z mod(_rnd->getInteger(brand(300,2000)));
+  _integer = _rnd->getInteger(brand(2000, 4000));
 
   Z b2k; b2k.hacerUno();
   b2k.potenciaBase( 2*mod.longitud() );
@@ -113,8 +113,8 @@ void ReductionTest::testBarrettPrecomp(){
 
 }
 void ReductionTest::testBarrettReduction(){
-  Z mod(_rnd->leerBits(brand(1000,2000)));
-  _integer = _rnd->leerBits( mod.numBits() * 2 );
+  Z mod(_rnd->getInteger(brand(1000,2000)));
+  _integer = _rnd->getInteger( mod.numBits() * 2 );
  
   GEN x, m;
 

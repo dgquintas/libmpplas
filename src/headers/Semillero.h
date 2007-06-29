@@ -2,8 +2,8 @@
  * $Id$
  */
 
-#ifndef __SEMILLERO_H
-#define __SEMILLERO_H
+#ifndef __SEEDBANK_H
+#define __SEEDBANK_H
 
 #include "Z.h"
 #include <fstream>
@@ -16,12 +16,12 @@ namespace mpplas{
    * Clase "almacén" de entropía real donde se empaqueta ésta en forma
    * de semillas para los métodos que las requieran.
    */
-  class Semillero
+  class Seedbank
   {
     public: 
-      Semillero(void);
+      Seedbank(void);
    
-      ~Semillero(void);
+      ~Seedbank(void);
       
       /** Leer semilla de entropía REAL 
        *
@@ -61,21 +61,10 @@ namespace mpplas{
        */
       Z leerSemilla(size_t numBytes);
 
-#if 0
-      /** Establecer fuente de entropía.
-       *
-       * @param fuente Puntero a flujo de entrada de entropía.
-       *
-       * @exception Errores::FuenteEntropiaInvalida Si el flujo
-       * suministrado no es válido.
-       *
-       * Establece de donde conseguir la entropía para el Semillero.
-       */
-      void ponerFuente(std::ifstream* fuente);
-#endif
+
     private:
-      MiVec<uint8_t> fuente_(size_t numBytes);
-      MiVec<uint8_t> datosRnd_;
+      MiVec<uint8_t> _source(size_t numBytes);
+      MiVec<uint8_t> _randomData;
   };
 
 }

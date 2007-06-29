@@ -17,28 +17,25 @@ namespace mpplas{
   class BBSGen;
   class FIPS_140_1 ;
 
-  /** Interfaz para la generación de números aleatorios.
+  /** (Pseudo)Random number generation interface 
    *
-   * Clase base para métodos de generación de números aleatorios.
+   * Base class for methods implementing (pseudo)random number generators.
    * 
    */
   class Random : public AbstractMethod
   {
     public:
-      /** Obtención de un número determinado de bits aleatorios.
+      /** Get a random integer.
        *
-       * @param n Número de bits aleatorios a obtener.
+       * @param n Random bits to consider.
        *
-       * @return Un entero formado a partir de la concatenación de los
-       * @a n bits aleatorios.
+       * @return An integer made up of @a n random bits.
        */
       virtual Z leerBits(size_t n) = 0;
-      /** Obtención de una Digit aleatoria.
+      /** Get a random Digit
        *
-       * @return Una Digit aleatoria.
+       * @return A random Digit.
        *
-       * @note Esto es solo una atajo de para cuando se quieren
-       * generar un número aleatorio de \f$BASE\f$ bits.
        */
       virtual Digit leerDigit(void);
  
@@ -49,71 +46,81 @@ namespace mpplas{
        */
       virtual SignedDigit leerSignedDigit(void);
 
-      /** Obtención de un número aleatorio menor que otro dado.
+      /** Get a bounded random integer.
        *
-       * @param cota El entero representando la cota a no superar.
+       * @param bound The upper bound integer.
        *
-       * @return Un entero aleatorio menor que @a cota.
+       * @return A random integer less than @a bound.
        */
-      virtual Z leerEntero(Z cota);
+      virtual Z leerEntero(const Z& bound);
 
       virtual ~Random() {}
 
-
+      /** Default implementation */
       typedef NumThRC4Gen DFL;
   };
  
-  /** Interfaz para la generación rápida de números aleatorios.
+  /** Fast random number generation.
    *
-   * Clase base para métodos de generación rápida de números aleatorios.
+   * Base class for methods implementing fast (pseudo)random number
+   * generators. 
+   *
+   * @note In this context, fast means the generated PRN is <b>not</b>
+   * suitable for cryptographic use. It is only required that the
+   * generated sequence passes some statistical tests (see
+   * RandomnessTest).
    * 
    */
   class RandomRapido : public Random
   {
     public:
-      /** Establecer la semilla para los generadores.
+      /** Sets the generator's seed.
        *
-       * Establece la semilla que los generadores rápidos de números
-       * aleatorios necesitan como estado inicial. De no
-       * proporcionarse una, se tomaría automáticamente del Semillero.
+       * Sets the seed that the fast random number generators 
+       * need as their initial state. If none is provided, 
+       * one would be automatically fetched from the Seedbank.
        *
-       * @param semilla Entero representando la semilla.
+       * @param seed Integer representing the seed.
        *
        */
-      virtual void ponerSemilla(const Z& semilla) = 0;
+      virtual void ponerSemilla(const Z& seed) = 0;
 
-
+      /** Default implementation */
       typedef NumThRC4Gen DFL;
   };
    
-  /** Interfaz para la generación de números aleatorios
-   * criptográficamente seguros.
+  /** Cryptographically secure pseudorandom number generator
+   * (CSPRNG).
    *
-   * Clase base para métodos de generación de números aleatorios
-   * criptográficamente seguros.
+   * Base class for methods implementing cryptographically secure
+   * pseudorandom number generators.
+   *
+   * @note By <em>secure</em> it is meant that not only the generated
+   * sequence passes the statistical tests (see RandomnessTest), but
+   * also that it is <em>hard</em> (in the cryptographic sense) to
+   * derive any, past or future, value of the random sequence.
    * 
    */
   class RandomSeguro : public Random
   {
     public:
-      /** Establecer la calidad de los números criptográficamente
-       * seguros generados.
+      /** Set the quality of the cryptographically secure random
+       * numbers. 
        *
-       * Los métodos de generación de números criptográficamente
-       * seguros se basan en todos los casos considerados en el
-       * problema FACTORING, teniendo que generar factores primos de
-       * un determinado tamaño. Este método permite especificar dicho
-       * tamaño: a mayor tamaño, mayor seguridad  pero también más
-       * lentitud a la hora de instanciar las clases generadoras.
-       * Si no se especifica, se utiliza un valor de 256 bits por
-       * omisión.
+       * The methods for the generation of cryptographically secure
+       * random numbers rely on the FACTORING problem. Therefore, they
+       * generate prime numbers of a given bit-length. This method makes
+       * it possible to set this bit-length: the greater the more
+       * secure, but also slower generation.
+       * If omitted, a value of \f$256$\f is considered.
        *
-       * @param n Tamaño de los primos a generar internamente por los algoritmos.
+       * @param n Bit-length of the primes to use internally by the
+       * CSPRNG process.
        *
        */
       virtual void ponerCalidad(size_t n) = 0;
 
-
+      /** Default implementation */
       typedef BBSGen DFL;
   };
 
@@ -123,7 +130,7 @@ namespace mpplas{
    * Clase base para los algoritmos que implementen tests de
    * aleatoreidad.
    */
-  class PruebaRandom : public AbstractMethod
+  class RandomnessTest : public AbstractMethod
   {
     public:
       /** Determinar si un generador de números pseudoaleatorios supera el tests.
@@ -136,7 +143,7 @@ namespace mpplas{
        */
       virtual bool pruebaRandom(Random& generadorRandom) = 0;
 
-      virtual ~PruebaRandom() {}
+      virtual ~RandomnessTest() {}
 
 
       typedef FIPS_140_1 DFL;
@@ -234,7 +241,7 @@ namespace mpplas{
    *
    * @note Es el método que la librería utiliza por omisión.
    */
-  class FIPS_140_1 : public PruebaRandom
+  class FIPS_140_1 : public RandomnessTest
   {
     public:
       virtual bool pruebaRandom(Random& generadorRandom);

@@ -3,7 +3,7 @@
  */
 #include "Random.h"
 #include "Funciones.h"
-#include "Semillero.h"
+#include "Seedbank.h"
 #include "Primos.h"
 #include "GCD.h"
 #include <algorithm> //para max()
@@ -26,14 +26,14 @@ namespace mpplas{
     return temp;
   }
 
-  Z Random::leerEntero(Z cota)
+  Z Random::leerEntero(const Z& bound)
   {
-    unsigned long bitsCota = cota.numBits();  
-    Z temp;
-    temp = this->leerBits(bitsCota);
+    size_t bitsCota = bound.numBits();  
+    Z temp(this->leerBits(bitsCota));
 
-    while( temp >= cota )
+    while( temp >= bound ){
       temp = this->leerBits(bitsCota);
+    }
 
     return temp;
   }
@@ -41,7 +41,7 @@ namespace mpplas{
   /* IMPL. NumThRC4Gen */
   NumThRC4Gen::NumThRC4Gen()
   {
-    Semillero semillero;
+    Seedbank semillero;
     
     //una semilla de 16 bytes parece razonable...
     //Por una parte, las funciones hash más habituales (SHA, MD* ...)
@@ -174,7 +174,7 @@ namespace mpplas{
   congruentGen::congruentGen(void)
     : a_(9301UL), b_(49297UL), m_(233280UL)
   {
-    Semillero semillero;
+    const Seedbank semillero;
 
     //ATENCION!!!
     //una semilla de sizeof(ulong) (normalmente = 4) es algo relativamente

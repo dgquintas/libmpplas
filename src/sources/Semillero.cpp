@@ -2,7 +2,7 @@
  * $Id$ 
  */
 
-#include "Semillero.h"
+#include "Seedbank.h"
 #include "Funciones.h"
 #include "constants.h"
 #include "err.h"
@@ -17,29 +17,29 @@
 
 namespace mpplas{
 
-  Semillero::Semillero(void)
+  Seedbank::Seedbank(void)
   {
   }
     
-  Z Semillero::leerSemillaSegura(size_t numBytes)
+  Z Seedbank::leerSemillaSegura(size_t numBytes)
   {
-		datosRnd_ = fuente_(numBytes);
+		_randomData = _source(numBytes);
 		
      Z resultado;
-     resultado.leerBytes(datosRnd_.begin(), datosRnd_.end());
+     resultado.leerBytes(_randomData.begin(), _randomData.end());
 
      return resultado;
   }
   
-  Z Semillero::leerSemilla(size_t numBytes)
+  Z Seedbank::leerSemilla(size_t numBytes)
   {
     Funciones *funcs = Funciones::getInstance();
     Hash* hash; funcs->getFunc(hash);
     static size_t contador = 0;
-//    datosRnd_.resize( hash->numBitsResumen() >> 3);
+//    _randomData.resize( hash->numBitsResumen() >> 3);
     
     if( (contador >= Constants::UMBRAL_SEMILLA) || (contador == 0) ){ //contador==0 para la 1ª llamada
-			datosRnd_ = fuente_( hash->numBitsResumen() >> 3);
+			_randomData = _source( hash->numBitsResumen() >> 3);
       contador = 1;
     }
     contador += numBytes;
@@ -52,7 +52,7 @@ namespace mpplas{
     MiVec<uint8_t> datosRndTemp( hash->numBitsResumen() >> 3);
     while( true ){
       hash->inicializar();
-      hash->actualizar(datosRnd_);
+      hash->actualizar(_randomData);
       hash->actualizar(agitador);
       hash->finalizar();
       agitador[0]++;
@@ -75,7 +75,7 @@ namespace mpplas{
   }
 
 
-  MiVec<uint8_t> Semillero::fuente_(size_t numBytes)
+  MiVec<uint8_t> Seedbank::_source(size_t numBytes)
   {
 		MiVec<uint8_t> rnd(numBytes);
 #ifdef __WIN32__
@@ -83,12 +83,14 @@ namespace mpplas{
   	HCRYPTPROV crypt_prov;
 		uint8_t ptr;
 	  if( !CryptAcquireContext (&crypt_prov, NULL, MS_DEF_PROV, PROV_RSA_FULL,
-			       CRYPT_VERIFYCONTEXT | CRYPT_MACHINE_KEYSET) )
+			       CRYPT_VERIFYCONTEXT | CRYPT_MACHINE_KEYSET) ){
       throw Errors::FuenteEntropiaInvalida();
+    }
 
 		for(size_t i=0; i < numBytes; i++){
-			if( !CryptGenRandom(crypt_prov, 1, (BYTE *)&ptr) )
+			if( !CryptGenRandom(crypt_prov, 1, (BYTE *)&ptr) ){
         throw Errors::FuenteEntropiaInvalida();
+      }
 			rnd[i] = ptr;
 		}
 
@@ -96,37 +98,24 @@ namespace mpplas{
     //Se *supone* estar en un sistema tipo UNIX con /dev/urandom
 		std::ifstream* urandom;
     urandom = new std::ifstream("/dev/urandom", std::ios::in | std::ios::binary );
-    if( !urandom->is_open() )
+    if( !urandom->is_open() ){
         throw Errors::FuenteEntropiaInvalida();
+    }
     
-    for(size_t i=0; i < numBytes; i++)
+    for(size_t i=0; i < numBytes; i++){
       (*urandom) >> rnd[i];
+    }
 
 		urandom->close();
-		if(urandom)
+		if(urandom){
 			delete urandom;
+    }
 #endif	
 		
 		return rnd;
 	}
-/*  
-  void Semillero::ponerFuente(std::ifstream* fuente)
-  {
-    if( (!fuente) || (!fuente->is_open()) || (!fuente->good()) )
-      throw Errors::FuenteEntropiaInvalida();
 
-    if( fuente_->is_open() )
-      fuente_->close();
-
-    delete fuente_;
-
-    fuente_ = fuente;
-
-    return;
-  }
-*/  
-
-  Semillero::~Semillero(void)
+  Seedbank::~Seedbank(void)
   {
   }
     

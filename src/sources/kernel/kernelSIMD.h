@@ -6,7 +6,7 @@
 
 #include <ostream>
 
-#include "constants.h"
+#include "Constants.h"
 
 /** Generic SIMD kernel 
  *

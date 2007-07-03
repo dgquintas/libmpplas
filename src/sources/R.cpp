@@ -7,7 +7,7 @@
 #include <sstream>
 
 #include "R.h"
-#include "Functions.h" 
+#include "MethodsFactory.h" 
 #include "Potencia.h"
 
 namespace mpplas{
@@ -110,7 +110,7 @@ namespace mpplas{
 
   R& R::operator+=(const R& otro)
   {
-    unsigned long difTam = labs(mantisa_.numBits() - otro.mantisa_.numBits());
+    unsigned long difTam = labs(mantisa_.getBitLength() - otro.mantisa_.getBitLength());
 
     //comprobamos si uno es "despreciable" frete al otro en función de
     //si la diferencia de sus respectivos exponentes sobrepasa la
@@ -161,7 +161,7 @@ namespace mpplas{
 
   R& R::operator-=(const R& otro)
   {
-    unsigned long difTam = labs(mantisa_.numBits() - otro.mantisa_.numBits());
+    unsigned long difTam = labs(mantisa_.getBitLength() - otro.mantisa_.getBitLength());
 
     //comprobamos si uno es "despreciable" frete al otro en función de
     //si la diferencia de sus respectivos exponentes sobrepasa la
@@ -229,7 +229,7 @@ namespace mpplas{
     if( otro.esCero() )
       throw Errors::DivisionPorCero();
 
-    long k = precision_ - mantisa_.numBits() + otro.mantisa_.numBits() -1;
+    long k = precision_ - mantisa_.getBitLength() + otro.mantisa_.getBitLength() -1;
     k = k < 0 ? 0 : k ;
 
     mantisa_ <<= k ;
@@ -289,7 +289,7 @@ namespace mpplas{
     //  mantisa_ ^= exponente;
     //  exponente_ *= exponente;
 
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
     PotenciaR *potR; funcs->getFunc(potR);
       
     potR->potenciaR(this, exponente);
@@ -498,7 +498,7 @@ namespace mpplas{
 
     //exponente_ < 0
     if( signo() >= 0 ){
-      if( mantisa_.numBits() <= (unsigned long)labs(exponente_) ){ //FIXME
+      if( mantisa_.getBitLength() <= (unsigned long)labs(exponente_) ){ //FIXME
         //"no hay nada" por delante del . 
         Z cero;
         cero.hacerCero();    
@@ -511,7 +511,7 @@ namespace mpplas{
       }
     }
     //  signo() < 0 
-    if( mantisa_.numBits() <= (unsigned long)labs(exponente_)){ //FIXME
+    if( mantisa_.getBitLength() <= (unsigned long)labs(exponente_)){ //FIXME
       //"no hay nada" por delante del . 
       Z menosUno;
       menosUno.hacerUno();
@@ -541,7 +541,7 @@ namespace mpplas{
 
     //exponente_ < 0
     if( signo() >= 0 ){
-      if( mantisa_.numBits() <= (unsigned long)labs(exponente_) ){ //FIXME
+      if( mantisa_.getBitLength() <= (unsigned long)labs(exponente_) ){ //FIXME
         //"no hay nada" por delante del . 
         Z uno;
         uno.hacerUno();
@@ -557,7 +557,7 @@ namespace mpplas{
       }
     }
     //  signo() < 0 
-    if( mantisa_.numBits() <= (unsigned long)labs(exponente_)){
+    if( mantisa_.getBitLength() <= (unsigned long)labs(exponente_)){
       //"no hay nada" por delante del . 
       Z cero;
       cero.hacerCero();
@@ -578,7 +578,7 @@ namespace mpplas{
     }
 
     //comprobar la precision
-    size_t tam = mantisa_.numBits();
+    size_t tam = mantisa_.getBitLength();
     long exceso = tam - nprec -1; // el -1 es para que no se traten de redondear 
     // numeros del estilo (2^n)-1 (todos
     // 1's) que harian que cosas como
@@ -779,7 +779,7 @@ namespace mpplas{
 
       size_t precisionUsada;
       size_t limitePrec = 
-        (size_t)floor((R::precision()-entero.numBits()) / Constants::LOG_2_10);
+        (size_t)floor((R::precision()-entero.getBitLength()) / Constants::LOG_2_10);
       if( (limitePrec < R::precisionSalida()) ){
         precisionUsada = limitePrec;
         // limitePrec < R::precisionSalida. Es decir, la precision

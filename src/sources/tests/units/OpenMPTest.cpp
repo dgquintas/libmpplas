@@ -13,7 +13,7 @@ using namespace mpplas;
 using namespace com_uwyn_qtunit;
 
 OpenMPTest::OpenMPTest()
-  : funcs(Functions::getInstance()){
+  : funcs(MethodsFactory::getInstance()){
   addTest( OpenMPTest, testParallelFor);
 }
 

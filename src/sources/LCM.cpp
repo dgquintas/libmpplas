@@ -3,7 +3,7 @@
  */
 
 
-#include "Functions.h"
+#include "MethodsFactory.h"
 #include "LCM.h"
 #include "GCD.h"
 #include <cstdlib>
@@ -11,7 +11,7 @@
 namespace mpplas{
 
   LCM::LCM()
-    : funcs(Functions::getInstance())
+    : funcs(MethodsFactory::getInstance())
   {}
 
   Z LCM::lcm(Z u, Digit v)

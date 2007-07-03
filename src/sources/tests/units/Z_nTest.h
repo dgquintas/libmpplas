@@ -5,7 +5,7 @@
 #include <string>
 #include "Z.h"
 #include "Z_n.h"
-#include "Functions.h"
+#include "MethodsFactory.h"
 #include "Random.h"
 #include "Primos.h"
 #include <sstream>
@@ -57,7 +57,7 @@ namespace com_uwyn_qtunit{
     Digit cifra;
     SignedDigit cifraSigno;
 
-    Functions* const funcs;
+    MethodsFactory* const funcs;
     RandomFast *rnd;
 
   };

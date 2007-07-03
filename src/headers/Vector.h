@@ -10,10 +10,10 @@
 #include <sstream>
 
 
-#include "err.h"
+#include "Errors.h"
 #include "AlgebraUtils.h"
 #include "Matrix.h"
-#include "constants.h"
+#include "Constants.h"
 #include "R.h"
 
 namespace mpplas 

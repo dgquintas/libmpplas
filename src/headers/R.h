@@ -18,8 +18,8 @@
 #include <limits>
 #include <sstream>
 
-#include "constants.h"
-#include "err.h"
+#include "Constants.h"
+#include "Errors.h"
 #include "Z.h"
 #include "Field.h"
 
@@ -190,7 +190,7 @@ namespace mpplas
        * \note
        * Esta función invoca a la versión con argumento SignedDigit. En
        * cualquier caso, depende de la implementación particular de la
-       * clase Potencia accesible mediante la clase Functions.
+       * clase Potencia accesible mediante la clase MethodsFactory.
        * 
        */
     R& operator^=(const Z& exp); 
@@ -377,7 +377,7 @@ namespace mpplas
        * bits que ocupa la mantisa del real sobre la que se aplica 
        * el método.
        */ 
-    inline size_t numBits(void) { return mantisa_.numBits(); }
+    inline size_t getBitLength(void) { return mantisa_.getBitLength(); }
     
      /** Cambiar el signo.
        * 

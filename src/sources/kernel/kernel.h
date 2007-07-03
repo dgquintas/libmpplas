@@ -2,8 +2,8 @@
  * $Id$
  */
 
-#ifndef __NUCLEO_H
-#define __NUCLEO_H
+#ifndef __KERNEL_H
+#define __KERNEL_H
 
 #include "BasicTypedefs.h"
 #include "CPUInfo.h"
@@ -228,16 +228,16 @@ namespace mpplas{
 
 
 #pragma __libmpplas_manual_include x86
-  #include "nucleox86.h"
+  #include "kernelx86.h"
 
 #pragma __libmpplas_manual_include x86_64
-  #include "nucleox86_64.h"
+  #include "kernelx86_64.h"
 
 #pragma __libmpplas_manual_include generic
-  #include "nucleogeneric.h"
+  #include "kernelgeneric.h"
 
-//#pragma __libmpplas_manual_include 
-//  #include "kernelSIMD.h"
+#pragma __libmpplas_manual_include 
+  #include "kernelSIMD.h"
 
 
 #endif

@@ -3,7 +3,7 @@
  */
 
 #include "SimbolosLegendre.h"
-#include "Functions.h"
+#include "MethodsFactory.h"
 
 namespace mpplas{
 
@@ -12,7 +12,7 @@ namespace mpplas{
     // NO se comprueba la primalidad de "p" por
     // cuestiones de eficiencia
     
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
     SimboloJacobi *sJacobi; funcs->getFunc(sJacobi);
     return sJacobi->simboloJacobi(a,p);
   }
@@ -23,7 +23,7 @@ namespace mpplas{
     if( b.esPar() )
       throw Errors::ParEnSimboloJacobi();
    
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
     
     SimboloKronecker *sKronecker; funcs->getFunc(sKronecker);
     return sKronecker->simboloKronecker(a,b);

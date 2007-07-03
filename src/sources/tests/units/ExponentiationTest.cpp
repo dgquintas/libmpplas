@@ -12,7 +12,7 @@ using namespace com_uwyn_qtunit;
 using namespace mpplas;
 
 ExponentiationTest::ExponentiationTest()
-  : funcs( Functions::getInstance() )
+  : funcs( MethodsFactory::getInstance() )
 {
 
   addTest(ExponentiationTest, testSlidingWindowExp );

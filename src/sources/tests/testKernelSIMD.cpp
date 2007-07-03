@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <cstring>
+#include <iostream>
 #include "kernelSIMD.h"
 #include "SystemInfo.h"
 
@@ -7,9 +8,6 @@ using namespace std;
 using namespace mpplas;
 
 int main(){
-
-  printf("%d\n", SystemInfo::getRevisionNumber());
-  printf("%s %s\n", SystemInfo::getBuildDate(), SystemInfo::getBuildTime());
 
   SIMDDigit a,b,c;
 
@@ -26,19 +24,19 @@ int main(){
 
   SIMDCPU::Add<int16_t>(c,a,b);
   SIMDCPU::Unpack<int16_t>(ci,c);
-  printf("%d %d %d %d %d %d %d %d\n", ci[0], ci[1], ci[2], ci[3], ci[4], ci[5], ci[6], ci[7]);
+  std::cout << c.i << std::endl;
 
   SIMDCPU::Sub<int16_t>(c,a,b);
   SIMDCPU::Unpack<int16_t>(ci,c);
-  printf("%d %d %d %d %d %d %d %d\n", ci[0], ci[1], ci[2], ci[3], ci[4], ci[5], ci[6], ci[7]);
+  std::cout << c.i << std::endl;
 
   SIMDCPU::Mul<int16_t>(c,a,b);
   SIMDCPU::Unpack<int16_t>(ci,c);
-  printf("%d %d %d %d %d %d %d %d\n", ci[0], ci[1], ci[2], ci[3], ci[4], ci[5], ci[6], ci[7]);
+  std::cout << c.i << std::endl;
 
   SIMDCPU::Div<int16_t>(c,a,b);
   SIMDCPU::Unpack<int16_t>(ci,c);
-  printf("%d %d %d %d %d %d %d %d\n", ci[0], ci[1], ci[2], ci[3], ci[4], ci[5], ci[6], ci[7]);
+  std::cout << c.i << std::endl;
 
   int16_t sumI;
   SIMDCPU::Sum<int16_t>(sumI, a);
@@ -59,19 +57,19 @@ int main(){
 
   SIMDCPU::Add<float>(c,a,b);
   SIMDCPU::Unpack<float>(cv,c);
-  printf("%f %f %f %f\n", cv[0], cv[1], cv[2], cv[3]);
+  std::cout << c.f << std::endl;
 
   SIMDCPU::Sub<float>(c,a,b);
   SIMDCPU::Unpack<float>(cv,c);
-  printf("%f %f %f %f\n", cv[0], cv[1], cv[2], cv[3]);
+  std::cout << c.f << std::endl;
 
   SIMDCPU::Mul<float>(c,a,b);
   SIMDCPU::Unpack<float>(cv,c);
-  printf("%f %f %f %f\n", cv[0], cv[1], cv[2], cv[3]);
+  std::cout << c.f << std::endl;
 
   SIMDCPU::Div<float>(c,a,b);
   SIMDCPU::Unpack<float>(cv,c);
-  printf("%f %f %f %f\n", cv[0], cv[1], cv[2], cv[3]);
+  std::cout << c.f << std::endl;
 
   float sumF;
   SIMDCPU::Sum<float>(sumF, a);
@@ -89,19 +87,19 @@ int main(){
 
   SIMDCPU::Add<double>(c,a,b);
   SIMDCPU::Unpack<double>(cd,c);
-  printf("%f %f\n", cd[0], cd[1]);
+  std::cout << c.d << std::endl;
 
   SIMDCPU::Sub<double>(c,a,b);
   SIMDCPU::Unpack<double>(cd,c);
-  printf("%f %f\n", cd[0], cd[1]);
+  std::cout << c.d << std::endl;
 
   SIMDCPU::Mul<double>(c,a,b);
   SIMDCPU::Unpack<double>(cd,c);
-  printf("%f %f\n", cd[0], cd[1]);
+  std::cout << c.d << std::endl;
 
   SIMDCPU::Div<double>(c,a,b);
   SIMDCPU::Unpack<double>(cd,c);
-  printf("%f %f\n", cd[0], cd[1]);
+  std::cout << c.d << std::endl;
  
   double sumD;
   SIMDCPU::Sum<double>(sumD, a);

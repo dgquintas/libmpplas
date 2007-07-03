@@ -7,7 +7,7 @@
 
 #include "MiVec.h"
 #include "Z.h"
-#include "constants.h"
+#include "Constants.h"
 #include "AbstractMethod.h"
 #include <cassert>
 
@@ -178,12 +178,12 @@ namespace mpplas{
    * <li>Applied Cryptography, page 369, section 16.1</li>
    * <li>The Art of Computer Programming Vol. 2, page 9, section 3.2.1</li>
    * </ul>  */
-  class congruentGen : public RandomFast
+  class CongruentGen : public RandomFast
   {
     public:
-      congruentGen(void);
+      CongruentGen(void);
 
-      virtual ~congruentGen(){}
+      virtual ~CongruentGen(){}
 
       virtual Z getInteger(size_t n);
       virtual void setSeed(const Z& seed);

@@ -26,7 +26,7 @@ void RandomTest::testRC4(){
   qassertTrue(fips_.testRandom(rc4gen));
 }
 void RandomTest::testCongruent(){
-  congruentGen congruentGen;
+  CongruentGen congruentGen;
   qassertTrue(fips_.testRandom(congruentGen));
 }
 void RandomTest::testBBS(){

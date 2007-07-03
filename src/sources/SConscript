@@ -4,11 +4,14 @@ filesStr = """
     AlgebraUtils.cpp
     CRT.cpp
     Factor.cpp
-    Functions.cpp
+    MethodsFactory.cpp
     GCD.cpp
     Hash.cpp
     LCM.cpp
-    mp.cpp
+    MatrixZ.cpp
+    MatrixR.cpp
+    MatrixFloat.cpp
+    VectorialCPU.cpp
     Potencia.cpp
     Primos.cpp
     Profiling.cpp
@@ -21,14 +24,13 @@ filesStr = """
     SimbolosLegendre.cpp
     SystemInfo.cpp
     Trascendentes.cpp
+    Utils.cpp
+    VectorZ.cpp
+    VectorR.cpp
     Z.cpp
     Z_n.cpp
     ZM_n.cpp
-    VectorZ.cpp
-    VectorR.cpp
-    MatrixZ.cpp
-    MatrixR.cpp
-    MatrixFloat.cpp
+
     """
 
 
@@ -292,7 +294,7 @@ else:
   env = conf.Finish()
   # configuring ends
 
-kernelsDir = '#/src/sources/nucleo/'
+kernelsDir = '#/src/sources/kernel/'
 if env['enableAOPProf']:
   if not env.GetOption('clean'):
     from os import system
@@ -300,7 +302,7 @@ if env['enableAOPProf']:
     from os.path import join as pjoin
     oldCWD = getcwd()
     chdir(str(Dir(kernelsDir)))
-    manually_insert( str( str(Dir(kernelsDir)) + '/nucleo.h') , str(str(Dir(kernelsDir)) + '/aop/nucleo.h'), ( env['arch'], env['enableSIMD'] ) )
+    manually_insert( str( str(Dir(kernelsDir)) + '/kernel.h') , str(str(Dir(kernelsDir)) + '/aop/kernel.h'), ( env['arch'], env['enableSIMD'] ) )
     kernelsDir += 'aop/'
     Execute(Delete( './aop/out'))
     chdir(str(Dir(kernelsDir)))
@@ -335,7 +337,7 @@ def print_cmd_line(s, target, source, env):
   sys.stdout.write("Building %s -> %s...\n" %
     (' and '.join([str(x) for x in source]),
     ' and '.join([str(x) for x in target])))
-env['PRINT_CMD_LINE_FUNC'] = print_cmd_line
+#env['PRINT_CMD_LINE_FUNC'] = print_cmd_line
 
 lib = env.SharedLibrary('mpplas', files)
 env.Default(lib)
@@ -344,8 +346,8 @@ Alias('all', lib)
 env.Install(env['INSTALL_DIR_LIB'], lib)
 Alias('install',env['INSTALL_DIR_LIB'])
 Alias('all', 'install')
-env.Clean('all', '#/src/sources/nucleo/aop/out/')
-env.Clean('all', '#/src/sources/nucleo/aop/nucleo.h')
+env.Clean('all', '#/src/sources/kernel/aop/out/')
+env.Clean('all', '#/src/sources/kernel/aop/kernel.h')
 
 env.Append(LIBPATH = [Dir(env['INSTALL_DIR_LIB'])])
 Export('env')

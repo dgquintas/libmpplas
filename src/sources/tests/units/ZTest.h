@@ -9,7 +9,7 @@
 #include <string>
 #include "Z.h"
 #include "err.h"
-#include "Functions.h"
+#include "MethodsFactory.h"
 #include "Random.h"
 
 using namespace mpplas;
@@ -19,7 +19,7 @@ namespace com_uwyn_qtunit{
   class ZTest : public TestCase {
 
     protected:
-      Functions* const funcs;
+      MethodsFactory* const funcs;
       Z uno, dos, cero;
       Z z1, z2;
 

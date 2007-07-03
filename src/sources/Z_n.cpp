@@ -3,7 +3,7 @@
  */
 
 #include "Z_n.h"
-#include "Functions.h"
+#include "MethodsFactory.h"
 #include "Potencia.h"
 #include <algorithm>
 
@@ -124,7 +124,7 @@ namespace mpplas{
   Z_n& Z_n::operator/=(const Z& der)
   {
     Z_n inv(n_);
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
     PotModular *potMod; funcs->getFunc(potMod);
     inv = Z_n(potMod->inversa(der, n_), n_, false);
     operator*=(inv);
@@ -177,7 +177,7 @@ namespace mpplas{
   {
     Z_n derEntero(Z(derC), n_);
 
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
 
     PotModular *potMod; funcs->getFunc(potMod);
     Z_n inv(potMod->inversa(derEntero, n_), n_, false);
@@ -230,7 +230,7 @@ namespace mpplas{
     Z_n inv(n_);
     Z derEntero(der);
 
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
     PotModular *potMod; funcs->getFunc(potMod);
     inv = Z_n(potMod->inversa(Z(der), n_), n_, false);
     operator*=(inv);
@@ -242,7 +242,7 @@ namespace mpplas{
 
   Z_n& Z_n::operator^=(const Digit e)
   {
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
 
     Z eZ(e);
     PotModular *potMod; funcs->getFunc(potMod);
@@ -252,7 +252,7 @@ namespace mpplas{
 
   Z_n& Z_n::operator^=(const SignedDigit e) 
   {
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
 
     PotModular *potMod; funcs->getFunc(potMod);
     Z eZ(e);
@@ -262,7 +262,7 @@ namespace mpplas{
 
   Z_n& Z_n::operator^=(const Z& e)
   {
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
 
     PotModular *potMod; funcs->getFunc(potMod);
     potMod->potModular(this, e, n_);

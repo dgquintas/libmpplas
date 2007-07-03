@@ -1,25 +1,25 @@
 #include "MatrixFloat.h"
-#include "kernelSIMD.h"
+#include "kernel.h"
 
 namespace mpplas
 {
   MatrixFloat::MatrixFloat()
-    : Matrix<__m128>()
+    : Matrix<SIMDDigit>()
   {}
 
   MatrixFloat::MatrixFloat(const MatrixFloat& m)
-    : Matrix<__m128>(m)
+    : Matrix<SIMDDigit>(m)
   {}
-  MatrixFloat::MatrixFloat(const Matrix<__m128>& m)
-    : Matrix<__m128>(m)
+  MatrixFloat::MatrixFloat(const Matrix<SIMDDigit>& m)
+    : Matrix<SIMDDigit>(m)
   {}
 
 
 
   MatrixFloat::MatrixFloat(const size_t nAndm)
-    : Matrix<__m128>(nAndm) {}
+    : Matrix<SIMDDigit>(nAndm) {}
   MatrixFloat::MatrixFloat(const size_t n, const size_t m)
-    : Matrix<__m128>(n,m) {}
+    : Matrix<SIMDDigit>(n,m) {}
 
   //////////////////////////////////////////////
   

@@ -7,7 +7,7 @@
 
 #include "qtunit/TestCase.h"
 #include "MatrixZ.h"
-#include "Functions.h"
+#include "MethodsFactory.h"
 #include "Random.h"
 
 using namespace mpplas;
@@ -36,7 +36,7 @@ namespace com_uwyn_qtunit{
       MatrixZ _A;
       MatrixZ _B;
       RandomFast* rnd;
-      Functions& funcs;
+      MethodsFactory& funcs;
   };
 }
 

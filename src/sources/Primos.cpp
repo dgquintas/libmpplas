@@ -6,7 +6,7 @@
 #include "Primos.h"
 #include "Random.h"
 #include "Z_n.h"
-#include "Functions.h"
+#include "MethodsFactory.h"
 #include "GCD.h"
 #include "RedModular.h"
 #include "Potencia.h"
@@ -21,7 +21,7 @@ namespace mpplas{
 
   bool RabinMiller::esPrimo(const Z& p, Z* testigo) 
   {
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
     GCD* gcd;
     funcs->getFunc(gcd);
     RandomFast* rnd; funcs->getFunc(rnd);
@@ -49,7 +49,7 @@ namespace mpplas{
         if(i >= 303 ){ 
           //por si a alguien se le ocurre la "brillante" idea de poner un numero
           //de iteraciones asi de grande
-          z = rnd->getInteger( std::min((size_t)16,p.numBits()-1) );
+          z = rnd->getInteger( std::min((size_t)16,p.getBitLength()-1) );
           (*testigo) = z;
         }
         else{
@@ -159,7 +159,7 @@ namespace mpplas{
         if(i >= 303 ) 
           //por si a alguien se le ocurre la "brillante" idea de poner un numero
           //de iteraciones asi de grande
-          z = rnd->getInteger( std::min((size_t)16,p.numBits()-1) );
+          z = rnd->getInteger( std::min((size_t)16,p.getBitLength()-1) );
         else
           z = Z(Constants::TABLA_PRIMOS_2000[i]);
 
@@ -199,7 +199,7 @@ namespace mpplas{
       2p-1 is composite;
     */
 
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
     RedModularALaMersenne* redmodmers; funcs->getFunc(redmodmers);
 
     TestPrimoProb *primTest; funcs->getFunc(primTest);
@@ -224,7 +224,7 @@ namespace mpplas{
 
   GenPrimos::GenPrimos()
   {
-    Functions::getInstance()->getFunc(_rnd);
+    MethodsFactory::getInstance()->getFunc(_rnd);
   }
 
   void GenPrimos::setRandomSeed(const Z& seed)
@@ -234,7 +234,7 @@ namespace mpplas{
 
   Z GenPrimos::leerPrimoProb(size_t bits)
   {
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
     TestPrimoProb* test; funcs->getFunc(test);
 
     Z n(_rnd->getInteger(bits));
@@ -292,7 +292,7 @@ namespace mpplas{
 
   Z GenPrimos::siguientePrimoProb(const Z& comienzo)
   {
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
     TestPrimoProb* test; funcs->getFunc(test);
 
     //caso especial
@@ -309,7 +309,7 @@ namespace mpplas{
       
 
     size_t iteraciones;
-    size_t bits = n.numBits();
+    size_t bits = n.getBitLength();
     // pagina 148 Handbook of Applied Cryptography
     // Se garantiza una probabilidad de error <= que (1/2)^80
     if( bits >= 1300 )
@@ -352,7 +352,7 @@ namespace mpplas{
 
   Z GenPrimos::leerPrimoFuerte(size_t bits)
   {
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
     TestPrimoProb* testPrim; funcs->getFunc(testPrim);
     
     Z s,t;

@@ -15,7 +15,7 @@
 #include "MatrixRTest.h"
 #include "VectorZTest.h"
 #include "VectorRTest.h"
-#include "FunctionsTest.h"
+#include "MethodsFactoryTest.h"
 #include "OpenMPTest.h"
 #include "ReductionTest.h"
 #include "ExponentiationTest.h"
@@ -39,7 +39,7 @@ namespace com_uwyn_qtunit
 //    MatrixRTest _matrixRTest;
     VectorZTest _vectorZTest;
     VectorRTest _vectorRTest;
-    FunctionsTest _functionsTest;
+    MethodsFactoryTest _functionsTest;
 #ifdef _OPENMP
     OpenMPTest _openMPTest;
 #endif

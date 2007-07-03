@@ -5,8 +5,8 @@
 
 #include <set> //para set de metodo SQUFOF
 #include "Factor.h"
-#include "Functions.h"
-#include "constants.h"
+#include "MethodsFactory.h"
+#include "Constants.h"
 #include "Primos.h"
 #include "GCD.h"
 #include "RedModular.h"
@@ -15,7 +15,7 @@ namespace mpplas{
 
   MiVec<Z> CadenaAlgFactor::factoriza(const Z& n)
   {
-    Functions* const funcs = Functions::getInstance();
+    MethodsFactory* const funcs = MethodsFactory::getInstance();
     TestPrimoProb* test; funcs->getFunc(test);
     MiVec<Z> factores; factores.clear();
     Trial trial;
@@ -40,7 +40,7 @@ namespace mpplas{
 
   //  bool RhoPollard::factorZ(Z* n, MiVec<Z>* factores)
   //  {
-  //    Functions funcs;
+  //    MethodsFactory funcs;
   //    RedBarrett* reduccion = funcs.getBarrettReduction();
   //    Z mu = reduccion->precomputaciones(*n);
   //    GCD* gcd = funcs.getGCD();
@@ -161,7 +161,7 @@ namespace mpplas{
 //
 //    
 //    // pag 430 cohen
-//    Functions funcs;
+//    MethodsFactory funcs;
 //    GCD* gcd = funcs.getGCD();
 //    TestPrimoProb* test = funcs.getTestPrimoProb();
 //
@@ -333,7 +333,7 @@ namespace mpplas{
       throw Errors::PunteroNulo();
 
     // pag 91 Menezes
-    Functions* const funcs = Functions::getInstance();
+    MethodsFactory* const funcs = MethodsFactory::getInstance();
     RedBarrett* reduccion; funcs->getFunc(reduccion);
     Z mu = reduccion->precomputaciones(*n);
     GCD* gcd;funcs->getFunc(gcd);
@@ -382,7 +382,7 @@ namespace mpplas{
   //  bool RhoPollard::factorZ(Z* n, MiVec<Z>* factores)
   //  {
   //    // pag 91 Menezes
-  //    Functions funcs;
+  //    MethodsFactory funcs;
   //    RedBarrett* reduccion = funcs.getBarrettReduction();
   //    Z mu = reduccion->precomputaciones(*n);
   //    GCD* gcd = funcs.getGCD();
@@ -443,7 +443,7 @@ namespace mpplas{
   //  MiVec<Z> RhoPollard::factorZ(const Z& num)
   //  {
   //    // pag. 370 Knuth
-  //    Functions funcs;
+  //    MethodsFactory funcs;
   //    MiVec<Z> factores; factores.clear();
   //    Z n(num);
   //    Z x;
@@ -465,7 +465,7 @@ namespace mpplas{
   //        return factores;
   //      }
   //
-  ////      if( n.numBits() <= 32){
+  ////      if( n.getBitLength() <= 32){
   ////        std::cout << "hola" << std::endl;
   ////        MiVec<Z> factoresTrial; factoresTrial.clear();
   ////        factoresTrial = trial.factorZ(n);

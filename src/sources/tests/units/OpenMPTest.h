@@ -10,7 +10,7 @@
 #include "Z.h"
 #include "err.h"
 #include "Random.h"
-#include "Functions.h"
+#include "MethodsFactory.h"
 
 #include "qtunit/TestCase.h"
 
@@ -31,7 +31,7 @@ namespace com_uwyn_qtunit{
     private:
       Z *integers, *integersPAR, *integersSEQ;
       Z factor;
-      Functions* const funcs;
+      MethodsFactory* const funcs;
       Random* rnd;
 
       static const int NUM_THREADS = 10;

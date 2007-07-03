@@ -14,7 +14,7 @@ using namespace com_uwyn_qtunit;
 
 
 MatrixZTest::MatrixZTest()
-  : funcs( Functions::getReference() )
+  : funcs( MethodsFactory::getReference() )
 {
 
   funcs.getFunc(rnd) ;

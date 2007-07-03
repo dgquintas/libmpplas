@@ -15,8 +15,8 @@
 
 #include "Ring.h"
 #include "MiVec.h"
-#include "err.h"
-#include "constants.h"
+#include "Errors.h"
+#include "Constants.h"
 
 namespace mpplas
 {
@@ -393,7 +393,7 @@ namespace mpplas
        * \note
        * Esta función invoca a la versión con argumento Digit. En
        * cualquier caso, depende de la implementación particular de la
-       * clase Potencia accesible mediante la clase Functions.
+       * clase Potencia accesible mediante la clase MethodsFactory.
        * 
        */
       Z& operator^=(const Z& exp); 
@@ -408,7 +408,7 @@ namespace mpplas
        *
        * \note
        * Esta función depende de la implementación particular de la
-       * clase Potencia accesible mediante la clase Functions.
+       * clase Potencia accesible mediante la clase MethodsFactory.
        */
       Z& operator^=(Digit exp); 
 
@@ -428,7 +428,7 @@ namespace mpplas
        * \note
        * Esta función invoca a la versión con argumento Digit. En
        * cualquier caso, depende de la implementación particular de la
-       * clase Potencia accesible mediante la clase Functions.
+       * clase Potencia accesible mediante la clase MethodsFactory.
        * 
        */
       Z& operator^=(SignedDigit exp); 
@@ -445,10 +445,10 @@ namespace mpplas
        *
        * \note
        * Esta función delega la comparación en la familia de rutinas
-       * de comparacion de la clase vCPUVectorial. Por tanto, La cota
+       * de comparacion de la clase VectorialCPU. Por tanto, La cota
        * de complejidad de esta función sera una constante de éstas.
        * Ver grafo de dependencias para determinar qué funciones de
-       * vCPUVectorial se utilizan en concreto.
+       * VectorialCPU se utilizan en concreto.
        */ 
       bool operator>(const Z& der) const;
 
@@ -462,10 +462,10 @@ namespace mpplas
        *
        * \note
        * Esta función delega la comparación en la familia de rutinas
-       * de comparacion de la clase vCPUVectorial. Por tanto, La cota
+       * de comparacion de la clase VectorialCPU. Por tanto, La cota
        * de complejidad de esta función sera una constante de éstas.
        * Ver grafo de dependencias para determinar qué funciones de
-       * vCPUVectorial se utilizan en concreto.
+       * VectorialCPU se utilizan en concreto.
        */ 
       bool operator<(const Z& der) const;
   
@@ -479,10 +479,10 @@ namespace mpplas
        *
        * \note
        * Esta función delega la comparación en la familia de rutinas
-       * de comparacion de la clase vCPUVectorial. Por tanto, La cota
+       * de comparacion de la clase VectorialCPU. Por tanto, La cota
        * de complejidad de esta función sera una constante de éstas.
        * Ver grafo de dependencias para determinar qué funciones de
-       * vCPUVectorial se utilizan en concreto.
+       * VectorialCPU se utilizan en concreto.
        */ 
       bool operator==(const Z& der) const;
       
@@ -495,10 +495,10 @@ namespace mpplas
        *
        * \note
        * Esta función delega la comparación en la familia de rutinas
-       * de comparacion de la clase vCPUVectorial. Por tanto, La cota
+       * de comparacion de la clase VectorialCPU. Por tanto, La cota
        * de complejidad de esta función sera una constante de éstas.
        * Ver grafo de dependencias para determinar qué funciones de
-       * vCPUVectorial se utilizan en concreto.
+       * VectorialCPU se utilizan en concreto.
        */ 
       bool operator!=(const Z& der) const;
       
@@ -511,10 +511,10 @@ namespace mpplas
        *
        * \note
        * Esta función delega la comparación en la familia de rutinas
-       * de comparacion de la clase vCPUVectorial. Por tanto, La cota
+       * de comparacion de la clase VectorialCPU. Por tanto, La cota
        * de complejidad de esta función sera una constante de éstas.
        * Ver grafo de dependencias para determinar qué funciones de
-       * vCPUVectorial se utilizan en concreto.
+       * VectorialCPU se utilizan en concreto.
        */ 
       bool operator>=(const Z& der) const;
       
@@ -528,10 +528,10 @@ namespace mpplas
        *
        * \note
        * Esta función delega la comparación en la familia de rutinas
-       * de comparacion de la clase vCPUVectorial. Por tanto, La cota
+       * de comparacion de la clase VectorialCPU. Por tanto, La cota
        * de complejidad de esta función sera una constante de éstas.
        * Ver grafo de dependencias para determinar qué funciones de
-       * vCPUVectorial se utilizan en concreto.
+       * VectorialCPU se utilizan en concreto.
        */ 
       bool operator<=(const Z& der) const;
 
@@ -658,10 +658,10 @@ namespace mpplas
       * 
       * \note
       * Esta función delega el desplazamiento en la familia de rutinas
-      * de desplazamiento de la clase vCPUVectorial. Por tanto, la cota
+      * de desplazamiento de la clase VectorialCPU. Por tanto, la cota
       * de complejidad de esta función sera una constante de éstas.
       * Ver grafo de dependencias para determinar qué funciones de
-      * vCPUVectorial se utilizan en concreto.
+      * VectorialCPU se utilizan en concreto.
       */
       Z& operator>>=(const size_t n);
       
@@ -676,10 +676,10 @@ namespace mpplas
       * 
       * \note
       * Esta función delega el desplazamiento en la familia de rutinas
-      * de desplazamiento de la clase vCPUVectorial. Por tanto, la cota
+      * de desplazamiento de la clase VectorialCPU. Por tanto, la cota
       * de complejidad de esta función sera una constante de éstas.
       * Ver grafo de dependencias para determinar qué funciones de
-      * vCPUVectorial se utilizan en concreto.
+      * VectorialCPU se utilizan en concreto.
       */
       Z& operator<<=(const size_t n);
 
@@ -710,7 +710,7 @@ namespace mpplas
        * \f$\lceil \log_{2} N \rceil \f$
        * 
        */ 
-      size_t numBits(void) const;
+      size_t getBitLength(void) const;
  
       //redondeo
       SignedDigit redondear(size_t exceso) ;
@@ -1235,7 +1235,7 @@ namespace mpplas
       /** Operador obtencion del número */
       friend std::istream& operator>>(std::istream&, Z&); 
 
-      /** Functions (procedimientos) para el calculo simultaneao de cociente y módulo.
+      /** MethodsFactory (procedimientos) para el calculo simultaneao de cociente y módulo.
        *
        *  @par Complejidad:
        *       \f$O(n \cdot m) \quad / \quad n=tam(dividendo) y m=tam(divisor)\f$
@@ -1529,19 +1529,19 @@ namespace mpplas
 
   /** Número de bits (versión "función").
    *
-   * @sa Z::numBits() 
+   * @sa Z::getBitLength() 
    */
-  size_t numBits(const Z& x);
+  size_t getBitLength(const Z& x);
   /** Número de bits precisión simple sin signo (versión "función").
    *
-   * @sa Z::numBits() 
+   * @sa Z::getBitLength() 
    */
-  size_t numBits(const Digit x);
+  size_t getBitLength(const Digit x);
   /** Número de bits precisión simple con signo(versión "función").
    *
-   * @sa Z::numBits() 
+   * @sa Z::getBitLength() 
    */
-  size_t numBits(const SignedDigit x);
+  size_t getBitLength(const SignedDigit x);
 
 
   //OPERADORES DE DESPLAZAMIENTO 

@@ -12,7 +12,7 @@
 namespace mpplas{
 
   Potencia::Potencia()
-    : funcs(Functions::getInstance())
+    : funcs(MethodsFactory::getInstance())
   {}
 
   Z Potencia::potencia(Z base, SignedDigit exp)
@@ -24,7 +24,7 @@ namespace mpplas{
 
 
   PotModular::PotModular()
-    : funcs(Functions::getInstance())
+    : funcs(MethodsFactory::getInstance())
   {}
 
   Z PotModular::potModular(Z base, const Z& exp, const Z& mod)
@@ -105,7 +105,7 @@ namespace mpplas{
 
     //  Z A; A.hacerUno();
     base->hacerUno();  
-    int i = numBits(e) - 1; // -1 por considerar el 0
+    int i = getBitLength(e) - 1; // -1 por considerar el 0
     while(i >= 0){
       if( (e & (0x1 << i )) == 0 ){ // ¿ i-esimo bit == 0?
         base->cuadrado();
@@ -204,10 +204,10 @@ namespace mpplas{
     base->operator=(r); // r = r_inicial mod n
 
 
-    const int initialBitPos = (e.numBits()-1);
+    const int initialBitPos = (e.getBitLength()-1);
     int cifraPos = initialBitPos >> Constants::LOG_2_BITS_EN_CIFRA;
     Digit inDigitPosMask = 1;
-    inDigitPosMask <<= ( initialBitPos & ((1<<Constants::LOG_2_BITS_EN_CIFRA)-1) ); //ie, i % BITS_EN_CIFRA
+    inDigitPosMask <<= ( initialBitPos & Constants::DIGIT_MOD_MASK ); //ie, i % BITS_EN_CIFRA
     for(int i = initialBitPos; i >= 0 ; i--){
       montgomeryCuad(base, mod, modPrima);
       if( (e[cifraPos] & inDigitPosMask ) ){ 
@@ -272,9 +272,9 @@ namespace mpplas{
     Z r;
     Digit k;
     Z dummyOne((Digit)1);
-    const Digit n = mod.numBits();
+    const Digit n = mod.getBitLength();
     const Digit m = mod.longitud() * Constants::BITS_EN_CIFRA;
-    if( a.numBits() > m ){
+    if( a.getBitLength() > m ){
       throw Errors::TooBig();
     }
     RedMontgomery *rm; funcs->getFunc(rm);
@@ -361,10 +361,10 @@ namespace mpplas{
 
     base->hacerUno();
 
-    const int initialBitPos = (e.numBits()-1);
+    const int initialBitPos = (e.getBitLength()-1);
     int cifraPos = initialBitPos >> Constants::LOG_2_BITS_EN_CIFRA;
     Digit inDigitPosMask = 1;
-    inDigitPosMask <<= ( initialBitPos & ((1<<Constants::LOG_2_BITS_EN_CIFRA)-1) ); //ie, i % BITS_EN_CIFRA
+    inDigitPosMask <<= ( initialBitPos & Constants::DIGIT_MOD_MASK ); //ie, i % BITS_EN_CIFRA
     for(int i = initialBitPos; i >= 0 ; i--){
       base->cuadrado(); 
       redbarrett->redBarrett(base, mod, mu);
@@ -401,7 +401,7 @@ namespace mpplas{
     }
 
     Digit k;
-    const size_t n = numBits(e);
+    const size_t n = getBitLength(e);
 
     //ver pagina 11 Cohen
     if( n <= 8 )
@@ -430,7 +430,7 @@ namespace mpplas{
 
     //  Z A; A.hacerUno();
     base->hacerUno();  
-    int i = numBits(e) - 1; // -1 por considerar el 0
+    int i = getBitLength(e) - 1; // -1 por considerar el 0
     while(i >= 0){
       if( (e & (0x1 << i )) == 0 ){ // ¿ i-esimo bit == 0?
         base->cuadrado();

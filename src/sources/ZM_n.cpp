@@ -5,7 +5,7 @@
 #include <cassert>
 
 #include "ZM_n.h"
-#include "Functions.h"
+#include "MethodsFactory.h"
 #include "Potencia.h"
 
 
@@ -132,7 +132,7 @@ namespace mpplas{
     ((Z*)this)->operator=(_r);
     static const Digit BASEMASK = ((Digit)1) << (Constants::BITS_EN_CIFRA -1);
 
-    const int initialBitPos = (e.numBits()-1);
+    const int initialBitPos = (e.getBitLength()-1);
     int cifraPos = initialBitPos >> Constants::LOG_2_BITS_EN_CIFRA;
     Digit inDigitPosMask = 1;
     inDigitPosMask <<= ( initialBitPos & ((1<<Constants::LOG_2_BITS_EN_CIFRA)-1) ); //ie, i % BITS_EN_CIFRA
@@ -230,7 +230,7 @@ namespace mpplas{
 
 
   void ZM_n::_precomputations(Z& mPrime) {
-    Functions* const funcs(Functions::getInstance());
+    MethodsFactory* const funcs(MethodsFactory::getInstance());
     
     mPrime.hacerUno();
     mPrime.potenciaBase(1);
@@ -339,7 +339,7 @@ namespace mpplas{
     ZM_n r;
     r._clone(a);
     Digit k;
-    const Digit n = a.getMod().numBits();
+    const Digit n = a.getMod().getBitLength();
     const Digit m = a.getMod().longitud() * Constants::BITS_EN_CIFRA;
 
     _almostMontgomeryInverse(a, r, k);

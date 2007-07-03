@@ -4,38 +4,23 @@
 
   template<typename T>
   Matrix<T>::Matrix()
-: _dims(1,1)
-{
-  //for GCC to compile when using SIMD types
-  _data.reserve(1);
-}
+: _dims(0,0)
+{}
 
   template<typename T>
   Matrix<T>::Matrix(const size_t nAndm) 
-: _dims(nAndm,nAndm)
-{
-  //for GCC to compile when using SIMD types
-  _data.reserve(nAndm*nAndm);
-
-} 
+: _dims(nAndm,nAndm), _data(nAndm*nAndm)
+{} 
 
   template<typename T>
   Matrix<T>::Matrix(const size_t n, const size_t m)
-: _dims(n,m)
-{
-  //for GCC to compile when using SIMD types
-  _data.reserve(n*m);
-
-} 
+: _dims(n,m), _data(n*m)
+{} 
 
   template<typename T>
   Matrix<T>::Matrix(const Dimensions& dims)
-: _dims(dims)
-{
-  //for GCC to compile when using SIMD types
-  _data.reserve(_dims.getProduct());
-
-}
+: _dims(dims), _data(_dims.getProduct())
+{}
 
   template<typename T>
   Matrix<T>::Matrix(const Matrix<T>& rhs)

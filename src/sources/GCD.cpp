@@ -62,7 +62,7 @@ namespace mpplas{
       if( v.longitud() == 1)
         return GCD::gcd(u,v[0]);
       else{
-        size_t p = u.numBits() - Constants::BITS_EN_CIFRA;
+        size_t p = u.getBitLength() - Constants::BITS_EN_CIFRA;
         uHat = (u >> p)[0];
         vHat = (v >> p)[0];
 

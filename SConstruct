@@ -37,5 +37,5 @@ Export('env')
 
 SConscript(dirs="src", duplicate=0)
 
-#SConscript("doc/SConscript")
+SConscript(dirs="doc", duplicate=0)
 

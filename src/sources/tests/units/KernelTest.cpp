@@ -4,7 +4,7 @@
 
 #include <string>
 #include "KernelTest.h"
-#include "nucleo.h"
+#include "kernel.h"
 
 using namespace std;
 using namespace mpplas;

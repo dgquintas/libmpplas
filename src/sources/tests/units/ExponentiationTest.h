@@ -10,7 +10,7 @@
 
 #include "qtunit/TestCase.h"
 #include "Potencia.h"
-#include "Functions.h"
+#include "MethodsFactory.h"
 
 
 using namespace mpplas;
@@ -39,7 +39,7 @@ namespace com_uwyn_qtunit{
     R _baseR;
     Z _expZ;
     SignedDigit _exp;
-    Functions* const funcs;
+    MethodsFactory* const funcs;
     Random* rnd;
     GenPrimos* primes;
 

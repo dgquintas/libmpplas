@@ -2,7 +2,7 @@
  * $Id$ 
  */
 #include "Random.h"
-#include "Functions.h"
+#include "MethodsFactory.h"
 #include "Seedbank.h"
 #include "Primos.h"
 #include "GCD.h"
@@ -24,7 +24,7 @@ namespace mpplas{
 
   Z Random::getIntegerBounded(const Z& bound)
   {
-    const size_t bitsCota = bound.numBits();  
+    const size_t bitsCota = bound.getBitLength();  
     Z temp(this->getInteger(bitsCota));
 
     while( temp >= bound ){
@@ -169,7 +169,7 @@ namespace mpplas{
      *
      * De cada X_i se consideraran tan solo los 16 bits inferiores.
      */
-  congruentGen::congruentGen(void)
+  CongruentGen::CongruentGen(void)
     : _a(9301UL), _b(49297UL), _m(233280UL)
   {
     Seedbank seedbank;
@@ -186,7 +186,7 @@ namespace mpplas{
   }
   
       
-  Z congruentGen::getInteger(size_t n)
+  Z CongruentGen::getInteger(size_t n)
   {
     size_t n_bytes = (n+7)/8;
     MiVec<uint8_t> bytesRand(n_bytes);
@@ -238,7 +238,7 @@ namespace mpplas{
     
   }
 
-  void congruentGen::setSeed(const Z& seed)
+  void CongruentGen::setSeed(const Z& seed)
   {
     _Xi = seed[0] % _m;
     return;
@@ -262,7 +262,7 @@ namespace mpplas{
   {
     //1º, encontrar 2 primos p y q de Blum ( p = 3 (mod 4) <=>
     // (-1/p) == -1 
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
     GenPrimos* gprimos; funcs->getFunc(gprimos);
 //    SimboloLegendre* slegendre = funcs->simboloLegendre();
     GCD* gcd; funcs->getFunc(gcd);
@@ -307,14 +307,14 @@ namespace mpplas{
     //Es claro que el número de bits necesario para representar un
     //número x es igual al ceil(Log_2{x}). 
     //Por tanto, cuando x NO sea una potencia de 2, se puede
-    //considerar Log_2{x} = numBits(x) - 1. Cuando x SI sea potencia
-    //de 2, sera Log_2{x} = numBits(x)
+    //considerar Log_2{x} = getBitLength(x) - 1. Cuando x SI sea potencia
+    //de 2, sera Log_2{x} = getBitLength(x)
     //De todas formas, se considerará siempre el primer caso (por ser
     //el más "conservador") y de cada _Xi se tomarán sus 
-    //max(1,numBits(n)-1) bits de menos peso
+    //max(1,getBitLength(n)-1) bits de menos peso
     
-    size_t n = numBits(_Xi);
-    Digit longConsiderada = std::max(numBits((Digit)n)-1,(size_t)1);
+    size_t n = getBitLength(_Xi);
+    Digit longConsiderada = std::max(getBitLength((Digit)n)-1,(size_t)1);
     Digit mascara = (1UL << longConsiderada)-1;
     while(num){
       _Xi.cuadradoModular(_n); 

@@ -15,8 +15,8 @@
 
 
 #include "Z.h"
-#include "Functions.h"
-#include "mp.h"
+#include "MethodsFactory.h"
+#include "VectorialCPU.h"
 #include "Potencia.h"
 #include "Primos.h"
 #include "GCD.h"
@@ -164,7 +164,7 @@ namespace mpplas{
 
     if( (signo_ > 0) ){
       if( (der.signo_ > 0) )
-        return vCPUVectorial::mayorque(coefPoliB_,der.coefPoliB_);
+        return VectorialCPU::mayorque(coefPoliB_,der.coefPoliB_);
       else // der < 0
         return true;
     }
@@ -172,7 +172,7 @@ namespace mpplas{
       if( (der.signo_ > 0) )
         return false;
       else // der < 0
-        return vCPUVectorial::menorque(coefPoliB_, der.coefPoliB_);
+        return VectorialCPU::menorque(coefPoliB_, der.coefPoliB_);
     }
   }
 
@@ -182,7 +182,7 @@ namespace mpplas{
 
     if( (signo_ > 0) ){
       if( (der.signo_ > 0) )
-        return vCPUVectorial::menorque(coefPoliB_,der.coefPoliB_);
+        return VectorialCPU::menorque(coefPoliB_,der.coefPoliB_);
       else // der < 0
         return false;
     }
@@ -190,7 +190,7 @@ namespace mpplas{
       if( (der.signo_ > 0) )
         return true;
       else // der < 0
-        return vCPUVectorial::mayorque(coefPoliB_, der.coefPoliB_);
+        return VectorialCPU::mayorque(coefPoliB_, der.coefPoliB_);
     }
 
   }
@@ -200,7 +200,7 @@ namespace mpplas{
 
 
     if( signo_ == der.signo_ )
-      if ( vCPUVectorial::igual(coefPoliB_, der.coefPoliB_) )
+      if ( VectorialCPU::igual(coefPoliB_, der.coefPoliB_) )
         return true;
 
     return false;
@@ -226,7 +226,7 @@ namespace mpplas{
 
     if( (signo_ > 0) )
       if(der >= 0)
-        return vCPUVectorial::mayorque( coefPoliB_, (Digit)der );
+        return VectorialCPU::mayorque( coefPoliB_, (Digit)der );
       else // der < 0
         return true;
     else // signo_ < 0 
@@ -235,7 +235,7 @@ namespace mpplas{
       else // der < 0
         // ambos son negativos. Por tanto el mayor ser� el menor
         // en valor absoluto
-        return vCPUVectorial::menorque( coefPoliB_, (Digit)labs(der) );
+        return VectorialCPU::menorque( coefPoliB_, (Digit)labs(der) );
   }  
 
   bool Z::operator<(const SignedDigit der) const
@@ -244,7 +244,7 @@ namespace mpplas{
 
     if( (signo_ > 0) )
       if(der >= 0)
-        return vCPUVectorial::menorque( coefPoliB_, (Digit)der );
+        return VectorialCPU::menorque( coefPoliB_, (Digit)der );
       else // der < 0
         return false;
     else // signo_ < 0 
@@ -253,7 +253,7 @@ namespace mpplas{
       else // der < 0
         // ambos son negativos. Por tanto el menor ser� el mayor
         // en valor absoluto
-        return vCPUVectorial::mayorque( coefPoliB_, (Digit)labs(der) );
+        return VectorialCPU::mayorque( coefPoliB_, (Digit)labs(der) );
   }
 
   bool Z::operator==(const SignedDigit der) const
@@ -262,7 +262,7 @@ namespace mpplas{
 
     if( (signo_ > 0) )
       if(der >= 0)
-        return vCPUVectorial::igual( coefPoliB_, (Digit)der );
+        return VectorialCPU::igual( coefPoliB_, (Digit)der );
       else // der < 0
         return false;
     else // signo_ < 0 
@@ -271,7 +271,7 @@ namespace mpplas{
       else // der < 0
         //ambos negativos; ser�n iguales si son iguales en valor
         //absoluto
-        return vCPUVectorial::igual( coefPoliB_, (Digit)labs(der) );
+        return VectorialCPU::igual( coefPoliB_, (Digit)labs(der) );
   }
   bool Z::operator!=(const SignedDigit der) const
   {
@@ -297,7 +297,7 @@ namespace mpplas{
 
 
     if( (signo_ > 0) )
-      return vCPUVectorial::mayorque( coefPoliB_, der );
+      return VectorialCPU::mayorque( coefPoliB_, der );
     else // signo_ < 0 
       return false;
   }  
@@ -307,7 +307,7 @@ namespace mpplas{
 
 
     if( (signo_ > 0) )
-      return vCPUVectorial::menorque( coefPoliB_, der );
+      return VectorialCPU::menorque( coefPoliB_, der );
     else // signo_ < 0 
       return true;
   }
@@ -317,7 +317,7 @@ namespace mpplas{
 
 
     if( (signo_ > 0) )
-      return vCPUVectorial::igual( coefPoliB_, der );
+      return VectorialCPU::igual( coefPoliB_, der );
     else // signo_ < 0 
       return false;
   }
@@ -348,14 +348,14 @@ namespace mpplas{
 
     if( (signo_ > 0) ){
       if( (sumandoDerecha.signo_ > 0) ){
-        this->coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, sumandoDerecha.coefPoliB_);
+        this->coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, sumandoDerecha.coefPoliB_);
         return *this;
       }
       else{ // sumandoDerecha < 0
-        if( vCPUVectorial::mayorque(coefPoliB_, sumandoDerecha.coefPoliB_) )
-          this->coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, sumandoDerecha.coefPoliB_);
+        if( VectorialCPU::mayorque(coefPoliB_, sumandoDerecha.coefPoliB_) )
+          this->coefPoliB_ = VectorialCPU::restaMP(coefPoliB_, sumandoDerecha.coefPoliB_);
         else{
-          this->coefPoliB_ = vCPUVectorial::restaMP(sumandoDerecha.coefPoliB_, coefPoliB_);
+          this->coefPoliB_ = VectorialCPU::restaMP(sumandoDerecha.coefPoliB_, coefPoliB_);
           this->signo_ = -1;
         }
         return *this;
@@ -364,16 +364,16 @@ namespace mpplas{
     else{ // this < 0
       if( (sumandoDerecha.signo_ > 0) ){
         // (-a) + b = b - a
-        if( vCPUVectorial::mayorque(coefPoliB_,sumandoDerecha.coefPoliB_) )
-          this->coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, sumandoDerecha.coefPoliB_);
+        if( VectorialCPU::mayorque(coefPoliB_,sumandoDerecha.coefPoliB_) )
+          this->coefPoliB_ = VectorialCPU::restaMP(coefPoliB_, sumandoDerecha.coefPoliB_);
         else{
-          this->coefPoliB_ = vCPUVectorial::restaMP(sumandoDerecha.coefPoliB_, coefPoliB_);
+          this->coefPoliB_ = VectorialCPU::restaMP(sumandoDerecha.coefPoliB_, coefPoliB_);
           this->signo_ = 1;
         }
         return *this;
       }
       else{ // sumandoDerecha < 0
-        this->coefPoliB_ = vCPUVectorial::sumaMP(this->coefPoliB_, sumandoDerecha.coefPoliB_);
+        this->coefPoliB_ = VectorialCPU::sumaMP(this->coefPoliB_, sumandoDerecha.coefPoliB_);
         //mantener el signo "-"
         return *this;
       }
@@ -386,34 +386,34 @@ namespace mpplas{
     if( (signo_ > 0) ){
       if( (sustraendo.signo_ > 0) ){
         // a - b
-        if( vCPUVectorial::mayorque(sustraendo.coefPoliB_, coefPoliB_) ){ // b > a
-          this->coefPoliB_ = vCPUVectorial::restaMP(sustraendo.coefPoliB_, coefPoliB_);
+        if( VectorialCPU::mayorque(sustraendo.coefPoliB_, coefPoliB_) ){ // b > a
+          this->coefPoliB_ = VectorialCPU::restaMP(sustraendo.coefPoliB_, coefPoliB_);
           this->signo_ = -1;
         }
         else // b <= a
-          this->coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, sustraendo.coefPoliB_);
+          this->coefPoliB_ = VectorialCPU::restaMP(coefPoliB_, sustraendo.coefPoliB_);
         // se mantiene el signo +
       }
       else{ // sustraendo  < 0
         // a - (-b) = a + b
-        this->coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, sustraendo.coefPoliB_);
+        this->coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, sustraendo.coefPoliB_);
         //se mantiene el signo +
       }
     }
     else{ // this < 0
       if( (sustraendo.signo_ > 0) ){
         // (-a) - b = -(a + b)
-        this->coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, sustraendo.coefPoliB_);
+        this->coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, sustraendo.coefPoliB_);
         // se mantiene el signo -
       }
       else{ // sustraendo < 0
         // (-a) - (-b) = b - a
-        if( vCPUVectorial::mayorque(sustraendo.coefPoliB_, coefPoliB_) ){ // b > a
-          this->coefPoliB_ = vCPUVectorial::restaMP(sustraendo.coefPoliB_, coefPoliB_);
+        if( VectorialCPU::mayorque(sustraendo.coefPoliB_, coefPoliB_) ){ // b > a
+          this->coefPoliB_ = VectorialCPU::restaMP(sustraendo.coefPoliB_, coefPoliB_);
           this->signo_ = 1;
         }
         else // b <= a
-          this->coefPoliB_ = vCPUVectorial::restaMP( coefPoliB_, sustraendo.coefPoliB_ );
+          this->coefPoliB_ = VectorialCPU::restaMP( coefPoliB_, sustraendo.coefPoliB_ );
         // se deja el signo -
 
       }
@@ -429,24 +429,24 @@ namespace mpplas{
     if( (signo_ > 0) ){
       if( (factorDer.signo_ > 0) ){
         // a * b
-        this->coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, factorDer.coefPoliB_);
+        this->coefPoliB_ = VectorialCPU::multMP(coefPoliB_, factorDer.coefPoliB_);
         // se mantiene el signo +
       }
       else{ // factorDer  < 0
         // a * (-b) = -(ab)
-        this->coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, factorDer.coefPoliB_);
+        this->coefPoliB_ = VectorialCPU::multMP(coefPoliB_, factorDer.coefPoliB_);
         this->signo_ = -1;
       }
     }
     else{ // this < 0
       if( (factorDer.signo_ > 0) ){
         // (-a) * b = -(ab)
-        this->coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, factorDer.coefPoliB_);
+        this->coefPoliB_ = VectorialCPU::multMP(coefPoliB_, factorDer.coefPoliB_);
         // se deja el signo -
       }
       else{ // factorDer < 0
         // (-a) * (-b) = ab
-        this->coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, factorDer.coefPoliB_);
+        this->coefPoliB_ = VectorialCPU::multMP(coefPoliB_, factorDer.coefPoliB_);
         this->signo_ = 1;
       }
     }
@@ -464,24 +464,24 @@ namespace mpplas{
     if( (signo_ > 0) ){
       if( (divisor.signo_ > 0) ){
         // a / b
-        this->coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor.coefPoliB_)).first;
+        this->coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, divisor.coefPoliB_)).first;
         // se mantiene el signo +
       }
       else{ // divisor  < 0
         // a / (-b) = -(a / b)
-        this->coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor.coefPoliB_)).first;
+        this->coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, divisor.coefPoliB_)).first;
         this->signo_ = -1;
       }
     }
     else{ // this < 0
       if( (divisor.signo_ > 0) ){
         // (-a) / b = -(a / b)
-        this->coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor.coefPoliB_)).first;
+        this->coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, divisor.coefPoliB_)).first;
         // se deja el signo -
       }
       else{ // divisor < 0
         // (-a) / (-b) = a / b
-        this->coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor.coefPoliB_)).first;
+        this->coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, divisor.coefPoliB_)).first;
         this->signo_ = 1;
       }
     }
@@ -498,11 +498,11 @@ namespace mpplas{
 
     if( divisor.signo_ > 0){ // divisor.signo_ > 0
       if( signo_ > 0 ){
-        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor.coefPoliB_)).second;
+        coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, divisor.coefPoliB_)).second;
         // se mantiene el signo +
       }
       else{ //signo_ < 0
-        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor.coefPoliB_)).second;
+        coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, divisor.coefPoliB_)).second;
         if( !(this->esCero()) )
           this->operator+=(divisor); // ajuste por dividendo negativo
         signo_ = 1;
@@ -517,7 +517,7 @@ namespace mpplas{
     }
     else{ // divisor.signo_ < 0
       if( signo_ > 0){
-        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor.coefPoliB_)).second;
+        coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, divisor.coefPoliB_)).second;
         if( !(this->esCero()) )
           this->operator+=(divisor); //ajuste por ser divisor negativo
         //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
@@ -529,7 +529,7 @@ namespace mpplas{
         // Por otra parte, el modulo siempre tiene el signo del divisor
       }
       else{ // signo_ < 0
-        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor.coefPoliB_)).second;
+        coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, divisor.coefPoliB_)).second;
         signo_ = -1;
       }
     }
@@ -613,7 +613,7 @@ namespace mpplas{
   {
 
     signo_ = 1; //el cuadrado siempre va a tener este efecto
-    coefPoliB_ = vCPUVectorial::cuadMP(coefPoliB_); 
+    coefPoliB_ = VectorialCPU::cuadMP(coefPoliB_); 
     return *this;
   }
 
@@ -623,7 +623,7 @@ namespace mpplas{
     (*this) %= mod;
 
     signo_ = 1; //el cuadrado siempre va a tener este efecto
-    coefPoliB_ = vCPUVectorial::cuadMP(coefPoliB_); 
+    coefPoliB_ = VectorialCPU::cuadMP(coefPoliB_); 
 
     (*this) %= mod;
 
@@ -744,13 +744,13 @@ namespace mpplas{
 
     if( (signo_ > 0) ){
       if( (corto > 0) ){
-        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoDigit);
+        coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, cortoDigit);
       }
       else{ // corto  < 0
-        if( vCPUVectorial::mayorque(coefPoliB_, cortoDigit) )
-          coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoDigit);
+        if( VectorialCPU::mayorque(coefPoliB_, cortoDigit) )
+          coefPoliB_ = VectorialCPU::restaMP(coefPoliB_, cortoDigit);
         else{
-          coefPoliB_ = vCPUVectorial::restaMP(cortoDigit, coefPoliB_);
+          coefPoliB_ = VectorialCPU::restaMP(cortoDigit, coefPoliB_);
           signo_ = -1;
         }
       }
@@ -758,15 +758,15 @@ namespace mpplas{
     else{ // this < 0
       if( (corto > 0) ){
         // (-a) + b = b - a
-        if( vCPUVectorial::mayorque(coefPoliB_, cortoDigit) )
-          coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoDigit);
+        if( VectorialCPU::mayorque(coefPoliB_, cortoDigit) )
+          coefPoliB_ = VectorialCPU::restaMP(coefPoliB_, cortoDigit);
         else{
-          coefPoliB_ = vCPUVectorial::restaMP(cortoDigit, coefPoliB_);
+          coefPoliB_ = VectorialCPU::restaMP(cortoDigit, coefPoliB_);
           signo_ = 1;
         }
       }
       else{ // corto < 0
-        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoDigit);
+        coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, cortoDigit);
         //mantener el signo "-"
       }
     }
@@ -789,34 +789,34 @@ namespace mpplas{
     if( (signo_ > 0) ){
       if( (corto > 0) ){
         // a - b
-        if(  vCPUVectorial::menorque(coefPoliB_, cortoDigit) ){ // a < b 
-          coefPoliB_ = vCPUVectorial::restaMP(cortoDigit, coefPoliB_);
+        if(  VectorialCPU::menorque(coefPoliB_, cortoDigit) ){ // a < b 
+          coefPoliB_ = VectorialCPU::restaMP(cortoDigit, coefPoliB_);
           signo_ = -1;
         }
         else // b <= a
-          coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoDigit);
+          coefPoliB_ = VectorialCPU::restaMP(coefPoliB_, cortoDigit);
         // se mantiene el signo +
       }
       else{ // corto  < 0
         // a - (-b) = a + b
-        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoDigit);
+        coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, cortoDigit);
         //se mantiene el signo +
       }
     }
     else{ // this < 0
       if( (corto > 0) ){
         // (-a) - b = -(a + b)
-        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoDigit);
+        coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, cortoDigit);
         // se mantiene el signo -
       }
       else{ // corto < 0
         // (-a) - (-b) = b - a
-        if( vCPUVectorial::menorque(coefPoliB_, cortoDigit ) ){ // a < b
-          coefPoliB_ = vCPUVectorial::restaMP(cortoDigit, coefPoliB_);
+        if( VectorialCPU::menorque(coefPoliB_, cortoDigit ) ){ // a < b
+          coefPoliB_ = VectorialCPU::restaMP(cortoDigit, coefPoliB_);
           signo_ = 1;
         }
         else // b <= a
-          coefPoliB_ = vCPUVectorial::restaMP( coefPoliB_, cortoDigit );
+          coefPoliB_ = VectorialCPU::restaMP( coefPoliB_, cortoDigit );
         // se deja el signo -
       }
     }
@@ -838,24 +838,24 @@ namespace mpplas{
     if( (signo_ > 0) ){
       if( (corto > 0) ){
         // a * b
-        coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoDigit);
+        coefPoliB_ = VectorialCPU::multMP(coefPoliB_, cortoDigit);
         // se mantiene el signo +
       }
       else{ // corto  < 0
         // a * (-b) = -(ab)
-        coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoDigit);
+        coefPoliB_ = VectorialCPU::multMP(coefPoliB_, cortoDigit);
         signo_ = -1;
       }
     }
     else{ // this < 0
       if( (corto > 0) ){
         // (-a) * b = -(ab)
-        coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoDigit);
+        coefPoliB_ = VectorialCPU::multMP(coefPoliB_, cortoDigit);
         // se deja el signo -
       }
       else{ // corto < 0
         // (-a) * (-b) = ab
-        coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoDigit);
+        coefPoliB_ = VectorialCPU::multMP(coefPoliB_, cortoDigit);
         signo_ = 1;
       }
     }
@@ -883,24 +883,24 @@ namespace mpplas{
     if( (signo_ > 0) ){
       if( (corto > 0) ){
         // a / b
-        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoDigit)).first;
+        coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, cortoDigit)).first;
         // se mantiene el signo +
       }
       else{ // corto  < 0
         // a / (-b) = -(a / b)
-        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoDigit)).first;
+        coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, cortoDigit)).first;
         signo_ = -1;
       }
     }
     else{ // this < 0
       if( (corto > 0) ){
         // (-a) / b = -(a / b)
-        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoDigit)).first;
+        coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, cortoDigit)).first;
         // se deja el signo -
       }
       else{ // corto < 0
         // (-a) / (-b) = a / b
-        coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoDigit)).first;
+        coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, cortoDigit)).first;
         signo_ = 1;
       }
     }
@@ -925,11 +925,11 @@ namespace mpplas{
     //  
     //  if( divisorSigned > 0){ // divisor > 0
     //    if( signo_ > 0 ){
-    //      coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor)).second;
+    //      coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, divisor)).second;
     //      // se mantiene el signo +
     //    }
     //    else{ //signo_ < 0
-    //      coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor)).second;
+    //      coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, divisor)).second;
     //      if( !(this->esCero()) )
     //        this->operator+=(divisor); // ajuste por dividendo negativo
     //      signo_ = 1;
@@ -944,7 +944,7 @@ namespace mpplas{
     //  }
     //  else{ // divisor_ < 0
     //    if( signo_ > 0){
-    //       coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor)).second;
+    //       coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, divisor)).second;
     //      if( !(this->esCero()) )
     //        this->operator-=(divisor); //ajuste por ser divisor negativo
     //      //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
@@ -956,7 +956,7 @@ namespace mpplas{
     //      // Por otra parte, el modulo siempre tiene el signo del divisor
     //    }
     //    else{ // signo_ < 0
-    //      coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, divisor)).second;
+    //      coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, divisor)).second;
     //      signo_ = -1;
     //    }
     //  }
@@ -1005,14 +1005,14 @@ namespace mpplas{
     cortoDigit = (Digit)corto;
 
     if( signo_ > 0 ){
-      coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoDigit);
+      coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, cortoDigit);
       return *this;
     }
     else{ // signo_ < 0
-      if( vCPUVectorial::mayorque(coefPoliB_, cortoDigit) )
-        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoDigit);
+      if( VectorialCPU::mayorque(coefPoliB_, cortoDigit) )
+        coefPoliB_ = VectorialCPU::restaMP(coefPoliB_, cortoDigit);
       else{
-        coefPoliB_ = vCPUVectorial::restaMP(cortoDigit, coefPoliB_);
+        coefPoliB_ = VectorialCPU::restaMP(cortoDigit, coefPoliB_);
         signo_ = 1;
       }
       return *this;
@@ -1025,17 +1025,17 @@ namespace mpplas{
 
 
     if( signo_ > 0 ){ // a - b
-      if(  vCPUVectorial::menorque(coefPoliB_, cortoDigit) ){ // a < b 
-        coefPoliB_ = vCPUVectorial::restaMP(cortoDigit, coefPoliB_);
+      if(  VectorialCPU::menorque(coefPoliB_, cortoDigit) ){ // a < b 
+        coefPoliB_ = VectorialCPU::restaMP(cortoDigit, coefPoliB_);
         signo_ = -1;
       }
       else // b <= a
-        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, cortoDigit);
+        coefPoliB_ = VectorialCPU::restaMP(coefPoliB_, cortoDigit);
       // se mantiene el signo +
       return *this;
     }
     else{ //signo_ < 0 
-      coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, cortoDigit);
+      coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, cortoDigit);
       // se mantiene el signo -
       return *this;
     }
@@ -1049,13 +1049,13 @@ namespace mpplas{
     cortoDigit = (Digit)corto;
 
     if( signo_ > 0 ){ // a * b
-      coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoDigit);
+      coefPoliB_ = VectorialCPU::multMP(coefPoliB_, cortoDigit);
       // se mantiene el signo +
       return *this;
     }
     else{ //signo_< 0
       // (-a) * b = -(ab)
-      coefPoliB_ = vCPUVectorial::multMP(coefPoliB_, cortoDigit);
+      coefPoliB_ = VectorialCPU::multMP(coefPoliB_, cortoDigit);
       // se deja el signo -
       return *this;
     }
@@ -1073,13 +1073,13 @@ namespace mpplas{
     cortoDigit = (Digit)corto;
 
     if( signo_ > 0 ){ // a / b
-      coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoDigit)).first;
+      coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, cortoDigit)).first;
       // se mantiene el signo +
       return *this;
     }
     else{ //signo_ < 0
       // (-a) / b = -(a / b)
-      coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoDigit)).first;
+      coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, cortoDigit)).first;
       // se deja el signo -
       return *this;
     }
@@ -1096,11 +1096,11 @@ namespace mpplas{
     //  cortoDigit = (Digit)corto;
     //
     //  if( signo_ > 0 ){
-    //    coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoDigit)).second;
+    //    coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, cortoDigit)).second;
     //    // se mantiene el signo +
     //  }
     //  else{ //signo_ < 0
-    //    coefPoliB_ = (vCPUVectorial::divMP(coefPoliB_, cortoDigit)).second;
+    //    coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, cortoDigit)).second;
     //    if( !(this->esCero()) )
     //      this->operator+=(cortoDigit); // ajuste por dividendo negativo
     //    signo_ = 1;
@@ -1142,7 +1142,7 @@ namespace mpplas{
 
   Z& Z::operator^=(const Digit e)
   {
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
     Potencia* p; funcs->getFunc(p);
     p->potencia(this, e);
 
@@ -1174,14 +1174,14 @@ namespace mpplas{
   Z& Z::operator>>=(const size_t desp)
   {
 
-    vCPUVectorial::rShift(coefPoliB_, desp);
+    VectorialCPU::rShift(coefPoliB_, desp);
     return *this;
   }
 
   Z& Z::operator<<=(const size_t desp)
   {
 
-    vCPUVectorial::lShift(coefPoliB_, desp);
+    VectorialCPU::lShift(coefPoliB_, desp);
     return *this;
   }
 
@@ -1199,13 +1199,13 @@ namespace mpplas{
       if(coefPoliB_[0] < Constants::CIFRA_MAX)
         coefPoliB_[0]++;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, (Digit)1);
+        coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, (Digit)1);
     }
     else{ //signo_ < 0
       if(coefPoliB_[0] > 0)
         coefPoliB_[0]--;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, (Digit)1);
+        coefPoliB_ = VectorialCPU::restaMP(coefPoliB_, (Digit)1);
     }
 
 
@@ -1224,13 +1224,13 @@ namespace mpplas{
       if(coefPoliB_[0] < Constants::CIFRA_MAX)
         coefPoliB_[0]++;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, (Digit)1);
+        coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, (Digit)1);
     }
     else{ //signo_ < 0
       if(coefPoliB_[0] > 0)
         coefPoliB_[0]--;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, (Digit)1);
+        coefPoliB_ = VectorialCPU::restaMP(coefPoliB_, (Digit)1);
     }
 
 
@@ -1251,13 +1251,13 @@ namespace mpplas{
       if(coefPoliB_[0] > 0)
         coefPoliB_[0]--;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, (Digit)1);
+        coefPoliB_ = VectorialCPU::restaMP(coefPoliB_, (Digit)1);
     }
     else{ //signo_ < 0
       if(coefPoliB_[0] < Constants::CIFRA_MAX)
         coefPoliB_[0]++;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, (Digit)1);
+        coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, (Digit)1);
     }
 
 
@@ -1279,31 +1279,31 @@ namespace mpplas{
       if(coefPoliB_[0] > 0)
         coefPoliB_[0]--;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = vCPUVectorial::restaMP(coefPoliB_, (Digit)1);
+        coefPoliB_ = VectorialCPU::restaMP(coefPoliB_, (Digit)1);
     }
     else{ //signo_ < 0
       if(coefPoliB_[0] < Constants::CIFRA_MAX)
         coefPoliB_[0]++;
       else //habria acarreo, hacerlo de forma "standard"
-        coefPoliB_ = vCPUVectorial::sumaMP(coefPoliB_, (Digit)1);
+        coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, (Digit)1);
     }
 
 
     return *this;
   }
 
-  size_t Z::numBits(void) const
+  size_t Z::getBitLength(void) const
   {
 
     size_t componentes = coefPoliB_.size() - 1;
-    return (( Constants::BITS_EN_CIFRA * componentes) + vCPUVectorial::numBits(coefPoliB_[componentes]));
+    return (( Constants::BITS_EN_CIFRA * componentes) + VectorialCPU::getBitLength(coefPoliB_[componentes]));
 
   }
 
   SignedDigit Z::redondear(size_t exceso) 
   {
 
-    return vCPUVectorial::redondear(coefPoliB_, exceso, signo_);
+    return VectorialCPU::redondear(coefPoliB_, exceso, signo_);
   }
 
   Z& Z::hacerCero(void)
@@ -1355,7 +1355,7 @@ namespace mpplas{
   {
 
 
-    vCPUVectorial::limpiarCeros(coefPoliB_);
+    VectorialCPU::limpiarCeros(coefPoliB_);
     if( (coefPoliB_.size() == 1) && (coefPoliB_[0] == 0) )
       signo_ = 1; //POR CO 0NVENIO
     return;
@@ -1403,7 +1403,7 @@ namespace mpplas{
     //cohen p 42
     Z p,q;
     Z a;
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
     TestPrimoProb* primTest; funcs->getFunc(primTest);
     GCD* gcd; funcs->getFunc(gcd);
     
@@ -1520,7 +1520,7 @@ namespace mpplas{
         }
       }
       else{ //precisionSalida_ > 0 ==> limitacion
-        size_t digitos10 = (size_t)ceil(num.numBits() * Constants::LOG_10_2);
+        size_t digitos10 = (size_t)ceil(num.getBitLength() * Constants::LOG_10_2);
         size_t digitos10Mostrados = 0;
 
         if(num.esCero()){
@@ -2124,7 +2124,7 @@ namespace mpplas{
 
       if( divisor.isPositive() ){ 
         if( dividendo.isPositive() ){
-          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
+          resultados = VectorialCPU::divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
 
           cociente->coefPoliB_ = resultados.first;
 
@@ -2132,7 +2132,7 @@ namespace mpplas{
 
         }
         else{ //dividendo < 0
-          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
+          resultados = VectorialCPU::divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
 
           cociente->coefPoliB_ = resultados.first;
           cociente->hacerNegativo();
@@ -2151,7 +2151,7 @@ namespace mpplas{
       }
       else{ // divisor negativo
         if( dividendo.isPositive()){
-          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
+          resultados = VectorialCPU::divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
 
           cociente->coefPoliB_ = resultados.first;
           cociente->hacerNegativo();
@@ -2167,7 +2167,7 @@ namespace mpplas{
           // Por otra parte, el modulo siempre tiene el signo del divisor
         }
         else{ // dividendo negativo
-          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
+          resultados = VectorialCPU::divMP(dividendo.coefPoliB_, divisor.coefPoliB_);
 
           cociente->coefPoliB_ = resultados.first;
 
@@ -2206,7 +2206,7 @@ namespace mpplas{
 
       if( divisorPositivo ){ 
         if( dividendo.isPositive() ){
-          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorDigit);
+          resultados = VectorialCPU::divMP(dividendo.coefPoliB_, divisorDigit);
 
           cociente->coefPoliB_ = resultados.first;
 
@@ -2214,7 +2214,7 @@ namespace mpplas{
 
         }
         else{ //dividendo < 0
-          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorDigit);
+          resultados = VectorialCPU::divMP(dividendo.coefPoliB_, divisorDigit);
 
           cociente->coefPoliB_ = resultados.first;
           cociente->hacerNegativo();
@@ -2233,7 +2233,7 @@ namespace mpplas{
       }
       else{ // divisor negativo
         if( dividendo.isPositive()){
-          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorDigit);
+          resultados = VectorialCPU::divMP(dividendo.coefPoliB_, divisorDigit);
 
           cociente->coefPoliB_ = resultados.first;
           cociente->hacerNegativo();
@@ -2249,7 +2249,7 @@ namespace mpplas{
           // Por otra parte, el modulo siempre tiene el signo del divisor
         }
         else{ // dividendo negativo
-          resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisorDigit);
+          resultados = VectorialCPU::divMP(dividendo.coefPoliB_, divisorDigit);
 
           cociente->coefPoliB_ = resultados.first;
 
@@ -2277,7 +2277,7 @@ namespace mpplas{
       std::pair< MiVec<Digit>, MiVec<Digit> > resultados;
 
       if( dividendo.isPositive() ){
-        resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisor);
+        resultados = VectorialCPU::divMP(dividendo.coefPoliB_, divisor);
 
         cociente->coefPoliB_ = resultados.first;
 
@@ -2285,7 +2285,7 @@ namespace mpplas{
 
       }
       else{ //dividendo < 0
-        resultados = vCPUVectorial::divMP(dividendo.coefPoliB_, divisor);
+        resultados = VectorialCPU::divMP(dividendo.coefPoliB_, divisor);
 
         cociente->coefPoliB_ = resultados.first;
         cociente->hacerNegativo();
@@ -2353,17 +2353,17 @@ namespace mpplas{
     return x.esCuadrado();
   }
 
-  size_t numBits(const Z& x)
+  size_t getBitLength(const Z& x)
   {
-    return x.numBits();
+    return x.getBitLength();
   }
-  size_t numBits(const Digit x)
+  size_t getBitLength(const Digit x)
   {
-    return vCPUVectorial::numBits(x);
+    return VectorialCPU::getBitLength(x);
   }
-  size_t numBits(const SignedDigit x)
+  size_t getBitLength(const SignedDigit x)
   {
-    return vCPUVectorial::numBits((Digit)labs(x));
+    return VectorialCPU::getBitLength((Digit)labs(x));
   }
 
 }

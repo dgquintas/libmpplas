@@ -10,12 +10,12 @@
 
 namespace mpplas 
 {
-  class MatrixFloat : public Matrix< __m128 >
+  class MatrixFloat : public Matrix< SIMDDigit >
   {
     public:
       MatrixFloat();
       MatrixFloat(const MatrixFloat& m);
-      MatrixFloat(const Matrix<__m128>& m);
+      MatrixFloat(const Matrix<SIMDDigit>& m);
 
       MatrixFloat(const size_t nAndm);
       MatrixFloat(const size_t n, const size_t m);

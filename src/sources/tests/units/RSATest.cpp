@@ -4,7 +4,7 @@
 
 #include <string>
 #include "RSATest.h"
-#include "Functions.h"
+#include "MethodsFactory.h"
 #include "Z.h"
 #include "Random.h"
 #include "Primos.h"
@@ -30,7 +30,7 @@ void RSATest::tearDown(){
 
 void RSATest::testRSA(){
 
-  Functions* const funcs = Functions::getInstance();
+  MethodsFactory* const funcs = MethodsFactory::getInstance();
   RandomFast* genRandom;
   GenPrimos* genPrimos;
   funcs->getFunc(genRandom);
@@ -83,7 +83,7 @@ void RSATest::testRSA(){
   Z mdesc;
   mdesc = potMod->potModular(c,d,n);
   
-  size_t tam = (mdesc.numBits() >> 3)+1;
+  size_t tam = (mdesc.getBitLength() >> 3)+1;
   resString.resize(tam);
   mdesc.escribirBytes(resString.begin(), resString.end());
 

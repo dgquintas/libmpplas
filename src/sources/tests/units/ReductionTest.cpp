@@ -12,7 +12,7 @@ using namespace com_uwyn_qtunit;
 using namespace mpplas;
 
 ReductionTest::ReductionTest()
-  : _redMont(), _redBarret(), _redMersenne(), _funcs(Functions::getInstance())
+  : _redMont(), _redBarret(), _redMersenne(), _funcs(MethodsFactory::getInstance())
 {
 
 
@@ -114,7 +114,7 @@ void ReductionTest::testBarrettPrecomp(){
 }
 void ReductionTest::testBarrettReduction(){
   Z mod(_rnd->getInteger(brand(1000,2000)));
-  _integer = _rnd->getInteger( mod.numBits() * 2 );
+  _integer = _rnd->getInteger( mod.getBitLength() * 2 );
  
   GEN x, m;
 

@@ -3,9 +3,9 @@
  */
 
 #include "Seedbank.h"
-#include "Functions.h"
-#include "constants.h"
-#include "err.h"
+#include "MethodsFactory.h"
+#include "Constants.h"
+#include "Errors.h"
 #include "Hash.h"
 #include <ctime>
 #include <fstream>
@@ -32,7 +32,7 @@ namespace mpplas{
   
   Z Seedbank::getSeed(const size_t numBytes)
   {
-    Functions *funcs = Functions::getInstance();
+    MethodsFactory *funcs = MethodsFactory::getInstance();
     Hash* hash; funcs->getFunc(hash);
     static size_t counter = 0;
     

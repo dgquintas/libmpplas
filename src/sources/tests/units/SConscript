@@ -29,7 +29,7 @@ moduleFiles = Split("""
     MatrixZTest.cpp
     VectorZTest.cpp
     VectorRTest.cpp
-    FunctionsTest.cpp
+    MethodsFactoryTest.cpp
     OpenMPTest.cpp
     ReductionTest.cpp
     ExponentiationTest.cpp

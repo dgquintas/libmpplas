@@ -23,8 +23,7 @@ namespace mpplas{
    
       ~Seedbank(void);
       
-      /** Get a <em>real</em> random seed. 
-       *
+      /** Gets a <em>real</em> random seed. 
        *
        * Reads and packs as a seed the required number of bytes, obtained 
        * from a real entropy source.
@@ -40,7 +39,7 @@ namespace mpplas{
        */
       Z getSecureSeed(const size_t numBytes);
       
-      /** Get pseudorandom seed.
+      /** Gets pseudorandom seed.
        *
        * Reads and packs as a seed the required number of bytes, obtained after applying 
        * a "strong mixing function" (see RFC1750, section 6.1.2) to an initially truly random 

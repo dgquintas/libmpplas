@@ -7,6 +7,8 @@
 
 #include <string>
 
+#include "BasicTypedefs.h"
+
 namespace mpplas{
 
   namespace Utils{
@@ -19,15 +21,45 @@ namespace mpplas{
      *
      * @return The stripped version of @a str.
      */
-    std::string strip(const std::string& str, const std::string SEPSET = " \t"){
+    std::string strip(const std::string& str, const std::string SEPSET = " \t");
 
-      const std::string::size_type first = str.find_first_not_of(SEPSET);
-      return ( first==std::string::npos ) ? 
-        std::string()  
-        :
-        str.substr(first, str.find_last_not_of(SEPSET)-first+1);
-    }
 
+    /** Ensures at compile time that class @a D derives from base class
+     * @B. 
+     *
+     * From Imperfect C++, by Matthew Wilson, page 5, section 1.2.1   
+     * @note This check has no runtime cost whatsoever.
+     *
+     */
+    template<typename D, typename B>
+      struct must_have_base{
+        ~must_have_base(){
+          void(*p)(D*, B*) = constraints;
+        }
+        private:
+        static void constraints(D* pd, B* pb){
+          pb = pd;
+        }
+      };
+
+
+    /** Computes the power of a Digit at compile time. 
+     * Based on C++ Templates by David Vandevoorde and Nicolai M. Josuttis.
+     * page 302.
+     * http://www.josuttis.com/tmplbook/meta/pow3.hpp.html
+     *
+     * @note This check has no runtime cost whatsoever. */
+    template<Digit B, Digit N>
+      class CTPow {
+        public:
+          enum { result = B * CTPow<B,N-1>::result };
+      };
+
+    template<Digit B>
+      class CTPow<B,1>{
+        public:
+          enum { result = B } ;
+      };
   }
 }
 #endif

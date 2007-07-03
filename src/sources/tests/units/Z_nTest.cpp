@@ -15,7 +15,7 @@ using namespace mpplas;
 using namespace com_uwyn_qtunit;
 
 Z_nTest::Z_nTest() 
-  : funcs(Functions::getInstance())
+  : funcs(MethodsFactory::getInstance())
 {
 
   funcs->getFunc(rnd);

@@ -14,9 +14,9 @@
 #include <vector>
 #include <algorithm>
 
-#include "err.h"
+#include "Errors.h"
 #include "AlgebraUtils.h"
-#include "constants.h"
+#include "Constants.h"
 
 namespace mpplas 
 {

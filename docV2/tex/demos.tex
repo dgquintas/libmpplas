@@ -1,0 +1,502 @@
+% CAPITULO SOBRE LAS DEMOSTRACIONES Y COMPARACIÓN
+
+\chapter{Ejemplos y comparativa}
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+        Las palabras son enanos, los ejemplos son gigantes.
+        }
+        \begin{flushright}
+          \textbf{\textemdash Proverbio suizo.}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+\begin{center}{\line(1,0){325}}\end{center}
+
+%--------------------------------------------------------%
+
+Como reza el proverbio que abre el capítulo, con el fin de poner en
+firme algunos de los conceptos expuestos, se recoge el desarrollo de
+una aplicación completa que se sirve de esta librería para llevar a
+cabo sus funciones de calculadora un tanto especial, como se verá en
+la sección \ref{laCalculadora}.
+
+Asimismo, se compara la librería desarrollada con otras orientadas
+hacia el mismo segmento. Esto sirve por una parte de aliento cuando en
+algunos aspectos se ``está a la altura'' y como cura de humildad
+cuando no, y en cualquier caso vale para mostrar al lector algo del
+código de la implementación de rutinas especificas propias de este
+campo y por tanto usualmente implementadas utilizando librerías para
+el manejo de números como la que se ha desarrollado.
+
+\section{La calculadora.}\label{laCalculadora}
+  Aunque puede pecar de poco original, el desarrollo de una
+  calculadora como demostración de utilización de la librería en un
+  programa con un cierto tamaño (y utilidad per-se) es adecuado,
+  además de servir como un perfecto banco de pruebas para la librería
+  y sus algoritmos. Por otra parte, se ha intentado que ésta fuese
+  una calculadora \emph{funcional}, donde realmente se pudiera
+  trabajar. Partiendo de esta base, la calculadora soporta:
+  \begin{itemize}
+    \item Introducción de sentencias en notación infija con
+      anidamiento arbitrario de paréntesis y/o expresiones.
+    \item Soporte de variables simbólicas. 
+    \item Posibilidad de especificar múltiples sentencias en una misma
+      línea y de supresión de la salida del resultado por pantalla.
+    \item Historial de sentencias ejecutadas.
+    \item Botonera flotante con las funciones que la librería ofrece y 
+      tienen sentido en una calculadora.
+    \item Panel plegable de estadísticas de perfilado si la librería ha sido 
+      compilada con soporte para ello.
+    \item Posibilidad de ejecutar ficheros ``script'' de secuencias.
+    \item Posibilidad de guardar las sesiones en un archivo.
+  \end{itemize}
+
+  Para el análisis de las sentencias introducidas por el
+  usuario es necesario aplicar una etapa de análisis sintáctico. Para
+  esta tarea se ha decidido utilizar una herramienta desarrollada por
+  Alejandro Conty Estévez, alumno también de esta Universidad e
+  Ingeniero Técnico en Informática desde 2001. Tal herramienta es
+  \index{ADOP}{ADOP} (\cite{adop}), acrónimo de ``A Different Option
+  for Parsing''. No sólo se agradece a Alejandro Conty Estévez que
+  pusiese a disposición pública bajo la licencia GPL su trabajo, sino
+  que también es de ley agradecerle la ayuda prestada en persona a la
+  hora de trabajar con ADOP. 
+
+
+
+  Para dotar a la calculadora de un interfaz gráfico uniforme y
+  portable, se optó por la utilización de la librería Qt, realizándose
+  un diseño básico del interfaz de usuario mediante la herramienta
+  visual Qt Designer que posteriormente se retocó a mano para dar los
+  últimos toques a lo que terminó siendo la calculadora.
+
+  \subsection{La integración}
+    El trabajo de integrar la librería con el interfaz gráfico y el
+    analizador sintáctico ha sido sencillo, y parece interesante
+    reseñarlo. Particularmente interesante resulta la demostración de
+    uno de los enunciados de la sección \ref{controlDeErrores} relativo 
+    a la ``propagación hacia arriba'' de los errores (excepciones). Este
+    hecho se observa en el siguiente fragmento de código sacado directamente
+    de la aplicación:
+    \begin{verbatim}
+    string Calculadora::procesar(string entrada)
+    {
+      (...)
+      try{
+      (...)
+      else
+        input.refresh(entrada);
+      }
+      catch(Errores::Excepcion &ex)
+      {
+        salida = ex.info();
+      }
+      (...)
+    }
+	  \end{verbatim}
+		La línea \verb|input.refresh(entrada)| es la encargada de desencadenar
+		la secuencia de llamadas necesarias: primero el analizador sintáctico, 
+		quien a su vez ejecutará las funciones requeridas por las operaciones
+		contenidas en la entrada del usuario. Pero lo interesante es que con
+		tan solo incluir esta sentencia dentro de una estructura 
+		\verb|try{...} catch{...}| es suficiente para la captura de todo error
+		producido por la librería. Si se quisiera capturar sólo algún tipo en
+		concreto, bastaría con especificar una de las subclases de 
+		\verb|Errores::Excepcion| como se describe en
+    \ref{controlDeErrores}. Asimismo, se aprecia la ventaja del método
+    \texttt{virtual} \verb|info()| para dotar de un interfaz uniforme 
+    a la hora de examinar la información que se da acerca del error.
+
+    Como ejemplo de integración en sí, la generación de un número
+    aleatorio (para el resto de operaciones de la calculadora, se
+    sigue un proceso análogo o incluso más simple en el caso de las
+    operaciones aritméticas básicas, como se verá más adelante):
+    \begin{verbatim}
+    lval  join_func(vector<lval>::iterator v)
+    {
+      lval res;
+      list<lval> listaArgs = v[2].L;
+      Funciones funcs;
+
+        (...)
+
+      if( v[0].text == "randomRapido" ){
+         (...)
+         res.entero = funcs.randomRapido()->leerBits(listaArgs.front().entero[0]);
+         return res;
+      }
+    }
+    \end{verbatim}
+
+    Dejando de lado las particularidades de la implementación (ver el
+    tomo de código para detalles en este sentido), se ve como tras una
+    instanciación de la clase repositorio \texttt{Funciones} (véase
+    \ref{elRepositorio}), tan sólo resta examinar la cadena de entrada
+    para ver cual ha sido la función requerida y actuar en
+    consecuencia invocando los métodos de esta a través de los
+    servicios del repositorio \texttt{funcs}, instancia de
+    \texttt{Funciones}. 
+    Es fácil imaginarse cómo es el caso de las operaciones básicas;
+    nos valemos de la sobrecarga de operadores sobre los conjuntos
+    numéricos y se opera pues de forma ``natural'' (se omite aquí por
+    brevedad el mecanismo de conversión de tipos que la calculadora
+    realiza cuando en una operación hay operandos de dos conjuntos
+    numéricos distintos, el cual convierte ambos al conjunto más
+    general). Véase por ejemplo la multiplicación suponiendo ambos
+    factores de tipo $\mathbb{Z}$
+    \begin{verbatim}
+    lval  join_mul(vector<lval>::iterator v)
+    {
+      lval res;
+  
+      res.tipo = 'Z';
+      res.entero = v[0].entero*v[2].entero;
+  
+      return res;
+  
+    }
+    \end{verbatim}
+
+    Como puede apreciarse, se reduce todo a \verb|v[0].entero * v[2].entero|.
+
+    El asunto de cómo y cuándo invocar estos métodos corresponde al
+    ámbito del análisis sintáctico realizado por ADOP y queda fuera
+    del ámbito de esta memoria.
+    
+\section{Librerías similares}\label{libreriasSimilares}
+Aquí se da un rapidísimo repaso a otras librerías también orientadas
+hacia la Teoría de Números. Tan sólo se citan las conocidas por el
+autor (en el sentido de haberlas utilizado alguna vez, aunque tan sólo
+fuese para realizar una prueba aislada), habiendo bastantes más.
+Las descripciones que aquí se den pueden ser inexactas e incluso
+erroneas, por lo que se remite al lector interesado a las referencias
+que para cada librería citada se proporcionan si se desea una
+descripción de primera mano.
+
+  \subsection{NTL}\label{ntl}
+    Librería realizada en C++ (en realidad fue inicialmente diseñada
+    para C, con lo que ahora mismo es una implementación en ``C con
+    clases'', ya que apenas se utilizan mecanismos propios de C++ e
+    incluso la representación interna de los datos se declara como
+    \texttt{public}). 
+
+    \paragraph{Pros:}
+    \begin{itemize}
+      \item Gran eficiencia, fruto de utilizar rutinas de la librería
+        GMP (se trata posteriormente).
+      \item Cómoda de usar a raíz del uso de sobrecarga de los
+        operadores de entrada/salida de C++.
+      \item Muy completa. Da soporte a muchos tipos de datos.
+      \item Portable.
+    \end{itemize}
+ 
+    \paragraph{Contras:}
+    \begin{itemize}
+      \item El sistema de tratamiento de errores adolece de los
+        problemas comentados en la sección \ref{controlDeErrores}.
+      \item Carece de soporte para hilos 
+        (no es susceptible de ser utilizada en programas con
+        varias instancias ejecutándose concurrentemente).
+      \item No existe forma sencilla de personalización de las
+        funciones por parte del usuario.
+    \end{itemize}
+
+    Puede encontrarse en \texttt{http://www.shoup.net/ntl/}.
+    
+  \subsection{Pari}
+ \paragraph{Pros:}
+    \begin{itemize}
+      \item Muy completa. Rebasa el campo de la Teoría de Números,
+        permitiendo trabajar con curvas elípticas, realizar integrales,
+        calcular funciones trascendentes y operar con Álgebra lineal.
+      \item Excelente documentación.
+    \end{itemize}
+ 
+    \paragraph{Contras:}
+    \begin{itemize}
+      \item Está realizada en C. Esto no es necesariamente algo malo,
+        pero como consecuencia, el trabajo con esta librería es menos
+        cómodo, al tener que utilizar funciones en vez de los
+        \texttt{operator} de C++.
+      \item No existe forma sencilla de personalización de las
+        funciones por parte del usuario.
+      \item El sistema de tratamiento de errores adolece de los
+        problemas comentados en la sección \ref{controlDeErrores}.
+    \end{itemize}
+
+    Puede encontrarse en \texttt{http://pari.math.u-bordeaux.fr/}. Por
+    otra parte, el fundador de esta librería fue, en su día, Henry
+    Cohen, autor de \cite{cohen}, muy citado a lo largo de esta
+    memoria.
+    
+  \subsection{GMP}
+ \paragraph{Pros:}
+    \begin{itemize}
+      \item Es ``La Librería''. Referente de todas las demás librerías
+        para el trabajo con Teoría de Números y números grandes. Su
+        versión 1.3.2 (actualmente, primera mitad de 2004, van por la
+        versión 4.1.3) se remonta al año 1993. Es utilizada de forma
+        profesional desde hace años por la comunidad científica.
+      \item Extremadamente eficiente. Implementa el ``state of the Art'' de los algoritmos 
+        para los métodos que soporta, que además son muchos.
+      \item Excelente documentación.
+    \end{itemize}
+ 
+    \paragraph{Contras:}
+    \begin{itemize}
+      \item Está realizada en C. Esto no es necesariamente algo malo,
+        pero como consecuencia, el trabajo con esta librería es menos
+        cómodo, al tener que utilizar funciones en vez de los
+        \texttt{operator} de C++.
+      \item Sus funciones son relativamente crípticas. La lectura de
+        su código es una prueba de fuego. Es el precio a pagar por la
+        eficiencia.
+      \item No existe forma sencilla de personalización de las
+        funciones por parte del usuario.
+      \item El sistema de tratamiento de errores adolece de los
+        problemas comentados en la sección \ref{controlDeErrores}.
+    \end{itemize}
+
+
+    Puede encontrarse en \texttt{http://www.swox.com/gmp/}. 
+    Su manual de documentación es tan bueno que se ha utilizado como
+    parte de la bibliografía utilizada en este Proyecto. Constituye
+    casi un libro de texto. Este manual es \cite{gmp}.
+
+
+  \subsection{Aspecto y tiempos}
+    Con el fin de mostrar el ``aspecto'' del código C++ que se
+    presenta al utilizar la librería, se incluye a continuación la 
+    implementación del 
+    conocido algoritmo RSA de clave pública.
+    
+    Asimismo, a continuación se dan los
+    tiempos obtenidos en la ejecución del mismo, utilizando diferentes
+    longitudes de claves, pero con la característica común de ser
+    todas las longitudes valores que aportan, hoy día (primera mitad
+    de 2004), seguridad: no son valores pequeños típicos de un
+    ejemplo, sino lo suficientemente grandes para resistir los envites
+    de la inmensa mayoria de quien pudiera intentar romper el
+    criptosistema por fuerza brutal. Claro está, esto suponiendo que
+    no exista ninguna brecha en la implementación. Quizás sea mucho
+    suponer. Téngase en cuenta al analizar estos tiempos que el tiempo
+    empleado en la
+    generación de las claves, al depender de la computación de
+    factores primos, oscila en función del punto en el que se empiece
+    a buscar. Esta oscilación será mayor cuanto mayor sea el tamaño
+    del primo a encontrar, debido a la distribución $1/\ln(x)$ de los
+    primos.
+    En todos los casos se ha cifrado la frase 
+    ``Puritanism: the haunting fear that someone, somewhere may be happy.''.
+     
+    \begin{center}\label{vector_repr}
+    \begin{tabular}{|c|c|c|}
+      \hline
+        Longitud claves (bits) & Tiempo generación claves (seg.) &
+        Tiempo cifrado (seg.)  \tabularnewline
+      \hline
+      $600$ & $0.905$ & $0.12$ \tabularnewline
+      \hline
+      $1024$ & $2.5$ & $1.14$ \tabularnewline
+      \hline
+      $2048$ & $15.07$ & $3.11$ \tabularnewline
+      \hline
+      $2600$ & $61.28$ & $5.85$ \tabularnewline
+      \hline
+    \end{tabular}
+  \end{center}
+
+
+    
+    Como última nota, la implementación del algoritmo es completa,
+    pero no se ha incorporado el mecanismo de partición en bloques de
+    tamaño menor que el módulo $n$, ya que en última instancia, eso es
+    ajeno a la librería. El programa informa del tamaño máximo de los
+    datos a introducir cuando se ejecuta. El codigo se incluye a
+    continuación:
+    
+   \begin{lyxcode}
+\#include~\char`\"{}Z.h\char`\"{}
+
+\#include~\char`\"{}Random.h\char`\"{}
+
+\#include~\char`\"{}Primos.h\char`\"{}
+
+\#include~\char`\"{}Funciones.h\char`\"{}
+
+\#include~<iostream>
+
+\#include~<string>
+
+using$\quad$namespace~std;
+
+using$\quad$namespace$\quad$numth;
+
+int~main()
+
+\{
+
+~~//~objeto~que~aglutina~las~funciones~
+
+~~Funciones~funcs;
+
+~~//esto$\quad$no~es~estrictamente$\quad$necesario:~para~acceder~de~forma~resumida
+
+~~//al~generador~del$\quad$numeros~aleatorios~en~cuestion
+
+~~RandomRapido{*}~genRandom~=~funcs.randomRapido();
+
+~~genRandom->ponerSemilla(Z::convertir(\char`\"{}34\char`\"{}));
+
+~~//idem~para~el~generador~de~primos
+
+~~GenPrimos{*}~genPrimos~=~funcs.genPrimos();
+
+~~
+
+~~//se~declaran~4$\quad$numeros~enteros.~
+
+~~Z~p,q,n,phi;~
+
+~
+
+~~size\_t~tamPrimos;
+
+~~cout~<\,{}<~\char`\"{}Tamaño~en~bits~de~los~primos~p~y~q:~\char`\"{};
+
+~~cin~>\,{}>~tamPrimos;~cin.get();
+
+~~
+
+~~//~cogemos~los~primos...~del~tamaño~en~bits~que~queramos
+
+~~p~=~genPrimos->leerPrimoProb(tamPrimos);
+
+~~q~=~genPrimos->leerPrimoProb(tamPrimos);
+
+~~cout~<\,{}<~\char`\"{}Primo~p~escogido:~\char`\"{}~<\,{}<~p~<\,{}<~endl;
+
+~~cout~<\,{}<~\char`\"{}Primo~q~escogido:~\char`\"{}~<\,{}<~q~<\,{}<~endl;
+
+~~
+
+~~//se~sigue~con~las~operaciones~propias~del~RSA
+
+~$\quad$n~=~p{*}q;
+
+~~phi~=~(p-(Cifra)1){*}(q-(Cifra)1);
+
+~~cout~<\,{}<~\char`\"{}Prod.~de~p~y~q:~\char`\"{}~<\,{}<$\quad$n~<\,{}<~endl;
+
+~~cout~<\,{}<~\char`\"{}Phi~de~p~y~q:~\char`\"{}~<\,{}<~phi~<\,{}<~endl;
+
+~~//~y~los~enteros~que~representan~las~claves
+
+~~Z~e,~d;~~
+
+~
+
+~~//se~busca~una~clave~de~encriptacion~coprima~con~phi,~como~define
+
+~~//el~algoritmo
+
+~~do\{
+
+~~~~e~=~genRandom->leerEntero(n);
+
+~~\}~while(~!(funcs.gcd()->gcd(e,phi).esUno())~);
+
+~~//y~la~clave~de~desencriptacion~la~inversa~de~\char`\"{}e\char`\"{}~modulo~\char`\"{}phi\char`\"{}
+
+~~d~=~funcs.potModular()->inversa(e,phi);
+
+~~
+
+~~
+
+~~cout~<\,{}<~\char`\"{}Clave~encript.:~\char`\"{}~<\,{}<~e~<\,{}<~endl;
+
+~~cout~<\,{}<~\char`\"{}Clave~decript.:~\char`\"{}~<\,{}<~d~<\,{}<~endl;
+
+~
+
+~~//~y~se~lee~lo~que~se~quiere~encriptar.
+
+~~//~OJO!!$\quad$no~meter~mas~bits~que~la~longitud~de$\quad$n.~Obviamente~
+
+~~//~esto~en~caso~de~implementar~RSA~bien~bien~habria~que~tratar~esto
+
+~~//~y~dividir~en~cachos~de~forma~acorde.~PERO~ESTO~NO~ES~PAPEL~DE~LA
+
+~~//~LIBRERIA,~sino~del~usuario.
+
+~~string~str;
+
+~~cout~<\,{}<~\char`\"{}Introducir~el~mensaje~a~encriptar~(menor~de~\char`\"{}~<\,{}<
+
+$\quad\quad$n.numBits()~<\,{}<~\char`\"{}~bits)\char`\"{}~<\,{}<~endl;
+
+~~getline(cin,~str);
+
+~~
+
+~~//~y~el~entero~\char`\"{}m\char`\"{}~representa~la~cadena~leida
+
+~~Z~m;
+
+~~m.leerBytes(str.begin(),~str.end());
+
+~~cout~<\,{}<~m~<\,{}<~endl;
+
+~~//~se~encripta~con~la~exponenciacion~modular~
+
+~~Z~c;
+
+~~c~=~funcs.potModular()->potModular(m,e,n);
+
+~~
+
+~~
+
+~~cout~<\,{}<~\char`\"{}Mensaje~encriptado:~\char`\"{}~<\,{}<~c~<\,{}<~endl;
+
+~~//~y~el~entero~que~representa~el~mensaje~desencriptado
+
+~~Z~mdesc;
+
+~~mdesc~=~funcs.potModular()->potModular(c,d,n);
+
+~~
+
+~~cout~<\,{}<~\char`\"{}Mensaje~desencriptado:~\char`\"{}~<\,{}<~mdesc~<\,{}<~endl;
+
+~~
+
+~~str.clear();
+
+~~size\_t~tam~=~(mdesc.numBits()~>\,{}>~3)+1;
+
+~~str.resize(tam);
+
+~~mdesc.escribirBytes(str.begin(),~str.end());
+
+~~cout~<\,{}<~str~<\,{}<~endl;
+
+~~
+
+~~return~0;
+
+\}
+
+~~
+
+\end{lyxcode}
+ 
+  

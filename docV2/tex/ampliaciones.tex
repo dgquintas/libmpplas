@@ -1,0 +1,218 @@
+% CAPITULO SOBRE LAS POSIBLES MEJORAS Y AMPLIACIONES
+
+\chapter{Mejoras, ampliaciones y crítica}
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+        Unfortunately what is little recognized is that the most worthwhile 
+        scientific books are those in which the author clearly indicates what 
+        he does not know; for an author most hurts his readers by concealing difficulties.
+        }
+        \begin{flushright}
+          \textbf{\textemdash Evariste Galois}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+\begin{center}{\line(1,0){325}}\end{center}
+
+%--------------------------------------------------------%
+
+\section{Ampliaciones y mejoras}
+Muchas. Una librería como la que se presenta es muy extensible, ya sea
+en tamaño o en rendimiento. Para concretar, se señalan a continuación
+características que en un principio se pensaron incluir y que
+finalmente no se incluyeron, pero sobre las cuales se investigó en
+profundidad, de cara a implementarlas. Dado que, a día de hoy, la idea
+es que esta librería no ``muera'' con la conclusión de este Proyecto,
+es muy probable que estas características sean de las primeras en
+incorporarse a la librería.
+  \subsection{FFT}
+  Multiplicación de enteros y/o polinomios utilizando la transformada
+  rápida de Fourier (del inglés, ``Fast Fourier Transform''). Este
+  método es extremadamente interesante para la multiplicación de
+  enteros grandes, con una cota de complejidad $O(n \log(n))$, frente
+  la actual cota de la librería de $O(n^{\log_2(3)})$. Claro está, las
+  constantes ocultas son considerablemente mayores, siendo sólo
+  de interés cuando intervienen factores de muchas cifras (la
+  determinación de cuantas son ``muchas'' cifras debería realizarse de
+  forma experimental, al igual que se hizo con el método de Karatsuba
+  analizado en la sección \ref{karatsuba}).
+
+  Es una método bastante documentado, siendo la referencia fundamental
+  \cite{knuth2}\footnote{pp. 290-295, sección C}. En \cite{fft} se da
+  una descripción del método muy asequible, sin entrar en tantos
+  detalles como \cite{knuth2}.
+  \subsection{Criba cuadrática multipolinomial para factorización}
+  El método de factorización conocido por las siglas inglesas MPQS
+  (``MultiPolinomial Quadratic Sieve'') resulta muy interesante como
+  estrategia de factorización general. Su variante no multipolinomial
+  se describe en \cite{handbook}\footnote{pp. 95-97, sección 3.2.6}.
+  No es un método fácil de implementar, pero es razonablemente
+  asequible. Salvo por el más reciente método NFS (``Number Field
+  Sieve''), es el algoritmo de factorización más potente conocido
+  hasta la fecha (primera mitad de 2004).
+  \subsection{Sistema de numeración mediante restos}
+  Una forma de operar es hacerlo en un sistema de numeración que,
+  basado en el Teorema Chino de los Restos, se fundamenta en residuos
+  modulares. Esto tiene la ventaja de que la implementación de las
+  operaciones de suma, resta y multiplicación estarían todas en
+  $O(n)$, lo cual resulta un enorme avance para la multiplicación y
+  sus operaciones derivadas (en especial, la potenciación).
+  Las desventajas incluyen la dificultad de establecer una relación de
+  orden entre los elementos de este sistema de numeración, el cálculo
+  de cocientes y la conversion desde-hacia este sistema (para esto
+  habría que utilizar un algoritmo que resolviese sistemas de
+  congruencias ---aplicación del Teorema Chino de los restos--- como
+  el algoritmo de Garner incorporado en la librería.)
+
+  Esta característica es interesante, pues, sólo hasta cierto punto,
+  dadas sus limitaciones según para qué cosas. Más información en
+  \cite{knuth2}\footnote{pp. 268-276, sección 4.3.2} y
+  \cite{handbook}\footnote{pp. 611, 612}.
+  
+  \subsection{Polinomios}
+  Incluir una estructura de datos que represente polinomios
+  (principalmente sobre $\mathbb{Z}$, $\mathbb{Z}[X]$) es muy interesante. Sobre todo a
+  la hora de construir extensiones de cuerpos: es posible extrapolar
+  en concepto de cuerpo finito $\mathbb{Z}_p$ con $p$ primo a
+  polinomios $\mathbb{Z}[X]$, utilizando como polinomio reductor un
+  polinomio irreducible. Tal estrucutura pasaría tener carácter de
+  cuerpo, con la interesantísima propiedad de tener un número
+  de elementos potencia de primo, librándonos así de la restricción de $\mathbb{Z}_p$
+  de que el número de elementos del cuerpo sea un primo.
+
+  Para una descripción rigurosa matemáticamente de estos conceptos,
+  véase, en general, \cite{lidl} y, en particular,
+  \cite{ringTheory}\footnote{Especialmente el capítulo 4}. Para una
+  descripción más orientada hacia la implementación de los métodos
+  necesarios, \cite{handbook}\footnote{pp. 80-86, sección 2.6}.
+  
+  
+  \subsection{Funciones trascendentes en $\mathbb{R}$}
+    Aunque esto cae fuera de la Teoría de Números, dado que la
+    librería incorpora el soporte básico para $\mathbb{R}$, sería
+    interesante incluir la implementación de funciones trascendentes,
+    como funciones trigonométricas, logarítimicas o el cálculo de
+    inversas.
+    
+
+  \section{Finalizando}
+  A modo de cierre de esta memoria, se hace obligada la inclusión,
+  tanto de la crítica ``objetiva'' (esto puede parecer un
+  contrasentido) en la medida que al autor le sea posible, como de las
+  conclusiones que se extraen tras todo el tiempo invertido en la
+  realización de este Proyecto.
+
+  \subsection{Crítica}
+    Evidentemente, se ha intentado, a la hora de ir desarrollando esta
+    librería, que los aspectos no deseables quedasen fuera. Aún así,
+    en el momento de presentar este Proyecto para su lectura, no se
+    debe omitir la crítica. Puede interpretarse como una declaración
+    de aquellos errores de lo que se es consciente y que, obviamente,
+    se tratarán de subsanar en la deseada continuidad de este trabajo
+    más allá de su presentación. O también puede que, simplemente,
+    algunas decisiones, tomadas con consciencia, puedan no ser
+    compartidas. 
+
+    Así pues, se podría argumentar que el soporte de perfilado resulta
+    hasta cierto punto superfluo, sacrificando rendimiento, existiendo
+    posibilidades de incorporar sondas software vía programas
+    externos. Algo similar podría decirse del soporte de ``funciones
+    enchufables''. Si bien es cierto que puede prescindirse tanto de
+    una cosa como de la otra y ganar así en rendimiento, se ha
+    considerado que resulta más interesante el \emph{innovar} mediante
+    la incorporación de tales mecanismos que el centrarse en el
+    rendimiento, campo donde librerías asentadas, con años de
+    experiencia a sus espaldas y desarrolladas por profesionales,
+    barrerían a cualquier otra desarrollada por una sola persona de 21
+    años tras siete meses de trabajo. Quizas \cite{schneier} debiera
+    incluir en su tabla de ``probabilidades minúsculas''\footnote{pág.
+    18} la de que una librería como ésta superase efectivamente a
+    las ``grandes'', como las expuestas en \ref{libreriasSimilares}.
+
+
+    \subsection{Conclusiones}
+    En Octubre de 2003 surgió la idea de desarrollar una librería para
+    trabajar con números grandes. En ese momento el autor conocía, de
+    oidas, tales librerías, pero nunca había utilizado ninguna y
+    desconocía sus principios de funcionamiento. Sin embargo, la
+    criptografía siempre había resultado interesante, y pese a que a
+    lo largo de la carrera de Ingeniería Técnica Informática no se
+    tocó esta disciplina más que unas pocas horas en la asignatura
+    Herramientas informáticas en matemáticas ---impartida por quien ha
+    sido codirector de este Proyecto, Jorge Jiménez Meana---, se
+    decidió efectivamente desarrollar una librería de estas
+    características, por sus aplicaciones a la criptografía.
+
+    A lo largo de los meses que ha llevado la elaboración de este
+    Proyecto, se han consultado numerosos libros (sirva echar un
+    vistazo a la bibliografía utilizada), navegado por bastantes
+    páginas web y garabateado muchos papeles con unos resultados
+    finales que podrían puntualizarse en:
+    \begin{itemize}
+      \item Se ha adquirido un conocimiento bastante profundo de los
+        mecanismos de implementación necesarios en la aritmética de
+        precisión arbitraria.
+      \item Se ha realizado una pieza de software ``real'', en el
+        sentido de ser un programa completo, que responde a un fin
+        específico. El hecho de que además sea una librería ha hecho
+        que se tuvieran que investigar los mecanismos de construcción
+        de estas en varias plataformas, por no haberse considerado, en las asignaturas
+        cursadas por el autor, este aspecto. Por otra parte, la
+        realización de la aplicación de demostración, la calculadora
+        (véase \ref{laCalculadora}) ha servido para aprender acerca
+        del diseño de interfáces gráficos de usuario y el análisis
+        sintáctico de las expresiones aritméticas. Haber cuidado la
+        portabilidad ha sido también uno de los pilares, tomandose
+        como requisito fundamental desde el principio.
+      \item Es evidente que para implementar algo de forma correcta y
+        eficientes es necesario saber qué se está haciendo. Por ello,
+        se han adquirido conocimientos en Matemática (principalmente
+        en Teoría de Grupos, Anillos y Cuerpos, Teoría de Números y
+        Criptografía) que anteriormente se desconocían.
+      \item El haber buscado la eficiencia en todo momento ha obligado
+        a tener conciencia de ``la máquina'', tratando de  conjugar la
+        facilidad de uso con la eficiencia, adaptando a la plataforma
+        hardware específica los métodos. Esto tiene una profunda
+        relación con asignaturas de la carrera tales como Estructura
+        de computadores e Ingeniería de computadores. 
+      \item Redactar una memoria como la presente, junto con el manual
+        del usuario que a acompaña, ha sido también sumamente
+        beneficioso (además de trabajoso). A raíz de su elaboración se
+        ha adquirido un mayor conocimiento del sistema de
+        procesamiento de documentos \LaTeX (tristemente olvidado en la
+        carrera) para centrarse en la redacción de los contenidos, y
+        en nada más, ni clips ayudantes ni en batallas con la
+        numeración y los saltos de página. También el uso de sistemas
+        de documentación de código como Doxygen se omiten en la
+        carrera y es por ello que el haber aprendido a usarlo en la
+        elaboración de este Proyecto es aún más beneficioso.
+    \end{itemize}
+
+    Sin duda muchas cosas se quedarán en el tintero, pero hagámosle
+    caso a uno de los mayores matemáticos del siglo XX, el húngaro que
+    dedicó gran parte de su vida precisamente a la Teoría de Números.
+
+  \begin{flushright}
+    \begin{minipage}[t]{13cm}
+      \begin{flushright}
+        \begin{quote}
+          \emph{
+          Every human activity, good or bad, except mathematics, must come 
+          to an end.
+          }
+          \begin{flushright}
+            \textbf{\textemdash Paul Erdös.}
+          \end{flushright}
+        \end{quote}
+      \end{flushright}
+    \end{minipage}
+  \end{flushright}
+
+

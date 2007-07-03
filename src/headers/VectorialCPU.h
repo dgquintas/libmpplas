@@ -10,24 +10,27 @@
 #include <limits>
 #include <cassert>
 
-#include "err.h"
+#include "Errors.h"
 #include "MiVec.h"
-#include "constants.h"
+#include "Constants.h"
 
 namespace mpplas{
 
-  /** Procesador que trabaja con vectores de Digits */
-  namespace vCPUVectorial  {
+  /** Virtual CPU that deals with vectors of Digit(s) */
+  namespace VectorialCPU  {
    
-
-    /* misc. */
     //funcion de redondeo
     long redondear(const mpplas::MiVec<Digit>& a, size_t exceso, const int8_t signo);
-    
-    size_t numBits(const Digit num) __FUNC_CONST_ATTRIB;
 
+    /** Gets the bit length of a Digit.
+     *
+     * In this context, the bit length is defined as the smaller
+     * number of bits needed to represent @a num.
+     *
+     * @param num The Digit to consider
+     * @return The smaller number of bits needed to represent @a num */
+    size_t getBitLength(const Digit num) __FUNC_CONST_ATTRIB;
     
-    /* de comparacion */
 
     //paso por valor ya que debemos modificarlos en la funcion para
     //quitar posibles ceros

@@ -2,8 +2,8 @@
  * $Id$ 
  */
 
-#ifndef __ERR_H
-#define __ERR_H
+#ifndef __ERRORS_H
+#define __ERRORS_H
 
 #include <iostream>
 #include <string>

@@ -6,22 +6,22 @@
 #include <utility>
 #include <iostream>
 
-#include "mp.h"
-#include "nucleo.h"
+#include "VectorialCPU.h"
+#include "kernel.h"
 
 
 namespace mpplas{
 
   /*** OPERACIONES BASICAS EN VECTORES UNSIGNED ***/
   /*** DESPLAZAMIENTO ***/
-  void vCPUVectorial::lShift(mpplas::MiVec <Digit>& a, const size_t n)
+  void VectorialCPU::lShift(mpplas::MiVec <Digit>& a, const size_t n)
   {
     if( (a.size() == 1) && (a[0] == 0) ) {
       return;
     }
     
-    const size_t componentes = n / Constants::BITS_EN_CIFRA; //FIXME: this is optimizable: the divisor is a power of 2
-    const size_t fraccion = n % Constants::BITS_EN_CIFRA; //FIXME: idem
+    const size_t componentes = n >> Constants::LOG_2_BITS_EN_CIFRA ; 
+    const size_t fraccion = n & Constants::DIGIT_MOD_MASK;
 
     a.insert(a.begin(), componentes, 0);
 
@@ -46,14 +46,15 @@ namespace mpplas{
     return;
   }
 
-  void vCPUVectorial::rShift(mpplas::MiVec <Digit> &a, const size_t n)
+  void VectorialCPU::rShift(mpplas::MiVec <Digit> &a, const size_t n)
   {
     if( (a.size() == 1) && (a[0] == 0) ) {
       return;
     }
 
-    const size_t componentes = n / Constants::BITS_EN_CIFRA;
-    const size_t fraccion = n % Constants::BITS_EN_CIFRA;
+    const size_t componentes = n >> Constants::LOG_2_BITS_EN_CIFRA ; 
+    const size_t fraccion = n & Constants::DIGIT_MOD_MASK;
+
 
     for(int i=0; i < componentes; i++){
       //desplazamos a la derecha componente a componente
@@ -77,16 +78,18 @@ namespace mpplas{
     return;
   }
 
-    size_t vCPUVectorial::numBits(const Digit num) {
+    size_t VectorialCPU::getBitLength(const Digit num) {
       return BasicCPU::Mnob(num);
     }
 
 
-  long vCPUVectorial::redondear(const mpplas::MiVec<Digit>& numero, size_t exceso, const int8_t signo)
+  long VectorialCPU::redondear(const mpplas::MiVec<Digit>& numero, size_t exceso, const int8_t signo)
   {
     const size_t indice = exceso - 1;
-    size_t componente = indice/Constants::BITS_EN_CIFRA;
-    size_t bcomponente = indice % Constants::BITS_EN_CIFRA;
+
+    size_t componente = indice >> Constants::LOG_2_BITS_EN_CIFRA ; 
+    size_t bcomponente = indice & Constants::DIGIT_MOD_MASK;
+
     Digit mascara = ((Digit)1) << bcomponente;
 
     // RTE = round to even
@@ -132,7 +135,7 @@ namespace mpplas{
 
 
   /*** COMPARACION ***/
-  bool vCPUVectorial::mayorque(mpplas::MiVec<Digit> a, mpplas::MiVec<Digit> b, const bool limpiar) 
+  bool VectorialCPU::mayorque(mpplas::MiVec<Digit> a, mpplas::MiVec<Digit> b, const bool limpiar) 
   {
     if(limpiar){
       limpiarCeros(a);
@@ -160,7 +163,7 @@ namespace mpplas{
 
   }
 
-  bool vCPUVectorial::menorque(mpplas::MiVec<Digit> a, mpplas::MiVec<Digit> b, const bool limpiar ) 
+  bool VectorialCPU::menorque(mpplas::MiVec<Digit> a, mpplas::MiVec<Digit> b, const bool limpiar ) 
   {
     if(limpiar){
       limpiarCeros(a);
@@ -188,7 +191,7 @@ namespace mpplas{
 
   }
 
-  bool vCPUVectorial::igual(mpplas::MiVec<Digit> a, mpplas::MiVec<Digit> b,const  bool limpiar ) 
+  bool VectorialCPU::igual(mpplas::MiVec<Digit> a, mpplas::MiVec<Digit> b,const  bool limpiar ) 
   {
     if(limpiar){
       limpiarCeros(a);
@@ -204,7 +207,7 @@ namespace mpplas{
 
   }
 
-  bool vCPUVectorial::mayorque(mpplas::MiVec<Digit> vec, Digit num, const bool limpiar ) 
+  bool VectorialCPU::mayorque(mpplas::MiVec<Digit> vec, Digit num, const bool limpiar ) 
   {
     if(limpiar){
       limpiarCeros(vec);
@@ -219,7 +222,7 @@ namespace mpplas{
     }
   }
 
-  bool vCPUVectorial::menorque(mpplas::MiVec<Digit> vec, Digit num, const bool limpiar ) 
+  bool VectorialCPU::menorque(mpplas::MiVec<Digit> vec, Digit num, const bool limpiar ) 
   {
     if(limpiar){
       limpiarCeros(vec);
@@ -232,7 +235,7 @@ namespace mpplas{
       return (vec[0] < num);
   }
 
-  bool vCPUVectorial::igual(mpplas::MiVec<Digit> vec, Digit num, const bool limpiar )  
+  bool VectorialCPU::igual(mpplas::MiVec<Digit> vec, Digit num, const bool limpiar )  
   {
     if(limpiar){
       limpiarCeros(vec);
@@ -246,7 +249,7 @@ namespace mpplas{
   }
 
 
-  void vCPUVectorial::limpiarCeros(mpplas::MiVec<Digit> &vec) throw()
+  void VectorialCPU::limpiarCeros(mpplas::MiVec<Digit> &vec) throw()
   {
     mpplas::MiVec<Digit>::iterator it;
     for( it = vec.end()-1; 
@@ -258,7 +261,7 @@ namespace mpplas{
   }
   /*** OPERADORES ARITMETICOS ***/
   mpplas::MiVec<Digit> 
-    vCPUVectorial::sumaMP(const mpplas::MiVec<Digit>& a, const mpplas::MiVec<Digit>& b) 
+    VectorialCPU::sumaMP(const mpplas::MiVec<Digit>& a, const mpplas::MiVec<Digit>& b) 
     {
       const mpplas::MiVec<Digit> *mayor;
       const mpplas::MiVec<Digit> *menor;
@@ -304,7 +307,7 @@ namespace mpplas{
       return c;
     }
   mpplas::MiVec<Digit> 
-    vCPUVectorial::sumaMP(const mpplas::MiVec<Digit>& a, const Digit b) 
+    VectorialCPU::sumaMP(const mpplas::MiVec<Digit>& a, const Digit b) 
     {
       const size_t tamA = a.size();
 
@@ -327,7 +330,7 @@ namespace mpplas{
     }
 
   mpplas::MiVec<Digit> 
-    vCPUVectorial::restaMP(const mpplas::MiVec<Digit>&a, const mpplas::MiVec<Digit>& b) 
+    VectorialCPU::restaMP(const mpplas::MiVec<Digit>&a, const mpplas::MiVec<Digit>& b) 
     {
       /* PRECONDICION:
        * el n� que representa "a" deber ser >= que el n� q rep. "b"
@@ -356,7 +359,7 @@ namespace mpplas{
       return c;
     }
  mpplas::MiVec<Digit> 
-    vCPUVectorial::restaMP(const mpplas::MiVec<Digit>&a, const Digit b) 
+    VectorialCPU::restaMP(const mpplas::MiVec<Digit>&a, const Digit b) 
     {
       const size_t tamA = a.size();
 
@@ -373,7 +376,7 @@ namespace mpplas{
       return c;
     }
   mpplas::MiVec<Digit> 
-    vCPUVectorial::restaMP(const Digit a, const mpplas::MiVec<Digit>& b) 
+    VectorialCPU::restaMP(const Digit a, const mpplas::MiVec<Digit>& b) 
     {
       assert( b[0] <= a ); 
 
@@ -387,7 +390,7 @@ namespace mpplas{
     }
 
   mpplas::MiVec<Digit> 
-    vCPUVectorial::multMP(const mpplas::MiVec<Digit>& a, const mpplas::MiVec<Digit>& b) 
+    VectorialCPU::multMP(const mpplas::MiVec<Digit>& a, const mpplas::MiVec<Digit>& b) 
     {
       Digit v, u, c;
 
@@ -457,7 +460,7 @@ namespace mpplas{
     }
 
  mpplas::MiVec<Digit> 
-    vCPUVectorial::multMP(const mpplas::MiVec<Digit>& a, const Digit b ) 
+    VectorialCPU::multMP(const mpplas::MiVec<Digit>& a, const Digit b ) 
     {
       const size_t tamA = a.size();
 
@@ -477,7 +480,7 @@ namespace mpplas{
       return c;
     }
 
-  void vCPUVectorial::cuadKaratsuba(MiVec<Digit>& resultado, const MiVec<Digit>& x)
+  void VectorialCPU::cuadKaratsuba(MiVec<Digit>& resultado, const MiVec<Digit>& x)
   {
     /* x^2 = (b^2+b)*x1^2 - b*(x1-x0)^2 + (b+1)*x0^2 
      *               ^^^^     ^^^^^^^^^         ^^^^
@@ -541,7 +544,7 @@ namespace mpplas{
   }
   
  mpplas::MiVec<Digit>
-    vCPUVectorial::cuadMP(const mpplas::MiVec<Digit>& x)
+    VectorialCPU::cuadMP(const mpplas::MiVec<Digit>& x)
     {
       const size_t t = x.size(); //n� de cifras en la base de trabajo de "x"
 
@@ -619,7 +622,7 @@ namespace mpplas{
 
   /*         cociente            modulo              */
   std::pair< mpplas::MiVec<Digit>, mpplas::MiVec<Digit> > 
-    vCPUVectorial::divMP(mpplas::MiVec<Digit> a, mpplas::MiVec<Digit> b)
+    VectorialCPU::divMP(mpplas::MiVec<Digit> a, mpplas::MiVec<Digit> b)
     {
 
 
@@ -785,7 +788,7 @@ namespace mpplas{
 
   /*         cociente            modulo              */
   std::pair< mpplas::MiVec<Digit>, mpplas::MiVec<Digit> > 
-    vCPUVectorial::divMP(const mpplas::MiVec<Digit>& a, const Digit b ) 
+    VectorialCPU::divMP(const mpplas::MiVec<Digit>& a, const Digit b ) 
     {
 
       Digit resto = 0;
@@ -808,7 +811,7 @@ namespace mpplas{
           mpplas::MiVec<Digit> (1, resto));
     }
 
-  void vCPUVectorial::karatsuba(MiVec<Digit>& resultado, 
+  void VectorialCPU::karatsuba(MiVec<Digit>& resultado, 
       const MiVec<Digit>& x, const MiVec<Digit>& y)
   {
     /* precond: "x" e "y" tienen el mismo tama�o (mismo n� de pos el

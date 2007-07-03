@@ -1,26 +1,32 @@
 /* 
- * $Id$
+ * $Id: MethodsFactory.cpp 282 2007-05-06 17:12:14Z dgquintas $
  */
 
-#include "Funciones.h"
+#include "MethodsFactory.h"
 
 namespace mpplas{
 
   //static singleton initialization
   template<>
-    const std::auto_ptr< Funciones > 
-    SingletonMixIn< Funciones >::singletonInstance( new Funciones() );
+    const std::auto_ptr< MethodsFactory > 
+    SingletonMixIn< MethodsFactory >::singletonInstance( new MethodsFactory() );
 
-  Funciones::Funciones()
-    : SingletonMixIn<Funciones>()
+  MethodsFactory::MethodsFactory()
+    : SingletonMixIn<MethodsFactory>()
   {}
+ 
+
+  void MethodsFactory::reset(){
+    _methods.clear();
+    return;
+  }
 
 
   /** Destructor.
    * This is called from within the auto_ptr mecanisms, presumably when the 
    * program is about to finish.
    */
-  Funciones::~Funciones()
+  MethodsFactory::~MethodsFactory()
   { 
     std::map<std::string, AbstractMethod* >::iterator it;
     for(it = _methods.begin(); it != _methods.end(); it++){

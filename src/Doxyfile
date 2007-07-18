@@ -23,7 +23,7 @@ MULTILINE_CPP_IS_BRIEF = NO
 DETAILS_AT_TOP         = YES
 INHERIT_DOCS           = YES
 SEPARATE_MEMBER_PAGES  = NO
-TAB_SIZE               = 2
+TAB_SIZE               = 1
 ALIASES                = 
 OPTIMIZE_OUTPUT_FOR_C  = NO
 OPTIMIZE_OUTPUT_JAVA   = NO
@@ -34,7 +34,7 @@ SUBGROUPING            = YES
 # Build related configuration options
 #---------------------------------------------------------------------------
 EXTRACT_ALL            = YES
-EXTRACT_PRIVATE        = NO
+EXTRACT_PRIVATE        = YES
 EXTRACT_STATIC         = YES
 EXTRACT_LOCAL_CLASSES  = YES
 EXTRACT_LOCAL_METHODS  = NO
@@ -72,9 +72,9 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = /home/dgquintas/libmpplas/trunk/src/sources/nucleo/ \
-                         /home/dgquintas/libmpplas/trunk/src/headers/ \
-                         /home/dgquintas/libmpplas/trunk/src/sources/
+INPUT                  = /home/dgquintas/libmpplas/trunk/src/headers/ \
+                         /home/dgquintas/libmpplas/trunk/src/sources/ \
+                         /home/dgquintas/libmpplas/trunk/src/sources/kernel/
 FILE_PATTERNS          = *.cpp \
                          *.h
 RECURSIVE              = YES

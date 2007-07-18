@@ -24,14 +24,14 @@ namespace mpplas{
      * @return A character array representing the date on 
      * which the library was compiled form "May 19 2007"
      */
-    const char* const getBuildDate();
+    const char* getBuildDate();
 
     /** Compilation time.
      *
      * @return A character array representing the time on 
      * which the library was compiled form "23:01:59"
      */
-    const char* const getBuildTime();
+    const char* getBuildTime();
 
 
     /** Revision number version.
@@ -43,7 +43,7 @@ namespace mpplas{
      *
      * @return The version control revision version number.
      */
-    const int getRevisionNumber();
+    int getRevisionNumber();
 
     /** Compiler optimization level.
      *
@@ -55,19 +55,19 @@ namespace mpplas{
      * @return An integer representing the optimization 
      * level used at compile time or -1 if unknown.
      */
-    const int getOptimizationLevel();
+    int getOptimizationLevel();
 
     /** Checks for profiling support.
      *
      * @return true if profiling is available. false otherwise.
      */ 
-    const bool isProfilingEnabled();
+    bool isProfilingEnabled();
 
     /** Checks for OpenMP support.
      *
      * @return true if OpenMP is being used. false otherwise.
      */ 
-    const bool isOpenMPEnabled();
+    bool isOpenMPEnabled();
 
     /** Check if this is a release version.
      *
@@ -77,7 +77,7 @@ namespace mpplas{
      *
      * @return true if this is a release version. false otherwise.
      */
-    const bool isReleaseVersion();
+    bool isReleaseVersion();
 
     /** SIMD Kernel version being used.
      *
@@ -88,7 +88,7 @@ namespace mpplas{
      * @note In case no SIMD kernel was selected at compile
      * time, "nosimd" will be returned.
      */
-    const std::string getSIMDKernel();
+    std::string getSIMDKernel();
 
     /** Compiler command line used.
      *
@@ -96,7 +96,7 @@ namespace mpplas{
      * used to compile each of the source files into 
      * an object file.
      */
-    const std::string getCompilerCmd();
+    std::string getCompilerCmd();
 
 
   };

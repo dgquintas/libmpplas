@@ -20,36 +20,36 @@ namespace mpplas{
       }; 
 
 
-  const char* const SystemInfo::getBuildDate(){
+  const char* SystemInfo::getBuildDate(){
     return CompilationConfig::BUILD_DATE;
   }
-  const char* const SystemInfo::getBuildTime(){
+  const char* SystemInfo::getBuildTime(){
     return CompilationConfig::BUILD_TIME;
   }
-  const int SystemInfo::getRevisionNumber(){
+  int SystemInfo::getRevisionNumber(){
     return CompilationConfig::SOURCE_REVISION;
   }
-  const int  SystemInfo::getOptimizationLevel(){
+  int  SystemInfo::getOptimizationLevel(){
     return CompilationConfig::OPT_LEVEL;
   }
 
-  const bool SystemInfo::isProfilingEnabled(){
+  bool SystemInfo::isProfilingEnabled(){
     return CompilationConfig::PROFILING_ENABLED;
   }
 
-  const bool SystemInfo::isOpenMPEnabled(){
+  bool SystemInfo::isOpenMPEnabled(){
     return CompilationConfig::OPENMP_ENABLED;
   }
 
-  const bool SystemInfo::isReleaseVersion(){
+  bool SystemInfo::isReleaseVersion(){
     return CompilationConfig::RELEASE_VERSION;
   }
 
-  const std::string SystemInfo::getSIMDKernel(){
+  std::string SystemInfo::getSIMDKernel(){
     return CompilationConfig::SIMD_KERNEL;
   }
 
-  const std::string SystemInfo::getCompilerCmd(){
+  std::string SystemInfo::getCompilerCmd(){
     return CompilationConfig::COMPILER_CMD;
   }
 

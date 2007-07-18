@@ -1,4 +1,7 @@
+#include <cassert>
+
 #include "Utils.h"
+#include "Constants.h"
 
 namespace mpplas{ 
   namespace Utils {
@@ -11,6 +14,12 @@ namespace mpplas{
         :
         str.substr(first, str.find_last_not_of(SEPSET)-first+1);
     }
-  }
-}
+
+
+    ///////////////////////////////////////////////
+
+
+  
+  } // namespace Utils
+} //namespace mpplas
 

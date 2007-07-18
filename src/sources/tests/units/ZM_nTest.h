@@ -35,6 +35,7 @@ namespace com_uwyn_qtunit{
     void testProductWithZM_n();
 
     void testSquare();
+    void testInverse();
 
     void testExponentiation();
 

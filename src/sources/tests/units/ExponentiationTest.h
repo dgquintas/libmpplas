@@ -33,6 +33,8 @@ namespace com_uwyn_qtunit{
     void testExpLeftRight();
     void testExpMontgomery();
     void testExpBarrett();
+    void testTwoThreadedModularExp();
+
 
     private:
     Z _base;

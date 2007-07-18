@@ -3,10 +3,13 @@
  */
 
 #include <string>
-#include "ZTest.h"
-#include <pari/pari.h>
 #include "aux.h" 
+#include "ZTest.h"
+#include "BitChecker.h"
+#include <iostream>
+#include <stack>
 
+#include <pari/pari.h>
 
 using namespace std;
 using namespace mpplas;
@@ -31,6 +34,9 @@ ZTest::ZTest()
   addTest(ZTest, testDivideByZeroThrows);
   addTest(ZTest, testModulusByZeroThrows);
   addTest(ZTest, testFactorial);
+
+  addTest(ZTest, testBitChecker);
+  addTest(ZTest, testPowerOfTwo);
 }
 
 void ZTest::setUp(){
@@ -214,6 +220,7 @@ void ZTest::testModulusByZeroThrows(){
 void ZTest::testFactorial(){
   Digit rand = (rnd->getDigit()) % (1UL<<14);
 
+  
   Z res(rand);
 
   string tmp;
@@ -227,5 +234,35 @@ void ZTest::testFactorial(){
 
 
   qassertEquals( pariStr, thisStr );
-  
+}
+
+void ZTest::testBitChecker(){
+  Z z1("3447218540");
+  Utils::BitChecker bt(z1);
+  size_t const bitCount = z1.getBitLength();
+  stack<bool> binaryInverse;
+
+  while( bt.hasPrevious() ){
+    binaryInverse.push( bt.checkPrevious() );
+  }
+
+  bt.setPosition(0);
+  for(size_t i = 0; i < bitCount; i++){
+    qassertTrue( (z1[0] & 0x1) == binaryInverse.top() );
+    qassertTrue( (z1[0] & 0x1) ==  bt.checkNext() );
+    binaryInverse.pop();
+    z1 >>= 1;
+  }
+  qassertTrue( binaryInverse.empty() );
+}
+
+void ZTest::testPowerOfTwo(){
+  //const int power = brand(100,300);
+  const int power = 32;
+  z1.powerOfTwo(power);
+  z2.hacerUno(); z2 <<= power;
+
+  cout << z1 << endl << z2 << endl;
+
+  qassertTrue( z1 == z2 );
 }

@@ -8,6 +8,7 @@
 #include <pari/pari.h>
 #include "aux.h"
 #include <exception>
+#include "GCD.h"
 
 
 using namespace std;
@@ -30,9 +31,9 @@ ZM_nTest::ZM_nTest()
   addTest(ZM_nTest, testProductWithZM_n);
   
   addTest(ZM_nTest, testSquare);
+  addTest(ZM_nTest, testInverse);
 
   addTest(ZM_nTest, testExponentiation);
-//  addTest(ZM_nTest, testExponentiation);
 
 }
 
@@ -180,6 +181,24 @@ void ZM_nTest::testSquare(){
   qassertEquals(  thisStr,pariStr );
 }
 
+void ZM_nTest::testInverse(){
+
+  GCD::DFL gcd;
+  while( !gcd.gcd( modularInteger->toZ(), modularInteger->getMod() ).esUno() ){
+    modulus = rnd->getInteger(brand(500,1000));
+    if( modulus.esPar() ){
+      modulus++;
+    }
+    modularInteger = new ZM_n(rnd->getInteger(brand(1000,2000)), modulus);
+  }
+
+  ZM_n res( *modularInteger );
+  res.inverse();
+  res *= *modularInteger;
+  const Z shouldBeOne(res.toZ());
+
+  qassertTrue( shouldBeOne ==  Z::ONE );
+}
 
 
 
@@ -198,5 +217,10 @@ void ZM_nTest::testExponentiation(){
   string thisStr = res.toZ().toString();
 
   qassertEquals(thisStr, pariStr );
+
+  ZM_n before(res);
+  ZM_n after( res ^ Z::ONE );
+
+  qassertTrue( before.toZ() == after.toZ() );
 }
 

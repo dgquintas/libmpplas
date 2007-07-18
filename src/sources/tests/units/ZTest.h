@@ -45,6 +45,8 @@ namespace com_uwyn_qtunit{
       void testModulusByZeroThrows();
 
       void testFactorial();
+      void testBitChecker();
+      void testPowerOfTwo();
   };
 }
 

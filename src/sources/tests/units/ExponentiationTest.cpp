@@ -3,10 +3,12 @@
  */
 
 #include <string>
+#include <iostream>
 #include "Random.h"
 #include "Primos.h"
 #include "ExponentiationTest.h"
 #include "aux.h"
+#include "GCD.h"
 
 using namespace com_uwyn_qtunit;
 using namespace mpplas;
@@ -20,14 +22,15 @@ ExponentiationTest::ExponentiationTest()
   addTest(ExponentiationTest, testExpLeftRight );
   addTest(ExponentiationTest, testExpMontgomery );
   addTest(ExponentiationTest, testExpBarrett );
+  addTest(ExponentiationTest, testTwoThreadedModularExp );
 
   funcs->getFunc(rnd);
   funcs->getFunc(primes);
 }
 void ExponentiationTest::setUp(){
-  _base = rnd->getInteger( brand(100,200 ) );
+  _base = rnd->getInteger( brand(300,600 ) );
   _exp  = rnd->getSignedDigit() % brand(500, 1500);
-  _expZ = rnd->getInteger( brand(1000,2000) );
+  _expZ = rnd->getInteger( brand(300,600) );
  
 
   x = gp_read_str(const_cast<char*>(_base.toString().c_str()));
@@ -84,6 +87,27 @@ void ExponentiationTest::testExpBarrett(){
   potFunc.potModular(&_base,_expZ,_mod);
 
   std::string pariStr(GENtostr( pariRes ));
+  qassertTrue( _base.toString() == pariStr );
+
+}
+
+void ExponentiationTest::testTwoThreadedModularExp(){
+
+
+  Z _mod(rnd->getInteger( brand(1000,2000) )); 
+  GCD::DFL gcd;
+
+  while( _mod.esPar() || !gcd.gcd(_base, _mod).esUno() ){
+    _mod = rnd->getInteger( brand(1000,2000) ); 
+  }
+  GEN m = gp_read_str(const_cast<char*>(_mod.toString().c_str()));
+  GEN pariRes = Fp_pow(x,Y,m);
+
+  TwoThreadedModularExp potFunc;
+  potFunc.potModular(&_base,_expZ,_mod);
+
+  std::string pariStr(GENtostr( pariRes ));
+
   qassertTrue( _base.toString() == pariStr );
 
 }

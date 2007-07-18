@@ -8,6 +8,10 @@
 #include "Potencia.h"
 #include "GCD.h"
 #include "DigitUtils.h"
+#include "BitChecker.h"
+#include "ZM_n.h"
+
+#include <iostream>
 
 namespace mpplas{
 
@@ -105,6 +109,7 @@ namespace mpplas{
 
     //  Z A; A.hacerUno();
     base->hacerUno();  
+
     int i = getBitLength(e) - 1; // -1 por considerar el 0
     while(i >= 0){
       if( (e & (0x1 << i )) == 0 ){ // ¿ i-esimo bit == 0?
@@ -175,8 +180,6 @@ namespace mpplas{
 
   void PotMontgomery::potModular(Z* const base, const Z& e, const Z& mod)
   {
-    static const Digit BASEMASK = ((Digit)1) << (Constants::BITS_EN_CIFRA -1);
-    
     if( base == NULL ){
       throw Errors::PunteroNulo();
     }
@@ -185,160 +188,20 @@ namespace mpplas{
       throw Errors::ModuloParEnMontgomery();
     }
 
-    Z r;  r.potenciaBase(mod.longitud());     
-    Z r2; r2.potenciaBase(mod.longitud()*2); // r2 = r^2
     
-    r %= mod;
-    r2 %= mod;
-
-    base->operator%=(mod);
+    ZM_n tmp(*base, mod);
+    tmp ^= e;
     
-    Z modPrima; 
+    base->operator=(tmp.toZ());
 
-    // modPrima = -mod^{-1} (mod base)
-    RedMontgomery *rm; funcs->getFunc(rm);
-    modPrima = rm->precomputaciones(mod); 
-    
-    Z xTilde(*base);
-    montgomeryMult(&xTilde, r2,mod,modPrima ); // r2 = r^{2} mod n
-    base->operator=(r); // r = r_inicial mod n
-
-
-    const int initialBitPos = (e.getBitLength()-1);
-    int cifraPos = initialBitPos >> Constants::LOG_2_BITS_EN_CIFRA;
-    Digit inDigitPosMask = 1;
-    inDigitPosMask <<= ( initialBitPos & Constants::DIGIT_MOD_MASK ); //ie, i % BITS_EN_CIFRA
-    for(int i = initialBitPos; i >= 0 ; i--){
-      montgomeryCuad(base, mod, modPrima);
-      if( (e[cifraPos] & inDigitPosMask ) ){ 
-        //si el i-esimo bit de "e" es uno...
-        montgomeryMult(base,xTilde, mod, modPrima);
-      }
-      inDigitPosMask >>= 1;
-      if( !inDigitPosMask ){
-        cifraPos--;
-        inDigitPosMask = BASEMASK;
-      }
-    }
-
-    Z uno; uno.hacerUno();
-
-    montgomeryMult(base,uno,mod, modPrima);
-    
-    
     return;
   }
 
-  void PotMontgomery::montgomeryMult(Z* const x, const Z& y, const Z& mod, const Z& modPrima)
-  {
-    size_t n = mod.longitud() ; // exponente de R
-    Z A; A.hacerCero(); 
-
-    MiVec<Digit> u(n);
-
-    size_t i;
-
-    for( i=0; i < x->longitud() ; i++){
-      u[i] = ((A[0] + ((*x)[i]*y[0]))*modPrima)[0];
-      A = ((A + ((*x)[i]*y) + (u[i]*mod)) >> Constants::BITS_EN_CIFRA);
-    }
-    for( ; i < n ; i++){ // los x[i] serían 0
-      u[i] = (A[0]*modPrima)[0];
-      A += (u[i]*mod);
-      A.divisionBase(1);
-    }
-
-    if( A >= mod ){
-      A -= mod;
-    }
-
-    x->operator=(A);  // x·y·R^{-1} (mod mod)  /  R = base^{n}
-
-  }
-
-  void PotMontgomery::montgomeryCuad(Z* const x, const Z& mod, const Z& modPrima)
-  {
-    //utilizar el metodo "clasico" (no modular) para cuadrado y luego
-    //reducir con el metodo de reduccion de montgomery
-    
-    x->cuadrado();
-    RedMontgomery* rm; funcs->getFunc(rm);
-    rm->redMontgomery(x,mod, modPrima);
-
-    return; 
-  }
-
-  Z PotMontgomery::montInverse(const Z&a, const Z& mod){
-    Z r;
-    Digit k;
-    Z dummyOne((Digit)1);
-    const Digit n = mod.getBitLength();
-    const Digit m = mod.longitud() * Constants::BITS_EN_CIFRA;
-    if( a.getBitLength() > m ){
-      throw Errors::TooBig();
-    }
-    RedMontgomery *rm; funcs->getFunc(rm);
-    const Z modPrima( rm->precomputaciones(mod) ); 
-    almostMontgomeryInverse(a,mod, r, k);
-    if( k > m ){
-      montgomeryMult( &r, dummyOne, mod, modPrima);
-      k -= m;
-    }
-    dummyOne <<= (m-k);
-     montgomeryMult(&r, dummyOne, mod, modPrima);
-    return r;
-  }
-   
-  
-  void PotMontgomery::almostMontgomeryInverse(
-      const Z& a, const Z& mod, Z& r, Digit& k)
-  {
-    Z u(mod);
-    Z v(a);
-    r.hacerCero();
-    Z s((Digit)1);
-
-    k = 0;
-    while( v > (Digit)0 ){
-      if( u.esPar() ){
-        u >>= 1; // u = u / 2
-        s <<= 1; // s = s * 2
-      } 
-      else if( v.esPar() ){
-        v >>= 1;
-        r <<= 1;
-      }
-      else if( u > v ){
-        u -= v; 
-        u >>= 1;
-        r += s;
-        s <<= 1;
-      }
-      else { // v >= u
-        v -= u; 
-        v >>= 1;
-        s += r;
-        r <<= 1;
-      }
-      k++;
-    }
-    if( r >= mod){
-      r -= mod;
-    }
-    r  = mod -r;
-    return;
-  }
-           
-      
-
-  
 
  ///////////////////////////////////
  
   void ClasicoConBarrett::potModular(Z* const base, const Z& exp, const Z& mod)
   {
-
-    static const Digit BASEMASK = ((Digit)1) << (Constants::BITS_EN_CIFRA -1);
 
     if( base == NULL ){
       throw Errors::PunteroNulo();
@@ -361,24 +224,18 @@ namespace mpplas{
 
     base->hacerUno();
 
-    const int initialBitPos = (e.getBitLength()-1);
-    int cifraPos = initialBitPos >> Constants::LOG_2_BITS_EN_CIFRA;
-    Digit inDigitPosMask = 1;
-    inDigitPosMask <<= ( initialBitPos & Constants::DIGIT_MOD_MASK ); //ie, i % BITS_EN_CIFRA
-    for(int i = initialBitPos; i >= 0 ; i--){
-      base->cuadrado(); 
+    Utils::BitChecker bc(e);
+
+    while( bc.hasPrevious() ){
+      base->cuadrado();
       redbarrett->redBarrett(base, mod, mu);
-      
-      if( (e[cifraPos] & inDigitPosMask ) ){ //si el i-esimo bit de "e" es uno...
+
+      if( bc.checkPrevious() ){
         base->operator*=(valorInicial); 
         redbarrett->redBarrett(base, mod,mu);
       }
-      inDigitPosMask >>= 1;
-      if( !inDigitPosMask ){
-        cifraPos--;
-        inDigitPosMask = BASEMASK;
-      }
     }
+
 
     return;
   }
@@ -469,4 +326,93 @@ namespace mpplas{
     }
     return;
   }
-}
+
+
+//////////////////////////////////////////////////////////7
+
+  void TwoThreadedModularExp::potModular(Z* const base, const Z& exp, const Z& mod){
+    std::vector<size_t> diffsX;
+    std::vector<size_t> diffsY;
+
+    if( exp.esCero() ){
+      base->hacerUno();
+      return;
+    }
+
+    _getOnePartitions( exp, diffsX, diffsY );
+
+    Z powOf2Exp;
+    ZM_n tmpLeft(*base, mod);
+    assert( diffsX.size() > 0 );
+    tmpLeft ^= powOf2Exp.powerOfTwo(diffsX[0]);
+    ZM_n left(tmpLeft); 
+
+    ZM_n tmpRight(*base, mod);
+    tmpRight.inverse();
+    assert( diffsY.size() > 0 );
+    tmpRight ^= powOf2Exp.powerOfTwo(diffsY[0]);
+    ZM_n right(tmpRight);
+
+#pragma omp parallel sections
+    {
+#pragma omp section
+      {
+        for( int i =1 ; i < diffsX.size(); i++){
+          tmpLeft ^= powOf2Exp.powerOfTwo(diffsX[i]);
+          left *= tmpLeft;
+        }
+      }
+#pragma omp section
+      {
+        for( int i =1 ; i < diffsY.size(); i++){
+          tmpRight ^= powOf2Exp.powerOfTwo(diffsY[i]);
+          right *= tmpRight;
+        }
+      }
+    }
+
+    left *= right;
+
+    base->operator=(left.toZ());
+  }
+  
+  void TwoThreadedModularExp::_getOnePartitions(const Z& e, 
+       std::vector<size_t>& diffsX, 
+       std::vector<size_t>& diffsY ){
+
+    std::vector< std::pair<int, int> > xys;
+    std::pair<int, int> xy;
+    bool insideWin = false;
+  
+    Utils::BitChecker bc(e, true /* right to left */);
+    while( bc.hasNext() ){
+      if( bc.checkNext() ){
+        if( !insideWin ){
+          xy.second = bc.getPosition();
+          insideWin = true;
+        }
+      } else if( insideWin ){
+        //end of the window
+        xy.first = bc.getPosition()-1;
+        insideWin = false;
+        xys.push_back(xy);
+      }
+    }
+    if( insideWin ){
+      xy.first = bc.getPosition();
+      xys.push_back(xy);
+    }
+
+    assert( xys.size() > 0 );
+    diffsX.push_back(xys[0].first + 1);
+    for( int i = 1; i < xys.size(); i++ ){
+      diffsX.push_back(xys[i].first - xys[i-1].first);
+    }
+    diffsY.push_back(xys[0].second );
+    for( int i = 1; i < xys.size(); i++ ){
+      diffsY.push_back(xys[i].second - xys[i-1].second);
+    }
+
+    return;
+  }
+} //namespace mpplas

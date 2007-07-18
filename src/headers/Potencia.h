@@ -5,6 +5,9 @@
 #ifndef __POTENCIA_H
 #define __POTENCIA_H
 
+#include <vector>
+#include <utility>
+
 #include "R.h"
 #include "Z.h"
 #include "AbstractMethod.h"
@@ -220,18 +223,11 @@ namespace mpplas{
    * Descrito en Handbook of Applied Cryptography, algoritmo 14.94.
    *
    */
-  class PotMontgomery : public PotModular
-  {
+  class PotMontgomery : public PotModular   {
     public:
       virtual void potModular(Z* const base, const Z& exp, const Z& mod); 
 
-      Z montInverse(const Z& a, const Z& mod);
       virtual ~PotMontgomery(){}
-    protected:
-      void montgomeryMult(Z* const x, const Z& y,const Z& mod, const Z& modPrima);
-      void montgomeryCuad(Z* const x, const Z& mod, const Z& modPrima);
-
-      void almostMontgomeryInverse(const Z& a, const Z& mod, Z& r, Digit& k);
   };
  
   /** Potenciación modular entera utilizando reducción de Barrett.
@@ -248,6 +244,22 @@ namespace mpplas{
       virtual void potModular(Z* const base, const Z& exp, const Z& mod); 
 
       virtual ~ClasicoConBarrett(){}
+
+  };
+
+
+
+  class TwoThreadedModularExp : public PotModular {
+    public:
+      virtual void potModular(Z* const base, const Z& exp, const Z& mod); 
+
+      virtual ~TwoThreadedModularExp(){};
+
+    private:
+      void _getOnePartitions(const Z& e, 
+       std::vector<size_t>& diffsX, 
+       std::vector<size_t>& diffsY );
+
 
   };
 };

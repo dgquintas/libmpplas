@@ -2,6 +2,7 @@ import time, sys, os, shutil
 
 filesStr = """
     AlgebraUtils.cpp
+    BitChecker.cpp
     CRT.cpp
     Factor.cpp
     MethodsFactory.cpp
@@ -276,17 +277,24 @@ else:
   env.Append(CPPDEFINES = 'USESIMD_' + env['enableSIMD'] )
 
   if env['enableOpenmp']:
+    prevCPPFLAGS = env.get('CPPFLAGS', "")
+    prevLIBS = env.get('LIBS',"")
+    prevLINKFLAGS = env.get('LINKFLAGS', "")
+    if( env['CXX'][:3] == 'g++' ): #gcc
+      env.Append(CPPFLAGS=' -fopenmp ', LIBS='-lgomp')
+      
+    elif ( env['CXX'][:2] == 'ic' ): #intel c compiler
+      env.Append(CPPFLAGS=' -openmp ', LINKFLAGS='-openmp')
+
     if conf.CheckOpenMP():
       print 'OpenMP support present'
-      if( env['CXX'][:3] == 'g++' ): #gcc
-        env.Append(CPPFLAGS=' -fopenmp ', LIBS='-lgomp')
-        
-      elif ( env['CXX'][:2] == 'ic' ): #intel c compiler
-        env.Append(CPPFLAGS=' -openmp ', LINKFLAGS='-openmp')
 
     else: # openmp check failed
       print 'OpenMP support *not* present'
       filesStr += ' omp_mock.cpp '
+      env['CPPFLAGS'] = prevCPPFLAGS
+      env['LIBS'] = prevLIBS
+      env['LINKFLAGS'] = prevLINKFLAGS
       env['enableOpenmp'] = False
   else: # openmp not selected as an scons option
     filesStr += ' omp_mock.cpp '

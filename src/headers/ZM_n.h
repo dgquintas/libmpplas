@@ -13,9 +13,12 @@ namespace mpplas{
   /** "Montgomery modular integers" class 
    *
    * The idea is to have integers in Z/nZ which are internally
-   * stored in the so called "Montgomery domain" (ie. xR (mod n)).
+   * stored in the so called "Montgomery domain" (ie. xR \pmod n).
    *
-   * @note This type can only be used with odd modulus.
+   * Based on the paper: The Montgomery Modular Inverse - Revisited by
+   * E. Savas and C. K. Koc
+   *
+   * @Warning This type can only be used with odd modulus.
    *
    * */
   class ZM_n : public Z
@@ -55,11 +58,25 @@ namespace mpplas{
       ZM_n& operator^=(const Z& e);
       ZM_n& operator^=(const SignedDigit e);
 
+      /** Montgomery squaring.
+       *
+       * Converts the current Montgomery integer into its square in the
+       * Montgomery domain. */
       ZM_n& square(void);
+
+      /** Montgomery inverse.
+       *
+       * Converts the current Montgomery integer into its inverse in the 
+       * Montgomery domain. */
       ZM_n& inverse(void);
 
-      Z toZ();
+      /** Convert from the Montgomery domain into the integer domain.
+       *  @par Complexity:
+       *       \f$O(n^{2})\f$
+       * */
+      Z toZ() const ;
 
+      /** Returns the the reduction module for this Montgomery integer. */
       inline const Z& getMod(void) const { return _mod; }
 
       ~ZM_n(){};
@@ -83,10 +100,20 @@ namespace mpplas{
       /**  Realiza las precomputaciones del método. */
       void _precomputations(Z& mPrime);
       /** Montgomery product */
-      ZM_n _montgomeryProd(const ZM_n& lhs, const Z& rhs);
+      static ZM_n _montgomeryProd(const ZM_n& lhs, const Z& rhs);
 
-      void _almostMontgomeryInverse(const ZM_n& a, Z& r, Digit& k);
-      ZM_n _newMontgomeryInverse(const ZM_n& a);
+      /** The @a AlmostMontgomeryInverse defined in the Koç paper.
+       *
+       * @pre \f$ a \in [1, m-1] \f$ with \f$m\f$ @a a's reduction modulus.
+       * @post \f$ r \in [1, m-1] \f$, \f$ r = a^{-1}2^{k} \pmod m \f$ and 
+       *       \f$ n \leq k \leq 2n \f$. */
+      static void _almostMontgomeryInverse(const ZM_n& a, Z& r, Digit& k);
+
+      /** The @a NewMontgomeryInverse defined in the Koç paper.
+       *
+       * @pre \f$ a2^{m} \pmod m \f$ with \f$m\f$ @a a's reduction modulus.
+       * @post \f$ x = a^{-1}2^{m} \f$,  where \f$ x \in [1,m-1] \f$. */
+      static ZM_n _newMontgomeryInverse(const ZM_n& a);
      
 
       /** Input operator.  */

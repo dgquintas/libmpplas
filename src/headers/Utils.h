@@ -11,6 +11,7 @@
 
 namespace mpplas{
 
+
   namespace Utils{
 
     /** Returns a copy of the string @a str with leading and trailing
@@ -22,25 +23,6 @@ namespace mpplas{
      * @return The stripped version of @a str.
      */
     std::string strip(const std::string& str, const std::string SEPSET = " \t");
-
-
-    /** Ensures at compile time that class @a D derives from base class
-     * @B. 
-     *
-     * From Imperfect C++, by Matthew Wilson, page 5, section 1.2.1   
-     * @note This check has no runtime cost whatsoever.
-     *
-     */
-    template<typename D, typename B>
-      struct must_have_base{
-        ~must_have_base(){
-          void(*p)(D*, B*) = constraints;
-        }
-        private:
-        static void constraints(D* pd, B* pb){
-          pb = pd;
-        }
-      };
 
 
     /** Computes the power of a Digit at compile time. 
@@ -60,6 +42,9 @@ namespace mpplas{
         public:
           enum { result = B } ;
       };
+
+
+
   }
 }
 #endif

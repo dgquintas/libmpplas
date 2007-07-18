@@ -1013,6 +1013,16 @@ namespace mpplas
        * */
       Z& moduloBase(const size_t n);
       
+      /** Raises to a power of two.
+       *
+       * Makes the current integer equal to \f$2^n\f$.
+       *
+       * @param n the two's exponent
+       *
+       * @par Complejidad:
+       * \f$O(1)\f$ */
+      Z& powerOfTwo(const size_t n);
+
       /** Iguala a \f$BASE^{n}\f$.
        * 
        * @param n La potencia de la base a la que se

@@ -1292,9 +1292,7 @@ namespace mpplas{
     return *this;
   }
 
-  size_t Z::getBitLength(void) const
-  {
-
+  size_t Z::getBitLength(void) const {
     size_t componentes = coefPoliB_.size() - 1;
     return (( Constants::BITS_EN_CIFRA * componentes) + VectorialCPU::getBitLength(coefPoliB_[componentes]));
 
@@ -1464,6 +1462,17 @@ namespace mpplas{
   {
     coefPoliB_.resize(n);
     limpiarCeros();
+
+    return *this;
+  }
+
+  Z& Z::powerOfTwo(const size_t n){
+    const size_t digits = n >> Constants::LOG_2_BITS_EN_CIFRA;
+    const size_t inDigitPosMask(1 << ( n & Constants::DIGIT_MOD_MASK ));
+
+    this->coefPoliB_.clear();
+    this->coefPoliB_.resize(digits+1,(Digit)0);
+    this->coefPoliB_[digits] |= inDigitPosMask;
 
     return *this;
   }

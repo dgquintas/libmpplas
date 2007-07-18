@@ -7,6 +7,7 @@
 #include "ZM_n.h"
 #include "MethodsFactory.h"
 #include "Potencia.h"
+#include "BitChecker.h"
 
 
 namespace mpplas{
@@ -130,22 +131,13 @@ namespace mpplas{
   ZM_n& ZM_n::operator^=(const Z& e){
     const ZM_n original(*this);
     ((Z*)this)->operator=(_r);
-    static const Digit BASEMASK = ((Digit)1) << (Constants::BITS_EN_CIFRA -1);
 
-    const int initialBitPos = (e.getBitLength()-1);
-    int cifraPos = initialBitPos >> Constants::LOG_2_BITS_EN_CIFRA;
-    Digit inDigitPosMask = 1;
-    inDigitPosMask <<= ( initialBitPos & ((1<<Constants::LOG_2_BITS_EN_CIFRA)-1) ); //ie, i % BITS_EN_CIFRA
-    for(int i = initialBitPos; i >= 0 ; i--){
+    Utils::BitChecker bc(e);
+
+    while( bc.hasPrevious() ) {
       this->square();
-      if( (e[cifraPos] & inDigitPosMask ) ){ 
-        //si el i-esimo bit de "e" es uno...
+      if( bc.checkPrevious() ){
         *this = _montgomeryProd(*this, original);
-      }
-      inDigitPosMask >>= 1;
-      if( !inDigitPosMask ){
-        cifraPos--;
-        inDigitPosMask = BASEMASK;
       }
     }
 
@@ -173,7 +165,7 @@ namespace mpplas{
     return *this;
   }
 
-  Z ZM_n::toZ(){
+  Z ZM_n::toZ() const {
     Z res(_montgomeryProd(*this,1));
     return res;
   }
@@ -263,11 +255,11 @@ namespace mpplas{
   }
 
   ZM_n ZM_n::_montgomeryProd(const ZM_n& lhs, const Z& rhs){ 
-    if( rhs.longitud() > _mod.longitud() ){
+    if( rhs.longitud() > lhs.getMod().longitud() ){
       throw Errors::TooBig();
     }
 
-    const size_t n = _mod.longitud() ; 
+    const size_t n = lhs.getMod().longitud() ; 
     ZM_n A; 
     A.hacerCero(); 
     A._clone(lhs);
@@ -280,26 +272,25 @@ namespace mpplas{
     size_t i;
 
     for( i=0; i < lhsZ.longitud() ; i++){
-      u = ((aZ[0] + (lhsZ[i] * rhs[0])) * _mPrime)[0];
-      aZ = ((aZ + (lhsZ[i] * rhs) + (u * _mod)) >> Constants::BITS_EN_CIFRA);
+      u = ((aZ[0] + (lhsZ[i] * rhs[0])) * lhs._mPrime)[0];
+      aZ = ((aZ + (lhsZ[i] * rhs) + (u * lhs.getMod())) >> Constants::BITS_EN_CIFRA);
     }
     for( ; i < n ; i++){ // los x[i] serían 0
-      u = (aZ[0] * _mPrime)[0];
-      aZ += (u*_mod);
+      u = (aZ[0] * lhs._mPrime)[0];
+      aZ += (u*lhs.getMod());
       aZ.divisionBase(1);
     }
 
-    if( aZ >= _mod ){
-      aZ -= _mod;
+    if( aZ >= lhs.getMod() ){
+      aZ -= lhs.getMod();
     }
 
     return A;  // x·y·R^{-1} (mod mod)  /  R = base^{n}
 
   }
 
-  void ZM_n::_almostMontgomeryInverse(const ZM_n& a, Z& r, Digit& k)
-  {
-    Z u(a._mod);
+  void ZM_n::_almostMontgomeryInverse(const ZM_n& a, Z& r, Digit& k) {
+    Z u(a.getMod());
     Z v(a);
     r.hacerCero();
     Z s((Digit)1);
@@ -328,10 +319,10 @@ namespace mpplas{
       }
       k++;
     }
-    if( r >= a._mod){
-      r -= a._mod;
+    if( r >= a.getMod()){
+      r -= a.getMod();
     }
-    r  = a._mod -r;
+    r  = a.getMod() -r;
     return;
   }
 
@@ -358,6 +349,10 @@ namespace mpplas{
   }
 
 
+  /** Copies into @a this the precomputed constants of @a src.
+   *
+   * @param src the source Montgomery integer from which to
+   * copy the precomputed constants. */
   void ZM_n::_clone(const ZM_n& src){
     this->_mod = src._mod;
     this->_r = src._r;

@@ -4,9 +4,9 @@
 #include <ctime>
 #include "msr.h"
 #include "Z.h"
-#include "Funciones.h"
+#include "MethodsFactory.h"
 #include "Random.h"
-#include "constants.h"
+#include "Constants.h"
 #include "Profiling.h"
 
 using namespace std;
@@ -18,14 +18,14 @@ int main()
   Profiling& prof( Profiling::getReference() );
 
   RandomFast *rnd = 0; 
-  Funciones::getInstance()->getFunc(rnd);
-  rnd->ponerSemilla(Z("12345"));
+  MethodsFactory::getInstance()->getFunc(rnd);
+  rnd->setSeed(Z("12345"));
   clock_t t0, t1;
   
   const int i = 10000;
   
-  Z num1 = rnd->leerBits(Constants::BITS_EN_CIFRA * i);
-  Z num2 = rnd->leerBits(Constants::BITS_EN_CIFRA * i);
+  Z num1 = rnd->getInteger(Constants::BITS_EN_CIFRA * i);
+  Z num2 = rnd->getInteger(Constants::BITS_EN_CIFRA * i);
 
   prof.reset();
   prof.startClock();

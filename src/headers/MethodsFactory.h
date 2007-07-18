@@ -11,7 +11,7 @@
 #include <string>
 
 #include "AbstractMethod.h"
-#include "Utils.h"
+#include "Constraints.h"
 #include "SingletonMixIn.h"
 
 namespace mpplas{
@@ -51,7 +51,7 @@ namespace mpplas{
 
   template<typename T>
     void MethodsFactory::getFunc(T* &m) {
-      Utils::must_have_base<T,AbstractMethod>();
+      Constraints::must_have_base<T,AbstractMethod>();
       _get_lock();
       _get(m);
       _release_lock();
@@ -59,7 +59,7 @@ namespace mpplas{
     }
   template<typename T>
     void MethodsFactory::setFunc(T* const m){
-      Utils::must_have_base<T,AbstractMethod>();
+      Constraints::must_have_base<T,AbstractMethod>();
       _get_lock();
       _set(m);
       _release_lock(); 

@@ -47,6 +47,7 @@ namespace com_uwyn_qtunit{
       void testFactorial();
       void testBitChecker();
       void testPowerOfTwo();
+      void testGetRightshiftedBits();
   };
 }
 

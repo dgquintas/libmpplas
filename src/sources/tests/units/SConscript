@@ -26,6 +26,7 @@ moduleFiles = Split("""
     ZM_nTest.cpp
     RSATest.cpp
     RandomTest.cpp
+    PrimesTest.cpp
     MatrixZTest.cpp
     VectorZTest.cpp
     VectorRTest.cpp

@@ -20,8 +20,6 @@ int main()
   RandomFast *rnd = 0; 
   MethodsFactory::getInstance()->getFunc(rnd);
   rnd->setSeed(Z("12345"));
-  clock_t t0, t1;
-  
   const int i = 10000;
   
   Z num1 = rnd->getInteger(Constants::BITS_EN_CIFRA * i);

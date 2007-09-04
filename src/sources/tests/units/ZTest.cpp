@@ -37,6 +37,7 @@ ZTest::ZTest()
 
   addTest(ZTest, testBitChecker);
   addTest(ZTest, testPowerOfTwo);
+  addTest(ZTest, testGetRightshiftedBits);
 }
 
 void ZTest::setUp(){
@@ -265,4 +266,15 @@ void ZTest::testPowerOfTwo(){
   cout << z1 << endl << z2 << endl;
 
   qassertTrue( z1 == z2 );
+}
+
+void ZTest::testGetRightshiftedBits(){
+  Z foo("123456789123456789123456789");
+  Z res;
+  Z res2(foo);
+  res2 &= (Z::ONE << 66)-1;
+  res = foo.getRightshiftedBits(66);
+
+  cout << res << endl << res2 << endl;
+
 }

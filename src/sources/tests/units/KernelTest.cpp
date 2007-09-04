@@ -59,14 +59,15 @@ void KernelTest::testAddx(){
 }
 
 void KernelTest::testSub(){ 
+    qassertTrue(two == BasicCPU::Sub(three, one, overflow) );
+  qassertTrue( zero == overflow );
+
   qassertTrue( one == BasicCPU::Sub(three, two, overflow) );
   qassertTrue( zero == overflow );
 
+
   qassertTrue( zero == BasicCPU::Sub(three, three, overflow) );
   qassertTrue( zero == overflow );
-
-//  qassertTrue( (Digit)(Constants::CIFRASIGNO_MAX)+1 == BasicCPU::Sub(Constants::CIFRA_MAX, (Digit)Constants::CIFRASIGNO_MAX) );
-//  qassertTrue( zero ==  overflow );
 
   qassertTrue( Constants::CIFRA_MAX == BasicCPU::Sub(zero, one, overflow) );
   qassertTrue( one == overflow );

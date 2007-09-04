@@ -11,6 +11,7 @@
 #include "KernelTest.h"
 #include "RSATest.h"
 #include "RandomTest.h"
+#include "PrimesTest.h"
 #include "MatrixZTest.h"
 #include "MatrixRTest.h"
 #include "VectorZTest.h"
@@ -45,6 +46,7 @@ namespace com_uwyn_qtunit
 #endif
     ReductionTest _reductionTest;
     ExponentiationTest _exponentiationTest;
+    PrimesTest _primesTest;
 
 	};
 }

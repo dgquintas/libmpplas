@@ -34,6 +34,7 @@ namespace com_uwyn_qtunit{
     void testExpMontgomery();
     void testExpBarrett();
     void testTwoThreadedModularExp();
+    void testMultiThreadedModularExp();
 
 
     private:

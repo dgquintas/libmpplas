@@ -2,24 +2,14 @@
 #include <iostream>
 
 using namespace std;
-using namespace numth;
+using namespace mpplas;
 
 int main()
 {
-  RabinMiller rm;
-  Z num, testigo; 
-
-  cin >> num;
-  cout << rm.esPrimo(num) << endl;
-  rm.esPrimo(num,&testigo);
-  cout << testigo << endl;
+  GenPrimos::DFL primesGen;
   
-  
-  while(true){
-    if(rm.esPrimo(num))
-      cout << num << endl;
-    num+=(Cifra)1000;
-  }
+  primesGen.setRandomSeed(Z::ONE);
+  Z prime(primesGen.leerPrimoProb(1024));
 
   return 0;
 }

@@ -24,6 +24,7 @@ int main(){
   cout << ci.getModelName() << endl;
   cout << ci.getArchName() << endl;
   cout << ci.getDigitBitWidth() << endl;
+  cout << ci.getAvailableCPUs() << endl;
 
   return 0;
 }

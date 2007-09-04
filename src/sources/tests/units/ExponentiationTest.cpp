@@ -2,13 +2,13 @@
  * $Id $
  */
 
-#include <string>
-#include <iostream>
 #include "Random.h"
 #include "Primos.h"
 #include "ExponentiationTest.h"
 #include "aux.h"
 #include "GCD.h"
+
+#include <iostream>
 
 using namespace com_uwyn_qtunit;
 using namespace mpplas;
@@ -23,6 +23,7 @@ ExponentiationTest::ExponentiationTest()
   addTest(ExponentiationTest, testExpMontgomery );
   addTest(ExponentiationTest, testExpBarrett );
   addTest(ExponentiationTest, testTwoThreadedModularExp );
+  addTest(ExponentiationTest, testMultiThreadedModularExp);
 
   funcs->getFunc(rnd);
   funcs->getFunc(primes);
@@ -92,8 +93,6 @@ void ExponentiationTest::testExpBarrett(){
 }
 
 void ExponentiationTest::testTwoThreadedModularExp(){
-
-
   Z _mod(rnd->getInteger( brand(1000,2000) )); 
   GCD::DFL gcd;
 
@@ -108,6 +107,22 @@ void ExponentiationTest::testTwoThreadedModularExp(){
 
   std::string pariStr(GENtostr( pariRes ));
 
-  qassertTrue( _base.toString() == pariStr );
-
+  qassertEquals( _base.toString(), pariStr );
 }
+
+void ExponentiationTest::testMultiThreadedModularExp(){
+
+  MultiThreadedModularExp potFunc;
+  Z _mod(rnd->getInteger( brand(1000,2000) )); 
+  GEN m = gp_read_str(const_cast<char*>(_mod.toString().c_str()));
+  GEN pariRes = Fp_pow(x,Y,m);
+
+  potFunc.potModular(&_base,_expZ,_mod);
+
+  std::string pariStr(GENtostr( pariRes ));
+
+  qassertEquals( _base.toString() ,pariStr );
+
+  return;
+}
+

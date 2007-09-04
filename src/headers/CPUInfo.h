@@ -19,18 +19,34 @@ namespace mpplas{
        *
        * Only the data cache is considered.
        */ 
-      virtual int getCacheL1Size() const = 0;
-      virtual int getCacheL2Size() const = 0;
-      virtual int getCacheL3Size() const = 0;
+      virtual int getCacheL1Size() const;
+      virtual int getCacheL2Size() const;
+      virtual int getCacheL3Size() const;
 
-      virtual std::string getModelName() const = 0;
-      virtual std::string getArchName() const = 0;
+      virtual std::string getModelName() const;
+      virtual std::string getArchName() const;
 
-      virtual std::vector<std::string> getSIMDCapabilities() const = 0;
-      virtual int getDigitBitWidth() const = 0;
+      virtual std::vector<std::string> getSIMDCapabilities() const;
+      virtual int getDigitBitWidth() const;
+
+      virtual int getAvailableCPUs() const ;
 
       virtual ~CPUInfo() {};
 
+    protected:
+      int _l1Size;
+      int _l2Size;
+      int _l3Size;
+
+      std::string _modelName;
+      std::string _archName;
+
+      std::vector<std::string> _simdCap;
+
+      //shouldn't be possible to instantiate
+      //this class directly (it's supposed 
+      //to be abstract).
+      CPUInfo() {};
 
 
   };

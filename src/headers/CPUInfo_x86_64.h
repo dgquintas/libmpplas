@@ -39,15 +39,6 @@ namespace mpplas{
       void _getSIMDInfo();
       void _getModelName();
 
-      int _l1Size;
-      int _l2Size;
-      int _l3Size;
-
-      std::string _modelName;
-      std::string _archName;
-
-      std::vector<std::string> _simdCap;
-
       friend class SingletonMixIn< CPUInfo_x86_64 >;
 
   };

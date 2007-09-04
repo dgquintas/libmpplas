@@ -1084,6 +1084,16 @@ namespace mpplas
       /////////////////////////////////
       //   FUNCIONES DE INFORMACIÓN  //
       /////////////////////////////////
+      
+      /** Rightshifts the integer and returns an integer
+       * formed from the bits expelled from the right.
+       *
+       * If \f$ end \gt \lceil \lg_2{(*this)} \rceil \f$, the all the bits of *this 
+       * will be considered, but no error is reported.
+       *
+       * @param n the number of bits to rightshift. */
+      Z getRightshiftedBits(const size_t n) ;
+
       /** Digits en base BITS_EN_CIFRA 
        *
        * @par Complejidad:

@@ -162,6 +162,7 @@ namespace mpplas{
       }
     };
 
+
     class NonConformantDimensions: public InvalidArgument
     {
       public:
@@ -177,6 +178,25 @@ namespace mpplas{
       private:
         std::string _str;
     };
+
+
+    class InvalidRange : public InvalidArgument {
+      public:
+        InvalidRange(const std::string& str){
+          _str = "Invalid range: " + str;
+        }
+
+        virtual const char* what(void) const throw() {
+          return _str.c_str();
+        }
+
+        virtual ~InvalidRange() throw() {}
+
+
+      private:
+        std::string _str;
+    };
+
 
 
     ////////////////////////////////////////////

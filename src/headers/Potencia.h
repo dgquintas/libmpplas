@@ -6,7 +6,6 @@
 #define __POTENCIA_H
 
 #include <vector>
-#include <utility>
 
 #include "R.h"
 #include "Z.h"
@@ -20,6 +19,8 @@ namespace mpplas{
   class PotRightLeft;
   class PotMontgomery;
   class ClasicoConBarrett;
+  class TwoThreadedModularExp;
+  class MultiThreadedModularExp;
 
   // la razon de que el exponente se considere con signo pese a no
   // poder realizarse exponenciaciones negativas en enteros es para
@@ -161,7 +162,7 @@ namespace mpplas{
        *
        * @return El entero resultado de \f$base^{-1} \bmod mod\f$.
        */
-      Z inversa(const Z& base, const Z& mod);
+      Z inversa(const Z& base, const Z& mod) const;
 
       virtual ~PotModular(){}
 
@@ -242,6 +243,7 @@ namespace mpplas{
   {
     public:
       virtual void potModular(Z* const base, const Z& exp, const Z& mod); 
+      void potModular(Z* const base, const Z& exp, const Z& mod, const Z& mu) const ; 
 
       virtual ~ClasicoConBarrett(){}
 
@@ -259,9 +261,20 @@ namespace mpplas{
       void _getOnePartitions(const Z& e, 
        std::vector<size_t>& diffsX, 
        std::vector<size_t>& diffsY );
+  };
 
+
+  class MultiThreadedModularExp : public PotModular {
+    public:
+      virtual void potModular(Z* const base, const Z& exp, const Z& mod); 
+
+      virtual ~MultiThreadedModularExp(){};
+
+    private:
+      static size_t _getExponentSections(Z e, std::vector< Z >& sections);
 
   };
+
 };
 
     

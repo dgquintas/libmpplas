@@ -16,20 +16,6 @@ namespace mpplas{
   
   {
     
-    public:
-
-
-      virtual int getCacheL1Size() const ;
-      virtual int getCacheL2Size() const ;
-      virtual int getCacheL3Size() const ;
-
-      virtual std::string getModelName() const ;
-      virtual std::string getArchName() const ;
-
-      virtual std::vector<std::string> getSIMDCapabilities() const ;
-
-      virtual int getDigitBitWidth() const;
-
     protected:
 
       CPUInfo_x86();
@@ -41,14 +27,6 @@ namespace mpplas{
       void _getSIMDInfo();
       void _getModelName();
 
-      int _l1Size;
-      int _l2Size;
-      int _l3Size;
-
-      std::string _modelName;
-      std::string _archName;
-
-      std::vector<std::string> _simdCap;
 
       friend class SingletonMixIn< CPUInfo_x86 >;
 

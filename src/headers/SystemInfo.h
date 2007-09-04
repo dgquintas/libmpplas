@@ -15,22 +15,19 @@ namespace mpplas{
     /** Get information about the host's CPU.
      *
      * @return A CPUInfo reference containing information
-     * about the host's CPU.
-     */
+     * about the host's CPU.  */
     const CPUInfo& getCPUInfo();
 
     /** Compilation date.
      *
      * @return A character array representing the date on 
-     * which the library was compiled form "May 19 2007"
-     */
+     * which the library was compiled form "May 19 2007"   */
     const char* getBuildDate();
 
     /** Compilation time.
      *
      * @return A character array representing the time on 
-     * which the library was compiled form "23:01:59"
-     */
+     * which the library was compiled form "23:01:59"  */
     const char* getBuildTime();
 
 
@@ -41,8 +38,7 @@ namespace mpplas{
      *
      * It is meant to be a rough kind of version numbering.
      *
-     * @return The version control revision version number.
-     */
+     * @return The version control revision version number.   */
     int getRevisionNumber();
 
     /** Compiler optimization level.
@@ -53,21 +49,39 @@ namespace mpplas{
      * in this function returning the integer 3.
      *
      * @return An integer representing the optimization 
-     * level used at compile time or -1 if unknown.
-     */
+     * level used at compile time or -1 if unknown.  */
     int getOptimizationLevel();
 
     /** Checks for profiling support.
      *
-     * @return true if profiling is available. false otherwise.
-     */ 
+     * @return true if profiling is available. false otherwise.  */ 
     bool isProfilingEnabled();
 
     /** Checks for OpenMP support.
      *
-     * @return true if OpenMP is being used. false otherwise.
-     */ 
+     * @return true if OpenMP is being used. false otherwise.*/ 
     bool isOpenMPEnabled();
+
+    /** Current number of OpenMP threads running.
+     *
+     * Returns the number of OpenMP threads present at the point of 
+     * invokation. Note that this only makes sense when inside a @a parallel
+     * region.
+     *
+     * @return the number of OpenMP threads present at the point of 
+     * invokation. */
+    int getCurrentNumberOfThreads();
+
+
+    /** Maximum number of OpenMP threads.
+     *
+     * Returns the maximum number of OpenMP threads that will be used
+     * inside a @a parallel region.
+     *
+     * @note This number will always be less or equal than CPUInfo::getAvailableCPUs(). 
+     *
+     * @return the maximum number of OpenMP threads that will be used. */
+    int getMaxNumberOfThreads();
 
     /** Check if this is a release version.
      *
@@ -75,8 +89,7 @@ namespace mpplas{
      * vector bound checks and assertions disabled
      * for improved performance.
      *
-     * @return true if this is a release version. false otherwise.
-     */
+     * @return true if this is a release version. false otherwise.    */
     bool isReleaseVersion();
 
     /** SIMD Kernel version being used.
@@ -86,16 +99,14 @@ namespace mpplas{
      * is being used. 
      *
      * @note In case no SIMD kernel was selected at compile
-     * time, "nosimd" will be returned.
-     */
+     * time, "nosimd" will be returned.   */
     std::string getSIMDKernel();
 
     /** Compiler command line used.
      *
      * @return A std::string with the compiler command line
      * used to compile each of the source files into 
-     * an object file.
-     */
+     * an object file.  */
     std::string getCompilerCmd();
 
 

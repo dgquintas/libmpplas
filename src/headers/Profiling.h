@@ -17,9 +17,7 @@ namespace mpplas{
     public:
       /** Sets the starting point in time for the clock.
        *
-       * @sa stopClock()
-       * 
-       */
+       * @sa stopClock()   */
       inline void startClock();
 
       /** Stops and checks clock value.
@@ -38,8 +36,7 @@ namespace mpplas{
        *
        * @return The time (in seconds)
        * elapsed between the startup of this clock 
-       * and the invokation of this method.
-       */
+       * and the invokation of this method.   */
       inline double stopClock() const ;
 
       /** Reset the profiling counters.
@@ -63,12 +60,6 @@ namespace mpplas{
        * @return A constant reference to the profiling results for thread @a threadNum.
        */
       const ProfResult& operator[](size_t i) const;
-
-      /** Number of threads being considered by the profiler.
-       *
-       * @return The number of threads being considered by the profiler. 
-       * */
-      size_t getNumThreads() const;
 
       /** Get the profiling results for all threads.
        *

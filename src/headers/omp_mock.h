@@ -1,5 +1,9 @@
 #ifndef __OMP_MOCK_H
 #define __OMP_MOCK_H
+
+#ifdef _OPENMP
+  #include <omp.h>
+#else
 /*
 * define the lock data types
 */
@@ -69,6 +73,7 @@ extern "C" {
 #endif
 #ifdef __cplusplus
 }
+#endif
 #endif
 #endif
 

@@ -2,15 +2,13 @@
  * $Id$
  */
 
-#include <memory>
-#ifdef _OPENMP
-  #include <omp.h>
-#else
-  #include "omp_mock.h"
-#endif
 
 #ifndef __SINGLETONMIXIN_H
 #define __SINGLETONMIXIN_H
+
+#include <memory>
+#include "omp_mock.h"
+#include <cassert>
 
 namespace mpplas{
 
@@ -30,13 +28,19 @@ namespace mpplas{
          *
          * @return A pointer to the singleton instance.
          */
-        static T* getInstance(){return singletonInstance.get();}
+        static T* getInstance(){
+          T* ptr = (_getInstanceAutoPtr()).get(); 
+          assert( ptr != 0 );
+          return ptr;
+        }
         
         /** Get a reference to the singleton instance.
          *
          * @return A reference to the singleton instance.
          */
-        static T& getReference(){return *singletonInstance;}
+        static T& getReference(){
+          return *(_getInstanceAutoPtr());
+        }
 
 
         virtual ~SingletonMixIn(){
@@ -59,9 +63,22 @@ namespace mpplas{
           return;
         }
 
+      private:
 
-        static const std::auto_ptr< T > singletonInstance;
+        /** Returns the smart pointer to the singleton instance. 
+         *
+         * Lazy initialization. Otherwise, if we relied on "static"
+         * initialization, we might have circular dependencies.  */
+        static const std::auto_ptr< T >& _getInstanceAutoPtr(){
+          if( _singletonInstance.get() == 0 ){
+            _singletonInstance.reset( new T );
+          }
+
+          return _singletonInstance;
+        }
+
         omp_nest_lock_t _lock;
+        static std::auto_ptr< T > _singletonInstance;
 
         
 

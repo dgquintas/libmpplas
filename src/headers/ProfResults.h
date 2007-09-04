@@ -27,7 +27,7 @@ namespace mpplas{
 
       OpsCount getTotalOps() const;
 
-      size_t getNumThreads() const;
+      size_t size() const;
 
 
     private:

@@ -4,6 +4,7 @@
 
 #include <cstring>
 #include <cassert>
+#include <iomanip>
 
 #include "ProfResult.h"
 
@@ -64,18 +65,15 @@ namespace mpplas {
 
   /////////////////////////////////////////
   std::ostream& operator<<(std::ostream& out, const ProfResult& prof){
-    out << prof[BasicCPU::ADD] << "\tadds" << std::endl; 
-    out << prof[BasicCPU::ADDX] << "\taddxs" << std::endl; 
-    out << prof[BasicCPU::SUB] << "\tsubs" << std::endl; 
-    out << prof[BasicCPU::SUBX] << "\tsubxs" << std::endl; 
-    out << prof[BasicCPU::ADDMUL] << "\taddmuls" << std::endl; 
-    out << prof[BasicCPU::MUL] << "\tmuls" << std::endl; 
-    out << prof[BasicCPU::DIV] << "\tdivs" << std::endl; 
-    out << prof[BasicCPU::SHIFTL] << "\tshiftls" << std::endl; 
-    out << prof[BasicCPU::SHIFTLR] << "\tshiftlrs" << std::endl; 
-    out << prof[BasicCPU::MNOB] << "\tmnobs" << std::endl; 
+    const double totalOps = prof.getTotalOps();
+    for( int i = 0; i < BasicCPU::__OpsEnum_SIZE; i++){
+      double percentage = prof[i] / totalOps;
+      out << std::setw(10) << std::left << prof[i] ;
+      out << "(" << std::setw(4)  << std::left << std::fixed << std::setprecision(2) << percentage << ") ";
+      out << BasicCPU::OpsNames[i] << std::endl; 
+    }
     out << "------------" << std::endl;
-    out << "Total = " << prof.getTotalOps() << std::endl;
+    out << "Total = " << (long)totalOps << std::endl;
 
     return out;
   }

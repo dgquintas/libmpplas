@@ -2,6 +2,8 @@
 #include "CPUInfo_x86.h"
 #include "CPUInfo_x86_64.h" 
 #include "CompilationConfig.h"
+#include "omp_mock.h"
+
 
 namespace mpplas{
  
@@ -35,6 +37,14 @@ namespace mpplas{
 
   bool SystemInfo::isProfilingEnabled(){
     return CompilationConfig::PROFILING_ENABLED;
+  }
+
+  int SystemInfo::getCurrentNumberOfThreads(){
+    return omp_get_num_threads();
+  }
+
+  int SystemInfo::getMaxNumberOfThreads(){
+    return omp_get_max_threads();
   }
 
   bool SystemInfo::isOpenMPEnabled(){

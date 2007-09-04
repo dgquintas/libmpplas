@@ -10,6 +10,7 @@
 #include "DigitUtils.h"
 #include "BitChecker.h"
 #include "ZM_n.h"
+#include "SystemInfo.h"
 
 #include <iostream>
 
@@ -37,8 +38,7 @@ namespace mpplas{
     return base;
   }
 
-  Z PotModular::inversa(const Z& base, const Z& mod)
-  {
+  Z PotModular::inversa(const Z& base, const Z& mod) const {
     Z inv;
     Z temp;
     GCDExt *gcdext; funcs->getFunc(gcdext);
@@ -200,18 +200,26 @@ namespace mpplas{
 
  ///////////////////////////////////
  
-  void ClasicoConBarrett::potModular(Z* const base, const Z& exp, const Z& mod)
-  {
+  void ClasicoConBarrett::potModular(Z* const base, const Z& exp, const Z& mod) {
+    RedBarrett* redbarrett; funcs->getFunc(redbarrett);
+    const Z mu(redbarrett->precomputaciones(mod));
+    potModular(base, exp, mod, mu);
+    return;
+  }
 
+
+  void ClasicoConBarrett::potModular(Z* const base, const Z& exp, const Z& mod, const Z& mu) const {
     if( base == NULL ){
       throw Errors::PunteroNulo();
     }
 
     RedBarrett* redbarrett; funcs->getFunc(redbarrett);
     bool eNegativo = false;
-    base->operator%=(mod);
-    Z mu = redbarrett->precomputaciones(mod);
-    
+
+    if( *base >= mod){
+      base->operator%=(mod);
+    }
+
     Z e(exp);
 
     if( e.esNegativo() ){
@@ -235,10 +243,9 @@ namespace mpplas{
         redbarrett->redBarrett(base, mod,mu);
       }
     }
-
-
     return;
   }
+
 
 /**********************/
   
@@ -415,4 +422,51 @@ namespace mpplas{
 
     return;
   }
+
+  //////////////////////////////////////
+  
+  void MultiThreadedModularExp::potModular(Z* const base,
+      const Z& exp, const Z& mod){
+    std::vector< Z > sections;
+    const size_t sectionSizes( _getExponentSections(exp, sections));
+
+    ClasicoConBarrett potMod;
+    const size_t numSects = sections.size();
+    std::vector< Z > partialResults(numSects, *base);
+    
+    RedBarrett* redbarrett; funcs->getFunc(redbarrett);
+    const Z mu(redbarrett->precomputaciones(mod));
+#pragma omp parallel for shared(sections, partialResults, mod, potMod)
+    for(int i = 0 ; i < numSects;  i++){
+      sections[i] <<= (i*sectionSizes) ;
+      potMod.potModular( &(partialResults[i]), sections[i], mod, mu);
+    }
+
+
+    *base = partialResults[0];
+
+    for(int i = 1 ; i < numSects;  i++){
+      (*base) *= partialResults[i];
+    }
+
+    (*base) %= mod;
+
+  }
+
+
+  
+  size_t MultiThreadedModularExp::_getExponentSections(Z e, std::vector< Z >& sections){
+    const size_t eBitLength = e.getBitLength();
+    const size_t numThreads = SystemInfo::getMaxNumberOfThreads();
+    const size_t a = (size_t)floor( eBitLength / (double)numThreads );
+    const size_t aLast = eBitLength % numThreads;
+    sections.reserve( numThreads );
+    
+    for(int i = 0; i < numThreads-1; i++){
+      sections.push_back(e.getRightshiftedBits(a));
+    }
+    sections.push_back(e.getRightshiftedBits(a+aLast));
+    return a;
+  }
+
 } //namespace mpplas

@@ -491,8 +491,6 @@ namespace mpplas{
 
   Z& Z::operator%=(const Z& divisor)
   {
-
-
     if( divisor.esCero() )
       throw Errors::DivisionPorCero();
 
@@ -1186,34 +1184,33 @@ namespace mpplas{
   }
 
 
-  Z& Z::operator++(void)
-  {
-
-
+  Z& Z::operator++(void) {
     if( esCero() ){
       hacerUno();
       return *this;
     }
 
     if(signo_ > 0){
-      if(coefPoliB_[0] < Constants::CIFRA_MAX)
+      if(coefPoliB_[0] < Constants::CIFRA_MAX){
         coefPoliB_[0]++;
-      else //habria acarreo, hacerlo de forma "standard"
+      }
+      else{ //habria acarreo, hacerlo de forma "standard"
         coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, (Digit)1);
+      }
     }
     else{ //signo_ < 0
-      if(coefPoliB_[0] > 0)
+      if(coefPoliB_[0] > 0){
         coefPoliB_[0]--;
-      else //habria acarreo, hacerlo de forma "standard"
+      }
+      else { //habria acarreo, hacerlo de forma "standard"
         coefPoliB_ = VectorialCPU::restaMP(coefPoliB_, (Digit)1);
+      }
     }
-
 
     return *this;
   }
 
-  Z& Z::operator++(int)
-  {
+  Z& Z::operator++(int) {
     if( esCero() ){
       hacerUno();
       return *this;
@@ -1221,16 +1218,20 @@ namespace mpplas{
 
 
     if(signo_ > 0){
-      if(coefPoliB_[0] < Constants::CIFRA_MAX)
+      if(coefPoliB_[0] < Constants::CIFRA_MAX){
         coefPoliB_[0]++;
-      else //habria acarreo, hacerlo de forma "standard"
+      }
+      else{ //habria acarreo, hacerlo de forma "standard"
         coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, (Digit)1);
+      }
     }
     else{ //signo_ < 0
-      if(coefPoliB_[0] > 0)
+      if(coefPoliB_[0] > 0){
         coefPoliB_[0]--;
-      else //habria acarreo, hacerlo de forma "standard"
+      }
+      else { //habria acarreo, hacerlo de forma "standard"
         coefPoliB_ = VectorialCPU::restaMP(coefPoliB_, (Digit)1);
+      }
     }
 
 
@@ -1442,6 +1443,24 @@ namespace mpplas{
   }
         
       
+
+  Z Z::getRightshiftedBits(const size_t n) {
+    assert( n <= this->getBitLength() );
+    const size_t bitPos = n;
+    const size_t digitPos =  bitPos >> Constants::LOG_2_BITS_EN_CIFRA;
+    const size_t inDigitPos = ( bitPos & Constants::DIGIT_MOD_MASK );
+    const Digit inDigitPosMask = ((Digit)1 << inDigitPos)-1;
+
+    Z res;
+    res.coefPoliB_.clear();
+    res.coefPoliB_.insert(res.coefPoliB_.end(), this->coefPoliB_.begin(), this->coefPoliB_.begin()+digitPos);
+    const Digit lastDigit = *(this->coefPoliB_.begin()+digitPos) & inDigitPosMask;
+    res.coefPoliB_.push_back(lastDigit);
+    
+    (*this) >>= n;
+
+    return res;
+  }
 
     
       
@@ -2117,6 +2136,10 @@ namespace mpplas{
     base ^= ((Digit)labs(exp));
     return base;
   }
+
+
+
+
 
   void divMod(const Z& dividendo, const Z& divisor, Z* cociente, Z* resto)
     throw (Errors::DivisionPorCero)

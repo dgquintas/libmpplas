@@ -3,15 +3,13 @@
 
 #include "CPUInfo_x86_64.h"
 #include "Utils.h"
-#include "BasicTypedefs.h"
-#include "CompilationConfig.h"
 
 namespace mpplas{
 
   //static singleton initialization
   template<>
-    const std::auto_ptr< CPUInfo_x86_64 > 
-    SingletonMixIn< CPUInfo_x86_64 >::singletonInstance( new CPUInfo_x86_64() );
+    std::auto_ptr< CPUInfo_x86_64 > 
+    SingletonMixIn< CPUInfo_x86_64 >::_singletonInstance(SingletonMixIn< CPUInfo_x86_64 >::_singletonInstance);
 
 
   CPUInfo_x86_64::CPUInfo_x86_64()
@@ -24,34 +22,6 @@ namespace mpplas{
 
   }
 
-
-  int CPUInfo_x86_64::getCacheL1Size() const {
-    return _l1Size;
-  }
-  int CPUInfo_x86_64::getCacheL2Size() const {
-    return _l2Size;
-  }
-  int CPUInfo_x86_64::getCacheL3Size() const {
-    return _l3Size;
-  }
-
-  std::string CPUInfo_x86_64::getModelName() const {
-    return _modelName;
-  }
-
-
-  std::string CPUInfo_x86_64::getArchName() const {
-    return std::string(CompilationConfig::TARGET_ARCH);
-  }
-
-  std::vector<std::string> CPUInfo_x86_64::getSIMDCapabilities() const {
-    return _simdCap;
-  }
-
-  int CPUInfo_x86_64::getDigitBitWidth() const {
-    return sizeof(Digit)*8;
-  }
-  
 
   //////////////////////////////////////////////////////////////
 

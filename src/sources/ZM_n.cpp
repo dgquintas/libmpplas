@@ -239,11 +239,17 @@ namespace mpplas{
     if( toReduce.longitud() > 2*n){
       throw Errors::TooBig();
     }
-    Digit u;
-    
+//    Digit u;
+    Z tmp;
     for(size_t i=0; i < n; i++){
-      u = ( toReduce[i] * _mPrime)[0];
-      toReduce += ( (u*_mod).potenciaBase(i) );
+      tmp = toReduce[i];
+      tmp *= _mPrime;
+      tmp.moduloBase(1);
+      tmp *= _mod;
+      tmp.potenciaBase(i);
+      toReduce += tmp;
+//      u = ( toReduce[i] * _mPrime)[0];
+//      toReduce += ( (u*_mod).potenciaBase(i) );
     }
 
     toReduce.divisionBase(n);
@@ -271,13 +277,32 @@ namespace mpplas{
     const Z& lhsZ(lhs);
     size_t i;
 
+    Z tmp;
+    Z tmp2;
+    Digit tmpDigit;
+
     for( i=0; i < lhsZ.longitud() ; i++){
-      u = ((aZ[0] + (lhsZ[i] * rhs[0])) * lhs._mPrime)[0];
-      aZ = ((aZ + (lhsZ[i] * rhs) + (u * lhs.getMod())) >> Constants::BITS_EN_CIFRA);
+      tmpDigit = (aZ[0] + (lhsZ[i] * rhs[0]));
+      tmp = lhs._mPrime;
+      tmp *= tmpDigit;
+      tmp.moduloBase(1);
+      tmp *= lhs.getMod();
+      tmp2 = rhs;
+      tmp2 *= lhsZ[i];
+      aZ += tmp2;
+      aZ += tmp;
+      aZ.divisionBase(1);
+//      u = ( (aZ[0] + (lhsZ[i] * rhs[0]))* lhs._mPrime)[0];
+//      aZ = ((aZ + (lhsZ[i] * rhs) + (u * lhs.getMod())) >> Constants::BITS_EN_CIFRA);
     }
     for( ; i < n ; i++){ // los x[i] serían 0
-      u = (aZ[0] * lhs._mPrime)[0];
-      aZ += (u*lhs.getMod());
+      tmp = lhs._mPrime;
+      tmp *= aZ[0];
+      tmp.moduloBase(1);
+      tmp *= lhs.getMod();
+      aZ += tmp;
+      //u = (aZ[0] * lhs._mPrime)[0];
+      //aZ += (u*lhs.getMod());
       aZ.divisionBase(1);
     }
 

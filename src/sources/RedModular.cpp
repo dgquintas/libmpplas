@@ -52,20 +52,23 @@ namespace mpplas{
 
     size_t k = mod.longitud();
 
-    Z q1(*num); Z q3;
-    Z r;  Z r1(*num); Z r2;
+    Z q1(*num);
+    Z r1(*num); 
 
     q1.divisionBase(k-1);
 
-    q3 = q1 * mu;
+    Z q3(q1);
+    q3 *= mu;
     q3.divisionBase(k+1);
 
     r1.moduloBase(k+1);
 
-    r2 = q3*mod;
+    Z r2(q3);
+    r2 *= mod;
     r2.moduloBase(k+1);
 
-    r = r1 - r2;
+    Z r(r1);
+    r -= r2;
 
     if( r < (Digit)0 ){
       Z temp; 

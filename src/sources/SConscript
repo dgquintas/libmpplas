@@ -3,6 +3,7 @@ import time, sys, os, shutil
 filesStr = """
     AlgebraUtils.cpp
     BitChecker.cpp
+    CPUInfo.cpp
     CRT.cpp
     Factor.cpp
     MethodsFactory.cpp

@@ -16,7 +16,7 @@ namespace mpplas{
   /*** DESPLAZAMIENTO ***/
   void VectorialCPU::lShift(mpplas::MiVec <Digit>& a, const size_t n)
   {
-    if( (a.size() == 1) && (a[0] == 0) ) {
+    if( ((a.size() == 1) && (a[0] == 0)) || n == 0 ) {
       return;
     }
     
@@ -48,7 +48,7 @@ namespace mpplas{
 
   void VectorialCPU::rShift(mpplas::MiVec <Digit> &a, const size_t n)
   {
-    if( (a.size() == 1) && (a[0] == 0) ) {
+    if( ((a.size() == 1) && (a[0] == 0)) || n == 0 ) {
       return;
     }
 

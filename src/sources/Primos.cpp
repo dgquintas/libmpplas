@@ -282,7 +282,7 @@ namespace mpplas{
 
     test->ponerIteraciones(iteraciones);
     while( !test->esPrimo(n) ){
-      n++; n++;
+      n += (Digit)2;
     }
     
     //aquí, esPrimo(n) == true

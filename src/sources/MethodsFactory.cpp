@@ -8,8 +8,8 @@ namespace mpplas{
 
   //static singleton initialization
   template<>
-    const std::auto_ptr< MethodsFactory > 
-    SingletonMixIn< MethodsFactory >::singletonInstance( new MethodsFactory() );
+    std::auto_ptr< MethodsFactory > 
+    SingletonMixIn< MethodsFactory >::_singletonInstance(SingletonMixIn< MethodsFactory >::_singletonInstance);
 
   MethodsFactory::MethodsFactory()
     : SingletonMixIn<MethodsFactory>()

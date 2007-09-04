@@ -360,7 +360,7 @@ namespace mpplas{
     tmpRight ^= powOf2Exp.powerOfTwo(diffsY[0]);
     ZM_n right(tmpRight);
 
-#pragma omp parallel sections
+#pragma omp parallel sections num_threads(2)
     {
 #pragma omp section
       {

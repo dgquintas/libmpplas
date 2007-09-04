@@ -263,9 +263,7 @@ void ZTest::testPowerOfTwo(){
   z1.powerOfTwo(power);
   z2.hacerUno(); z2 <<= power;
 
-  cout << z1 << endl << z2 << endl;
-
-  qassertTrue( z1 == z2 );
+  qassertEquals( z1.toString(), z2.toString() );
 }
 
 void ZTest::testGetRightshiftedBits(){
@@ -276,5 +274,7 @@ void ZTest::testGetRightshiftedBits(){
   res = foo.getRightshiftedBits(66);
 
   cout << res << endl << res2 << endl;
+
+  qassertEquals( res.toString(), res2.toString() );
 
 }

@@ -360,7 +360,7 @@ namespace mpplas{
     tmpRight ^= powOf2Exp.powerOfTwo(diffsY[0]);
     ZM_n right(tmpRight);
 
-#pragma omp parallel sections num_threads(2)
+#pragma omp parallel sections num_threads(2) private(powOf2Exp)
     {
 #pragma omp section
       {
@@ -436,7 +436,7 @@ namespace mpplas{
     
     RedBarrett* redbarrett; funcs->getFunc(redbarrett);
     const Z mu(redbarrett->precomputaciones(mod));
-#pragma omp parallel for shared(sections, partialResults, mod, potMod)
+#pragma omp parallel for shared(sections, partialResults, potMod)
     for(int i = 0 ; i < numSects;  i++){
       sections[i] <<= (i*sectionSizes) ;
       potMod.potModular( &(partialResults[i]), sections[i], mod, mu);

@@ -43,7 +43,7 @@ namespace com_uwyn_qtunit{
     Z _expZ;
     SignedDigit _exp;
     MethodsFactory* const funcs;
-    Random* rnd;
+    RandomFast* rnd;
     GenPrimos* primes;
 
     GEN x,y,Y,m;

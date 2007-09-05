@@ -1487,7 +1487,10 @@ namespace mpplas{
 
   Z& Z::powerOfTwo(const size_t n){
     const size_t digits = n >> Constants::LOG_2_BITS_EN_CIFRA;
-    const size_t inDigitPosMask(1 << ( n & Constants::DIGIT_MOD_MASK ));
+
+    //has to be a Digit because it's a index that can have bits
+    //up to the Digit's bitlength
+    const Digit inDigitPosMask((Digit)1 << ( n & Constants::DIGIT_MOD_MASK ));
 
     this->coefPoliB_.clear();
     this->coefPoliB_.resize(digits+1,(Digit)0);

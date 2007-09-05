@@ -270,10 +270,8 @@ void ZTest::testGetRightshiftedBits(){
   Z foo("123456789123456789123456789");
   Z res;
   Z res2(foo);
-  res2 &= (Z::ONE << 66)-1;
+  res2 &= (Z::ONE << 66)-(Digit)1;
   res = foo.getRightshiftedBits(66);
-
-  cout << res << endl << res2 << endl;
 
   qassertEquals( res.toString(), res2.toString() );
 

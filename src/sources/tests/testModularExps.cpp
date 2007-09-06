@@ -15,6 +15,7 @@ int main(){
   PotMontgomery pm;
   ClasicoConBarrett barrett;
   TwoThreadedModularExp two;
+  MultiThreadedModularExp multi;
 
   Profiling& prof( Profiling::getReference() );
 
@@ -26,12 +27,12 @@ int main(){
   Z base, exp, mod;
   Z baseOrig;
 
-  rnd->setSeed(Z::ONE);
-  prime->setRandomSeed(Z::ONE);
+  rnd->setSeed(Z::ZERO);
+  prime->setRandomSeed(Z::ZERO);
 
   baseOrig = rnd->getInteger(2048);
-  exp =  rnd->getInteger(512);
-  mod = prime->leerPrimoProb(2024);
+  exp =  rnd->getInteger(5120);
+  mod = prime->leerPrimoProb(1500);
 
 
   cout << "BLA"<<endl;
@@ -82,6 +83,23 @@ int main(){
   cout << "tpo = " << tpo << endl;
   cout <<  prof.getResults() << endl;
   cout << endl;
+
+////////////////////
+  cout << "MULTI THREADED" << endl;
+  cout << "------------" << endl;
+
+  base = baseOrig;
+  prof.reset();
+  prof.startClock();
+
+  multi.potModular(&base, exp, mod);
+
+  tpo = prof.stopClock();
+  cout << "grand total = " << prof.getResults().getTotalOps() << endl;
+  cout << "tpo = " << tpo << endl;
+  cout <<  prof.getResults() << endl;
+  cout << endl;
+
 
   return 0;
 }

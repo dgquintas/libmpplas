@@ -59,20 +59,31 @@ namespace mpplas{
   typedef struct { char int32_t[4]; } __attribute__ ((aligned (16))) __m128i;
 #endif
 
+typedef __m128 float4xSIMD_t;
+typedef __m128d double2xSIMD_t;
+typedef __m128i int8xSIMD_t;
 
-  union SIMDDigit {
-    SIMDDigit() {}
-    SIMDDigit(const __m128& sp)
-      : f(sp) {}
-    SIMDDigit(const __m128d& dp)
-      : d(dp) {}
-    SIMDDigit(const __m128i& epi16)
-      : i(epi16) {}
+template<typename T>
+class SIMDtoBasicTypes;
 
-    __m128 f;
-    __m128d d;
-    __m128i i;
-  };
+
+//FIXME: make this configurable at compile time?
+template<>
+class SIMDtoBasicTypes<float4xSIMD_t>{
+  public:
+  typedef float BasicType;
+};
+template<>
+class SIMDtoBasicTypes<double2xSIMD_t>{
+  public:
+  typedef double BasicType;
+};
+template<>
+class SIMDtoBasicTypes<int8xSIMD_t>{
+  public:
+  typedef int16_t BasicType;
+};
+
 
   namespace BasicCPU{
 

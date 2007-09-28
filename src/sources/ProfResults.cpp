@@ -13,7 +13,7 @@
 namespace mpplas {
 
   ProfResults::ProfResults() 
-  : _perThreadResults ( std::vector< ProfResult >( omp_get_max_threads() ) ) {
+  : _perThreadResults ( std::vector< ProfResult >( omp_get_max_threads() ) ) { //FIXME: use systeminfo
     this->reset();
   }
 

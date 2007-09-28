@@ -1,7 +1,11 @@
+/* g++ testKernelSIMD.cpp -o testKernelSIMD -I ../../headers/ 
+ * -I ../kernel/ -L ../../../lib/ -lmpplas -ggdb3 -O0  -msse 
+ * -DARCH_x86 -DARCHBITS=32 -DUSESIMD_sse */
+
 #include <cstdio>
 #include <cstring>
 #include <iostream>
-#include "kernelSIMD.h"
+#include "kernel.h"
 #include "SystemInfo.h"
 
 using namespace std;
@@ -9,7 +13,7 @@ using namespace mpplas;
 
 int main(){
 
-  SIMDDigit a,b,c;
+  SIMDDigit<int8xSIMD_t> a,b,c;
 
   int16_t ai[8] __attribute__((aligned(16))) = 
   { 1352, 352, 123, 25, 21,712, 5433,0 };
@@ -19,28 +23,29 @@ int main(){
   int16_t ci[8] __attribute__((aligned(16)));
 
   printf("\nINT 16\n");
-  SIMDCPU::Pack<int16_t>(a,ai);
-  SIMDCPU::Pack<int16_t>(b,bi);
+  a.pack(ai);
+  b.pack(bi);
 
-  SIMDCPU::Add<int16_t>(c,a,b);
-  SIMDCPU::Unpack<int16_t>(ci,c);
-  std::cout << c.i << std::endl;
+  SIMDCPU::Add(c,a,b);
+  c.unpack(ci);
+  std::cout << c << std::endl;
+  for(int i=0; i < c.getSize(); i++){
+    std::cout << ci[i] << " ";
+  }
+  std::cout << std::endl;
 
-  SIMDCPU::Sub<int16_t>(c,a,b);
-  SIMDCPU::Unpack<int16_t>(ci,c);
-  std::cout << c.i << std::endl;
 
-  SIMDCPU::Mul<int16_t>(c,a,b);
-  SIMDCPU::Unpack<int16_t>(ci,c);
-  std::cout << c.i << std::endl;
+  SIMDCPU::Sub(c,a,b);
+  std::cout << c << std::endl;
 
-  SIMDCPU::Div<int16_t>(c,a,b);
-  SIMDCPU::Unpack<int16_t>(ci,c);
-  std::cout << c.i << std::endl;
+  SIMDCPU::Mul(c,a,b);
+  std::cout << c << std::endl;
 
-  int16_t sumI;
-  SIMDCPU::Sum<int16_t>(sumI, a);
-  printf("Sum: %d\n", sumI);
+  SIMDCPU::Div(c,a,b);
+  std::cout << c << std::endl;
+
+  printf("Sum: %d\n", a.sum());
+
 
 
   float av[4] __attribute__((aligned(16))) = 
@@ -51,29 +56,27 @@ int main(){
   float cv[4] __attribute__((aligned(16)));
 
 
+  SIMDDigit<float4xSIMD_t> af,bf,cf;
+
   printf("\nFLOAT\n");
-  SIMDCPU::Pack<float>(a,av);
-  SIMDCPU::Pack<float>(b,bv);
 
-  SIMDCPU::Add<float>(c,a,b);
-  SIMDCPU::Unpack<float>(cv,c);
-  std::cout << c.f << std::endl;
+  SIMDCPU::Add(cf,af.pack(av),bf.pack(bv));
+  std::cout << cf << std::endl;
 
-  SIMDCPU::Sub<float>(c,a,b);
-  SIMDCPU::Unpack<float>(cv,c);
-  std::cout << c.f << std::endl;
+  SIMDCPU::Sub(cf,af,bf);
+  std::cout << cf << std::endl;
 
-  SIMDCPU::Mul<float>(c,a,b);
-  SIMDCPU::Unpack<float>(cv,c);
-  std::cout << c.f << std::endl;
+  SIMDCPU::Mul(cf,af,bf);
+  std::cout << cf << std::endl;
 
-  SIMDCPU::Div<float>(c,a,b);
-  SIMDCPU::Unpack<float>(cv,c);
-  std::cout << c.f << std::endl;
+  SIMDCPU::Div(cf,af,bf);
+  std::cout << cf << std::endl;
 
-  float sumF;
-  SIMDCPU::Sum<float>(sumF, a);
-  printf("Sum: %f\n", sumF);
+  printf("Sum: %f\n", af.sum() );
+
+
+
+  SIMDDigit<double2xSIMD_t> add,bdd,cdd;
 
   double ad[2] __attribute__((aligned(16))) = 
   { 1.2234212, 3.5251 };
@@ -82,28 +85,41 @@ int main(){
 
   double cd[2] __attribute__((aligned(16)));
   printf("\nDOUBLE\n");
-  SIMDCPU::Pack<double>(a,ad);
-  SIMDCPU::Pack<double>(b,bd);
+  add.pack(ad);
+  bdd.pack(bd);
 
-  SIMDCPU::Add<double>(c,a,b);
-  SIMDCPU::Unpack<double>(cd,c);
-  std::cout << c.d << std::endl;
+  SIMDCPU::Add(cdd,add,bdd);
+  std::cout << cdd << std::endl;
 
-  SIMDCPU::Sub<double>(c,a,b);
-  SIMDCPU::Unpack<double>(cd,c);
-  std::cout << c.d << std::endl;
+  SIMDCPU::Sub(cdd,add,bdd);
+  std::cout << cdd << std::endl;
 
-  SIMDCPU::Mul<double>(c,a,b);
-  SIMDCPU::Unpack<double>(cd,c);
-  std::cout << c.d << std::endl;
+  SIMDCPU::Mul(cdd,add,bdd);
+  std::cout << cdd << std::endl;
 
-  SIMDCPU::Div<double>(c,a,b);
-  SIMDCPU::Unpack<double>(cd,c);
-  std::cout << c.d << std::endl;
- 
-  double sumD;
-  SIMDCPU::Sum<double>(sumD, a);
-  printf("Sum: %f\n", sumD);
+  SIMDCPU::Div(cdd,add,bdd);
+  std::cout << std::endl;
+  std::cout << cdd << std::endl;
+  std::cout << add << std::endl;
+
+  std::cout << std::endl;
+  cdd += add;
+  std::cout << cdd << std::endl;
+
+  std::cout << std::endl;
+  cdd -= add;
+  std::cout << cdd << std::endl;
+
+  std::cout << std::endl;
+  cdd *= add;
+  std::cout << cdd << std::endl;
+
+  std::cout << std::endl;
+  cdd /= add;
+  std::cout << cdd << std::endl;
+
+
+  printf("Sum: %f\n", add.sum());
 
 
 

@@ -13,58 +13,51 @@ namespace mpplas{
 
 #include <xmmintrin.h>
 
-
-
-
     /* FLOAT */
-#define __FLOAT_SIMD
-    template<> 
-      const short SIMDCPUImpl<float>::ELEMENTS_PER_DIGIT= 4;
-
     template<>
-      inline void SIMDCPUImpl<float>::Add(SIMDDigit& out,const SIMDDigit& arg1, const SIMDDigit& arg2){
-        out.f = _mm_add_ps(arg1.f, arg2.f);
+      inline void Add<float4xSIMD_t>(SIMDDigit<float4xSIMD_t>& out,const SIMDDigit<float4xSIMD_t>& arg1, const SIMDDigit<float4xSIMD_t>& arg2){
+        out.data = _mm_add_ps(arg1.data, arg2.data);
       }
 
 
     template<>
-      inline void SIMDCPUImpl<float>::Sub(SIMDDigit& out,const SIMDDigit& arg1, const SIMDDigit& arg2){
-        out.f = _mm_sub_ps(arg1.f, arg2.f);
+      inline void Sub<float4xSIMD_t>(SIMDDigit<float4xSIMD_t>& out,const SIMDDigit<float4xSIMD_t>& arg1, const SIMDDigit<float4xSIMD_t>& arg2){
+        out.data = _mm_sub_ps(arg1.data, arg2.data);
       }
 
 
 
     template<>
-      inline void SIMDCPUImpl<float>::Mul(SIMDDigit& out,const SIMDDigit& arg1, const SIMDDigit& arg2){
-        out.f = _mm_mul_ps(arg1.f, arg2.f);
+      inline void Mul<float4xSIMD_t>(SIMDDigit<float4xSIMD_t>& out,const SIMDDigit<float4xSIMD_t>& arg1, const SIMDDigit<float4xSIMD_t>& arg2){
+        out.data = _mm_mul_ps(arg1.data, arg2.data);
       }
 
     template<>
-      inline void SIMDCPUImpl<float>::Div(SIMDDigit& out,const SIMDDigit& arg1, const SIMDDigit& arg2){
-        out.f = _mm_div_ps(arg1.f, arg2.f);
+      inline void Div<float4xSIMD_t>(SIMDDigit<float4xSIMD_t>& out,const SIMDDigit<float4xSIMD_t>& arg1, const SIMDDigit<float4xSIMD_t>& arg2){
+        out.data = _mm_div_ps(arg1.data, arg2.data);
       }
 
     template<>
-      inline void SIMDCPUImpl<float>::Sum(float& out,SIMDDigit arg1){
-        arg1.f= _mm_add_ps(arg1.f, _mm_movehl_ps(arg1.f,arg1.f));
-        arg1.f= _mm_add_ps(arg1.f, _mm_shuffle_ps(arg1.f, arg1.f, _MM_SHUFFLE(3, 2, 1, 1)));
-        _mm_store_ss(&out, arg1.f);
+      inline void Sum<float4xSIMD_t>(SIMDDigit<float4xSIMD_t>::BasicType& out,SIMDDigit<float4xSIMD_t> arg1){
+        arg1.data= _mm_add_ps(arg1.data, _mm_movehl_ps(arg1.data,arg1.data));
+        arg1.data= _mm_add_ps(arg1.data, _mm_shuffle_ps(arg1.data, arg1.data, _MM_SHUFFLE(3, 2, 1, 1)));
+        _mm_store_ss(&out, arg1.data);
       }
 
     /** 
      * @pre @a src must be 16-byte aligned 
      */
     template<>
-      inline void SIMDCPUImpl<float>::Pack(SIMDDigit& out, const float* const src){
-        out.f = _mm_load_ps(src);
+      inline void Pack<float4xSIMD_t>(SIMDDigit<float4xSIMD_t>& out, const SIMDDigit<float4xSIMD_t>::BasicType* const src){
+        out.data = _mm_load_ps(src);
       }
 
     /** 
      * @pre @a out must be 16-byte aligned 
      */
     template<>
-      inline void SIMDCPUImpl<float>::Unpack(float* const out, const SIMDDigit& src ){
-        _mm_store_ps(out,src.f);
+      inline void Unpack<float4xSIMD_t>(SIMDDigit<float4xSIMD_t>::BasicType* const out, const SIMDDigit<float4xSIMD_t>& src ){
+        _mm_store_ps(out,src.data);
       }
 
 

@@ -17,17 +17,11 @@
 #include "Errors.h"
 #include "AlgebraUtils.h"
 #include "Constants.h"
+#include "MiVec.h"
 
-namespace mpplas 
-{
-#ifdef RELEASE
-#define _SAFE_GET(i) operator[](i)
-#else
-#define _SAFE_GET(i) at(i)
-#endif
+namespace mpplas {
 
-
-  template<typename T>
+  template<typename T, typename Alloc = std::allocator<T> >
     class Matrix
     {
       public:
@@ -35,11 +29,11 @@ namespace mpplas
         Matrix(const size_t nAndm) ;
         Matrix(const size_t n, const size_t m);
         Matrix(const Dimensions& dims);
-        Matrix(const Matrix<T>& rhs);
+        Matrix(const Matrix<T, Alloc>& rhs);
         Matrix(const std::string& str);
-        Matrix(const std::vector<T>& rhs, const Dimensions& dims);
+        Matrix(const std::vector<T, Alloc>& rhs, const Dimensions& dims);
 
-        Matrix<T>& operator=(const Matrix<T>& rhs);
+        Matrix<T, Alloc>& operator=(const Matrix<T, Alloc>& rhs);
 
         inline T& operator[](size_t i);
         inline const T& operator[](size_t i) const;
@@ -49,31 +43,29 @@ namespace mpplas
         inline T& operator()(size_t i, size_t j);
         inline const T& operator()(size_t i, size_t j) const;
   
-        Matrix<T>& operator()(size_t n1, size_t m1, 
-                              size_t n2, size_t m2);
-        const Matrix<T>& operator()(size_t n1, size_t m1, 
-                                    size_t n2, size_t m2) const;
+        Matrix<T, Alloc> operator()(size_t n1, size_t n2, 
+                                    size_t m1, size_t m2) const;
 
 
         
-        bool operator==(const Matrix<T>& rhs) const;
+        bool operator==(const Matrix<T, Alloc>& rhs) const;
 
-        Matrix<T>& operator+=(const Matrix<T>&);
-        Matrix<T>& operator+=(const T&);
-        Matrix<T>& operator+=(const Digit);
-        Matrix<T>& operator+=(const SignedDigit);
-
-
-        Matrix<T>& operator-=(const Matrix<T>&);
-        Matrix<T>& operator-=(const T&);
-        Matrix<T>& operator-=(const Digit);
-        Matrix<T>& operator-=(const SignedDigit);
+        Matrix<T, Alloc>& operator+=(const Matrix<T, Alloc>&);
+        Matrix<T, Alloc>& operator+=(const T&);
+        Matrix<T, Alloc>& operator+=(const Digit);
+        Matrix<T, Alloc>& operator+=(const SignedDigit);
 
 
-        Matrix<T>& operator*=(const Matrix<T>& rhs);
-        Matrix<T>& operator*=(const T& rhs); 
-        Matrix<T>& operator*=(const Digit rhs);
-        Matrix<T>& operator*=(const SignedDigit rhs);
+        Matrix<T, Alloc>& operator-=(const Matrix<T, Alloc>&);
+        Matrix<T, Alloc>& operator-=(const T&);
+        Matrix<T, Alloc>& operator-=(const Digit);
+        Matrix<T, Alloc>& operator-=(const SignedDigit);
+
+
+        Matrix<T, Alloc>& operator*=(const Matrix<T, Alloc>& rhs);
+        Matrix<T, Alloc>& operator*=(const T& rhs); 
+        Matrix<T, Alloc>& operator*=(const Digit rhs);
+        Matrix<T, Alloc>& operator*=(const SignedDigit rhs);
         /** Element by element product.
          *
          * Multiply the current matrix by @a rhs element by element. 
@@ -88,7 +80,7 @@ namespace mpplas
          * @throw Errors::NonConformantDimensions If the matrices have different 
          * dimensions
          */
-        Matrix<T>& byElementProd( const Matrix<T>& rhs);
+        Matrix<T, Alloc>& byElementProd( const Matrix<T, Alloc>& rhs);
 
 
         /** Matrix "division" 
@@ -102,10 +94,10 @@ namespace mpplas
          * 
          * @throw Errors::NonInvertibleElement The divisor is not invertible
          */
-        Matrix<T>& operator/=(const Matrix<T>& rhs);
-        Matrix<T>& operator/=(const T&);
-        Matrix<T>& operator/=(const Digit);
-        Matrix<T>& operator/=(const SignedDigit);
+        Matrix<T, Alloc>& operator/=(const Matrix<T, Alloc>& rhs);
+        Matrix<T, Alloc>& operator/=(const T&);
+        Matrix<T, Alloc>& operator/=(const Digit);
+        Matrix<T, Alloc>& operator/=(const SignedDigit);
         /** Element by element division.
          *
          * Divide the current matrix by @a rhs element by element. 
@@ -120,17 +112,17 @@ namespace mpplas
          * @throw Errors::NonConformantDimensions If the matrices have 
          * different dimensions
          */
-        Matrix<T>& byElementDiv( const Matrix<T>& rhs);
+        Matrix<T, Alloc>& byElementDiv( const Matrix<T, Alloc>& rhs);
 
 
-        Matrix<T>& operator^=(const T&);
-        Matrix<T>& operator^=(const Digit);
-        Matrix<T>& operator^=(const SignedDigit );
+        Matrix<T, Alloc>& operator^=(const T&);
+        Matrix<T, Alloc>& operator^=(const Digit);
+        Matrix<T, Alloc>& operator^=(const SignedDigit );
 
 
-        Matrix<T>& transpose();
-        Matrix<T>& diagonalize();
-        Matrix<T>& invert();
+        Matrix<T, Alloc>& transpose();
+        Matrix<T, Alloc>& diagonalize();
+        Matrix<T, Alloc>& invert();
         T getDeterminant();
         void setDiagonal(T n);
         void setAll(T n);
@@ -145,41 +137,85 @@ namespace mpplas
         inline size_t getSize() const;
         inline const Dimensions& getDimensions() const;
         void setDimensions(const Dimensions& dims);
-        inline const size_t getNumRows() const;
-        inline const size_t getNumColumns() const;
+        inline size_t getNumRows() const;
+        inline size_t getNumColumns() const;
+        inline bool isSquare() const;
 
         std::string toString() const;
 
+
+
       protected:
         Dimensions _dims;
-        std::vector<T> _data; /**< Row-major vector representation of the matrix */
+        mpplas::MiVec<T, Alloc> _data; /**< Row-major vector representation of the matrix */
+
 
         void _reset();
         /** Matrix ouput operator */
-        template<typename U> friend std::ostream& operator<<(std::ostream&, 
-            const Matrix<U>& );
+        template<typename U, typename V> friend std::ostream& operator<<(std::ostream&, 
+            const Matrix<U, V>& );
         /** Matrix input operator */
-        template<typename U> friend std::istream& operator>>(std::istream&, 
-            Matrix<U>& ) ;
+        template<typename U, typename V> friend std::istream& operator>>(std::istream&, 
+            Matrix<U, V>& ) ;
 
     };
 
-  template<typename T>
-    Matrix<T> operator-(Matrix<T> m); /**< Unary negation, sign inversion */
+  template<typename T, typename Alloc>
+    Matrix<T, Alloc> transpose(const Matrix<T, Alloc>& matrix);
 
-  template<typename T>
-    Matrix<T> operator+(Matrix<T> lhs, const Matrix<T>& rhs){
+  template<typename T, typename Alloc>
+    Matrix<T, Alloc> operator-(Matrix<T, Alloc> m); /**< Unary negation, sign inversion */
+
+  template<typename T, typename Alloc>
+    Matrix<T, Alloc> operator+(Matrix<T, Alloc> lhs, const Matrix<T, Alloc>& rhs){
       lhs += rhs;
       return lhs;
     }
 
-  template<typename T>
-    Matrix<T> operator*(Matrix<T> lhs, const Matrix<T>& rhs){
-      lhs *= rhs;
-      return lhs;
-    }
+  template<typename T, typename Alloc>
+    Matrix<T, Alloc> operator*(const Matrix<T, Alloc>& lhs, const Matrix<T, Alloc>& rhs);
 
-     
+  namespace MatrixHelpers{
+
+    template<typename T>
+    class Strassen{
+      public:
+        Strassen();
+
+        run(T* C, const T* const A, const T* const B,
+          const size_t numRowsA, const size_t numColsA, 
+          const size_t numColsB,
+          const size_t strideA, const size_t strideB);
+        
+      private:
+        T* _Cini;
+        const T* const _Aini;
+        const T* const _Bini;
+        const size_t _semiRowsA;
+        const size_t _semiColsA;
+        const size_t _semiColsB;
+        const size_t _strideA;
+        const size_t _strideB;
+
+        bool _entryPoint;
+
+        void _innerRun();
+
+        void _baseMult(T* C, const T* const A, const T* const B,
+        const size_t numRowsA, const size_t numColsA, 
+        const size_t numColsB);
+
+        inline void _generateQ0(T* Q );
+        inline void _generateQ1(T* Q );
+        inline void _generateQ2(T* Q );
+        inline void _generateQ3(T* Q );
+        inline void _generateQ4(T* Q );
+        inline void _generateQ5(T* Q );
+        inline void _generateQ6(T* Q );
+    };
+    
+  } /* namespace MatrixHelpers */
+    
     #include "MatrixImpl.h"
 
 }

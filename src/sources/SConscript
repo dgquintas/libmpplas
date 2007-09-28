@@ -10,9 +10,9 @@ filesStr = """
     GCD.cpp
     Hash.cpp
     LCM.cpp
+    MatrixFloat.cpp
     MatrixZ.cpp
     MatrixR.cpp
-    MatrixFloat.cpp
     VectorialCPU.cpp
     Potencia.cpp
     Primos.cpp
@@ -24,6 +24,7 @@ filesStr = """
     RedModular.cpp
     Seedbank.cpp
     SimbolosLegendre.cpp
+    SIMDDigit.cpp
     SystemInfo.cpp
     Trascendentes.cpp
     Utils.cpp

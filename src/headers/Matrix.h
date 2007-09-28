@@ -180,38 +180,45 @@ namespace mpplas {
     template<typename T>
     class Strassen{
       public:
-        Strassen();
+        Strassen(const size_t strideA, const size_t strideB);
 
-        run(T* C, const T* const A, const T* const B,
-          const size_t numRowsA, const size_t numColsA, 
-          const size_t numColsB,
-          const size_t strideA, const size_t strideB);
+        void run(T* C, const T* const A, const T* const B, 
+            const size_t numRowsA, 
+            const size_t numColsA, 
+            const size_t numColsB);
         
       private:
-        T* _Cini;
-        const T* const _Aini;
-        const T* const _Bini;
-        const size_t _semiRowsA;
-        const size_t _semiColsA;
-        const size_t _semiColsB;
         const size_t _strideA;
         const size_t _strideB;
+        size_t _halfRowsA;
+        size_t _halfColsA;
+        size_t _halfColsB;
 
-        bool _entryPoint;
+        void _baseMult(T* C, 
+            const T* const A, 
+            const T* const B,
+            const size_t numRowsA, 
+            const size_t numColsA, 
+            const size_t numColsB) const;
 
-        void _innerRun();
+        inline void _generateQ0(T* Q) const;
+        inline void _generateQ1(T* Q) const;
+        inline void _generateQ2(T* Q) const;
+        inline void _generateQ3(T* Q) const;
+        inline void _generateQ4(T* Q) const;
+        inline void _generateQ5(T* Q) const;
+        inline void _generateQ6(T* Q) const;
 
-        void _baseMult(T* C, const T* const A, const T* const B,
-        const size_t numRowsA, const size_t numColsA, 
-        const size_t numColsB);
-
-        inline void _generateQ0(T* Q );
-        inline void _generateQ1(T* Q );
-        inline void _generateQ2(T* Q );
-        inline void _generateQ3(T* Q );
-        inline void _generateQ4(T* Q );
-        inline void _generateQ5(T* Q );
-        inline void _generateQ6(T* Q );
+        virtual void _sumBlocks(T* res, 
+            const T* const lhs, 
+            const T* const rhs) const;
+        virtual void _subsBlocks(T* res, 
+            const T* const lhs, 
+            const T* const rhs) const;
+        virtual void _multBlocks(T* res, 
+            const T* const lhs, 
+            const T* const rhs) const;
+        
     };
     
   } /* namespace MatrixHelpers */

@@ -648,6 +648,8 @@ template<typename T, typename Alloc>
   const int rowsPerBlock = 2; //FIXME
   const int colsPerBlock = 2;
 
+  MatrixHelpers::Strassen<T> strassen(ACols, BCols);
+
 #pragma omp parallel for schedule(static)
   for (int aRow = 0; aRow < ARows; aRow+= rowsPerBlock) {
     for (int bCol = 0; bCol < BCols; bCol += rowsPerBlock) {
@@ -655,11 +657,12 @@ template<typename T, typename Alloc>
       for (int aCol = 0; aCol < ACols; aCol +=colsPerBlock ) {
         const T* const A( &(lhs(aRow, aCol)) );
         const T* const B( &(rhs(aCol, bCol)) );
+      
+        strassen.run(C,A,B,
+                     rowsPerBlock,
+                     colsPerBlock,
+                     colsPerBlock);
 
-        MatrixHelpers::strassen<T, Alloc>(C,A,B,
-            rowsPerBlock,colsPerBlock,
-            rowsPerBlock,
-            lhs.getNumColumns(), rhs.getNumColumns());
       }
     }
   }
@@ -767,67 +770,87 @@ std::istream& operator>>(std::istream& in, Matrix<T, Alloc>& m) {
 namespace MatrixHelpers{
 
   template<typename T>
-    Strassen<T>::Strassen(const size_t THRESHOLD)
-    : _entryPoint(true)
+    Strassen<T>::Strassen(const size_t strideA, const size_t strideB)
+    : _strideA(strideA), _strideB(strideB)
     {}
 
 
   template<typename T>
-    Strassen<T>::run(){
+   void Strassen<T>::run(T* C, const T* const A, const T* const B, 
+            const size_t numRowsA, 
+            const size_t numColsA, 
+            const size_t numColsB){
 
-      
+      _halfRowsA = numRowsA / 2;
+      _halfColsA = numColsA / 2;
+      _halfColsB = numColsB / 2;
       /* (numColsA = numRowsB) => (halfRowsB = halfColsA) 
        *
-       * And the Q's would have ( halfRowsA x halfColsB ) dims  
+       * And the Q's would be ( halfRowsA x halfColsB ) 
        * */
-      const Dimensions qDims(halfRowsA, halfColsB);
-      mpplas::MiVec<T, Alloc> Q0(qDims), Q3_2(qDims), Q4_5(qDims), Q6_1(qDims);
+      const size_t qsSize( _halfRowsA * _halfColsB );
+      T   Q0[qsSize];
+      T Q3_2[qsSize];
+      T Q4_5[qsSize];
+      T Q6_1[qsSize];
 
-      strassenBase(C,A,B,numRowsA, numColsA, numColsB,strideA,strideB);
+      _baseMult(C,A,B, numRowsA, numColsA, numColsB);
       return;
 
     }
 
   template<typename T>
-    void Strassen<T>::_generateQ0(T* Q){
+    void Strassen<T>::_generateQ0(T* Q) const{
 
     }
   template<typename T>
-    void Strassen<T>::_generateQ1(T* Q){
+    void Strassen<T>::_generateQ1(T* Q) const{
 
     }
   template<typename T>
-    void Strassen<T>::_generateQ2(T* Q){
+    void Strassen<T>::_generateQ2(T* Q) const{
 
     }
   template<typename T>
-    void Strassen<T>::_generateQ3(T* Q){
+    void Strassen<T>::_generateQ3(T* Q) const{
 
     }
   template<typename T>
-    void Strassen<T>::_generateQ4(T* Q){
+    void Strassen<T>::_generateQ4(T* Q) const{
 
     }
   template<typename T>
-    void Strassen<T>::_generateQ5(T* Q){
+    void Strassen<T>::_generateQ5(T* Q) const{
 
     }
   template<typename T>
-    void Strassen<T>::_generateQ6(T* Q){
+    void Strassen<T>::_generateQ6(T* Q) const{
 
     }
-
+  
+  template<typename T>
+  void Strassen<T>::_sumBlocks(T* res, 
+      const T* const lhs, 
+      const T* const rhs) const{}
+  template<typename T>
+  void Strassen<T>::_subsBlocks(T* res, 
+      const T* const lhs, 
+      const T* const rhs) const{}
+  template<typename T>
+  void Strassen<T>::_multBlocks(T* res, 
+      const T* const lhs, 
+      const T* const rhs) const{}
 
   template<typename T>
     void Strassen<T>::_baseMult(
         T* C, const T* const A, const T* const B,
         const size_t numRowsA, const size_t numColsA, 
-        const size_t numColsB){
+        const size_t numColsB) const {
 
       for (size_t aRow = 0; aRow < numRowsA; aRow++) {
         for (size_t bCol = 0; bCol < numColsB; bCol++) {
           for (size_t aCol = 0; aCol < numColsA; aCol++) {
-            C[aRow * strideB + bCol] += A[ aRow * strideA + aCol] * B[aCol * strideA + bCol];
+            C[aRow * _strideB + bCol] += A[ aRow * _strideA + aCol] * B[aCol * _strideA + bCol];
           }
         }
       }

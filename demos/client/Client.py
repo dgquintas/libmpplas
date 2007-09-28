@@ -8,14 +8,26 @@ from RPCServer import RPCServer
 from Configuration import Configuration
 from xmlrpclib import Fault,MultiCall
 
+global filteredMethods
+global global_config
+global clientId
+
+
+class Variable(object):
+  def __init__(self, varId):
+    self.__varId = varId;
+  def getId(self):
+    return self.__varId;
+  def setId(self, newId):
+    self.__varId = newId;
+    
+
 def __elemsToStr(ls):
   newl = []
   for elem in ls:
     newl.append(str(elem))
   return newl
 
-global filteredMethods
-global global_config
 
 def beginBatch():
   RPCServer.getInstance().setBatch(True)
@@ -31,8 +43,10 @@ def endBatch():
 
 def initializeClient(configFileName = 'config.cfg'):
   global global_config
+  global clientId
   global_config = Configuration(configFileName)
   rpcServer = RPCServer.getInstance( global_config.RPCServerURL )
+  clientId = rpcServer.getServer()._requestClientId()
 
   global filteredMethods
   filteredMethods = filter(lambda mName: mName[:7] != 'system.' and mName[0] != '_', 
@@ -41,28 +55,37 @@ def initializeClient(configFileName = 'config.cfg'):
   proxyFuncsSrc = """def %(methodName)s(*args):
     \"\"\"%(methodHelp)s\"\"\"
     methodName = '%(methodName)s'[:2]
-    newArgs = []
+    newArgs = [clientId]
     rpcServer = RPCServer.getInstance()
     for arg in args:
       if type(arg) in ( type(()), type([]) ):
         newArgs.append( __elemsToStr(arg) )
+      elif isinstance(arg, Variable):
+        newArgs.append(arg.getId())
       else:
-        newArgs.append(str(arg))
+        newArgs.append(arg)
     try:
       result = rpcServer.getServer().%(methodName)s(*newArgs)
     except Fault, e:
       raise "Exception from the server: " + e.faultString   
     except:
       raise
-    
-    if type(result) == type(""):
-      if methodName[0] == 'z':
-        result = Z(result)
-      elif methodName[0] == 'r':
-        result = R(result)
-      elif methodName[:2] == 'mz':
-        result = MZ(result)
-    # else, do not chage its type   
+ 
+
+    if isinstance(result, dict):
+      tpe = result['type']
+      varId = result['varId']
+      if tpe == "Z":
+        result = Z(id=varId)
+
+#    if isinstance(result,int):
+#      if methodName[0] == 'z':
+#        result = Z(id=result)
+#      elif methodName[0] == 'r':
+#        result = R(result)
+#      elif methodName[:2] == 'mz':
+#        result = MZ(result)
+#    # else, do not chage its type   
     
     return result
 """
@@ -118,15 +141,23 @@ def hasBeenUpdated(self):
 #
 ######################################################
 
-class Z(object):
+class Z(Variable):
 
-  def __init__(self, zStr=""):
-    self.__integerStr = str(zStr)
+  def __init__(self, zStr="0", id=None):
+    if id:
+      varId = id
+    else:
+      #create the instance on the server -> we get the varId
+      varId = zCreate(zStr)
+    #invoke Variable's constructor with the varId
+    Variable.__init__(self, varId)
 
   def __add__(self, anotherZ): 
-    return zAdd(self, anotherZ )
+    if not isinstance(anotherZ,type(self)):
+      anotherZ = Z(str(anotherZ))
+    return Z(id=zAdd(self, anotherZ ))
   def __iadd__(self, anotherZ): 
-    self.__integerStr = str(zAdd(self, anotherZ))
+    self.setId( self.__add__(anotherZ).getId() )
     return self
 
   def __sub__(self, anotherZ): 
@@ -175,15 +206,16 @@ class Z(object):
     return self.__integerStr[key]
 
   def __repr__(self):
-    return 'Z("' + self.__integerStr + '")'
+    return "%s with id %d" % (type(self),self.getId())
 
   def __str__(self):
-    return self.__integerStr
+    res = zGet(self.getId())
+    return res
 
 
 #######################################################################
 
-class R(object):
+class R(Variable):
 
   def __init__(self, rStr=""):
     self.__realStr = str(rStr)
@@ -242,7 +274,7 @@ class R(object):
 
 ###############################################################################
 
-class MZ(object): #matrix Z
+class MZ(Variable): #matrix Z
 
   def __init__(self, mzStr=""):
     self.__matrixZStr = str(mzStr)
@@ -287,6 +319,9 @@ class MZ(object): #matrix Z
     str = "[ " + str +" ]"
 
     return str
+
+#########################################################
+
 
 
 import sys

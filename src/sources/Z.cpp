@@ -1499,6 +1499,8 @@ namespace mpplas{
     return *this;
   }
 
+
+
   Z& Z::potenciaBase(const size_t n)
   {
 //    coefPoliB_.clear();

@@ -19,7 +19,7 @@ namespace mpplas{
     _r %= _mod;
     _rSqr.potenciaBase( _mod.longitud() * 2 );
     _rSqr %= _mod;
-    _precomputations(_mPrime);
+    _precomputations();
   }
 
   ZM_n::ZM_n( const Z& num, const Z& mod ) 
@@ -30,7 +30,7 @@ namespace mpplas{
     _rSqr.potenciaBase( _mod.longitud() * 2 );
     _rSqr %= _mod;
 
-    _precomputations(_mPrime);
+    _precomputations();
     this->operator%=(_mod);
     *this = _montgomeryProd(*this,_rSqr);
   }
@@ -221,15 +221,15 @@ namespace mpplas{
   ///////////////////////////////////////
 
 
-  void ZM_n::_precomputations(Z& mPrime) {
+  void ZM_n::_precomputations() {
     MethodsFactory* const funcs(MethodsFactory::getInstance());
     
-    mPrime.hacerUno();
-    mPrime.potenciaBase(1);
+    _mPrime.hacerUno();
+    _mPrime.potenciaBase(1);
     PotModular* potMod; 
     funcs->getFunc(potMod);
 
-    mPrime -= potMod->inversa(_mod, _mPrime); // m' = -mod^{-1} (mod base)
+    _mPrime -= potMod->inversa(_mod, _mPrime); // m' = -mod^{-1} (mod base)
 
     return;
   }

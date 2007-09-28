@@ -432,18 +432,25 @@ namespace mpplas{
 
     ClasicoConBarrett potMod;
     const size_t numSects = sections.size();
-    std::vector< Z > partialResults(numSects, *base);
     
     RedBarrett* redbarrett; funcs->getFunc(redbarrett);
     const Z mu(redbarrett->precomputaciones(mod));
-#pragma omp parallel for shared(sections, partialResults, potMod)
+    Z partialAllTwos(*base);
+
+    potMod.potModular( &partialAllTwos, Z::getPowerOfTwo(sectionSizes), mod, mu);
+    std::vector< Z > partialResults(numSects, partialAllTwos); //pos 0 wont ever be used
+#pragma omp parallel for shared(sections, potMod,partialResults)
     for(int i = 0 ; i < numSects;  i++){
-      sections[i] <<= (i*sectionSizes) ;
-      potMod.potModular( &(partialResults[i]), sections[i], mod, mu);
+      if( i == 0 ){
+        potMod.potModular( base, sections[0], mod, mu);
+      }
+      else{
+        sections[i] <<= ((i-1)*sectionSizes) ;
+        std::cout << "thread " << omp_get_thread_num() << " IN: " << sections[i].getBitLength() <<std::endl;
+        potMod.potModular( &(partialResults[i]), sections[i], mod, mu);
+      }
     }
 
-
-    *base = partialResults[0];
 
     for(int i = 1 ; i < numSects;  i++){
       (*base) *= partialResults[i];

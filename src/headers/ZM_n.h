@@ -24,8 +24,6 @@ namespace mpplas{
   class ZM_n : public Z
   {
     public: 
-
-
       /** Constructor given the modulus \f$n\f$.
        *
        * @param mod Integer representing the modulus. It must be
@@ -35,7 +33,6 @@ namespace mpplas{
        * is even when it should have been odd.
        */
       explicit ZM_n( const Z& mod);
-
 
       ZM_n( const Z& num, const Z& mod);
       ZM_n( const ZM_n& otro);
@@ -98,7 +95,7 @@ namespace mpplas{
       /** Reducción de Montgomery. */
       void _montgomeryRed(Z& toReduce);
       /**  Realiza las precomputaciones del método. */
-      void _precomputations(Z& mPrime);
+      void _precomputations();
       /** Montgomery product */
       static ZM_n _montgomeryProd(const ZM_n& lhs, const Z& rhs);
 

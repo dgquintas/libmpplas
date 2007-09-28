@@ -3,7 +3,7 @@
  */
 
 #include "qtunit/TextTestRunner.h"
-#include "NumthTestSuite.h"
+#include "MPPLASTestSuite.h"
 #include "SystemInfo.h"
 
 #include <iostream>
@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
     << (mpplas::SystemInfo::isReleaseVersion() ? "true" : "false" )
     << std::endl;
  
-	NumthTestSuite testsuite;
+	MPPLASTestSuite testsuite;
 	TextTestRunner runner(argc, argv);
 	runner.add(testsuite);
 		

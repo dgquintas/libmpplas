@@ -5,8 +5,7 @@
 #ifndef __TEMPLATE_H
 #define __TEMPLATE_H
 
-#include <cppunit/TestFixture.h>
-#include <cppunit/extensions/HelperMacros.h>
+#include "qtunit/TestCase.h"
 #include <string>
 
 

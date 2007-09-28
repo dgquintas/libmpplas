@@ -1,4 +1,5 @@
-#include "Matrix.h"
+#include "MatrixZ.h"
+#include "omp_mock.h"
 #include <iostream>
 
 
@@ -8,14 +9,32 @@ using namespace std;
 
 int main(){
 
-  Matrix<int> mat("[1324 21 3; 4 5 6; -753442 8 9]");
+  cout << omp_get_max_threads() << endl;
 
-  cout << mat;
+  MatrixZ mat(
+  "[ 1    2    3    4 ;" 
+  "  8    9   10   11 ;"
+  " 15   16   17   18 ;"
+  " 22   23   24   25 ;"
+  " 29   30   31   32 ;"
+  " 36   37   38   39 ;"
+  " 43   44   45   46  ]"
+  );
 
-  cout << endl;
+  cout << mat << endl;
+ 
   mat.transpose();
+  cout << mat << endl;
+  mat.transpose();
+  cout << mat << endl;
 
-  cout << mat;
+  MatrixZ sqr( "[1 2 3; 4 5 6; 7 8 9]" );
+  cout << sqr << endl;
+  cout << transpose(sqr) << endl;
+  sqr.transpose();
+  cout << sqr << endl;
+
+
 
 
   return 0;

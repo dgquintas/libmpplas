@@ -34,7 +34,8 @@ moduleFiles = Split("""
     OpenMPTest.cpp
     ReductionTest.cpp
     ExponentiationTest.cpp
-    NumthTestSuite.cpp
+    SystemInfoTest.cpp
+    MPPLASTestSuite.cpp
     TestModule.cpp
     TextRunner.cpp
     """)

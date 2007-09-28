@@ -1019,7 +1019,7 @@ namespace mpplas
        *
        * @param n the two's exponent
        *
-       * @par Complejidad:
+       * @par Complexity:
        * \f$O(1)\f$ */
       Z& powerOfTwo(const size_t n);
 
@@ -1192,6 +1192,22 @@ namespace mpplas
         static void precisionSalida(size_t nueva) 
         { precisionSalida_ = nueva; return;}
  
+      /** Returns a power of two.
+       *
+       * Returns an integer equal to \f$2^n\f$.
+       *
+       * @param n the two's exponent
+       * @return an integer equal to \f$2^n\f$.
+       *
+       * @par Complexity:
+       * \f$O(1)\f$ */
+      static Z getPowerOfTwo(const size_t n){
+        Z res;
+        res.powerOfTwo(n);
+        return res;
+      }
+
+
       /** TODO */
       static Z ZERO;
       static Z ONE;

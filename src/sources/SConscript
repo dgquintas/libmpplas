@@ -147,6 +147,11 @@ def setBitLengthDependentParams(env, bits = 32):
   env.Append(LINKFLAGS = ' -m%d ' % bits)
   env.filesStr += ' CPUInfo_%s.cpp ' % env['arch']
 
+
+def getSIMDPreferenceList():
+  #from most preferred to least.
+  return ('sse2', 'sse')
+
 #######################################################
 
 Import('env')
@@ -158,11 +163,8 @@ env.Append(CCFLAGS = ' -O' + env['optLevel'])
 env.filesStr = filesStr
   
 
-
-
 if env['enableRelease']:
   env.Append(CPPDEFINES = ['RELEASE','NDEBUG'])
- 
 
 
 #if env['enableExtraOpt']: 
@@ -192,20 +194,33 @@ def CheckSIMD(context):
         : "=d"(edx), "=c"(ecx)
         : "a"(eax)
         );
-      if( edx & (1L << 23) ){ res += "\"MMX\"" ; }
-      if( edx & (1L << 25) ){ res += ", \"SSE\"" ; }
-      if( edx & (1L << 26) ){ res += ", \"SSE2\"" ;}
-      if( ecx & (1L) ){ res += ", \"SSE3\"" ; }
-      if( ecx & (1L << 9) ){ res += ", \"SSSE3\"" ; } 
+      if( edx & (1L << 23) ){ res += "\"mmx\"" ; }
+      if( edx & (1L << 25) ){ res += ", \"sse\"" ; }
+      if( edx & (1L << 26) ){ res += ", \"sse2\"" ;}
+      if( ecx & (1L) ){ res += ", \"sse3\"" ; }
+      if( ecx & (1L << 9) ){ res += ", \"ssse3\"" ; } 
       res += "]";
       std::cout << res ;
       return 0;
       }
     """, '.cpp')
   if ret[0]:
-    context.env["SIMD"] = ret[1]
-  context.Result(ret[0])
+    context.env['SupportedSIMD'] = ret[1]
+  context.Result(ret[1])
   return ret[0]
+
+def SetSIMDAuto(context):
+  context.Message('Automatically selecting SIMD tech. to use...')
+  for simdTech in getSIMDPreferenceList():
+    if simdTech in context.env['SupportedSIMD']:
+      context.env.Append(CPPFLAGS=' -m%s ' % simdTech )
+      context.env['enableSIMD'] = simdTech
+      break
+  else: # nosimd
+    context.env['enableSIMD'] = 'nosimd'
+
+  context.Result(context.env['enableSIMD'])
+      
 
 def CheckX86Arch(context):
   context.Message('Checking for x86 architecture ... ')
@@ -258,7 +273,11 @@ if env.GetOption('clean'):
   if os.path.exists(File(env['CONFIG_LOG']).abspath):
     os.remove(File(env['CONFIG_LOG']).abspath)
 else:
-  conf = Configure(env,log_file=env['CONFIG_LOG'],custom_tests = {'CheckOpenMP':CheckOpenMP , 'CheckSIMD':CheckSIMD, 'CheckX86Arch': CheckX86Arch} )
+  conf = Configure(env,log_file=env['CONFIG_LOG'],custom_tests = {
+    'CheckOpenMP':CheckOpenMP , 
+    'CheckSIMD':CheckSIMD, 
+    'CheckX86Arch': CheckX86Arch,
+    'SetSIMDAuto': SetSIMDAuto} )
   if not conf.CheckType('uint32_t', '#include <stdint.h>\n', 'C++'):
     print 'Could not find C99 type "uint32_t". Exiting...'
     Exit(1)
@@ -267,22 +286,10 @@ else:
     print 'Could not find C99 type "int32_t". Exiting...'
     Exit(1)
 
-  if env['enableSIMD'] != 'nosimd' and conf.CheckSIMD():
-    msg = "\tSIMD instructions present: " + str(env['SIMD']) + ". "
-    if env['enableSIMD'] == "sse2" and "SSE2" in env['SIMD']:
-      env.Append(CPPFLAGS=' -msse2 ')
-      msg += "Using SSE2"
-    elif env['enableSIMD'] == "sse" or "SSE" in env['SIMD']:
-      # it's an or because if we are here is either by choice or because
-      # we asked for sse2 but it is not supported. Therefore, if sse is,
-      # we go for it
-      env.Append(CPPFLAGS=' -msse ')
-      env['enableSIMD'] = "sse"
-      msg += "Using SSE"
-    print msg
-  else: # simd = nosimd
-    print "\tSIMD instructions *not* present or disabled"
-  
+  conf.CheckSIMD()
+  if env['enableSIMD'] == 'auto':
+    conf.SetSIMDAuto()
+      
   env.Append(CPPDEFINES = 'USESIMD_' + env['enableSIMD'] )
 
   if env['enableOpenmp']:
@@ -294,9 +301,6 @@ else:
       
     elif ( env['CXX'][:2] == 'ic' ): #intel c compiler
       env.Append(CPPFLAGS=' -openmp ', LINKFLAGS='-openmp')
-
-
-
 
     if not conf.CheckOpenMP():
       env.filesStr += ' omp_mock.cpp '

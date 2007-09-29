@@ -15,8 +15,8 @@ opts.AddOptions(
     BoolOption('enableOpenmp', 'Use OpenMP (if available)', 1),
     BoolOption('enableRelease', 'Generate a RELEASE version (optimized)', 0),
     BoolOption('enableWarnings', 'Compile with -Wall and similar flags', 0),
-    EnumOption('enableSIMD', 'Use the given SIMD kernel (if available)', 'sse2',
-                allowed_values=('nosimd', 'sse', 'sse2') )
+    EnumOption('enableSIMD', 'Use the given SIMD kernel (if available)', 'auto',
+                allowed_values=('auto', 'nosimd', 'sse', 'sse2') )
     )   
 
 env = Environment( options = opts, ENV=os.environ)

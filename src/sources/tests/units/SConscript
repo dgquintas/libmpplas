@@ -7,16 +7,44 @@ import os.path
 #
 Import('myenv')
 
+def CheckQt(context, qtdir):
+    context.Message( "Checking for QT..." )
+    lastLIBS = context.env.get('LIBS',"")
+    lastLIBPATH = context.env.get('LIBPATH', "")
+    lastCPPPATH= context.env.get('CPPPATH', "")
+    context.env.Append(LIBS = "qt-mt", LIBPATH = qtdir + "/lib", CPPPATH = qtdir + "/include" )
+    ret = context.TryLink("""
+#include <qapp.h>
+int main(int argc, char **argv) {
+  QApplication qapp(argc, argv);
+  return 0;
+}
+""", ".cpp")
+    if not ret:
+        context.env.Replace(LIBS = lastLIBS, LIBPATH=lastLIBPATH, CPPPATH=lastCPPPATH)
+    context.Result( ret )
+    return ret
+
+env = Environment()
+conf = Configure( env, custom_tests = { "CheckQt" : CheckQt } )
+
+if not myenv['ENV'].has_key('QTDIR'):
+  myenv['ENV']['QTDIR'] = "/usr/share/qt3/"
+  print "WARNING: $QTDIR not set. Trying", myenv['ENV']['QTDIR']
+if not conf.CheckQt(myenv['ENV']['QTDIR']):
+    print "We really need QT!"
+    Exit(1)
+env = conf.Finish()
+
+
+myenv.Append(CPPPATH = myenv['ENV']['QTDIR']+'/include')
+myenv.Append(LIBPATH = myenv['ENV']['QTDIR']+'/lib')
 myenv.Append(CPPPATH = '#/extra/include')
 myenv.Append(CPPPATH = ('#/extra/include' + myenv['ARCHBITS']))
 myenv.Append(LIBPATH= ('#/extra/lib' + myenv['ARCHBITS']))
 
 myenv.Append(LIBS = [ 'pthread', 'm', 'pari', 'qtunit'])
-if not myenv['ENV'].has_key('QTDIR'):
-  print "WARNING: $QTDIR not set. Guessing..."
-  myenv['ENV']['QTDIR'] = "/usr/share/qt3/"
-myenv.Append(CPPPATH = myenv['ENV']['QTDIR']+'/include')
-myenv.Append(LIBPATH = myenv['ENV']['QTDIR']+'/lib')
+
 #myenv.Replace(CCFLAGS = '-O0 -ggdb3') #FIXME
 
 moduleFiles = Split("""

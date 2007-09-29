@@ -1,0 +1,9 @@
+<!DOCTYPE PROJECT SYSTEM "dtd/project.dtd">
+<PROJECT NAME="libmpplas" >
+ <AUTHOR>David</AUTHOR>
+ <DESCRIPTION></DESCRIPTION>
+ <MODULE>
+  <FILEPATH>/home/dgquintas/libmpplas/trunk/bin/tests/libtestsmodule.so</FILEPATH>
+  <SOURCEPATH>/home/dgquintas/libmpplas/trunk/src/sources/</SOURCEPATH>
+ </MODULE>
+</PROJECT>

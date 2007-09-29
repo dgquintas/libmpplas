@@ -137,47 +137,27 @@ namespace mpplas{
   out.close();  
 
 
+def setBitLengthDependentParams(env, bits = 32):
+  assert( bits in (32,64) )
+  bitsStr = str(bits)
+  env.Append(CPPDEFINES = [('ARCHBITS', bitsStr)])
+  env.Append(CPPDEFINES = 'ARCH_' + env['arch'] )
+  env['ARCHBITS'] = bitsStr
+  env.Append(CCFLAGS = ' -m%d ' % bits)
+  env.Append(LINKFLAGS = ' -m%d ' % bits)
+  env.filesStr += ' CPUInfo_%s.cpp ' % env['arch']
+
+#######################################################
 
 Import('env')
-
-
-
 
 
 env.Append(CCFLAGS = ' -pipe ')
 env.Append(CCFLAGS = ' -O' + env['optLevel'])
 
+env.filesStr = filesStr
   
-try:
-  import platform
 
-  if env['arch'] not in getNativelySupportedArchs():
-    print "\nWARNING: the selected architecture (" + env['arch'] + ") is not natively supported by this system"
-    for i in xrange(3):
-      time.sleep(1)
-      print '.',
-      sys.stdout.flush()
-    else:
-      print ''
-
-except ImportError:
-  print "Platform support checking not supported by the Python installed: " + sys.version
-
-env.Append(CPPDEFINES = 'ARCH_' + env['arch'] )
-
-if env['arch'][:6] == 'x86_64':
-  env.Append(CPPDEFINES = [('ARCHBITS', '64')])
-  env['ARCHBITS'] = '64'
-  env.Append(CCFLAGS = ' -m64 ')
-  env.Append(LINKFLAGS = ' -m64 ')
-  filesStr += ' CPUInfo_x86_64.cpp '
-
-else:
-  env.Append(CPPDEFINES = [('ARCHBITS', '32')])
-  env['ARCHBITS'] = '32' 
-  env.Append(CCFLAGS = ' -m32 ')
-  env.Append(LINKFLAGS = ' -m32 ')
-  filesStr += ' CPUInfo_x86.cpp '
 
 
 if env['enableRelease']:
@@ -204,8 +184,6 @@ def CheckSIMD(context):
       #include <iostream>
       #include <string>
 
-      #include <stdint.h>
-    
       int main(){
       std::string res("[");
       uint32_t eax, edx, ecx;
@@ -228,7 +206,36 @@ def CheckSIMD(context):
     context.env["SIMD"] = ret[1]
   context.Result(ret[0])
   return ret[0]
-      
+
+def CheckX86Arch(context):
+  context.Message('Checking for x86 architecture ... ')
+  ret = context.TryRun(
+    r"""
+      #include <iostream>
+
+      int main(){
+        uint32_t eax, edx;
+        eax = 0x80000001;
+        asm ( "cpuid;"
+          : "=d"(edx)
+          : "a"(eax)
+          );
+        if( edx & (1L << 29) ){ 
+          std::cout << "x86_64"; /* the CPU has x86-64 support */ 
+        }
+        else {
+          std::cout << "x86";
+        }
+
+        return 0;
+      }
+    """, '.cpp')
+  if ret[0]:
+    context.env['arch'] = ret[1]
+  context.Result(ret[1])
+  return ret[0]
+
+
 
 def CheckOpenMP(context):
   context.Message('Checking for OpenMP support... ')
@@ -251,7 +258,7 @@ if env.GetOption('clean'):
   if os.path.exists(File(env['CONFIG_LOG']).abspath):
     os.remove(File(env['CONFIG_LOG']).abspath)
 else:
-  conf = Configure(env,log_file=env['CONFIG_LOG'],custom_tests = {'CheckOpenMP':CheckOpenMP , 'CheckSIMD':CheckSIMD} )
+  conf = Configure(env,log_file=env['CONFIG_LOG'],custom_tests = {'CheckOpenMP':CheckOpenMP , 'CheckSIMD':CheckSIMD, 'CheckX86Arch': CheckX86Arch} )
   if not conf.CheckType('uint32_t', '#include <stdint.h>\n', 'C++'):
     print 'Could not find C99 type "uint32_t". Exiting...'
     Exit(1)
@@ -261,7 +268,7 @@ else:
     Exit(1)
 
   if env['enableSIMD'] != 'nosimd' and conf.CheckSIMD():
-    msg = "SIMD instructions present: " + str(env['SIMD']) + ". "
+    msg = "\tSIMD instructions present: " + str(env['SIMD']) + ". "
     if env['enableSIMD'] == "sse2" and "SSE2" in env['SIMD']:
       env.Append(CPPFLAGS=' -msse2 ')
       msg += "Using SSE2"
@@ -274,7 +281,7 @@ else:
       msg += "Using SSE"
     print msg
   else: # simd = nosimd
-    print "SIMD instructions *not* present or disabled"
+    print "\tSIMD instructions *not* present or disabled"
   
   env.Append(CPPDEFINES = 'USESIMD_' + env['enableSIMD'] )
 
@@ -288,19 +295,48 @@ else:
     elif ( env['CXX'][:2] == 'ic' ): #intel c compiler
       env.Append(CPPFLAGS=' -openmp ', LINKFLAGS='-openmp')
 
-    if conf.CheckOpenMP():
-      print 'OpenMP support present'
 
-    else: # openmp check failed
-      print 'OpenMP support *not* present'
-      filesStr += ' omp_mock.cpp '
+
+
+    if not conf.CheckOpenMP():
+      env.filesStr += ' omp_mock.cpp '
       env['CPPFLAGS'] = prevCPPFLAGS
       env['LIBS'] = prevLIBS
       env['LINKFLAGS'] = prevLINKFLAGS
       env['enableOpenmp'] = False
   else: # openmp not selected as an scons option
-    filesStr += ' omp_mock.cpp '
-      
+    env.filesStr += ' omp_mock.cpp '
+ 
+
+  if env['arch'] == 'auto':
+    #TODO: check for other archs
+    conf.CheckX86Arch()
+
+    if env['arch'][:6] == 'x86_64':
+      setBitLengthDependentParams(env, bits = 64)
+
+    elif env['arch'][:3] == 'x86':
+      setBitLengthDependentParams(env, bits = 32)
+
+  else: # env['arch'] is not 'auto'. ie, it has been manually defined
+    setBitLengthDependentParams(env) #assumes 32 bits
+
+    try:
+      import platform
+
+      if env['arch'] not in getNativelySupportedArchs():
+        print "\nWARNING: the selected architecture (" + env['arch'] + ") is not natively supported by this system"
+        for i in xrange(3):
+          time.sleep(1)
+          print '.',
+          sys.stdout.flush()
+        else:
+          print ''
+
+    except ImportError:
+      print "Platform support checking not supported by the Python installed: " + sys.version
+
+
   env = conf.Finish()
   # configuring ends
 
@@ -342,7 +378,7 @@ env.Append( CPPPATH=[kernelsDir] )
 
 dumpConfigToCpp(env,str(File('#/src/headers/CompilationConfig.h')))
 
-files = Split(filesStr)
+files = Split(env.filesStr)
 def print_cmd_line(s, target, source, env):
   sys.stdout.write("Building %s -> %s...\n" %
     (' and '.join([str(x) for x in source]),

@@ -6,8 +6,8 @@ opts.AddOptions(
     EnumOption('optLevel', 'Compiler optimization level', '0', 
                 allowed_values=('0','1','2','3','s')),
     
-    EnumOption('arch', 'Target architecture', 'x86',
-                allowed_values=('generic','x86','x86Prof','ppc','x86_64','x86_64Prof')),
+    EnumOption('arch', 'Target architecture', 'auto',
+                allowed_values=('auto', 'generic','x86','x86Prof','ppc','x86_64','x86_64Prof')),
     
    # BoolOption('enableExtraOpt', 'Use extra optimization flags', 1),
     BoolOption('enableDebug', 'Generate debug symbols', 0),

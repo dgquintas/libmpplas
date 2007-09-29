@@ -7,12 +7,18 @@ import os.path
 #
 Import('myenv')
 
-def CheckQt(context, qtdir):
+def CheckQt(context):
     context.Message( "Checking for QT..." )
     lastLIBS = context.env.get('LIBS',"")
     lastLIBPATH = context.env.get('LIBPATH', "")
     lastCPPPATH= context.env.get('CPPPATH', "")
-    context.env.Append(LIBS = "qt-mt", LIBPATH = qtdir + "/lib", CPPPATH = qtdir + "/include" )
+    if not myenv['ENV'].has_key('QTDIR'):
+      qtdir = "/usr/share/qt3/"
+      print " WARNING: $QTDIR not set. Trying", qtdir ,"... ",
+    else:
+      qtdir = myenv['ENV']['QTDIR']
+
+    context.env.Replace(LIBS = "qt-mt", LIBPATH = qtdir + "/lib", CPPPATH = qtdir + "/include" )
     ret = context.TryLink("""
 #include <qapp.h>
 int main(int argc, char **argv) {
@@ -20,30 +26,26 @@ int main(int argc, char **argv) {
   return 0;
 }
 """, ".cpp")
-    if not ret:
+    if ret:
         context.env.Replace(LIBS = lastLIBS, LIBPATH=lastLIBPATH, CPPPATH=lastCPPPATH)
+        context.env.Append(LIBS = "qt-mt", LIBPATH = qtdir + "/lib", CPPPATH = qtdir + "/include" )
     context.Result( ret )
     return ret
 
-env = Environment()
-conf = Configure( env, custom_tests = { "CheckQt" : CheckQt } )
+# configuring starts (only if we are not cleaning)
+if not myenv.GetOption('clean'):
+  conf = Configure( myenv, custom_tests = { "CheckQt" : CheckQt } )
 
-if not myenv['ENV'].has_key('QTDIR'):
-  myenv['ENV']['QTDIR'] = "/usr/share/qt3/"
-  print "WARNING: $QTDIR not set. Trying", myenv['ENV']['QTDIR']
-if not conf.CheckQt(myenv['ENV']['QTDIR']):
-    print "We really need QT!"
-    Exit(1)
-env = conf.Finish()
+  if not conf.CheckQt():
+      print "We really need QT!"
+      Exit(1)
+  myenv = conf.Finish()
 
+  myenv.Append(CPPPATH = '#/extra/include')
+  myenv.Append(CPPPATH = ('#/extra/include' + myenv['ARCHBITS']))
+  myenv.Append(LIBPATH= ('#/extra/lib' + myenv['ARCHBITS']))
 
-myenv.Append(CPPPATH = myenv['ENV']['QTDIR']+'/include')
-myenv.Append(LIBPATH = myenv['ENV']['QTDIR']+'/lib')
-myenv.Append(CPPPATH = '#/extra/include')
-myenv.Append(CPPPATH = ('#/extra/include' + myenv['ARCHBITS']))
-myenv.Append(LIBPATH= ('#/extra/lib' + myenv['ARCHBITS']))
-
-myenv.Append(LIBS = [ 'pthread', 'm', 'pari', 'qtunit'])
+  myenv.Append(LIBS = [ 'pthread', 'm', 'pari', 'qtunit'])
 
 #myenv.Replace(CCFLAGS = '-O0 -ggdb3') #FIXME
 

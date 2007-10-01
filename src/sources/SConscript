@@ -181,6 +181,7 @@ if env['enableWarnings']:
 
 def CheckSIMD(context):
   context.Message('Checking for SIMD instructions support... ')
+  context.env['SupportedSIMD'] = []
   ret = context.TryRun(
     r"""
       #include <iostream>

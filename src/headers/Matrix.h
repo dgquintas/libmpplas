@@ -151,7 +151,6 @@ namespace mpplas {
 
 
         void _reset();
-        void _parseMatrixInput(std::istream&, int elemsPerSlot); 
 
         /** Matrix ouput operator */
         template<typename U, typename V> 
@@ -161,11 +160,10 @@ namespace mpplas {
         template<typename U, typename V>
           friend std::istream& operator>>(std::istream&, 
               Matrix<U, V>& ) ;
-
-
+        template<typename U, typename V, typename Composed_t>
+          friend void _parseMatrixInput(std::istream& in, Matrix<U, V>& m); 
 
     };
-  
 
   template<typename T, typename Alloc>
     Matrix<T, Alloc> transpose(const Matrix<T, Alloc>& matrix);

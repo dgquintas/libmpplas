@@ -46,7 +46,7 @@ namespace mpplas
 
     private:
 
-      size_t _realNumOfCols;
+     size_t _realNumOfCols;
 
       friend std::istream& operator>>(std::istream& in, MatrixFloat& m);
       friend std::ostream& operator<<(std::ostream& out, const MatrixFloat& m);

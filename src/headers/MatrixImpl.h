@@ -718,31 +718,32 @@ std::ostream& operator<<(std::ostream& out, const Matrix<T, Alloc>& m){
 }
 
 
-template<typename T, typename Alloc>
-void Matrix<T,Alloc>::_parseMatrixInput(std::istream& in, int elemsPerSlot){
+template<typename U, typename V, typename Composed_t>
+void _parseMatrixInput(std::istream& in, Matrix<U, V>& m){
 
   char c;
   size_t columnsIni, columnsRead, rows;
   columnsIni = columnsRead = rows = 0;
   bool firstRow = true;
 
-  this->_reset();
+  int elemsPerSlot = sizeof(Composed_t)/sizeof(U);
+
+  m._reset();
   in >> c;
   if( !in.good() || c != '[' ){
     throw Errors::InvalidSymbol(std::string(1,c));
   }
 
-  T valueRead;
-  this->_data.push_back(T());
-  int availableSlots = 1;
-  T* mData = &(this->_data[0]) ;
+  U valueRead;
+  m._data.insert( m._data.end(), elemsPerSlot, U());
+  int availableSlots = elemsPerSlot;
+  U* mData = &(m._data[0]) ;
 
-  //while(true){
   for(int i=0; ; ){
     while( in >> valueRead ){
       if( availableSlots <= 0 ){
-        this->_data.push_back(T());
-        mData = &(this->_data[0]) ;
+        m._data.insert( m._data.end(), elemsPerSlot, U());
+        mData = &(m._data[0]) ;
         availableSlots = elemsPerSlot;
       }
       mData[i] = valueRead;
@@ -775,8 +776,8 @@ void Matrix<T,Alloc>::_parseMatrixInput(std::istream& in, int elemsPerSlot){
     columnsRead = 0;
 
     if( c == ']' ){ 
-      this->_dims.setRows(rows+1);
-      this->_dims.setColumns(columnsIni);
+      m._dims.setRows(rows+1);
+      m._dims.setColumns(columnsIni);
       return ;
     }
     rows++;
@@ -790,8 +791,7 @@ void Matrix<T,Alloc>::_parseMatrixInput(std::istream& in, int elemsPerSlot){
 template<typename T, typename Alloc>
 std::istream& operator>>(std::istream& in, Matrix<T, Alloc>& m) {
 
-
-  m._parseMatrixInput(in, 1);
+  _parseMatrixInput<T, Alloc, T>(in,m);
 
   return in;
 }

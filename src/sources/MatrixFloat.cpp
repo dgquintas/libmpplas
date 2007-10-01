@@ -44,63 +44,7 @@ namespace mpplas
 
   std::istream& operator>>(std::istream& in, MatrixFloat& m){
 
-    m._reset();
-    m._data.resize(3);
-    float* const mData( (float*)&(m._data[0]) );
-    char c;
-    size_t columnsIni, columnsRead, rows;
-    columnsIni = columnsRead = rows = 0;
-    bool firstRow = true;
-
-    in >> c;
-    if( !in.good() || c != '[' ){
-      throw Errors::InvalidSymbol(std::string(1,c));
-    }
-
-    float valueRead;
-
-    for(int i=0; ; ){
-      while( in >> valueRead ){
-        mData[i] = valueRead;
-        i++;
-        if( firstRow ) {
-          columnsIni++;
-        }
-        else{
-          columnsRead++;
-          if( columnsRead > columnsIni ){
-            throw Errors::Sintactic("Inconsistent number of columns");
-          }
-        }
-        in >> std::ws >> c;
-        if( c != ';' && c != ']' ){
-          in.putback(c);
-        }
-        else{ //reached the final ] or ; 
-          break; 
-        }
-      }// inner while
-      if( in.fail() ){
-        throw Errors::InvalidSymbol(std::string(1,c));
-      }
-
-      if( (!firstRow) && (columnsRead != columnsIni) ){
-        throw Errors::Sintactic("Inconsistent number of columns");
-      }
-      columnsRead = 0;
-
-      if( c == ']' ){ 
-        m._dims.setRows(rows+1);
-        m._dims.setColumns(columnsIni);
-        return in;
-      }
-      rows++;
-      firstRow = false;
-    } //while(true)
-
-
-
-
+    m._parseMatrixInput(in, 4);
     return in;
   }
 

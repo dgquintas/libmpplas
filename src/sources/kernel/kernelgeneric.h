@@ -3,6 +3,8 @@
  */
 #ifdef ARCH_generic
 
+#include "Constants.h"
+
 namespace mpplas{
 
   namespace BasicCPU{

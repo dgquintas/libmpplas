@@ -1,6 +1,7 @@
 #include "SystemInfo.h"
 #include "CPUInfo_x86.h"
 #include "CPUInfo_x86_64.h" 
+#include "CPUInfo_generic.h"
 #include "CompilationConfig.h"
 #include "omp_mock.h"
 
@@ -17,7 +18,7 @@ namespace mpplas{
 #endif
 
 #ifdef ARCH_generic
-        //TODO
+        return CPUInfo_generic::getReference();
 #endif
       }; 
 

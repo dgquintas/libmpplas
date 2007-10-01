@@ -43,8 +43,14 @@ namespace mpplas
   }
 
   std::istream& operator>>(std::istream& in, MatrixFloat& m){
+    Matrix<float,SSEAlloc< SIMDDigit< float4xSIMD_t >, 16 > >* 
+      mf( (Matrix<float,SSEAlloc< SIMDDigit< float4xSIMD_t >, 16 > >*)(&m));
 
-    m._parseMatrixInput(in, 4);
+    _parseMatrixInput<float,
+      SSEAlloc< SIMDDigit< float4xSIMD_t >, 16 >, 
+      SIMDDigit< float4xSIMD_t > >
+        (in, *mf);
+      
     return in;
   }
 

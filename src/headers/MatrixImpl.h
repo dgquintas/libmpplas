@@ -1,7 +1,7 @@
 
 #include "omp_mock.h"
 
-#include <unistd.h>
+#include <algorithm>
 
 //////////////////////////////////////////
 //   IMPLEMENTATION
@@ -639,29 +639,40 @@ Matrix<T, Alloc> transpose(const Matrix<T, Alloc>& matrix){
 template<typename T, typename Alloc>
   Matrix<T, Alloc> operator*(const Matrix<T, Alloc>& lhs, const Matrix<T, Alloc>& rhs){
 
-  const size_t ARows = lhs.getDimensions().getRows();
-  const size_t ACols = lhs.getDimensions().getColumns();
-  const size_t BCols = rhs.getDimensions().getColumns();
+  const size_t ACols = lhs.getNumColumns();
+  const size_t BRows = rhs.getNumRows();
+
+  if( ACols != BRows ){
+    std::ostringstream oss;
+    oss << "Left-hand-side operator size = " << lhs.getDimensions().toString() << "\n";
+    oss << "Right-hand-side operator size = " << rhs.getDimensions().toString();
+    throw Errors::NonConformantDimensions(lhs.getDimensions(), rhs.getDimensions(),  oss.str());
+  }
+  const size_t ARows = lhs.getNumRows();
+  const size_t BCols = rhs.getNumColumns();
 
   Matrix<T, Alloc> res( lhs.getNumRows(), rhs.getNumColumns() );
 
-  const int rowsPerBlock = 2; //FIXME
-  const int colsPerBlock = 2;
+  const int rowsPerBlock = 4; //FIXME
+  const int colsPerBlock = 4;
 
-  MatrixHelpers::Strassen<T> strassen(ACols, BCols);
+  const size_t aRowBlocks = ARows / rowsPerBlock;
+  const size_t aColBlocks = ACols / colsPerBlock;
+  const size_t bColBlocks = BCols / colsPerBlock;
+
+  MatrixHelpers::Strassen<T> strassen;
 
 #pragma omp parallel for schedule(static)
-  for (int aRow = 0; aRow < ARows; aRow+= rowsPerBlock) {
-    for (int bCol = 0; bCol < BCols; bCol += rowsPerBlock) {
-      T* C( &(res( aRow, bCol )) );
-      for (int aCol = 0; aCol < ACols; aCol +=colsPerBlock ) {
-        const T* const A( &(lhs(aRow, aCol)) );
-        const T* const B( &(rhs(aCol, bCol)) );
+  for (int aRow = 0; aRow < aRowBlocks; aRow++) {
+    for (int bCol = 0; bCol < bColBlocks; bCol++) {
+      T* C( &(res( aRow * rowsPerBlock, bCol * colsPerBlock )) );
+      for (int aCol = 0; aCol < aColBlocks; aCol++ ) {
+        const T* const A( &(lhs(aRow * rowsPerBlock, aCol * colsPerBlock)) );
+        const T* const B( &(rhs(aCol * rowsPerBlock, bCol * colsPerBlock)) );
       
         strassen.run(C,A,B,
-                     rowsPerBlock,
-                     colsPerBlock,
-                     colsPerBlock);
+                     rowsPerBlock,colsPerBlock,rowsPerBlock,
+                     BCols, ACols, BCols);
 
       }
     }
@@ -706,27 +717,37 @@ std::ostream& operator<<(std::ostream& out, const Matrix<T, Alloc>& m){
   return out;
 }
 
-template<typename T, typename Alloc>
-std::istream& operator>>(std::istream& in, Matrix<T, Alloc>& m) {
 
-  m._reset();
+template<typename T, typename Alloc>
+void Matrix<T,Alloc>::_parseMatrixInput(std::istream& in, int elemsPerSlot){
 
   char c;
   size_t columnsIni, columnsRead, rows;
   columnsIni = columnsRead = rows = 0;
   bool firstRow = true;
 
+  this->_reset();
   in >> c;
   if( !in.good() || c != '[' ){
     throw Errors::InvalidSymbol(std::string(1,c));
   }
 
   T valueRead;
+  this->_data.push_back(T());
+  int availableSlots = 1;
+  T* mData = &(this->_data[0]) ;
 
-  while(true){
+  //while(true){
+  for(int i=0; ; ){
     while( in >> valueRead ){
-      m._data.push_back(valueRead);
-//      std::cout << valueRead << std::endl;
+      if( availableSlots <= 0 ){
+        this->_data.push_back(T());
+        mData = &(this->_data[0]) ;
+        availableSlots = elemsPerSlot;
+      }
+      mData[i] = valueRead;
+      availableSlots--;
+      i++;
       if( firstRow ) {
         columnsIni++;
       }
@@ -754,13 +775,23 @@ std::istream& operator>>(std::istream& in, Matrix<T, Alloc>& m) {
     columnsRead = 0;
 
     if( c == ']' ){ 
-      m._dims.setRows(rows+1);
-      m._dims.setColumns(columnsIni);
-      return in;
+      this->_dims.setRows(rows+1);
+      this->_dims.setColumns(columnsIni);
+      return ;
     }
     rows++;
     firstRow = false;
   } //while(true)
+
+  return;
+
+}
+
+template<typename T, typename Alloc>
+std::istream& operator>>(std::istream& in, Matrix<T, Alloc>& m) {
+
+
+  m._parseMatrixInput(in, 1);
 
   return in;
 }
@@ -770,87 +801,237 @@ std::istream& operator>>(std::istream& in, Matrix<T, Alloc>& m) {
 namespace MatrixHelpers{
 
   template<typename T>
-    Strassen<T>::Strassen(const size_t strideA, const size_t strideB)
-    : _strideA(strideA), _strideB(strideB)
+    Strassen<T>::Strassen()
     {}
 
 
   template<typename T>
    void Strassen<T>::run(T* C, const T* const A, const T* const B, 
-            const size_t numRowsA, 
-            const size_t numColsA, 
-            const size_t numColsB){
+            const size_t numRowsA, const size_t numColsA, const size_t numColsB,
+            const size_t strideC, const size_t strideA, const size_t strideB){
 
-      _halfRowsA = numRowsA / 2;
-      _halfColsA = numColsA / 2;
-      _halfColsB = numColsB / 2;
+     if( numRowsA == 4){ //FIXME: esto ha de pulirse, no se puede comprobar solo una dim
+       _baseMult(C,A,B, numRowsA, numColsA, numColsB, strideC, strideA, strideB);
+       return;
+     }
+
+      const size_t halfRowsA = numRowsA / 2;
+      const size_t halfColsA = numColsA / 2;
+      const size_t halfColsB = numColsB / 2;
+      const size_t halfRowsB = halfColsA; // it's redundant, but makes things clearer
+
       /* (numColsA = numRowsB) => (halfRowsB = halfColsA) 
        *
        * And the Q's would be ( halfRowsA x halfColsB ) 
        * */
-      const size_t qsSize( _halfRowsA * _halfColsB );
-      T   Q0[qsSize];
-      T Q3_2[qsSize];
-      T Q4_5[qsSize];
-      T Q6_1[qsSize];
+      const size_t qsSize( halfRowsA * halfColsB );
+      T Qs[qsSize*7];
 
-      _baseMult(C,A,B, numRowsA, numColsA, numColsB);
+      memset(Qs, 0, qsSize*7*sizeof(T));
+      _generateQs(Qs, A, B, numRowsA, numColsA, numColsB, strideA, strideB);
+      
+      const T* const Q0(Qs); 
+      const T* const Q1(Qs + 1*qsSize);
+      const T* const Q2(Qs + 2*qsSize);
+      const T* const Q3(Qs + 3*qsSize);
+      const T* const Q4(Qs + 4*qsSize);
+      const T* const Q5(Qs + 5*qsSize);
+      const T* const Q6(Qs + 6*qsSize);
+
+      T* const C00(C);
+      T* const C01(C + halfColsB );
+      T* const C10(C + (strideC * halfRowsA) );
+      T* const C11( C10 + halfColsB );
+
+      // C00
+      _addBlocks(C00, C00, Q0,
+          halfRowsA, halfColsB,
+          strideC, strideC, halfColsB);
+      _addBlocks(C00, C00, Q3,
+          halfRowsA, halfColsB,
+          strideC, strideC, halfColsB);
+      _subBlocks(C00, C00, Q4,
+          halfRowsA, halfColsB,
+          strideC, strideC, halfColsB);
+      _addBlocks(C00, C00, Q6,
+          halfRowsA, halfColsB,
+          strideC, strideC, halfColsB);
+ 
+      // C01
+      _addBlocks(C01, C01, Q2,
+          halfRowsA, halfColsB,
+          strideC, strideC, halfColsB);
+      _addBlocks(C01, C01, Q4,
+          halfRowsA, halfColsB,
+          strideC, strideC, halfColsB);
+
+ 
+      // C10
+      _addBlocks(C10, C10, Q1,
+          halfRowsA, halfColsB,
+          strideC, strideC, halfColsB);
+      _addBlocks(C10, C10, Q3,
+          halfRowsA, halfColsB,
+          strideC, strideC, halfColsB);
+
+
+      // C11
+      _addBlocks(C11, C11, Q0,
+          halfRowsA, halfColsB,
+          strideC, strideC, halfColsB);
+      _addBlocks(C11, C11, Q2,
+          halfRowsA, halfColsB,
+          strideC, strideC, halfColsB);
+      _subBlocks(C11, C11, Q1,
+          halfRowsA, halfColsB,
+          strideC, strideC, halfColsB);
+      _addBlocks(C11, C11, Q5,
+          halfRowsA, halfColsB,
+          strideC, strideC, halfColsB);
+
+
+
+
       return;
 
     }
 
   template<typename T>
-    void Strassen<T>::_generateQ0(T* Q) const{
+    void Strassen<T>::_generateQs(T* Q, const T* const A, const T* const B, const size_t numRowsA, const size_t numColsA, const size_t numColsB,
+        const size_t strideA, const size_t strideB) {
+      const size_t halfRowsA = numRowsA / 2;
+      const size_t halfColsA = numColsA / 2;
+      const size_t halfColsB = numColsB / 2;
+      const size_t halfRowsB = halfColsA; // it's redundant, but makes things clearer
 
-    }
-  template<typename T>
-    void Strassen<T>::_generateQ1(T* Q) const{
+      const size_t qsSize = halfRowsA * halfColsB;
 
-    }
-  template<typename T>
-    void Strassen<T>::_generateQ2(T* Q) const{
+      const T* const a00 = A;
+      const T* const a01 = (A + halfColsA);
+      const T* const a10 = (A + (halfRowsA * strideA));
+      const T* const a11 = (a10 + halfColsA);
 
-    }
-  template<typename T>
-    void Strassen<T>::_generateQ3(T* Q) const{
+      const T* const b00 = B;
+      const T* const b01 = (B + halfColsB);
+      const T* const b10 = (B + (halfRowsB * strideB));
+      const T* const b11 = (b10 + halfColsB);
 
-    }
-  template<typename T>
-    void Strassen<T>::_generateQ4(T* Q) const{
+      T tmpAs[halfRowsA * halfColsA];
+      T tmpBs[halfRowsB * halfColsB];
+ 
+      T* const Q0(Q); 
+      T* const Q1(Q + 1*qsSize);
+      T* const Q2(Q + 2*qsSize);
+      T* const Q3(Q + 3*qsSize);
+      T* const Q4(Q + 4*qsSize);
+      T* const Q5(Q + 5*qsSize);
+      T* const Q6(Q + 6*qsSize);
 
-    }
-  template<typename T>
-    void Strassen<T>::_generateQ5(T* Q) const{
+      // Q0
+      _addBlocks(tmpAs, a00, a11,
+          halfRowsA, halfColsA,
+          halfColsA, strideA, strideA);
+      _addBlocks(tmpBs, b00, b11,
+          halfRowsB, halfColsB,
+          halfColsB, strideB, strideB);
+      _multBlocks(Q0, tmpAs, tmpBs,
+          halfRowsA, halfColsA, halfColsB,
+          halfColsB, halfColsA, halfColsB);
+      // Q1 
+       _addBlocks(tmpAs, a10, a11,
+          halfRowsA, halfColsA,
+          halfColsA, strideA, strideA);
+      _multBlocks(Q1, tmpAs, b00,
+          halfRowsA, halfColsA, halfColsB,
+          halfColsB, halfColsA, strideB);
+      // Q2 
+      _subBlocks(tmpBs, b01, b11,
+          halfRowsB, halfColsB,
+          halfColsB, strideB, strideB);
+      _multBlocks(Q2, a00, tmpBs,
+          halfRowsA, halfColsA, halfColsB,
+          halfColsB, strideA, halfColsB);
+      // Q3  
+      _subBlocks(tmpBs, b10, b00,
+          halfRowsB, halfColsB,
+          halfColsB, strideB, strideB);
+      _multBlocks(Q3, a11, tmpBs,
+          halfRowsA, halfColsA, halfColsB,
+          halfColsB, strideA, halfColsB);
+      // Q4 
+      _addBlocks(tmpAs, a00, a01,
+          halfRowsA, halfColsA,
+          halfColsA, strideA, strideA);
+      _multBlocks(Q4, tmpAs, b11,
+          halfRowsA, halfColsA, halfColsB,
+          halfColsB, halfColsA, strideB);
+      // Q5 
+       _subBlocks(tmpAs, a10, a00,
+          halfRowsA, halfColsA,
+          halfColsA, strideA, strideA);
+      _addBlocks(tmpBs, b00, b01,
+          halfRowsB, halfColsB,
+          halfColsB, strideB, strideB);
+      _multBlocks(Q5, tmpAs, tmpBs,
+          halfRowsA, halfColsA, halfColsB,
+          halfColsB, halfColsA, halfColsB);
+      // Q6 
+      _subBlocks(tmpAs, a01, a11,
+          halfRowsA, halfColsA,
+          halfColsA, strideA, strideA);
+      _addBlocks(tmpBs, b10, b11,
+          halfRowsB, halfColsB,
+          halfColsB, strideB, strideB);
+      _multBlocks(Q6, tmpAs, tmpBs,
+          halfRowsA, halfColsA, halfColsB,
+          halfColsB, halfColsA, halfColsB);
 
-    }
-  template<typename T>
-    void Strassen<T>::_generateQ6(T* Q) const{
 
     }
   
   template<typename T>
-  void Strassen<T>::_sumBlocks(T* res, 
-      const T* const lhs, 
-      const T* const rhs) const{}
+    void  Strassen<T>::_addBlocks(T* res, const T* const A, const T* const B, 
+        const size_t rows, const size_t cols,
+        const size_t strideRes, const size_t strideA, const size_t strideB) {
+      for(size_t row=0; row < rows; row++){
+        for(size_t col=0; col < cols; col++){
+          res[row * strideRes + col] = A[ (row * strideA) + col ] + B[(row * strideB) + col];
+        }
+      }
+    }
+
   template<typename T>
-  void Strassen<T>::_subsBlocks(T* res, 
-      const T* const lhs, 
-      const T* const rhs) const{}
+    void  Strassen<T>::_subBlocks(T* res,const T* const A, const T* const B,
+        const size_t rows, const size_t cols,
+        const size_t strideRes, const size_t strideA, const size_t strideB) {
+      for(size_t row=0; row < rows; row++){
+        for(size_t col=0; col < cols; col++){
+          res[row * strideRes + col] = A[ (row * strideA) + col ] - B[(row * strideB) + col];
+        }
+      }
+    }
+
   template<typename T>
-  void Strassen<T>::_multBlocks(T* res, 
-      const T* const lhs, 
-      const T* const rhs) const{}
+    void  Strassen<T>::_multBlocks(T* res,const T* const A, const T* const B,
+      const size_t numRowsA, const size_t numColsA, const size_t numColsB,
+      const size_t strideRes, const size_t strideA, const size_t strideB) {
+    
+      run(res, A, B,
+          numRowsA, numColsA, numColsB,
+          strideRes, strideA, strideB);
+    }
+
 
   template<typename T>
     void Strassen<T>::_baseMult(
         T* C, const T* const A, const T* const B,
-        const size_t numRowsA, const size_t numColsA, 
-        const size_t numColsB) const {
+        const size_t numRowsA, const size_t numColsA, const size_t numColsB,
+        const size_t strideC, const size_t strideA, const size_t strideB) {
 
       for (size_t aRow = 0; aRow < numRowsA; aRow++) {
         for (size_t bCol = 0; bCol < numColsB; bCol++) {
           for (size_t aCol = 0; aCol < numColsA; aCol++) {
-            C[aRow * _strideB + bCol] += A[ aRow * _strideA + aCol] * B[aCol * _strideA + bCol];
+            C[aRow * strideC + bCol] += A[ aRow * strideA + aCol] * B[aCol * strideB + bCol];
           }
         }
       }

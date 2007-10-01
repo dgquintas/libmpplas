@@ -151,14 +151,21 @@ namespace mpplas {
 
 
         void _reset();
+        void _parseMatrixInput(std::istream&, int elemsPerSlot); 
+
         /** Matrix ouput operator */
-        template<typename U, typename V> friend std::ostream& operator<<(std::ostream&, 
+        template<typename U, typename V> 
+          friend std::ostream& operator<<(std::ostream&, 
             const Matrix<U, V>& );
         /** Matrix input operator */
-        template<typename U, typename V> friend std::istream& operator>>(std::istream&, 
-            Matrix<U, V>& ) ;
+        template<typename U, typename V>
+          friend std::istream& operator>>(std::istream&, 
+              Matrix<U, V>& ) ;
+
+
 
     };
+  
 
   template<typename T, typename Alloc>
     Matrix<T, Alloc> transpose(const Matrix<T, Alloc>& matrix);
@@ -180,45 +187,34 @@ namespace mpplas {
     template<typename T>
     class Strassen{
       public:
-        Strassen(const size_t strideA, const size_t strideB);
+        Strassen();
 
         void run(T* C, const T* const A, const T* const B, 
-            const size_t numRowsA, 
-            const size_t numColsA, 
-            const size_t numColsB);
+            const size_t numRowsA, const size_t numColsA, const size_t numColsB,
+            const size_t strideC, const size_t strideA, const size_t strideB);
         
       private:
-        const size_t _strideA;
-        const size_t _strideB;
-        size_t _halfRowsA;
-        size_t _halfColsA;
-        size_t _halfColsB;
+        void _baseMult(T* C, const T* const A, const T* const B,
+            const size_t numRowsA, const size_t numColsA, const size_t numColsB,
+            const size_t strideC, const size_t strideA, const size_t strideB) ;
 
-        void _baseMult(T* C, 
-            const T* const A, 
-            const T* const B,
-            const size_t numRowsA, 
-            const size_t numColsA, 
-            const size_t numColsB) const;
-
-        inline void _generateQ0(T* Q) const;
-        inline void _generateQ1(T* Q) const;
-        inline void _generateQ2(T* Q) const;
-        inline void _generateQ3(T* Q) const;
-        inline void _generateQ4(T* Q) const;
-        inline void _generateQ5(T* Q) const;
-        inline void _generateQ6(T* Q) const;
-
-        virtual void _sumBlocks(T* res, 
-            const T* const lhs, 
-            const T* const rhs) const;
-        virtual void _subsBlocks(T* res, 
-            const T* const lhs, 
-            const T* const rhs) const;
-        virtual void _multBlocks(T* res, 
-            const T* const lhs, 
-            const T* const rhs) const;
         
+        void _generateQs(T* Q, const T* const A, const T* const B, 
+            const size_t numRowsA, const size_t numColsA, const size_t numColsB,
+            const size_t strideA, const size_t strideB) ;
+
+
+        virtual void _addBlocks(T* res, const T* const A, const T* const B, 
+            const size_t rows, const size_t cols,
+            const size_t strideRes, const size_t strideA, const size_t strideB) ;
+
+        virtual void _subBlocks(T* res,const T* const A, const T* const B,
+            const size_t rows, const size_t cols,
+            const size_t strideRes, const size_t strideA, const size_t strideB) ;
+
+        virtual void _multBlocks(T* res,const T* const A, const T* const B,
+            const size_t numRowsA, const size_t numColsA, const size_t numColsB,
+            const size_t strideRes, const size_t strideA, const size_t strideB) ;
     };
     
   } /* namespace MatrixHelpers */

@@ -5,8 +5,6 @@
 #ifndef __CPUINFO_X86_H
 #define __CPUINFO_X86_H
 
-#include <stdint.h>
-
 #include "CPUInfo.h"
 
 namespace mpplas{

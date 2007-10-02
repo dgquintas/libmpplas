@@ -102,11 +102,11 @@ inline const T& Matrix<T, Alloc>::operator()(int i, int j) const{
 template<typename T, typename Alloc>
 Matrix<T, Alloc> Matrix<T, Alloc>::operator()(int n1, int n2,
                                               int m1, int m2) const {
-  if( n2 >= this->getNumRows() ){
-    n2 = this->getNumRows()-1;
+  if( n2 >= this->getRows() ){
+    n2 = this->getRows()-1;
   }
-  if( m2 >= this->getNumColumns() ){
-    m2 = this->getNumColumns()-1;
+  if( m2 >= this->getColumns() ){
+    m2 = this->getColumns()-1;
   }
 
 
@@ -114,7 +114,7 @@ Matrix<T, Alloc> Matrix<T, Alloc>::operator()(int n1, int n2,
     assert(false); //FIXME: raise exception instead
   }
 
-  const int stride = this->getNumColumns();
+  const int stride = this->getColumns();
   typename std::vector<T, Alloc>::const_iterator it(this->_data.begin());
   it += (n1 * stride)+m1;
 
@@ -406,8 +406,8 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::transpose(){
   if( this->isSquare() ){
     T tmp;
     register T *tmpPtr1, *tmpPtr2;
-    const int numRows = this->getNumRows();
-    const int numCols = this->getNumColumns();
+    const int numRows = this->getRows();
+    const int numCols = this->getColumns();
 #pragma omp parallel for schedule(guided) private(tmp)
     for( int row=0; row < numRows; row++){
       for( int col = row+1; col < numCols; col++){
@@ -482,18 +482,18 @@ inline const Dimensions& Matrix<T, Alloc>::getDimensions() const{
 }
 
 template<typename T, typename Alloc>
-inline int Matrix<T, Alloc>::getNumRows() const {
+inline int Matrix<T, Alloc>::getRows() const {
   return this->getDimensions().getRows();
 }
 
 template<typename T, typename Alloc>
-inline int Matrix<T, Alloc>::getNumColumns() const {
+inline int Matrix<T, Alloc>::getColumns() const {
   return this->getDimensions().getColumns();
 }
 
 template<typename T, typename Alloc>
 inline bool Matrix<T, Alloc>::isSquare() const {
-  return (this->getNumRows() == this->getNumColumns());
+  return (this->getRows() == this->getColumns());
 }
 
 
@@ -576,8 +576,8 @@ void Matrix<T, Alloc>::_reset() {
 template<typename T, typename Alloc>
 Matrix<T, Alloc> transpose(const Matrix<T, Alloc>& matrix){
   
-  const int numRows = matrix.getNumRows();
-  const int numCols = matrix.getNumColumns();
+  const int numRows = matrix.getRows();
+  const int numCols = matrix.getColumns();
  
   mpplas::Matrix<T, Alloc> resMat( numCols, numRows );
   T* res( &(resMat(0,0)) );
@@ -639,8 +639,8 @@ Matrix<T, Alloc> transpose(const Matrix<T, Alloc>& matrix){
 template<typename T, typename Alloc>
   Matrix<T, Alloc> operator*(const Matrix<T, Alloc>& lhs, const Matrix<T, Alloc>& rhs){
 
-  const int ACols = lhs.getNumColumns();
-  const int BRows = rhs.getNumRows();
+  const int ACols = lhs.getColumns();
+  const int BRows = rhs.getRows();
 
   if( ACols != BRows ){
     std::ostringstream oss;
@@ -648,10 +648,10 @@ template<typename T, typename Alloc>
     oss << "Right-hand-side operator size = " << rhs.getDimensions().toString();
     throw Errors::NonConformantDimensions(lhs.getDimensions(), rhs.getDimensions(),  oss.str());
   }
-  const int ARows = lhs.getNumRows();
-  const int BCols = rhs.getNumColumns();
+  const int ARows = lhs.getRows();
+  const int BCols = rhs.getColumns();
 
-  Matrix<T, Alloc> res( lhs.getNumRows(), rhs.getNumColumns() );
+  Matrix<T, Alloc> res( lhs.getRows(), rhs.getColumns() );
 
   const int rowsPerBlock = 4; //FIXME
   const int colsPerBlock = 4;

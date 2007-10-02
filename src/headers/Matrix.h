@@ -137,8 +137,8 @@ namespace mpplas {
         inline int getSize() const;
         inline const Dimensions& getDimensions() const;
         void setDimensions(const Dimensions& dims);
-        inline int getNumRows() const;
-        inline int getNumColumns() const;
+        inline int getRows() const;
+        inline int getColumns() const;
         inline bool isSquare() const;
 
         std::string toString() const;

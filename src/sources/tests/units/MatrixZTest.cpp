@@ -59,8 +59,8 @@ void MatrixZTest::testTranspose(){
   MatrixZ matT(_A);
   matT.transpose();
 
-  for(int i=0; i < _A.getNumRows() ; i++){
-    for(int j=0; j < _A.getNumColumns(); j++){
+  for(int i=0; i < _A.getRows() ; i++){
+    for(int j=0; j < _A.getColumns(); j++){
       qassertEquals(_A(i,j).toString(), matT(j,i).toString());
     }
   }
@@ -68,8 +68,8 @@ void MatrixZTest::testTranspose(){
 void MatrixZTest::testInput(){
   MatrixZ mat1(3,3);
   Z k(Z::ONE);
-  for(int i=0; i < mat1.getNumRows(); i++){
-    for(int j=0; j < mat1.getNumColumns(); j++){
+  for(int i=0; i < mat1.getRows(); i++){
+    for(int j=0; j < mat1.getColumns(); j++){
       mat1(i,j) = k;
       k++;
     }
@@ -102,23 +102,23 @@ void MatrixZTest::testSetDiagonal(){
   id.setAll(Z::ZERO);
   id.setDiagonal(Z::ONE);
   
-  for(int i=0; i < id.getNumRows(); i++){
+  for(int i=0; i < id.getRows(); i++){
     qassertTrue( id(i,i) == Z::ONE );
   }
 }
 
 void MatrixZTest::testProduct(){
   GEN _Apari, _Bpari, Cpari;
-  _Apari = zeromatcopy( _A.getNumRows(), _A.getNumColumns() );
-  _Bpari = zeromatcopy( _B.getNumRows(), _B.getNumColumns() );
+  _Apari = zeromatcopy( _A.getRows(), _A.getColumns() );
+  _Bpari = zeromatcopy( _B.getRows(), _B.getColumns() );
 
-  for( int i = 0; i < _A.getNumRows() ; i++){
-    for( int j = 0; j < _A.getNumColumns() ; j++){
+  for( int i = 0; i < _A.getRows() ; i++){
+    for( int j = 0; j < _A.getColumns() ; j++){
       gcoeff( _Apari, i+1,j+1) = gp_read_str( (char*)_A(i,j).toString().c_str() );
     }
   }
-  for( int i = 0; i < _B.getNumRows() ; i++){
-    for( int j = 0; j < _B.getNumColumns() ; j++){
+  for( int i = 0; i < _B.getRows() ; i++){
+    for( int j = 0; j < _B.getColumns() ; j++){
       gcoeff( _Bpari, i+1,j+1) = gp_read_str( (char*)_B(i,j).toString().c_str() );
     }
   }
@@ -126,8 +126,8 @@ void MatrixZTest::testProduct(){
   Cpari = gmul(_Apari, _Bpari); 
   const MatrixZ C( _A * _B );
 
-  for( int i = 0; i < C.getNumRows() ; i++){
-    for( int j = 0; j < C.getNumColumns() ; j++){
+  for( int i = 0; i < C.getRows() ; i++){
+    for( int j = 0; j < C.getColumns() ; j++){
       qassertEquals( GENtostr( gcoeff( Cpari, i+1,j+1) ), C(i,j).toString());
     }
   }

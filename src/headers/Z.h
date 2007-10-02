@@ -663,7 +663,7 @@ namespace mpplas
       * Ver grafo de dependencias para determinar qué funciones de
       * VectorialCPU se utilizan en concreto.
       */
-      Z& operator>>=(const size_t n);
+      Z& operator>>=(const int n);
       
       /** Operador de desplazamiento a la izquierda acumulado.
       *
@@ -681,7 +681,7 @@ namespace mpplas
       * Ver grafo de dependencias para determinar qué funciones de
       * VectorialCPU se utilizan en concreto.
       */
-      Z& operator<<=(const size_t n);
+      Z& operator<<=(const int n);
 
       
       //////////////////////////////
@@ -703,17 +703,17 @@ namespace mpplas
        * 
        * @return El número de bits de (*this).
        *
-       * Se devuelve un dato de tipo size_t con valor el número de
+       * Se devuelve un dato de tipo int con valor el número de
        * bits que ocupa la instancia del entero sobre la que se aplica 
        * el método.
        * Por definición el número de bits de un entero N será
        * \f$\lceil \log_{2} N \rceil \f$
        * 
        */ 
-      size_t getBitLength(void) const;
+      int getBitLength(void) const;
  
       //redondeo
-      SignedDigit redondear(size_t exceso) ;
+      SignedDigit redondear(int exceso) ;
 
       /** Hacer cero.
        * 
@@ -907,7 +907,7 @@ namespace mpplas
        * @return Exponente de la mayor potencia de 2 contenida en el
        * número.
        */
-     size_t numDoses(void) const;
+     int numDoses(void) const;
       /** Valor absoluto.
        *
        * Este método devuelve el valor absoluto del entero sobre el
@@ -996,7 +996,7 @@ namespace mpplas
        * Es decir, se dejan los dígitos siguientes al n-esimo en base BITS_EN_CIFRA.
        *
        * */
-      Z& divisionBase(const size_t n);
+      Z& divisionBase(const int n);
 
       /** Modulo entre \f$BASE^{n}\f$ 
        *
@@ -1011,7 +1011,7 @@ namespace mpplas
        * Es decir, se dejan los n dígitos de menor peso en base
        * BITS_EN_CIFRA.
        * */
-      Z& moduloBase(const size_t n);
+      Z& moduloBase(const int n);
       
       /** Raises to a power of two.
        *
@@ -1021,7 +1021,7 @@ namespace mpplas
        *
        * @par Complexity:
        * \f$O(1)\f$ */
-      Z& powerOfTwo(const size_t n);
+      Z& powerOfTwo(const int n);
 
       /** Iguala a \f$BASE^{n}\f$.
        * 
@@ -1032,7 +1032,7 @@ namespace mpplas
        *
        * El entero actual (*this) toma el valor \f$2^{BITS_EN_BASE \cdot n}\f$.
        */
-      Z& potenciaBase(const size_t n);
+      Z& potenciaBase(const int n);
 
 
       /////////////////////////////////
@@ -1092,7 +1092,7 @@ namespace mpplas
        * will be considered, but no error is reported.
        *
        * @param n the number of bits to rightshift. */
-      Z getRightshiftedBits(const size_t n) ;
+      Z getRightshiftedBits(const int n) ;
 
       /** Digits en base BITS_EN_CIFRA 
        *
@@ -1104,7 +1104,7 @@ namespace mpplas
        *
        */
       inline
-        size_t longitud(void) const  {   return coefPoliB_.size();  }
+        int longitud(void) const  {   return coefPoliB_.size();  }
 
       /** Acceso a cifra.
        *  
@@ -1123,7 +1123,7 @@ namespace mpplas
        *
        */
       inline
-        Digit& operator[](size_t i) { return coefPoliB_[i]; }
+        Digit& operator[](int i) { return coefPoliB_[i]; }
  
       /** Acceso constante a cifra.
        *  
@@ -1142,7 +1142,7 @@ namespace mpplas
        *
        */
       inline
-        Digit operator[](size_t i) const { return coefPoliB_[i]; }
+        Digit operator[](int i) const { return coefPoliB_[i]; }
 
       /** Signo del entero. 
        * 
@@ -1173,7 +1173,7 @@ namespace mpplas
        *
        */
       inline 
-        static size_t precisionSalida(void) { return precisionSalida_; }
+        static int precisionSalida(void) { return precisionSalida_; }
 
       /** Establecer precisión de salida.
        *
@@ -1189,7 +1189,7 @@ namespace mpplas
        *
        */
       inline 
-        static void precisionSalida(size_t nueva) 
+        static void precisionSalida(int nueva) 
         { precisionSalida_ = nueva; return;}
  
       /** Returns a power of two.
@@ -1201,7 +1201,7 @@ namespace mpplas
        *
        * @par Complexity:
        * \f$O(1)\f$ */
-      static Z getPowerOfTwo(const size_t n){
+      static Z getPowerOfTwo(const int n){
         Z res;
         res.powerOfTwo(n);
         return res;
@@ -1256,7 +1256,7 @@ namespace mpplas
                      Valor positivo \f$\Rightarrow\f$ entero positivo. \n
                      valor negativo \f$\Rightarrow\f$ entero negativo.
                      */
-      static size_t precisionSalida_; /**< Indica la precisión de salida a utilizar. 
+      static int precisionSalida_; /**< Indica la precisión de salida a utilizar. 
 
       Esto es, no se presentarán mas que \f$precisionSalida\_\f$ digitos decimales, 
       representandose en resto del número con notación "eN" siendo "N" el exponente
@@ -1567,17 +1567,17 @@ namespace mpplas
    *
    * @sa Z::getBitLength() 
    */
-  size_t getBitLength(const Z& x);
+  int getBitLength(const Z& x);
   /** Número de bits precisión simple sin signo (versión "función").
    *
    * @sa Z::getBitLength() 
    */
-  size_t getBitLength(const Digit x);
+  int getBitLength(const Digit x);
   /** Número de bits precisión simple con signo(versión "función").
    *
    * @sa Z::getBitLength() 
    */
-  size_t getBitLength(const SignedDigit x);
+  int getBitLength(const SignedDigit x);
 
 
   //OPERADORES DE DESPLAZAMIENTO 
@@ -1590,8 +1590,8 @@ namespace mpplas
    * @return El entero desplazado @a n posiciones de bits a la
    * derecha.
    *
-   * @sa Z::operator>>=(const size_t n) */
-  Z operator>>(Z entero, const size_t n);
+   * @sa Z::operator>>=(const int n) */
+  Z operator>>(Z entero, const int n);
   /** Operador de desplazamiento a la izquierda no acumulativo.
    *
    * @param entero El entero a desplazar.
@@ -1600,8 +1600,8 @@ namespace mpplas
    * @return El entero desplazado @a n posiciones de bits a la
    * izquierda.
    *
-   * @sa Z::operator<<=(const size_t n) */
-  Z operator<<(Z entero, const size_t n);
+   * @sa Z::operator<<=(const int n) */
+  Z operator<<(Z entero, const int n);
 
 
 

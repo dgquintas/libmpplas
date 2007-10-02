@@ -77,7 +77,7 @@ namespace mpplas{
     }
 
     Digit k;
-    const size_t n = 1+(int)floor(log2(e)); 
+    const int n = 1+(int)floor(log2(e)); 
 
     //ver pagina 11 Cohen
     if( n <= 8 ){
@@ -118,10 +118,10 @@ namespace mpplas{
       }
       else{ // i-esimo bit 1
         //obtenemos el intervalo de bits (acabado en 1) que nos conceda la ventana
-        size_t indice=0;
+        int indice=0;
         Digit mask;
         int l;
-        size_t cuadrados;
+        int cuadrados;
         for( l = i+1-k; l <= i; l++){
           if( l < 0) {
             l = 0;
@@ -265,7 +265,7 @@ namespace mpplas{
     }
 
     Digit k;
-    const size_t n = getBitLength(e);
+    const int n = getBitLength(e);
 
     //ver pagina 11 Cohen
     if( n <= 8 )
@@ -303,10 +303,10 @@ namespace mpplas{
       }
       else{ // i-esimo bit 1
         //obtenemos el intervalo de bits (acabado en 1) que nos conceda la ventana
-        size_t indice=0;
+        int indice=0;
         Digit mask;
         int l;
-        size_t cuadrados;
+        int cuadrados;
         for( l = i+1-k; l <= i; l++){
           if( l < 0) 
             l = 0;
@@ -338,8 +338,8 @@ namespace mpplas{
 //////////////////////////////////////////////////////////7
 
   void TwoThreadedModularExp::potModular(Z* const base, const Z& exp, const Z& mod){
-    std::vector<size_t> diffsX;
-    std::vector<size_t> diffsY;
+    std::vector<int> diffsX;
+    std::vector<int> diffsY;
 
     if( exp.esCero() ){
       base->hacerUno();
@@ -384,8 +384,8 @@ namespace mpplas{
   }
   
   void TwoThreadedModularExp::_getOnePartitions(const Z& e, 
-       std::vector<size_t>& diffsX, 
-       std::vector<size_t>& diffsY ){
+       std::vector<int>& diffsX, 
+       std::vector<int>& diffsY ){
 
     std::vector< std::pair<int, int> > xys;
     std::pair<int, int> xy;
@@ -428,10 +428,10 @@ namespace mpplas{
   void MultiThreadedModularExp::potModular(Z* const base,
       const Z& exp, const Z& mod){
     std::vector< Z > sections;
-    const size_t sectionSizes( _getExponentSections(exp, sections));
+    const int sectionSizes( _getExponentSections(exp, sections));
 
     ClasicoConBarrett potMod;
-    const size_t numSects = sections.size();
+    const int numSects = sections.size();
     
     RedBarrett* redbarrett; funcs->getFunc(redbarrett);
     const Z mu(redbarrett->precomputaciones(mod));
@@ -462,11 +462,11 @@ namespace mpplas{
 
 
   
-  size_t MultiThreadedModularExp::_getExponentSections(Z e, std::vector< Z >& sections){
-    const size_t eBitLength = e.getBitLength();
-    const size_t numThreads = SystemInfo::getMaxNumberOfThreads();
-    const size_t a = (size_t)floor( eBitLength / (double)numThreads );
-    const size_t aLast = eBitLength % numThreads;
+  int MultiThreadedModularExp::_getExponentSections(Z e, std::vector< Z >& sections){
+    const int eBitLength = e.getBitLength();
+    const int numThreads = SystemInfo::getMaxNumberOfThreads();
+    const int a = (int)floor( eBitLength / (double)numThreads );
+    const int aLast = eBitLength % numThreads;
     sections.reserve( numThreads );
     
     for(int i = 0; i < numThreads-1; i++){

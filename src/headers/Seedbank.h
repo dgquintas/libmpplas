@@ -35,9 +35,9 @@ namespace mpplas{
        * at the moment. They would eventually unblock as it becomes available.
        *
        * @note Do <b>not</b> abuse this mechanism: real entropy is an scarce resource. If just
-       * a non really random seed/data is required, use the getSeed(size_t numBytes) method instead.
+       * a non really random seed/data is required, use the getSeed(int numBytes) method instead.
        */
-      Z getSecureSeed(const size_t numBytes);
+      Z getSecureSeed(const int numBytes);
       
       /** Gets pseudorandom seed.
        *
@@ -51,11 +51,11 @@ namespace mpplas{
        * @warning Calls to this method might block if not enough entropy is available 
        * at the moment of feeding the mixing function with real entropy. This could only happen
        * after UMBRAL_SEMILLA calls to the method. Blocking is therefore highly unlikely. */
-      Z getSeed(const size_t numBytes);
+      Z getSeed(const int numBytes);
 
 
     private:
-      MiVec<uint8_t> _source(const size_t numBytes);
+      MiVec<uint8_t> _source(const int numBytes);
       MiVec<uint8_t> _randomData;
   };
 

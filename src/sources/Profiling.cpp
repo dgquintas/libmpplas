@@ -25,10 +25,10 @@ namespace mpplas {
   }
 
   
-  const ProfResult& Profiling::operator[](size_t thread) const {
+  const ProfResult& Profiling::operator[](int thread) const {
     return _profResults[thread];
   }
-  ProfResult& Profiling::operator[](size_t thread) {
+  ProfResult& Profiling::operator[](int thread) {
     return _profResults[thread];
   }
 

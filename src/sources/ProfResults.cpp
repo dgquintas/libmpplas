@@ -30,10 +30,10 @@ namespace mpplas {
     return *this;
   }
 
-  ProfResult& ProfResults::operator[](const size_t i) {
+  ProfResult& ProfResults::operator[](const int i) {
     return _perThreadResults.at(i);
   }
-  const ProfResult& ProfResults::operator[](const size_t i) const {
+  const ProfResult& ProfResults::operator[](const int i) const {
     return _perThreadResults.at(i);
   }
 
@@ -52,7 +52,7 @@ namespace mpplas {
     }
   }
 
-  size_t ProfResults::size() const {
+  int ProfResults::size() const {
     return _perThreadResults.size();
   }
 

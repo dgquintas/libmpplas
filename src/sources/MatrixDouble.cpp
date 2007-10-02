@@ -15,9 +15,9 @@ namespace mpplas
 
 
 
-  MatrixDouble::MatrixDouble(const size_t nAndm)
+  MatrixDouble::MatrixDouble(const int nAndm)
     : Matrix<double>(nAndm) {}
-  MatrixDouble::MatrixDouble(const size_t n, const size_t m)
+  MatrixDouble::MatrixDouble(const int n, const int m)
     : Matrix<double>(n,m) {}
 
   //////////////////////////////////////////////

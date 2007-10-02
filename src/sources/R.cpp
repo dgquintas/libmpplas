@@ -12,8 +12,8 @@
 
 namespace mpplas{
 
-  size_t R::precision_ = 300;
-  size_t R::precisionSalida_ = 20;
+  int R::precision_ = 300;
+  int R::precisionSalida_ = 20;
 
   R R::ZERO((Digit)0);
   R R::ONE((Digit)1);
@@ -321,7 +321,7 @@ namespace mpplas{
     return *this;
   }
 
-  R& R::operator>>=(const size_t n)
+  R& R::operator>>=(const int n)
   {
     if( n > Digit(Constants::CIFRASIGNO_MAX) )
       throw Errors::OverflowExpReales();
@@ -342,7 +342,7 @@ namespace mpplas{
 
     return oss.str().c_str();
   }
-  std::string R::toString(size_t decimalPlaces) const {
+  std::string R::toString(int decimalPlaces) const {
     std::string fullNum( this->toString() );
     std::string::size_type dotPos = fullNum.find('.');
     if( dotPos + decimalPlaces >= fullNum.size() ){
@@ -352,7 +352,7 @@ namespace mpplas{
   }
 
 
-  R& R::operator<<=(const size_t n)
+  R& R::operator<<=(const int n)
   {
     if( n > Digit(Constants::CIFRASIGNO_MAX) )
       throw Errors::OverflowExpReales();
@@ -570,7 +570,7 @@ namespace mpplas{
     }
   }
 
-  void R::normalizar(size_t nprec)
+  void R::normalizar(int nprec)
   {
     if( mantisa_.esCero() ){
       exponente_ = 0; //hacer que la representacion del 0 real sea única.
@@ -578,8 +578,8 @@ namespace mpplas{
     }
 
     //comprobar la precision
-    size_t tam = mantisa_.getBitLength();
-    long exceso = tam - nprec -1; // el -1 es para que no se traten de redondear 
+    const int tam = mantisa_.getBitLength();
+    const int exceso = tam - nprec -1; // el -1 es para que no se traten de redondear 
     // numeros del estilo (2^n)-1 (todos
     // 1's) que harian que cosas como
     // sacar 1.999 con 3 digitos frac. de
@@ -593,7 +593,7 @@ namespace mpplas{
     }
 
     //quitar doses de la mantisa
-    size_t doses = mantisa_.numDoses();  
+    const int doses = mantisa_.numDoses();  
     mantisa_ >>= doses;  
 
     exponente_ += doses;
@@ -757,10 +757,10 @@ namespace mpplas{
       }
 
       if( numero.exponente_ >= 0 ){
-        size_t limitePrec = (size_t)floor(R::precision() / Constants::LOG_2_10);
-        size_t precEntAntigua = Z::precisionSalida();
+        const int limitePrec = (int)floor(R::precision() / Constants::LOG_2_10);
+        const int precEntAntigua = Z::precisionSalida();
         Z::precisionSalida(limitePrec);
-        oss << (numero.mantisa_ << (size_t)numero.exponente_ );
+        oss << (numero.mantisa_ << (int)numero.exponente_ );
         Z::precisionSalida(precEntAntigua);
   
         out << oss.str();
@@ -777,9 +777,9 @@ namespace mpplas{
 
       //    out << "." ;
 
-      size_t precisionUsada;
-      size_t limitePrec = 
-        (size_t)floor((R::precision()-entero.getBitLength()) / Constants::LOG_2_10);
+      int precisionUsada;
+      const int limitePrec = 
+        (int)floor((R::precision()-entero.getBitLength()) / Constants::LOG_2_10);
       if( (limitePrec < R::precisionSalida()) ){
         precisionUsada = limitePrec;
         // limitePrec < R::precisionSalida. Es decir, la precision
@@ -795,7 +795,7 @@ namespace mpplas{
       R redondeo;
       redondeo.hacerUno();
 
-      for(size_t i = 0; i < precisionUsada; i++){
+      for(int i = 0; i < precisionUsada; i++){
         numero *= (Digit)10;  
         entero = numero.floor();  
         numero -= R(entero);  
@@ -813,13 +813,13 @@ namespace mpplas{
             numeroRed += redondeo;
 
       entero = numeroRed.floor();
-      //    size_t precEntAntigua = Z::precisionSalida();
+      //    int precEntAntigua = Z::precisionSalida();
       //    Z::precisionSalida(limitePrec);
       oss << entero ;
       //    Z::precisionSalida(precEntAntigua);
       numeroRed -= R(entero);
       oss << "." ;
-      for(size_t i = 0; i < precisionUsada; i++){
+      for(int i = 0; i < precisionUsada; i++){
         //FIXME: se puede hacer que, tras haber sacado cant_cifras_frac % max_pot_9_en_long,
         //se saquen los numeros de 10^(max_pot_9_en_long) en idem como con los Z
         numeroRed *= (Digit)10;
@@ -946,13 +946,13 @@ namespace mpplas{
     return base;
   }
 
-  R operator>>(R real, const size_t n)
+  R operator>>(R real, const int n)
   {
     real >>= n;
     return real;
   }
 
-  R operator<<(R real, const size_t n)
+  R operator<<(R real, const int n)
   {
     real <<= n;
     return real;

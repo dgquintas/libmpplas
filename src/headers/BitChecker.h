@@ -29,7 +29,7 @@ namespace mpplas{
         int _digitPos;
         Digit _inDigitPosMask;
         int _bitPos;
-        const size_t _bitLength;
+        const int _bitLength;
         const bool _rightToLeft;
 
         void _init(const int bitPos, const bool rightToLeft);

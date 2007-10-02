@@ -14,14 +14,14 @@ namespace mpplas{
 
   /*** OPERACIONES BASICAS EN VECTORES UNSIGNED ***/
   /*** DESPLAZAMIENTO ***/
-  void VectorialCPU::lShift(mpplas::MiVec <Digit>& a, const size_t n)
+  void VectorialCPU::lShift(mpplas::MiVec <Digit>& a, const int n)
   {
     if( ((a.size() == 1) && (a[0] == 0)) || n == 0 ) {
       return;
     }
     
-    const size_t componentes = n >> Constants::LOG_2_BITS_EN_CIFRA ; 
-    const size_t fraccion = n & Constants::DIGIT_MOD_MASK;
+    const int componentes = n >> Constants::LOG_2_BITS_EN_CIFRA ; 
+    const int fraccion = n & Constants::DIGIT_MOD_MASK;
 
     a.insert(a.begin(), componentes, 0);
 
@@ -46,14 +46,14 @@ namespace mpplas{
     return;
   }
 
-  void VectorialCPU::rShift(mpplas::MiVec <Digit> &a, const size_t n)
+  void VectorialCPU::rShift(mpplas::MiVec <Digit> &a, const int n)
   {
     if( ((a.size() == 1) && (a[0] == 0)) || n == 0 ) {
       return;
     }
 
-    const size_t componentes = n >> Constants::LOG_2_BITS_EN_CIFRA ; 
-    const size_t fraccion = n & Constants::DIGIT_MOD_MASK;
+    const int componentes = n >> Constants::LOG_2_BITS_EN_CIFRA ; 
+    const int fraccion = n & Constants::DIGIT_MOD_MASK;
 
 
     for(int i=0; i < componentes; i++){
@@ -78,17 +78,17 @@ namespace mpplas{
     return;
   }
 
-    size_t VectorialCPU::getBitLength(const Digit num) {
+    int VectorialCPU::getBitLength(const Digit num) {
       return BasicCPU::Mnob(num);
     }
 
 
-  long VectorialCPU::redondear(const mpplas::MiVec<Digit>& numero, size_t exceso, const int8_t signo)
+  long VectorialCPU::redondear(const mpplas::MiVec<Digit>& numero, int exceso, const int8_t signo)
   {
-    const size_t indice = exceso - 1;
+    const int indice = exceso - 1;
 
-    size_t componente = indice >> Constants::LOG_2_BITS_EN_CIFRA ; 
-    size_t bcomponente = indice & Constants::DIGIT_MOD_MASK;
+    int componente = indice >> Constants::LOG_2_BITS_EN_CIFRA ; 
+    int bcomponente = indice & Constants::DIGIT_MOD_MASK;
 
     Digit mascara = ((Digit)1) << bcomponente;
 
@@ -266,8 +266,8 @@ namespace mpplas{
       const mpplas::MiVec<Digit> *mayor;
       const mpplas::MiVec<Digit> *menor;
 
-      size_t tamA = a.size();
-      size_t tamB = b.size();
+      int tamA = a.size();
+      int tamB = b.size();
 
       if(tamA < tamB){
         mayor = &b;
@@ -285,7 +285,7 @@ namespace mpplas{
 
       mpplas::MiVec<Digit> c(tamA + 1, 0); // +1 por el carry posible
 
-      size_t i;
+      int i;
       Digit overflow = 0;
       for(i = 0; i < tamB; i++){
         c[i]= BasicCPU::Addx((*mayor)[i],(*menor)[i], overflow);
@@ -309,11 +309,11 @@ namespace mpplas{
   mpplas::MiVec<Digit> 
     VectorialCPU::sumaMP(const mpplas::MiVec<Digit>& a, const Digit b) 
     {
-      const size_t tamA = a.size();
+      const int tamA = a.size();
 
       mpplas::MiVec<Digit> c(tamA + 1, 0); // +1 por el carry posible
 
-      size_t i;
+      int i;
 
       Digit overflow = 0;
       c[0]= BasicCPU::Addx(a[0],b, overflow);
@@ -336,8 +336,8 @@ namespace mpplas{
        * el n� que representa "a" deber ser >= que el n� q rep. "b"
        */
 
-      const size_t tamA = a.size();
-      const size_t tamB = b.size();
+      const int tamA = a.size();
+      const int tamB = b.size();
 
       if( menorque(a,b) ){ // a < b
         throw Errors::RestaNegativa();
@@ -346,7 +346,7 @@ namespace mpplas{
       mpplas::MiVec<Digit> c(tamA,0);
 
       Digit overflow = 0;
-      size_t i;
+      int i;
       for(i = 0; i < tamB; i++)
         c[i] = BasicCPU::Subx(a[i],b[i], overflow);
 
@@ -361,14 +361,14 @@ namespace mpplas{
  mpplas::MiVec<Digit> 
     VectorialCPU::restaMP(const mpplas::MiVec<Digit>&a, const Digit b) 
     {
-      const size_t tamA = a.size();
+      const int tamA = a.size();
 
       mpplas::MiVec<Digit> c(tamA,0);
 
       Digit overflow = 0;
       c[0] = BasicCPU::Subx(a[0],b, overflow);
 
-      for(size_t i=1; i < tamA; i++)
+      for(int i=1; i < tamA; i++)
         c[i] = BasicCPU::Subx(a[i],0, overflow);
 
       limpiarCeros(c);
@@ -394,12 +394,12 @@ namespace mpplas{
     {
       Digit v, u, c;
 
-     const size_t tamA = a.size();
-     const size_t tamB = b.size();
+     const int tamA = a.size();
+     const int tamB = b.size();
 
       
       mpplas::MiVec<Digit> w(tamA + tamB, 0);
-      const size_t maxSize = tamA > tamB? tamA : tamB;
+      const int maxSize = tamA > tamB? tamA : tamB;
       if( maxSize >= Constants::UMBRAL_KARATSUBA ){ 
         if ( maxSize  < 2 * std::min(tamA, tamB)) { //if the bigger factor is less than twice the size of the other
           if( tamA < tamB ){
@@ -422,7 +422,7 @@ namespace mpplas{
       }
 
       Digit overflow = 0, resto = 0;
-      for(size_t i=0; i < tamB; i++){
+      for(int i=0; i < tamB; i++){
         c = 0;
         // esta "iteracion particular de j=0" se pone aqui
         // para que al compilar con optimizaciones no se de
@@ -439,7 +439,7 @@ namespace mpplas{
           w[i] = v;
           c = u;
           
-        for(size_t j=1; j < tamA; j++){
+        for(int j=1; j < tamA; j++){
           v = BasicCPU::Add(c, w[i+j], overflow);
           u = overflow;
 
@@ -462,7 +462,7 @@ namespace mpplas{
  mpplas::MiVec<Digit> 
     VectorialCPU::multMP(const mpplas::MiVec<Digit>& a, const Digit b ) 
     {
-      const size_t tamA = a.size();
+      const int tamA = a.size();
 
       mpplas::MiVec<Digit> c(tamA + 1, 0);
 
@@ -488,13 +488,13 @@ namespace mpplas{
      */
      
     
-    const size_t m = x.size() >> 1; 
+    const int m = x.size() >> 1; 
     
     MiVec<Digit> x0; x0.insert(x0.begin(), x.begin(), x.begin()+m);
     MiVec<Digit> x1; x1.insert(x1.begin(), x.begin()+m, x.end());
     limpiarCeros(x0); limpiarCeros(x1);
     
-    const size_t shifting = Constants::BITS_EN_CIFRA*m;
+    const int shifting = Constants::BITS_EN_CIFRA*m;
     MiVec<Digit> P1, P2, P3;
     MiVec<Digit> S11/*, S12, S2*/, S31; //, S32;
 
@@ -546,7 +546,7 @@ namespace mpplas{
  mpplas::MiVec<Digit>
     VectorialCPU::cuadMP(const mpplas::MiVec<Digit>& x)
     {
-      const size_t t = x.size(); //n� de cifras en la base de trabajo de "x"
+      const int t = x.size(); //n� de cifras en la base de trabajo de "x"
 
       mpplas::MiVec<Digit> w(2*t,0); //vector de resultado
 
@@ -559,7 +559,7 @@ namespace mpplas{
       //los resultados temporales se expresan como un numero (uA uB v) en la
       //base de trabajo.
       Digit resto, overflow = 0;
-      for(size_t i = 0; i < t; i++){
+      for(int i = 0; i < t; i++){
         Digit uA, uB; // partes Alta y Baja de "u"
         Digit v; // cifra menos significativa del numero de trabajo
         Digit cA, cB; // versiones para "carry" de "u"
@@ -576,7 +576,7 @@ namespace mpplas{
         //tomamos nota para sgtes iteraciones.
         cA = uA; cB = uB;
 
-        for(size_t j=(i+1); j < t; j++){
+        for(int j=(i+1); j < t; j++){
           // (uA uB v) = 2*x[i]*x[j] + w[i+j] + c
           //             ^^^^^^^^^^^   ^^^^^^  ^^^ 
           //                 (A)         (B)   (C)
@@ -635,8 +635,8 @@ namespace mpplas{
       //  mpplas::MiVec<Digit> b = v;
 
       Digit d;
-      size_t tamA = a.size()-1;
-      const size_t tamB = b.size()-1;
+      int tamA = a.size()-1;
+      const int tamB = b.size()-1;
       Digit _q;
 
       //D1. NORMALIZAR
@@ -664,8 +664,8 @@ namespace mpplas{
       // siempre 
       tamA++;
       // D2
-      size_t variacionDividendo; //para actualizar convenientemente la guarda del bucle
-      for( size_t j = tamA; j > tamB; j-=variacionDividendo){
+      int variacionDividendo; //para actualizar convenientemente la guarda del bucle
+      for( int j = tamA; j > tamB; j-=variacionDividendo){
         //D3
         //assert( ((j+tamB) < a.size() ) ); //FIXME: revisar este aserto
         assert( (tamB < b.size()) );
@@ -816,7 +816,7 @@ namespace mpplas{
   {
     /* precond: "x" e "y" tienen el mismo tama�o (mismo n� de pos el
      * vector) */
-    const size_t m = x.size() /2;// indistintamente podria haberse usado y.size()
+    const int m = x.size() /2;// indistintamente podria haberse usado y.size()
 
     MiVec<Digit> x0; x0.insert(x0.begin(), x.begin(), x.begin()+m);
     MiVec<Digit> x1; x1.insert(x1.begin(), x.begin()+m, x.end());
@@ -826,7 +826,7 @@ namespace mpplas{
     limpiarCeros(y0); limpiarCeros(y1);
     MiVec<Digit> P1, P2, P3;
     MiVec<Digit> S11/*, S12, S2*/, S31; //, S32;
-    const size_t shifting = Constants::BITS_EN_CIFRA*m;
+    const int shifting = Constants::BITS_EN_CIFRA*m;
 
     bool negativo = false;
 #pragma omp parallel sections

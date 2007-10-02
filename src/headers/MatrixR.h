@@ -14,8 +14,8 @@ namespace mpplas
   {
     public:
       MatrixR();
-      MatrixR(const size_t nAndm);
-      MatrixR(const size_t n, const size_t m);
+      MatrixR(const int nAndm);
+      MatrixR(const int n, const int m);
       MatrixR(const Dimensions& dims);
       MatrixR(const MatrixR& m);
 //      MatrixR(const MatrixZ& m);

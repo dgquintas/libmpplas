@@ -30,7 +30,7 @@ namespace mpplas{
   {
     Z mu;
     // realizar la computacion de mu_
-    size_t k = modulo.longitud();
+    const int k = modulo.longitud();
     mu.hacerUno(); 
     mu.potenciaBase( 2*k );
     mu /= modulo;
@@ -50,7 +50,7 @@ namespace mpplas{
       mod.cambiarSigno();
     }
 
-    size_t k = mod.longitud();
+    const int k = mod.longitud();
 
     Z q1(*num);
     Z r1(*num); 
@@ -114,13 +114,13 @@ namespace mpplas{
     }
     
 
-    size_t n = mod.longitud();
+    const int n = mod.longitud();
     if( num->longitud() > 2*n){
       throw Errors::TooBig();
     }
     Digit u;
     
-    for(size_t i=0; i < n; i++){
+    for(int i=0; i < n; i++){
       u = ((*num)[i] * modPrima)[0];
       (*num) += ( (u*mod).potenciaBase(i) );
     }

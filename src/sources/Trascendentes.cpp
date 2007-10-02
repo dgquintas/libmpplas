@@ -104,7 +104,7 @@ namespace mpplas{
          * volver a pensarlo porque, 15 dias despues, se me olvidaron
          * los "in-depth details"...
          * */
-        size_t tamBits = x.floor().getBitLength();
+        int tamBits = x.floor().getBitLength();
         R f = x >> tamBits; // 0 < f <= 1
         R logDeF = this->ln(f); // logDeF <= 0
         result = (tamBits * this->ln2()) + logDeF;
@@ -181,7 +181,7 @@ namespace mpplas{
     MethodsFactory *funcs = MethodsFactory::getInstance();
     Pi* pi; funcs->getFunc(pi);
 
-    size_t precVieja = R::precision();
+    int precVieja = R::precision();
     R::precision(2*precVieja);
     
     R DosPi = (pi->pi());
@@ -241,7 +241,7 @@ namespace mpplas{
     
   }
 
-  R PiMachin::pi(const size_t prec )
+  R PiMachin::pi(const int prec )
   {
     // We need to use the atan function. It suffices to use the
     // mclaurin expansion for |x| < 1, as both (1/5) and (1/239) are
@@ -250,11 +250,11 @@ namespace mpplas{
     R result; 
     MethodsFactory *funcs = MethodsFactory::getInstance();
     ArcoTangente *arctan; funcs->getFunc(arctan);
-    size_t precisionVieja=0;
+    int precisionVieja=0;
     if( prec ){
       precisionVieja = R::precision();
-      R::precision( (size_t)(prec * Constants::LOG_2_10) +1 );
-//      cout << (size_t)(prec * Constants::LOG_2_10) +1 << endl;
+      R::precision( (prec * Constants::LOG_2_10) +1 );
+//      cout << (int)(prec * Constants::LOG_2_10) +1 << endl;
     }
     R unQuinto; unQuinto.hacerUno(); unQuinto /= 5;
 //    cout << unQuinto << endl;

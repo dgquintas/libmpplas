@@ -48,7 +48,7 @@ namespace mpplas{
     Z uno; uno.hacerUno();
     Z cero; cero.hacerCero();
     Z menosUno; menosUno.hacerUno(); menosUno.hacerNegativo();
-    size_t v;
+    int v;
     SignedDigit k;
     Z r;
     

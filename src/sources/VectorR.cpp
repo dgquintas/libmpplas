@@ -12,11 +12,11 @@ namespace mpplas{
     : Vector<R>()
   {}
 
-  VectorR::VectorR(const size_t n)
+  VectorR::VectorR(const int n)
     : Vector<R>(n)
   {}
 
-  VectorR::VectorR(const size_t n, const R& ini)
+  VectorR::VectorR(const int n, const R& ini)
     : Vector<R>(n, ini)
   {}
 

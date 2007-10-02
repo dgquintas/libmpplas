@@ -19,8 +19,8 @@ namespace mpplas
       MatrixFloat();  
       MatrixFloat(const MatrixFloat& m); 
  
-      MatrixFloat(const size_t nAndm);
-      MatrixFloat(const size_t n, const size_t m);
+      MatrixFloat(const int nAndm);
+      MatrixFloat(const int n, const int m);
 
       MatrixFloat(const std::string& str);
 
@@ -46,7 +46,7 @@ namespace mpplas
 
     private:
 
-     size_t _realNumOfCols;
+     int _realNumOfCols;
 
       friend std::istream& operator>>(std::istream& in, MatrixFloat& m);
       friend std::ostream& operator<<(std::ostream& out, const MatrixFloat& m);

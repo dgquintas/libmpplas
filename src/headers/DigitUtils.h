@@ -12,12 +12,12 @@
 
 namespace mpplas{
 
-  inline size_t getBitLength(const Digit d) __FUNC_CONST_ATTRIB; 
-  inline size_t getBitLength(const Digit d){
+  inline int getBitLength(const Digit d) __FUNC_CONST_ATTRIB; 
+  inline int getBitLength(const Digit d){
     return VectorialCPU::getBitLength(d); 
   }
-  inline size_t getBitLength(const SignedDigit d) __FUNC_CONST_ATTRIB;
-  inline size_t getBitLength(const SignedDigit d)  {
+  inline int getBitLength(const SignedDigit d) __FUNC_CONST_ATTRIB;
+  inline int getBitLength(const SignedDigit d)  {
     return VectorialCPU::getBitLength(std::abs(d)); 
   }
 

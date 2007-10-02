@@ -22,8 +22,8 @@ namespace mpplas{
 
       ProfResult& operator+=(const ProfResult& rhs);
       ProfResult& operator-=(const ProfResult& rhs);
-      const OpsCount& operator[](const size_t) const;
-      OpsCount& operator[](const size_t) ;
+      const OpsCount& operator[](const int) const;
+      OpsCount& operator[](const int) ;
 
       OpsCount getTotalOps() const;
 

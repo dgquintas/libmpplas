@@ -55,7 +55,7 @@ namespace mpplas{
 
     
     /** Número de operaciones soportadas por vCPUBasica */
-    static const size_t NUM_OPERACIONES = 10;
+    static const int NUM_OPERACIONES = 10;
 
     /** Log2(10) */
     static const double LOG_2_10 = 3.3219280948873623;
@@ -139,35 +139,35 @@ namespace mpplas{
     static const int MAX_EXP10_DOUBLE = std::numeric_limits<double>::digits10;
 
 #if ARCHBITS == 64
-    static const size_t LOG_2_BITS_EN_CIFRA = 6;
+    static const int LOG_2_BITS_EN_CIFRA = 6;
 #elif ARCHBITS == 32
-    static const size_t LOG_2_BITS_EN_CIFRA = 5;
+    static const int LOG_2_BITS_EN_CIFRA = 5;
 #endif
 
     static const size_t DIGIT_MOD_MASK = (1<<Constants::LOG_2_BITS_EN_CIFRA)-1;
 
     /** Número de cifras en base \f$2^{BITS_EN_CIFRA}\f$ a partir del cual se usa
     * la multiplicacion de Karatsuba */
-    static const size_t UMBRAL_KARATSUBA = 160; 
+    static const int UMBRAL_KARATSUBA = 160; 
 
     /** Número de cifras en base \f$2^{BITS_EN_CIFRA}\f$ a partir del cual se usa
     * karatsuba para el calculo del cuadrado. */
-    static const size_t UMBRAL_CUAD_KARATSUBA = 72;
+    static const int UMBRAL_CUAD_KARATSUBA = 72;
 
     /** Número de bytes tras los cuales el generador de semillas (el no
     * seguro) se renueva con datos random reales. */
-    static const size_t UMBRAL_SEMILLA = 10; 
+    static const int UMBRAL_SEMILLA = 10; 
 
     /** Iteraciones que se considerarán en la factorización trial */
-    static const size_t COTA_FACTORIZACION_TRIAL = 303; // pi(2000) 
+    static const int COTA_FACTORIZACION_TRIAL = 303; // pi(2000) 
 
     /** Iteraciones que se considerarán en la factorización por el metodo 
     * \f$\rho\f$ de Pollard */
-    static const size_t COTA_FACTORIZACION_RHO = 50000; 
+    static const int COTA_FACTORIZACION_RHO = 50000; 
 
     /** Iteraciones que se considerarán en la factorización por el metodo 
     * SQUFOR */
-    static const size_t COTA_FACTORIZACION_SQUFOF = 500; 
+    static const int COTA_FACTORIZACION_SQUFOF = 500; 
 
     /** Tabla para el uso por la función de detección de cuadrado de
     * enteros */

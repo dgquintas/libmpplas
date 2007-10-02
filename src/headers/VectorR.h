@@ -15,8 +15,8 @@ namespace mpplas
   {
     public:
       VectorR();
-      VectorR(const size_t size);
-      VectorR(const size_t size, const R& ini);
+      VectorR(const int size);
+      VectorR(const int size, const R& ini);
       VectorR(const VectorR& rhs); /**< Copy constructor */
       VectorR(const std::vector<R>& rhs); /**< Constructor from a std::vector */
       VectorR(const std::string &); /**< Parsing contructor from a textual representation */

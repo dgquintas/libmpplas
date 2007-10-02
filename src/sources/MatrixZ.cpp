@@ -5,10 +5,10 @@ namespace mpplas
   MatrixZ::MatrixZ()
     : Matrix<Z>()
   {}
-  MatrixZ::MatrixZ(const size_t nAndm)
+  MatrixZ::MatrixZ(const int nAndm)
     : Matrix<Z>(nAndm) 
   {}
-  MatrixZ::MatrixZ(const size_t n, const size_t m)
+  MatrixZ::MatrixZ(const int n, const int m)
     : Matrix<Z>(n,m) 
   {}
   MatrixZ::MatrixZ(const Dimensions& dims)

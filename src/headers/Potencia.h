@@ -259,8 +259,8 @@ namespace mpplas{
 
     private:
       void _getOnePartitions(const Z& e, 
-       std::vector<size_t>& diffsX, 
-       std::vector<size_t>& diffsY );
+       std::vector<int>& diffsX, 
+       std::vector<int>& diffsY );
   };
 
 
@@ -271,7 +271,7 @@ namespace mpplas{
       virtual ~MultiThreadedModularExp(){};
 
     private:
-      static size_t _getExponentSections(Z e, std::vector< Z >& sections);
+      static int _getExponentSections(Z e, std::vector< Z >& sections);
 
   };
 

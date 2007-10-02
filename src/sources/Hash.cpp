@@ -67,12 +67,11 @@ namespace mpplas{
   //esta función actualiza el resumen 
   void MD5::actualizar(const MiVec<uint8_t>& datos)
   {
-    size_t mdi;
-    size_t i, ii;
-    size_t longDatos = datos.size();
+    int i, ii;
+    int longDatos = datos.size();
 
     //calcular el numero de bytes mod 64
-    mdi = ((tam_[0] >> 3) & 0x3F);
+    int mdi = ((tam_[0] >> 3) & 0x3F);
 
     //acualizar el numero de bits
     if( (tam_[0] + (longDatos << 3)) < tam_[0]) //overflow
@@ -80,7 +79,7 @@ namespace mpplas{
     tam_[0] += ((uint32_t)longDatos << 3); //se cuentan bits, NO bytes (* 2^3)
     tam_[1] += ((uint32_t)longDatos >> 29); // (8k)/2^{32} = k/2^{29}
 
-    size_t pos = 0;
+    int pos = 0;
     while (longDatos--) {
       //añadir los nuevos caracteres al buffer
       buffer8_[mdi++] = datos[pos++];
@@ -102,19 +101,17 @@ namespace mpplas{
   //resumen en resumen[]
   void MD5::finalizar(void)
   {
-    int mdi;
-    size_t i, ii;
-    size_t padLen;
+    int i, ii;
     
     //guardar el numero de bits
     buffer32_[14] = tam_[0];
     buffer32_[15] = tam_[1];
 
     //calcular el numero de bytes mod 64
-    mdi = ((tam_[0] >> 3) & 0x3F);
+    const int mdi = ((tam_[0] >> 3) & 0x3F);
 
     //desplazar hasta 56 mod 64
-    padLen = (mdi < 56) ? (56 - mdi) : (120 - mdi);
+    const int padLen = (mdi < 56) ? (56 - mdi) : (120 - mdi);
     MiVec<uint8_t> PADDING(padLen, 0x00);
     PADDING[0] = 0x80;
     actualizar(PADDING);

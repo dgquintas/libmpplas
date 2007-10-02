@@ -235,7 +235,7 @@ namespace mpplas
       * representación actual, que no tiene porque cumplirse en
       * posteriores revisiones.
       */
-      R& operator>>=(const size_t n);
+      R& operator>>=(const int n);
   
       /** Operador de desplazamiento a la izquierda acumulado.
       *
@@ -257,7 +257,7 @@ namespace mpplas
       * representación actual, que no tiene porque cumplirse en
       * posteriores revisiones.
       */
-      R& operator<<=(const size_t n);
+      R& operator<<=(const int n);
 
 
     
@@ -318,7 +318,7 @@ namespace mpplas
     //funciones utiles
     
     std::string toString() const;
-    std::string toString(size_t decimalPlaces) const;
+    std::string toString(int decimalPlaces) const;
     
       /** Hacer cero.
        * 
@@ -373,11 +373,11 @@ namespace mpplas
        * 
        * @return El número de bits de la mantisa de (*this).
        *
-       * Se devuelve un dato de tipo size_t con valor el número de
+       * Se devuelve un dato de tipo int con valor el número de
        * bits que ocupa la mantisa del real sobre la que se aplica 
        * el método.
        */ 
-    inline size_t getBitLength(void) { return mantisa_.getBitLength(); }
+    inline int getBitLength(void) { return mantisa_.getBitLength(); }
     
      /** Cambiar el signo.
        * 
@@ -407,7 +407,7 @@ namespace mpplas
        *
        */
     inline 
-      static size_t precisionSalida(void) { return precisionSalida_; }
+      static int precisionSalida(void) { return precisionSalida_; }
     
      /** Ver precisión interna considerada.
        *
@@ -422,7 +422,7 @@ namespace mpplas
        *
        */
     inline 
-      static size_t precision(void) { return precision_; }
+      static int precision(void) { return precision_; }
 
       /** Establecer precisión de salida.
        *
@@ -436,7 +436,7 @@ namespace mpplas
        *
        */
     inline 
-      static void precisionSalida(size_t nueva) 
+      static void precisionSalida(int nueva) 
       { precisionSalida_ = nueva; return;}
  
     /** Establecer precisión interna considerada.
@@ -450,7 +450,7 @@ namespace mpplas
        *  @param nueva La nueva precisión a utilizar.
        */
     inline 
-      static void precision(size_t nueva) 
+      static void precision(int nueva) 
       { precision_ = nueva; return; }
 
     
@@ -498,7 +498,7 @@ namespace mpplas
      *
      * @param nprec La precisión a considerar.
      */
-    void normalizar(size_t nprec = R::precision_);
+    void normalizar(int nprec = R::precision_);
     
     //funcciones de informacion
     
@@ -589,8 +589,8 @@ namespace mpplas
 
     SignedDigit exponente_;
     Z mantisa_;
-    static size_t precision_; /**< Valor por defecto = 300. @sa R::precision() */
-    static size_t precisionSalida_;/**< Valor por defecto = 20. @sa R::precisionSalida() */
+    static int precision_; /**< Valor por defecto = 300. @sa R::precision() */
+    static int precisionSalida_;/**< Valor por defecto = 20. @sa R::precisionSalida() */
 
     /** Operador de salida del número */
     friend std::ostream& operator<<(std::ostream&, R);
@@ -700,8 +700,8 @@ namespace mpplas
    * @return El real "desplazado" @a n posiciones a la
    * derecha.
    *
-   * @sa R::operator>>=(const size_t n) */
-  R operator>>(R real, const size_t n);
+   * @sa R::operator>>=(const int n) */
+  R operator>>(R real, const int n);
 
   /** Operador de "desplazamiento" a la izquierda no acumulativo.
    *
@@ -711,8 +711,8 @@ namespace mpplas
    * @return El real desplazado @a n posiciones a la
    * izquierda.
    *
-   * @sa R::operator<<=(const size_t n) */
-  R operator<<(R real, const size_t n);
+   * @sa R::operator<<=(const int n) */
+  R operator<<(R real, const int n);
 
 
   

@@ -15,8 +15,8 @@ namespace mpplas
   {
     public:
       VectorZ();
-      VectorZ(const size_t size);
-      VectorZ(const size_t size, const Z& ini);
+      VectorZ(const int size);
+      VectorZ(const int size, const Z& ini);
       VectorZ(const VectorZ& rhs); /**< Copy constructor */
       VectorZ(const std::vector<Z>& rhs); /**< Constructor from a std::vector */
       VectorZ(const std::string &); /**< Parsing contructor from a textual representation */

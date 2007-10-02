@@ -7,7 +7,7 @@ namespace mpplas{
     : _n(0), _m(0)
   {}
 
-  Dimensions::Dimensions(size_t n, size_t m)
+  Dimensions::Dimensions(int n, int m)
     : _n(n), _m(m)
   {}
 

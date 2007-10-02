@@ -51,7 +51,7 @@ namespace mpplas{
        *
        * @return A reference to the profiling results for thread @a threadNum.
        */
-      ProfResult& operator[](size_t threadNum);
+      ProfResult& operator[](int threadNum);
 
       /** Get the profiling results for a given thread (const version)
        *
@@ -59,7 +59,7 @@ namespace mpplas{
        *
        * @return A constant reference to the profiling results for thread @a threadNum.
        */
-      const ProfResult& operator[](size_t i) const;
+      const ProfResult& operator[](int i) const;
 
       /** Get the profiling results for all threads.
        *

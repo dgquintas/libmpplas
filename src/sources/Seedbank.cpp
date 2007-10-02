@@ -20,7 +20,7 @@ namespace mpplas{
   Seedbank::Seedbank(void)
   { }
     
-  Z Seedbank::getSecureSeed(const size_t numBytes)
+  Z Seedbank::getSecureSeed(const int numBytes)
   {
 		_randomData = _source(numBytes);
 		
@@ -30,11 +30,11 @@ namespace mpplas{
      return resultado;
   }
   
-  Z Seedbank::getSeed(const size_t numBytes)
+  Z Seedbank::getSeed(const int numBytes)
   {
     MethodsFactory *funcs = MethodsFactory::getInstance();
     Hash* hash; funcs->getFunc(hash);
-    static size_t counter = 0;
+    static int counter = 0;
     
     if( (counter >= Constants::UMBRAL_SEMILLA) || (counter == 0) ){ //counter==0 para la 1ª llamada
 			_randomData = _source( hash->numBitsResumen() >> 3);
@@ -46,9 +46,9 @@ namespace mpplas{
     MiVec<uint8_t> salt(1,(uint8_t)0); //un dato que agite un poco las cosas al hacer hashing
     salt[0] = ((unsigned long)time(NULL)) & 0xff;
     
-    size_t nTemp = numBytes;
+    int nTemp = numBytes;
     MiVec<uint8_t> datosRndTemp( hash->numBitsResumen() >> 3);
-    while( true ){
+    while( nTemp > 0 ){
       hash->inicializar();
       hash->actualizar(_randomData);
       hash->actualizar(salt);
@@ -62,9 +62,6 @@ namespace mpplas{
                              datosRndTemp.end() 
                            ); 
       nTemp -= (hash->numBitsResumen() >> 3);
-      if( (nTemp > numBytes) || (nTemp == 0) ){ // es decir, cuando se produzca underflow => nTemp < 0
-        break;
-      }
     }
 
     Z resultado;
@@ -74,7 +71,7 @@ namespace mpplas{
   }
 
 
-  MiVec<uint8_t> Seedbank::_source(const size_t numBytes)
+  MiVec<uint8_t> Seedbank::_source(const int numBytes)
   {
 		MiVec<uint8_t> rnd(numBytes);
 #ifdef __WIN32__
@@ -86,7 +83,7 @@ namespace mpplas{
       throw Errors::FuenteEntropiaInvalida();
     }
 
-		for(size_t i=0; i < numBytes; i++){
+		for(int i=0; i < numBytes; i++){
 			if( !CryptGenRandom(crypt_prov, 1, (BYTE *)&ptr) ){
         throw Errors::FuenteEntropiaInvalida();
       }
@@ -100,7 +97,7 @@ namespace mpplas{
         throw Errors::FuenteEntropiaInvalida();
     }
     
-    for(size_t i=0; i < numBytes; i++){
+    for(int i=0; i < numBytes; i++){
       (*urandom) >> rnd[i];
     }
 

@@ -23,8 +23,8 @@ namespace mpplas
   {
     public:
       Vector();
-      Vector(const size_t size);
-      Vector(const size_t size, const T& ini);
+      Vector(const int size);
+      Vector(const int size, const T& ini);
       Vector(const Vector<T>& rhs); /**< Copy constructor */
       Vector(const std::vector<T>& rhs); /**< Constructor from a std::vector */
       Vector(const std::string &); /**< Parsing contructor from a textual representation */

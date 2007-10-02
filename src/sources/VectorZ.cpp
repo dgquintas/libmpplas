@@ -12,11 +12,11 @@ namespace mpplas{
     : Vector<Z>()
   {}
 
-  VectorZ::VectorZ(const size_t n)
+  VectorZ::VectorZ(const int n)
     : Vector<Z>(n)
   {}
 
-  VectorZ::VectorZ(const size_t n, const Z& ini)
+  VectorZ::VectorZ(const int n, const Z& ini)
     : Vector<Z>(n, ini)
   {}
 

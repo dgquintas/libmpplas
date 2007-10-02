@@ -16,8 +16,8 @@ namespace mpplas
   {
     public:
       VectorFloat();
-      VectorFloat(const size_t size);
-      VectorFloat(const size_t size, const Z& ini);
+      VectorFloat(const int size);
+      VectorFloat(const int size, const Z& ini);
       VectorFloat(const VectorFloat& rhs); /**< Copy constructor */
       VectorFloat(const std::vector<float>& rhs); /**< Constructor from a std::vector */
       VectorFloat(const std::string &); /**< Parsing contructor from a textual representation */

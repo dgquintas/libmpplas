@@ -31,9 +31,13 @@ MatrixZTest::MatrixZTest()
 
 void MatrixZTest::setUp(){
   
-  const int n = brand(100,200);
-  const int m = brand(100,200);
-  const int k = brand(100,200);
+//  const int n = brand(100,200);
+//  const int m = brand(100,200);
+//  const int k = brand(100,200);
+  const int n = 128;
+  const int m = 128;
+  const int k = 128;
+
   const int elemsSize = brand(50, 100);
 
   _A = MatrixZ( n,m );
@@ -119,11 +123,8 @@ void MatrixZTest::testProduct(){
     }
   }
 
-  cout << "uno" << endl;
   Cpari = gmul(_Apari, _Bpari); 
-  cout << "dos" << endl;
   const MatrixZ C( _A * _B );
-  cout << "tres" << endl;
 
   for( int i = 0; i < C.getNumRows() ; i++){
     for( int j = 0; j < C.getNumColumns() ; j++){

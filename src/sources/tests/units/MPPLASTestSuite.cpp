@@ -22,7 +22,7 @@ MPPLASTestSuite::MPPLASTestSuite() {
 //  addTestUnit(_matrixRTest);
   addTestUnit(_vectorZTest);
   addTestUnit(_vectorRTest);
-  addTestUnit(_functionsTest);
+addTestUnit(_functionsTest);
 #ifdef _OPENMP
   addTestUnit(_openMPTest);
 #endif

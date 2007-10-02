@@ -9,11 +9,11 @@
 : Matrix<T>()
 {}
   template<typename T>
-  Vector<T>::Vector(const size_t size)
+  Vector<T>::Vector(const int size)
 : Matrix<T>(1,size)
 {}
   template<typename T>
-  Vector<T>::Vector(const size_t size, const T& ini)
+  Vector<T>::Vector(const int size, const T& ini)
 : Matrix<T>(1, size)
 {
   this->setAll(ini);
@@ -45,7 +45,7 @@ std::istream& operator>>(std::istream& in, Vector<T>& v) {
   v._reset();
 
   char c;
-  size_t numColsRead(0);
+  int numColsRead(0);
 
   in >> c;
   if( !in.good() || c != '[' ){

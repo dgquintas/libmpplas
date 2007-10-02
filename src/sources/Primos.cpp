@@ -38,10 +38,10 @@ namespace mpplas{
       //primo
       Z_n z(p); 
       Z pMenosUno(p); pMenosUno--;
-      const size_t b = pMenosUno.numDoses();
+      const int b = pMenosUno.numDoses();
       const Z m = pMenosUno >> b;
       
-      for( size_t i = 0; i < iteraciones_; i++){
+      for( int i = 0; i < iteraciones_; i++){
         //Por 4.28 Menezes, el producto de 2 "mentirosos fuertes" (bases
         //que poducen un pseudoprimo fuerte "n" en realidad compuesto)
         //es casi con toda seguridad, también un mentiroso fuerte. 
@@ -49,7 +49,7 @@ namespace mpplas{
         if(i >= 303 ){ 
           //por si a alguien se le ocurre la "brillante" idea de poner un numero
           //de iteraciones asi de grande
-          z = rnd->getInteger( std::min((size_t)16,p.getBitLength()-1) );
+          z = rnd->getInteger( std::min(16,p.getBitLength()-1) );
           (*testigo) = z;
         }
         else{
@@ -66,7 +66,7 @@ namespace mpplas{
         z ^= m;
         
         if( (!z.esUno()) && ( z != pMenosUno) ){
-          for(size_t j = 0; (j < b) && (z != pMenosUno) ; j++ ){
+          for(int j = 0; (j < b) && (z != pMenosUno) ; j++ ){
             z.cuadrado();  // recordar que z es Zp
             if( z.esUno() ) //ya que no cambiará aun en los cuadrados sucesivos...
               return false;
@@ -86,10 +86,10 @@ namespace mpplas{
         return false;
       }
 
-      size_t cota;
+      int cota;
       if( p <= (Digit)4000000 ){ // 2000^2
         cota = raizCuadrada(p[0]);
-        for(size_t i = 0; Constants::TABLA_PRIMOS_2000[i] <= cota; i++){
+        for(int i = 0; Constants::TABLA_PRIMOS_2000[i] <= cota; i++){
           if ( (!gcd->gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
             return false;
           }
@@ -103,7 +103,7 @@ namespace mpplas{
         cota = 303;
       }
 
-      for(size_t i = 0; i < cota; i++){
+      for(int i = 0; i < cota; i++){
         if ( (!gcd->gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
           return false;
         }
@@ -148,9 +148,9 @@ namespace mpplas{
 
       Z_n z(p); 
       Z pMenosUno(p); pMenosUno--;
-      const size_t b = pMenosUno.numDoses();
+      const int b = pMenosUno.numDoses();
       const Z m = pMenosUno >> b;
-      for( size_t i = 0; i < iteraciones_; i++){
+      for( int i = 0; i < iteraciones_; i++){
 
         //Por 4.28 Menezes, el producto de 2 "mentirosos fuertes" (bases
         //que poducen un pseudoprimo fuerte "n" en realidad compuesto)
@@ -159,14 +159,14 @@ namespace mpplas{
         if(i >= 303 ) 
           //por si a alguien se le ocurre la "brillante" idea de poner un numero
           //de iteraciones asi de grande
-          z = rnd->getInteger( std::min((size_t)16,p.getBitLength()-1) );
+          z = rnd->getInteger( std::min(16,p.getBitLength()-1) );
         else
           z = Z(Constants::TABLA_PRIMOS_2000[i]);
 
         z ^= m;
 
         if( (!z.esUno()) && ( z != pMenosUno) ){
-          for(size_t j = 0; (j < b) && (z != pMenosUno) ; j++ ){
+          for(int j = 0; (j < b) && (z != pMenosUno) ; j++ ){
             z ^= (Digit)2; //FIXME
             if( z.esUno() ) //ya que no cambiará aun en los cuadrados sucesivos...
               return false;
@@ -180,7 +180,7 @@ namespace mpplas{
     }
   }
 
-  void RabinMiller::ponerIteraciones(size_t iteraciones)
+  void RabinMiller::ponerIteraciones(int iteraciones)
   {
       iteraciones_ = iteraciones;
   }
@@ -232,7 +232,7 @@ namespace mpplas{
     _rnd->setSeed(seed);
   }
 
-  Z GenPrimos::leerPrimoProb(size_t bits)
+  Z GenPrimos::leerPrimoProb(int bits)
   {
     MethodsFactory *funcs = MethodsFactory::getInstance();
     TestPrimoProb* test; funcs->getFunc(test);
@@ -242,15 +242,15 @@ namespace mpplas{
     //poner a 1 los bits más y menos significativos 
     //poner a 1 el bit mas significativo hace que el nº
     //generado tenga el numero de bits especificado
-    const size_t i = (bits-1) / Constants::BITS_EN_CIFRA;
-    const size_t j = (bits-1) % Constants::BITS_EN_CIFRA;
+    const int i = (bits-1) / Constants::BITS_EN_CIFRA;
+    const int j = (bits-1) % Constants::BITS_EN_CIFRA;
     const Digit mascara = (1U << j);
 
     n[i] |= mascara; //el más
     n[0] |= 0x1;     //el menos
 
 
-    size_t iteraciones;
+    int iteraciones;
     // pagina 148 Handbook of Applied Cryptography
     // Se garantiza una probabilidad de error <= que (1/2)^80
     if( bits >= 1300 )
@@ -308,8 +308,8 @@ namespace mpplas{
     }
       
 
-    size_t iteraciones;
-    size_t bits = n.getBitLength();
+    int iteraciones;
+    int bits = n.getBitLength();
     // pagina 148 Handbook of Applied Cryptography
     // Se garantiza una probabilidad de error <= que (1/2)^80
     if( bits >= 1300 )
@@ -350,7 +350,7 @@ namespace mpplas{
   }
 
 
-  Z GenPrimos::leerPrimoFuerte(size_t bits)
+  Z GenPrimos::leerPrimoFuerte(int bits)
   {
     MethodsFactory *funcs = MethodsFactory::getInstance();
     TestPrimoProb* testPrim; funcs->getFunc(testPrim);

@@ -31,7 +31,7 @@ namespace mpplas{
        *
        * @return An integer made up of @a n random bits.
        */
-      virtual Z getInteger(size_t n) = 0;
+      virtual Z getInteger(int n) = 0;
       /** Get a random Digit
        *
        * @return A random Digit.
@@ -118,7 +118,7 @@ namespace mpplas{
        * CSPRNG process.
        *
        */
-      virtual void setQuality(size_t n) = 0;
+      virtual void setQuality(int n) = 0;
 
       /** Default implementation */
       typedef BBSGen DFL;
@@ -159,14 +159,14 @@ namespace mpplas{
 
       virtual ~NumThRC4Gen(){}
       
-      virtual Z getInteger(size_t n);
+      virtual Z getInteger(int n);
       virtual void setSeed(const Z& semilla);
       
     private:
       uint8_t _s[256];
       uint8_t _k[256];
-      size_t _i;
-      size_t _j;
+      int _i;
+      int _j;
       Z _seed;
       void _initialize(void);
   };
@@ -185,7 +185,7 @@ namespace mpplas{
 
       virtual ~CongruentGen(){}
 
-      virtual Z getInteger(size_t n);
+      virtual Z getInteger(int n);
       virtual void setSeed(const Z& seed);
 
       //FIXME: dar la opcion de modificar la "a", "b", "m" del metodo?
@@ -215,13 +215,13 @@ namespace mpplas{
     public:
       BBSGen(void);
       
-      virtual Z getInteger(size_t n);
-      virtual void setQuality(size_t n);
+      virtual Z getInteger(int n);
+      virtual void setQuality(int n);
 
       virtual ~BBSGen(){}
 
     private:
-      size_t _quality;
+      int _quality;
       Z _n; // producto de los primos p y q de la inicializacion
       Z _Xi;
 
@@ -245,9 +245,9 @@ namespace mpplas{
       virtual ~FIPS_140_1(){}
       
     protected:
-      size_t monobitTest_(Z muestraLocal);
+      int monobitTest_(Z muestraLocal);
       float pokerTest_(Z muestraLocal);
-      size_t runTests_(Z muestraLocal, size_t* bloques, size_t* huecos);
+      int runTests_(Z muestraLocal, int* bloques, int* huecos);
 
   };
   

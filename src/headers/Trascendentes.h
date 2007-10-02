@@ -92,7 +92,7 @@ namespace mpplas{
   class Pi: public AbstractMethod
   {
     public:
-      virtual R pi(size_t prec = 0) = 0;
+      virtual R pi(int prec = 0) = 0;
 
       virtual ~Pi(){}
   
@@ -190,7 +190,7 @@ namespace mpplas{
        * @param prec Number of decimal places to calculate. If @a prec
        * equals 0, the default precision for real numbers will be
        * used. */
-      virtual R pi(const size_t prec = 0);
+      virtual R pi(const int prec = 0);
   };
 
 

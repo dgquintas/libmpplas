@@ -347,7 +347,7 @@ namespace mpplas{
       factores->push_back(*n);
       return true;
     }
-    size_t iteraciones = 0;
+    int iteraciones = 0;
     while(++iteraciones <= Constants::COTA_FACTORIZACION_RHO){
       a.cuadrado();
       a++;
@@ -526,14 +526,14 @@ namespace mpplas{
     //antes de empezar, quitar los doses pudiera tener el
     //número en su descomposición prima. Esto se hace por ser algo
     //directo y rápido.
-    size_t doses = n->numDoses();
+    const int doses = n->numDoses();
     if(doses){
       (*n) >>= doses;
       factores->insert(factores->end(), doses, Z((Digit)2));
     }
 
     Z q,r;
-    size_t i = 1; //empezar en el 3, no en el 2 (ya se han quitado)
+    int i = 1; //empezar en el 3, no en el 2 (ya se han quitado)
     while( i < Constants::COTA_FACTORIZACION_TRIAL ){
       divMod( *n, Constants::TABLA_PRIMOS_2000[i], &q, &r );
       if( r.esCero() ){
@@ -546,8 +546,9 @@ namespace mpplas{
           factores->push_back(*n);
           return true;
         }
-        else // q > primos[k]
+        else{ // q > primos[k]
           i++;
+        }
       }
     }
 

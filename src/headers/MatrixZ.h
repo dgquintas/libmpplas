@@ -14,8 +14,8 @@ namespace mpplas
   {
     public:
       MatrixZ();
-      MatrixZ(const size_t nAndm);
-      MatrixZ(const size_t n, const size_t m);
+      MatrixZ(const int nAndm);
+      MatrixZ(const int n, const int m);
       MatrixZ(const Dimensions& dims);
       MatrixZ(const MatrixZ& m);
       MatrixZ(const Matrix<Z>& m);

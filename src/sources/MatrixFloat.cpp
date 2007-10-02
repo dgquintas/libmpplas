@@ -15,15 +15,15 @@ namespace mpplas
             >(mat)
   {}
 
-  MatrixFloat::MatrixFloat(const size_t nAndm) {
+  MatrixFloat::MatrixFloat(const int nAndm) {
     _realNumOfCols = 
-      (size_t)ceil(((double)nAndm)/SIMDCPU::getElementsPerSIMDDigit< float4xSIMD_t >());
+      (int)ceil(((double)nAndm)/SIMDCPU::getElementsPerSIMDDigit< float4xSIMD_t >());
     _data.resize( nAndm * _realNumOfCols );
     _dims.setBoth(nAndm,nAndm);
   }
-  MatrixFloat::MatrixFloat(const size_t n, const size_t m) {
+  MatrixFloat::MatrixFloat(const int n, const int m) {
     _realNumOfCols = 
-      (size_t)ceil(((double)m)/SIMDCPU::getElementsPerSIMDDigit< float4xSIMD_t >());
+      (int)ceil(((double)m)/SIMDCPU::getElementsPerSIMDDigit< float4xSIMD_t >());
     _data.resize( n * _realNumOfCols );
     _dims.setBoth(n,m);
   }

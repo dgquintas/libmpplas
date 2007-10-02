@@ -24,7 +24,7 @@ namespace mpplas{
 
   Z Random::getIntegerBounded(const Z& bound)
   {
-    const size_t bitsCota = bound.getBitLength();  
+    const int bitsCota = bound.getBitLength();  
     Z temp(this->getInteger(bitsCota));
 
     while( temp >= bound ){
@@ -49,14 +49,14 @@ namespace mpplas{
     _initialize();
   }
 
-  Z NumThRC4Gen::getInteger(size_t n)
+  Z NumThRC4Gen::getInteger(int n)
   {
-    const size_t n_bytes = (n+7) >> 3;
+    const int n_bytes = (n+7) >> 3;
     MiVec<uint8_t> bytesRand(n_bytes);
     
     uint8_t t;
     uint8_t temp;
-    for(size_t c = 0; c < n_bytes; c++){
+    for(int c = 0; c < n_bytes; c++){
       _i = (_i+1) & 0xff;
       _j = (_j+_s[_i]) & 0xff;
       
@@ -70,10 +70,10 @@ namespace mpplas{
       bytesRand[c] = _s[t];
     }
       
-    const size_t numDigits = ((n_bytes+(Constants::BYTES_EN_CIFRA-1)) / Constants::BYTES_EN_CIFRA); 
+    const int numDigits = ((n_bytes+(Constants::BYTES_EN_CIFRA-1)) / Constants::BYTES_EN_CIFRA); 
     MiVec<Digit> vecRandom(numDigits);
     
-    size_t i;
+    int i;
     for(i = 0 ; i < numDigits-1 ; i++){
       for(int j = 0; j < (Constants::BYTES_EN_CIFRA); j++){
         vecRandom[i] <<= 8;
@@ -81,8 +81,8 @@ namespace mpplas{
       }
     }
 
+    int j;
     //last iteration
-    size_t j;
     if( n_bytes % Constants::BYTES_EN_CIFRA ){
       for(j = 0; j < (n_bytes % Constants::BYTES_EN_CIFRA)-1; j++){
         vecRandom[i] <<= 8;
@@ -117,22 +117,22 @@ namespace mpplas{
 
   void NumThRC4Gen::_initialize(void)
   {
-    const size_t lengthSeed(_seed.longitud());
+    const int lengthSeed(_seed.longitud());
 
     Digit mascara;
-    size_t posSeed = 0;
-    for(size_t m = 0; m < 256; m++){
+    int posSeed = 0;
+    for(int m = 0; m < 256; m++){
       _s[m] = m;
     }
     
-    for(size_t m = 0; m < 256; ){
+    for(int m = 0; m < 256; ){
       mascara = 0xff;
       posSeed++;
       if ( posSeed == lengthSeed ) {
         posSeed = 0;
       }
 
-      for(size_t n = 0; n < Constants::BYTES_EN_CIFRA ; n++){
+      for(int n = 0; n < Constants::BYTES_EN_CIFRA ; n++){
         _k[m] = _seed[ posSeed ] & mascara;
         m++;
         mascara <<= 8;
@@ -186,16 +186,16 @@ namespace mpplas{
   }
   
       
-  Z CongruentGen::getInteger(size_t n)
+  Z CongruentGen::getInteger(int n)
   {
-    size_t n_bytes = (n+7)/8;
+    int n_bytes = (n+7)/8;
     MiVec<uint8_t> bytesRand(n_bytes);
     
-    size_t numDigits = ((n_bytes+(Constants::BYTES_EN_CIFRA-1)) / Constants::BYTES_EN_CIFRA); 
+    int numDigits = ((n_bytes+(Constants::BYTES_EN_CIFRA-1)) / Constants::BYTES_EN_CIFRA); 
     MiVec<Digit> vecRandom(numDigits,0);
     
     // rellenar bytesRand
-    size_t c = 0;
+    int c = 0;
     while( c < n_bytes ){
       //esto de los pares/impares es cosa mia, dado que el modulo _m
       //no llega (el por omisión al menos) para suplir 32 bits, se
@@ -210,7 +210,7 @@ namespace mpplas{
       _Xi %= _m;
     }
 
-    size_t i;
+    int i;
     for(i = 0 ; i < numDigits-1 ; i++)
       for(int j = 0; j < (Constants::BYTES_EN_CIFRA); j++){
         vecRandom[i] <<= 8;
@@ -218,7 +218,7 @@ namespace mpplas{
       }
 
     //y ultima iteracion
-    size_t j;
+    int j;
     if( n_bytes % Constants::BYTES_EN_CIFRA ){
       for(j = 0; j < (n_bytes % Constants::BYTES_EN_CIFRA)-1; j++){
         vecRandom[i] <<= 8;
@@ -252,7 +252,7 @@ namespace mpplas{
     _initialize();
   }
 
-  void BBSGen::setQuality(size_t n)
+  void BBSGen::setQuality(int n)
   {
     _quality = n;
     _initialize(); // tras un cambio de la calidad, hay que recomputar los primos
@@ -298,7 +298,7 @@ namespace mpplas{
     return;
   }
     
-  Z BBSGen::getInteger(size_t num)
+  Z BBSGen::getInteger(int num)
   {
     
     Z resultado; resultado.hacerCero();
@@ -313,8 +313,8 @@ namespace mpplas{
     //el más "conservador") y de cada _Xi se tomarán sus 
     //max(1,getBitLength(n)-1) bits de menos peso
     
-    size_t n = getBitLength(_Xi);
-    Digit longConsiderada = std::max(getBitLength((Digit)n)-1,(size_t)1);
+    int n = getBitLength(_Xi);
+    Digit longConsiderada = std::max(getBitLength((Digit)n)-1,(int)1);
     Digit mascara = (1UL << longConsiderada)-1;
     while(num){
       _Xi.cuadradoModular(_n); 
@@ -344,11 +344,11 @@ namespace mpplas{
     // NUMEROS MAGICOS
     Z muestra(generadorRandom.getInteger(20000));
   
-    size_t unos;
+    int unos;
     float estadisticoPoker;
-    size_t recorridoMaximo;
-    size_t bloques[6] = {0};
-    size_t huecos[6] = {0};
+    int recorridoMaximo;
+    int bloques[6] = {0};
+    int huecos[6] = {0};
     
     unos = monobitTest_(muestra);
     if( (9654 >= unos) || (unos >= 10346) )  // si no se cumple 9654 < unos < 10346
@@ -383,11 +383,11 @@ namespace mpplas{
     return true;
   }
 
-  size_t FIPS_140_1::monobitTest_(Z muestraLocal)
+  int FIPS_140_1::monobitTest_(Z muestraLocal)
   {
     //Menezes 181
-    size_t unos = 0;
-    for (size_t i = 0; i < 20000; i++){
+    int unos = 0;
+    for (int i = 0; i < 20000; i++){
       if( (muestraLocal[0] & 0x1) == 1) 
         unos++;
       muestraLocal >>= 1;
@@ -399,18 +399,18 @@ namespace mpplas{
   {
     Digit mascara; mascara = 0xf;
     
-    size_t numSeqIesima[16] = {0}; // 16 = 2^m = 2^4  ; Menezes 183
+    int numSeqIesima[16] = {0}; // 16 = 2^m = 2^4  ; Menezes 183
     
-    size_t k = 5000;
-    size_t indice;
-    for (size_t i = 0; i < k; i++) {
+    int k = 5000;
+    int indice;
+    for (int i = 0; i < k; i++) {
       indice = muestraLocal[0] & mascara;
       numSeqIesima[indice]++;
       muestraLocal >>= 4;
     }
 
     unsigned long sum = 0;
-    for (size_t i = 0; i < 16; i++) // m = 16
+    for (int i = 0; i < 16; i++) // m = 16
       sum += numSeqIesima[i] * numSeqIesima[i];
     
     float estadistico;
@@ -420,13 +420,13 @@ namespace mpplas{
   }
 
 
-  size_t FIPS_140_1::runTests_(Z muestraLocal, size_t* bloques, size_t* huecos)
+  int FIPS_140_1::runTests_(Z muestraLocal, int* bloques, int* huecos)
   {
     // ver Menezes p 180 Def 5.26
-    size_t recorridoMaximo = 0;
+    int recorridoMaximo = 0;
     Z muestraLocal2(muestraLocal);
     
-    size_t i,j;
+    int i,j;
     i = 0;
     while( i < 20000 ){
       j = 0;

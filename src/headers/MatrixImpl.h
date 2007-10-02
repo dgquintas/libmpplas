@@ -13,12 +13,12 @@
 {}
 
   template<typename T, typename Alloc>
-  Matrix<T, Alloc>::Matrix(const size_t nAndm) 
+  Matrix<T, Alloc>::Matrix(const int nAndm) 
 : _dims(nAndm,nAndm), _data(nAndm*nAndm)
 {} 
 
   template<typename T, typename Alloc>
-  Matrix<T, Alloc>::Matrix(const size_t n, const size_t m)
+  Matrix<T, Alloc>::Matrix(const int n, const int m)
 : _dims(n,m), _data(n*m)
 {} 
 
@@ -43,7 +43,7 @@ Matrix<T, Alloc>::Matrix(const std::string& str){
   Matrix<T, Alloc>::Matrix(const std::vector<T, Alloc>& rhs, const Dimensions& dims)
 : _data(rhs), _dims(dims)
 {
-  size_t const prod(_dims.getProduct());
+  int const prod(_dims.getProduct());
   if( prod != _data.size() ){
     //fill with the element's default value or
     //discard extra values
@@ -68,40 +68,40 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::operator=(const Matrix<T, Alloc>& rhs){
 
 
 template<typename T, typename Alloc>
-inline T& Matrix<T, Alloc>::operator[](size_t i){
+inline T& Matrix<T, Alloc>::operator[](int i){
   return _data[i];
 }
 template<typename T, typename Alloc>
-inline const T& Matrix<T, Alloc>::operator[](size_t i) const{
-  return _data[i];
-}
-
-
-template<typename T, typename Alloc>
-inline T& Matrix<T, Alloc>::operator()(size_t i){
-  return _data[i];
-}
-template<typename T, typename Alloc>
-inline const T& Matrix<T, Alloc>::operator()(size_t i) const{
+inline const T& Matrix<T, Alloc>::operator[](int i) const{
   return _data[i];
 }
 
+
 template<typename T, typename Alloc>
-inline T& Matrix<T, Alloc>::operator()(size_t i, size_t j){
-  const size_t index( (i* _dims.getColumns() ) + j );
+inline T& Matrix<T, Alloc>::operator()(int i){
+  return _data[i];
+}
+template<typename T, typename Alloc>
+inline const T& Matrix<T, Alloc>::operator()(int i) const{
+  return _data[i];
+}
+
+template<typename T, typename Alloc>
+inline T& Matrix<T, Alloc>::operator()(int i, int j){
+  const int index( (i* _dims.getColumns() ) + j );
   return _data[ index ];
 }
 template<typename T, typename Alloc>
-inline const T& Matrix<T, Alloc>::operator()(size_t i, size_t j) const{
-  const size_t index( (i* _dims.getColumns() ) + j );
+inline const T& Matrix<T, Alloc>::operator()(int i, int j) const{
+  const int index( (i* _dims.getColumns() ) + j );
   return _data[ index ];
 
 }
 
 
 template<typename T, typename Alloc>
-Matrix<T, Alloc> Matrix<T, Alloc>::operator()(size_t n1, size_t n2,
-                                              size_t m1, size_t m2) const {
+Matrix<T, Alloc> Matrix<T, Alloc>::operator()(int n1, int n2,
+                                              int m1, int m2) const {
   if( n2 >= this->getNumRows() ){
     n2 = this->getNumRows()-1;
   }
@@ -114,13 +114,13 @@ Matrix<T, Alloc> Matrix<T, Alloc>::operator()(size_t n1, size_t n2,
     assert(false); //FIXME: raise exception instead
   }
 
-  const size_t stride = this->getNumColumns();
+  const int stride = this->getNumColumns();
   typename std::vector<T, Alloc>::const_iterator it(this->_data.begin());
   it += (n1 * stride)+m1;
 
   Matrix<T, Alloc> res;
   for(int i=0; i < (n2-n1+1); i++){
-    const size_t colsSpan = (m2-m1+1);
+    const int colsSpan = (m2-m1+1);
     res._data.insert( res._data.end(), it, it+colsSpan );
     it += stride;
   }
@@ -154,7 +154,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::operator+=(const Matrix<T, Alloc>& rhs)
     oss << "Right-hand-side operator size = " << rhs.getDimensions().toString();
     throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions(),  oss.str());
   }
-  const size_t length = this->getSize();
+  const int length = this->getSize();
   if( length > 0 ){
     T* const thisMat = &(this->operator[](0));
     const T* const rhsMat  = &(rhs[0]);
@@ -171,7 +171,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::operator+=(const Matrix<T, Alloc>& rhs)
   template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::operator+=(const T& rhs) 
 {
-  const size_t length = this->getSize();
+  const int length = this->getSize();
   if( length > 0 ){
     T* const thisMat = &(this->operator[](0));
 
@@ -186,7 +186,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::operator+=(const T& rhs)
   template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::operator+=(const Digit rhs) 
 {
-  const size_t length = this->getSize();
+  const int length = this->getSize();
   if( length > 0 ){
     T* const thisMat = &(this->operator[](0));
 
@@ -200,7 +200,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::operator+=(const Digit rhs)
   template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::operator+=(const SignedDigit rhs) 
 {
-  const size_t length = this->getSize();
+  const int length = this->getSize();
   if( length > 0 ){
     T* const thisMat = &(this->operator[](0));
 
@@ -228,7 +228,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::operator-=(const Matrix<T, Alloc>& rhs)
   if( this->getDimensions() != rhs.getDimensions() ){
     throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions());
   }
-  const size_t length = this->getSize();
+  const int length = this->getSize();
   if( length > 0 ){
   T* const thisMat = &(this->operator[](0));
   const T* const rhsMat  = &(rhs[0]);
@@ -243,7 +243,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::operator-=(const Matrix<T, Alloc>& rhs)
   template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::operator-=(const T& rhs) 
 {
-  const size_t length = this->getSize();
+  const int length = this->getSize();
 
   if( length > 0 ){
   T* const thisMat = &(this->operator[](0));
@@ -258,7 +258,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::operator-=(const T& rhs)
   template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::operator-=(const Digit rhs) 
 {
-  const size_t length = this->getSize();
+  const int length = this->getSize();
   if( length > 0 ){
   T* const thisMat = &(this->operator[](0));
 
@@ -272,7 +272,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::operator-=(const Digit rhs)
   template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::operator-=(const SignedDigit rhs) 
 {
-  const size_t length = this->getSize();
+  const int length = this->getSize();
   if( length > 0 ){
   T* const thisMat = &(this->operator[](0));
 
@@ -296,7 +296,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::operator*=(const Matrix<T, Alloc>& rhs) {
 
 template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::operator*=(const T& rhs){
-  const size_t length = this->getSize();
+  const int length = this->getSize();
   if( length > 0 ){
   T* const thisMat = &(this->operator[](0));
 #pragma omp parallel for
@@ -308,7 +308,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::operator*=(const T& rhs){
 } 
 template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::operator*=(const Digit rhs){
-  const size_t length = this->getSize();
+  const int length = this->getSize();
   if( length > 0 ){
   T* const thisMat = &(this->operator[](0));
 #pragma omp parallel for
@@ -320,7 +320,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::operator*=(const Digit rhs){
 }
 template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::operator*=(const SignedDigit rhs){
-  const size_t length = this->getSize();
+  const int length = this->getSize();
   if( length > 0 ){
   T* const thisMat = &(this->operator[](0));
 #pragma omp parallel for
@@ -337,7 +337,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::byElementProd(const Matrix<T, Alloc>& rhs)
   if( this->getDimensions() != rhs.getDimensions() ){
     throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions());
   }
-  const size_t length = this->getSize();
+  const int length = this->getSize();
   if( length > 0 ){
   T* const thisMat = &(this->operator[](0));
   const T* const rhsMat  = &(rhs[0]);
@@ -375,7 +375,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::byElementDiv( const Matrix<T, Alloc>& rhs){
   if( this->getDimensions() != rhs.getDimensions() ){
     throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions());
   }
-  const size_t length = this->getSize();
+  const int length = this->getSize();
   if( length > 0 ){
   T* const thisMat = &(this->operator[](0));
   const T* const rhsMat  = &(rhs[0]);
@@ -406,8 +406,8 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::transpose(){
   if( this->isSquare() ){
     T tmp;
     register T *tmpPtr1, *tmpPtr2;
-    const size_t numRows = this->getNumRows();
-    const size_t numCols = this->getNumColumns();
+    const int numRows = this->getNumRows();
+    const int numCols = this->getNumColumns();
 #pragma omp parallel for schedule(guided) private(tmp)
     for( int row=0; row < numRows; row++){
       for( int col = row+1; col < numCols; col++){
@@ -471,7 +471,7 @@ void Matrix<T, Alloc>::setToZero(){
 
 
 template<typename T, typename Alloc>
-inline size_t Matrix<T, Alloc>::getSize() const{
+inline int Matrix<T, Alloc>::getSize() const{
   //return this->getDimensions().getProduct();
   return this->_data.size();
 }
@@ -482,12 +482,12 @@ inline const Dimensions& Matrix<T, Alloc>::getDimensions() const{
 }
 
 template<typename T, typename Alloc>
-inline size_t Matrix<T, Alloc>::getNumRows() const {
+inline int Matrix<T, Alloc>::getNumRows() const {
   return this->getDimensions().getRows();
 }
 
 template<typename T, typename Alloc>
-inline size_t Matrix<T, Alloc>::getNumColumns() const {
+inline int Matrix<T, Alloc>::getNumColumns() const {
   return this->getDimensions().getColumns();
 }
 
@@ -501,10 +501,10 @@ inline bool Matrix<T, Alloc>::isSquare() const {
 
 template<typename T, typename Alloc>
 void Matrix<T, Alloc>::setDimensions(const Dimensions& dims){
-  const size_t _n = _dims.getRows();
-  const size_t _m = _dims.getColumns();
+  const int _n = _dims.getRows();
+  const int _m = _dims.getColumns();
   //deal with the possible change in the # of rows
-  const size_t newN = dims.getRows();
+  const int newN = dims.getRows();
   if( newN != _n ){ 
     //the extra space will be filled with the default
     //constructor's value for the type T
@@ -513,7 +513,7 @@ void Matrix<T, Alloc>::setDimensions(const Dimensions& dims){
   }
 
   //deal with the possible change in the # of columns 
-  const size_t newM = dims.getColumns();
+  const int newM = dims.getColumns();
   if( newM != _m ){
     typename std::vector<T, Alloc>::iterator it;
     if( newM > _m) {
@@ -534,8 +534,8 @@ void Matrix<T, Alloc>::setDimensions(const Dimensions& dims){
 
 template<typename T, typename Alloc>
 std::string Matrix<T, Alloc>::toString() const { 
-  const size_t _n = _dims.getRows();
-  const size_t _m = _dims.getColumns();
+  const int _n = _dims.getRows();
+  const int _m = _dims.getColumns();
 
   std::string res("[ ");
   for(int i=0; i < _n; i++){
@@ -576,8 +576,8 @@ void Matrix<T, Alloc>::_reset() {
 template<typename T, typename Alloc>
 Matrix<T, Alloc> transpose(const Matrix<T, Alloc>& matrix){
   
-  const size_t numRows = matrix.getNumRows();
-  const size_t numCols = matrix.getNumColumns();
+  const int numRows = matrix.getNumRows();
+  const int numCols = matrix.getNumColumns();
  
   mpplas::Matrix<T, Alloc> resMat( numCols, numRows );
   T* res( &(resMat(0,0)) );
@@ -596,7 +596,7 @@ Matrix<T, Alloc> transpose(const Matrix<T, Alloc>& matrix){
   if( numRows >= numCols ){ 
     //if the matrix is square, both approaches are equivalent, so we may
     //as well use this one.
-    const size_t stride = numRows;
+    const int stride = numRows;
 #pragma omp parallel for firstprivate(res,src, firstIter) schedule(static)
     for(int row=0; row < numRows; row++){
       if(firstIter){
@@ -612,7 +612,7 @@ Matrix<T, Alloc> transpose(const Matrix<T, Alloc>& matrix){
     }
   }
   else { // numRows < numCols 
-    const size_t stride = numCols;
+    const int stride = numCols;
 #pragma omp parallel for firstprivate(res,src, firstIter) schedule(static)
     for(int col=0; col < numCols; col++){
       if(firstIter){
@@ -639,8 +639,8 @@ Matrix<T, Alloc> transpose(const Matrix<T, Alloc>& matrix){
 template<typename T, typename Alloc>
   Matrix<T, Alloc> operator*(const Matrix<T, Alloc>& lhs, const Matrix<T, Alloc>& rhs){
 
-  const size_t ACols = lhs.getNumColumns();
-  const size_t BRows = rhs.getNumRows();
+  const int ACols = lhs.getNumColumns();
+  const int BRows = rhs.getNumRows();
 
   if( ACols != BRows ){
     std::ostringstream oss;
@@ -648,17 +648,17 @@ template<typename T, typename Alloc>
     oss << "Right-hand-side operator size = " << rhs.getDimensions().toString();
     throw Errors::NonConformantDimensions(lhs.getDimensions(), rhs.getDimensions(),  oss.str());
   }
-  const size_t ARows = lhs.getNumRows();
-  const size_t BCols = rhs.getNumColumns();
+  const int ARows = lhs.getNumRows();
+  const int BCols = rhs.getNumColumns();
 
   Matrix<T, Alloc> res( lhs.getNumRows(), rhs.getNumColumns() );
 
   const int rowsPerBlock = 4; //FIXME
   const int colsPerBlock = 4;
 
-  const size_t aRowBlocks = ARows / rowsPerBlock;
-  const size_t aColBlocks = ACols / colsPerBlock;
-  const size_t bColBlocks = BCols / colsPerBlock;
+  const int aRowBlocks = ARows / rowsPerBlock;
+  const int aColBlocks = ACols / colsPerBlock;
+  const int bColBlocks = BCols / colsPerBlock;
 
   MatrixHelpers::Strassen<T> strassen;
 
@@ -685,8 +685,8 @@ template<typename T, typename Alloc>
 
 template<typename T, typename Alloc>
 std::ostream& operator<<(std::ostream& out, const Matrix<T, Alloc>& m){
-  const size_t COLS = m.getDimensions().getColumns();
-  size_t maxWidth[COLS];
+  const int COLS = m.getDimensions().getColumns();
+  size_t maxWidth[COLS]; //size_t used because string::size() returns size_t
   memset(maxWidth, 0, COLS*sizeof(size_t));
 
   std::ostringstream oss;
@@ -696,8 +696,8 @@ std::ostream& operator<<(std::ostream& out, const Matrix<T, Alloc>& m){
     maxWidth[i % COLS] = std::max(oss.str().size()+2, maxWidth[i % COLS]);
   }
 
-  const size_t _n = m.getDimensions().getRows();
-  const size_t _m = m.getDimensions().getColumns();
+  const int _n = m.getDimensions().getRows();
+  const int _m = m.getDimensions().getColumns();
   
   //first iteration: in case the matrix is "empty" (dims == 0), 
   //it'd still show "[ ]" on screen
@@ -722,7 +722,7 @@ template<typename U, typename V, typename Composed_t>
 void _parseMatrixInput(std::istream& in, Matrix<U, V>& m){
 
   char c;
-  size_t columnsIni, columnsRead, rows;
+  int columnsIni, columnsRead, rows;
   columnsIni = columnsRead = rows = 0;
   bool firstRow = true;
 
@@ -807,24 +807,24 @@ namespace MatrixHelpers{
 
   template<typename T>
    void Strassen<T>::run(T* C, const T* const A, const T* const B, 
-            const size_t numRowsA, const size_t numColsA, const size_t numColsB,
-            const size_t strideC, const size_t strideA, const size_t strideB){
+            const int numRowsA, const int numColsA, const int numColsB,
+            const int strideC, const int strideA, const int strideB){
 
      if( numRowsA == 4){ //FIXME: esto ha de pulirse, no se puede comprobar solo una dim
        _baseMult(C,A,B, numRowsA, numColsA, numColsB, strideC, strideA, strideB);
        return;
      }
 
-      const size_t halfRowsA = numRowsA / 2;
-      const size_t halfColsA = numColsA / 2;
-      const size_t halfColsB = numColsB / 2;
-      const size_t halfRowsB = halfColsA; // it's redundant, but makes things clearer
+      const int halfRowsA = numRowsA / 2;
+      const int halfColsA = numColsA / 2;
+      const int halfColsB = numColsB / 2;
+      const int halfRowsB = halfColsA; // it's redundant, but makes things clearer
 
       /* (numColsA = numRowsB) => (halfRowsB = halfColsA) 
        *
        * And the Q's would be ( halfRowsA x halfColsB ) 
        * */
-      const size_t qsSize( halfRowsA * halfColsB );
+      const int qsSize( halfRowsA * halfColsB );
       T Qs[qsSize*7];
 
       memset(Qs, 0, qsSize*7*sizeof(T));
@@ -897,14 +897,14 @@ namespace MatrixHelpers{
     }
 
   template<typename T>
-    void Strassen<T>::_generateQs(T* Q, const T* const A, const T* const B, const size_t numRowsA, const size_t numColsA, const size_t numColsB,
-        const size_t strideA, const size_t strideB) {
-      const size_t halfRowsA = numRowsA / 2;
-      const size_t halfColsA = numColsA / 2;
-      const size_t halfColsB = numColsB / 2;
-      const size_t halfRowsB = halfColsA; // it's redundant, but makes things clearer
+    void Strassen<T>::_generateQs(T* Q, const T* const A, const T* const B, const int numRowsA, const int numColsA, const int numColsB,
+        const int strideA, const int strideB) {
+      const int halfRowsA = numRowsA / 2;
+      const int halfColsA = numColsA / 2;
+      const int halfColsB = numColsB / 2;
+      const int halfRowsB = halfColsA; // it's redundant, but makes things clearer
 
-      const size_t qsSize = halfRowsA * halfColsB;
+      const int qsSize = halfRowsA * halfColsB;
 
       const T* const a00 = A;
       const T* const a01 = (A + halfColsA);
@@ -991,10 +991,10 @@ namespace MatrixHelpers{
   
   template<typename T>
     void  Strassen<T>::_addBlocks(T* res, const T* const A, const T* const B, 
-        const size_t rows, const size_t cols,
-        const size_t strideRes, const size_t strideA, const size_t strideB) {
-      for(size_t row=0; row < rows; row++){
-        for(size_t col=0; col < cols; col++){
+        const int rows, const int cols,
+        const int strideRes, const int strideA, const int strideB) {
+      for(int row=0; row < rows; row++){
+        for(int col=0; col < cols; col++){
           res[row * strideRes + col] = A[ (row * strideA) + col ] + B[(row * strideB) + col];
         }
       }
@@ -1002,10 +1002,10 @@ namespace MatrixHelpers{
 
   template<typename T>
     void  Strassen<T>::_subBlocks(T* res,const T* const A, const T* const B,
-        const size_t rows, const size_t cols,
-        const size_t strideRes, const size_t strideA, const size_t strideB) {
-      for(size_t row=0; row < rows; row++){
-        for(size_t col=0; col < cols; col++){
+        const int rows, const int cols,
+        const int strideRes, const int strideA, const int strideB) {
+      for(int row=0; row < rows; row++){
+        for(int col=0; col < cols; col++){
           res[row * strideRes + col] = A[ (row * strideA) + col ] - B[(row * strideB) + col];
         }
       }
@@ -1013,8 +1013,8 @@ namespace MatrixHelpers{
 
   template<typename T>
     void  Strassen<T>::_multBlocks(T* res,const T* const A, const T* const B,
-      const size_t numRowsA, const size_t numColsA, const size_t numColsB,
-      const size_t strideRes, const size_t strideA, const size_t strideB) {
+      const int numRowsA, const int numColsA, const int numColsB,
+      const int strideRes, const int strideA, const int strideB) {
     
       run(res, A, B,
           numRowsA, numColsA, numColsB,
@@ -1025,12 +1025,12 @@ namespace MatrixHelpers{
   template<typename T>
     void Strassen<T>::_baseMult(
         T* C, const T* const A, const T* const B,
-        const size_t numRowsA, const size_t numColsA, const size_t numColsB,
-        const size_t strideC, const size_t strideA, const size_t strideB) {
+        const int numRowsA, const int numColsA, const int numColsB,
+        const int strideC, const int strideA, const int strideB) {
 
-      for (size_t aRow = 0; aRow < numRowsA; aRow++) {
-        for (size_t bCol = 0; bCol < numColsB; bCol++) {
-          for (size_t aCol = 0; aCol < numColsA; aCol++) {
+      for (int aRow = 0; aRow < numRowsA; aRow++) {
+        for (int bCol = 0; bCol < numColsB; bCol++) {
+          for (int aCol = 0; aCol < numColsA; aCol++) {
             C[aRow * strideC + bCol] += A[ aRow * strideA + aCol] * B[aCol * strideB + bCol];
           }
         }

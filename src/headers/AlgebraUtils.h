@@ -9,16 +9,16 @@ namespace mpplas{
   class Dimensions {
     public:
       Dimensions();
-      Dimensions(size_t n, size_t m);
+      Dimensions(int n, int m);
       Dimensions(const Dimensions&);
 
-      inline size_t getRows() const;
-      inline size_t getColumns() const;
-      inline size_t getProduct() const;
+      inline int getRows() const;
+      inline int getColumns() const;
+      inline int getProduct() const;
 
-      inline void setRows(size_t n);
-      inline void setColumns(size_t m);
-      inline void setBoth(size_t n, size_t m);
+      inline void setRows(int n);
+      inline void setColumns(int m);
+      inline void setBoth(int n, int m);
 
       inline void swap();
 
@@ -28,35 +28,35 @@ namespace mpplas{
       std::string toString() const;
 
     protected:
-      size_t _n;
-      size_t _m;
+      int _n;
+      int _m;
 
   };
 
 
 
-  inline size_t Dimensions::getRows() const{
+  inline int Dimensions::getRows() const{
     return _n;
   }
 
-  inline size_t Dimensions::getColumns() const{
+  inline int Dimensions::getColumns() const{
     return _m;
   }
 
-  inline void Dimensions::setRows(size_t n){
+  inline void Dimensions::setRows(int n){
     _n = n;
   }
-  inline void Dimensions::setColumns(size_t m){
+  inline void Dimensions::setColumns(int m){
     _m = m;
   }
 
-  inline void Dimensions::setBoth(size_t n, size_t m){
+  inline void Dimensions::setBoth(int n, int m){
     _n = n;
     _m = m;
   }
 
   inline void Dimensions::swap(){
-    const size_t tmp( _n );
+    const int tmp( _n );
     _n = _m ;
     _m = tmp;
 
@@ -65,7 +65,7 @@ namespace mpplas{
 
 
 
-  inline size_t Dimensions::getProduct() const{
+  inline int Dimensions::getProduct() const{
     return _n * _m;
   }
 

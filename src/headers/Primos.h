@@ -48,7 +48,7 @@ namespace mpplas{
        * que el número de iteraciones óptimo se determina
        * automáticamente. Véase teoría.
        */
-      virtual void ponerIteraciones(size_t iteraciones) = 0;
+      virtual void ponerIteraciones(int iteraciones) = 0;
 
       virtual ~TestPrimoProb(){}
 
@@ -100,7 +100,7 @@ namespace mpplas{
        * @param bits Bits del primo a generar.
        * @return El primo generado.
        */
-      virtual Z leerPrimoProb(size_t bits);
+      virtual Z leerPrimoProb(int bits);
 
       /** Generación del primer primos posterior a uno dado.
        *
@@ -119,7 +119,7 @@ namespace mpplas{
        * @param bits Bits del primo a generar.
        * @return El primo fuerte generado.
        */
-      virtual Z leerPrimoFuerte(size_t bits);
+      virtual Z leerPrimoFuerte(int bits);
 
       virtual ~GenPrimos(){}
 
@@ -149,12 +149,12 @@ namespace mpplas{
       RabinMiller();
       
       virtual bool esPrimo(const Z& entero, Z* testigo=NULL);
-      virtual void ponerIteraciones(size_t iteraciones);
+      virtual void ponerIteraciones(int iteraciones);
 
       virtual ~RabinMiller(){}
       
     private:
-      size_t iteraciones_;
+      int iteraciones_;
   };
   
    /** Test de primalidad para primos de Mersenne de Lucas-Lehmer.

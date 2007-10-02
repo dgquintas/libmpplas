@@ -26,8 +26,8 @@ namespace mpplas {
     {
       public:
         Matrix();
-        Matrix(const size_t nAndm) ;
-        Matrix(const size_t n, const size_t m);
+        Matrix(const int nAndm) ;
+        Matrix(const int n, const int m);
         Matrix(const Dimensions& dims);
         Matrix(const Matrix<T, Alloc>& rhs);
         Matrix(const std::string& str);
@@ -35,16 +35,16 @@ namespace mpplas {
 
         Matrix<T, Alloc>& operator=(const Matrix<T, Alloc>& rhs);
 
-        inline T& operator[](size_t i);
-        inline const T& operator[](size_t i) const;
+        inline T& operator[](int i);
+        inline const T& operator[](int i) const;
 
-        inline T& operator()(size_t i);
-        inline const T& operator()(size_t i) const;
-        inline T& operator()(size_t i, size_t j);
-        inline const T& operator()(size_t i, size_t j) const;
+        inline T& operator()(int i);
+        inline const T& operator()(int i) const;
+        inline T& operator()(int i, int j);
+        inline const T& operator()(int i, int j) const;
   
-        Matrix<T, Alloc> operator()(size_t n1, size_t n2, 
-                                    size_t m1, size_t m2) const;
+        Matrix<T, Alloc> operator()(int n1, int n2, 
+                                    int m1, int m2) const;
 
 
         
@@ -134,11 +134,11 @@ namespace mpplas {
          *
          * @return The number of elements in the matrix.
          */
-        inline size_t getSize() const;
+        inline int getSize() const;
         inline const Dimensions& getDimensions() const;
         void setDimensions(const Dimensions& dims);
-        inline size_t getNumRows() const;
-        inline size_t getNumColumns() const;
+        inline int getNumRows() const;
+        inline int getNumColumns() const;
         inline bool isSquare() const;
 
         std::string toString() const;
@@ -188,31 +188,31 @@ namespace mpplas {
         Strassen();
 
         void run(T* C, const T* const A, const T* const B, 
-            const size_t numRowsA, const size_t numColsA, const size_t numColsB,
-            const size_t strideC, const size_t strideA, const size_t strideB);
+            const int numRowsA, const int numColsA, const int numColsB,
+            const int strideC, const int strideA, const int strideB);
         
       private:
         void _baseMult(T* C, const T* const A, const T* const B,
-            const size_t numRowsA, const size_t numColsA, const size_t numColsB,
-            const size_t strideC, const size_t strideA, const size_t strideB) ;
+            const int numRowsA, const int numColsA, const int numColsB,
+            const int strideC, const int strideA, const int strideB) ;
 
         
         void _generateQs(T* Q, const T* const A, const T* const B, 
-            const size_t numRowsA, const size_t numColsA, const size_t numColsB,
-            const size_t strideA, const size_t strideB) ;
+            const int numRowsA, const int numColsA, const int numColsB,
+            const int strideA, const int strideB) ;
 
 
         virtual void _addBlocks(T* res, const T* const A, const T* const B, 
-            const size_t rows, const size_t cols,
-            const size_t strideRes, const size_t strideA, const size_t strideB) ;
+            const int rows, const int cols,
+            const int strideRes, const int strideA, const int strideB) ;
 
         virtual void _subBlocks(T* res,const T* const A, const T* const B,
-            const size_t rows, const size_t cols,
-            const size_t strideRes, const size_t strideA, const size_t strideB) ;
+            const int rows, const int cols,
+            const int strideRes, const int strideA, const int strideB) ;
 
         virtual void _multBlocks(T* res,const T* const A, const T* const B,
-            const size_t numRowsA, const size_t numColsA, const size_t numColsB,
-            const size_t strideRes, const size_t strideA, const size_t strideB) ;
+            const int numRowsA, const int numColsA, const int numColsB,
+            const int strideRes, const int strideA, const int strideB) ;
     };
     
   } /* namespace MatrixHelpers */

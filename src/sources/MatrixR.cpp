@@ -22,9 +22,9 @@ namespace mpplas
 
 
 
-  MatrixR::MatrixR(const size_t nAndm)
+  MatrixR::MatrixR(const int nAndm)
     : Matrix<R>(nAndm) {}
-  MatrixR::MatrixR(const size_t n, const size_t m)
+  MatrixR::MatrixR(const int n, const int m)
     : Matrix<R>(n,m) {}
 
   //////////////////////////////////////////////

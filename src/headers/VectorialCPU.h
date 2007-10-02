@@ -20,7 +20,7 @@ namespace mpplas{
   namespace VectorialCPU  {
    
     //funcion de redondeo
-    long redondear(const mpplas::MiVec<Digit>& a, size_t exceso, const int8_t signo);
+    long redondear(const mpplas::MiVec<Digit>& a, int exceso, const int8_t signo);
 
     /** Gets the bit length of a Digit.
      *
@@ -29,7 +29,7 @@ namespace mpplas{
      *
      * @param num The Digit to consider
      * @return The smaller number of bits needed to represent @a num */
-    size_t getBitLength(const Digit num) __FUNC_CONST_ATTRIB;
+    int getBitLength(const Digit num) __FUNC_CONST_ATTRIB;
     
 
     //paso por valor ya que debemos modificarlos en la funcion para
@@ -65,8 +65,8 @@ namespace mpplas{
     MiVec<Digit> multMP(const mpplas::MiVec<Digit>& a, const Digit b ) ;
     std::pair< mpplas::MiVec<Digit>, mpplas::MiVec<Digit> > divMP(const mpplas::MiVec<Digit>& a, const Digit b ) ;
     /* de desplazamiento */
-    void lShift(mpplas::MiVec <Digit>& a, size_t n);
-    void rShift(mpplas::MiVec <Digit>& a, size_t n);
+    void lShift(mpplas::MiVec <Digit>& a, int n);
+    void rShift(mpplas::MiVec <Digit>& a, int n);
     /** Calculo eficiente del cuadrado. */
     MiVec<Digit> cuadMP(const mpplas::MiVec<Digit>& x);
     void karatsuba(MiVec<Digit>& resultado, const MiVec<Digit>& x, const MiVec<Digit>& y);

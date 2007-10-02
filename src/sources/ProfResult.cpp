@@ -28,11 +28,11 @@ namespace mpplas {
     return *this;
   }
 
-  OpsCount& ProfResult::operator[](const size_t i) {
+  OpsCount& ProfResult::operator[](const int i) {
     assert( i < BasicCPU::__OpsEnum_SIZE );
     return _opsCount[i];
   }
-  const OpsCount& ProfResult::operator[](const size_t i) const {
+  const OpsCount& ProfResult::operator[](const int i) const {
     assert( i < BasicCPU::__OpsEnum_SIZE );
     return _opsCount[i];
   }

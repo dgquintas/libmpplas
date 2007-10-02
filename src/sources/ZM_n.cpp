@@ -235,13 +235,13 @@ namespace mpplas{
   }
 
   void ZM_n::_montgomeryRed(Z& toReduce) {
-    const size_t n = _mod.longitud();
+    const int n = _mod.longitud();
     if( toReduce.longitud() > 2*n){
       throw Errors::TooBig();
     }
 //    Digit u;
     Z tmp;
-    for(size_t i=0; i < n; i++){
+    for(int i=0; i < n; i++){
       tmp = toReduce[i];
       tmp *= _mPrime;
       tmp.moduloBase(1);
@@ -265,7 +265,7 @@ namespace mpplas{
       throw Errors::TooBig();
     }
 
-    const size_t n = lhs.getMod().longitud() ; 
+    const int n = lhs.getMod().longitud() ; 
     ZM_n A; 
     A.hacerCero(); 
     A._clone(lhs);
@@ -275,7 +275,7 @@ namespace mpplas{
 
     Z& aZ(A);
     const Z& lhsZ(lhs);
-    size_t i;
+    int i;
 
     Z tmp;
     Z tmp2;

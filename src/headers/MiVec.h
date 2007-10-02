@@ -15,9 +15,10 @@ namespace mpplas{
     class MiVec : private std::vector<T, Alloc>
     {
       public:
+        typedef typename std::vector<T, Alloc>::size_type size_type;
         MiVec(); /**< Constructor por defecto. */
-        MiVec(size_t tam); /**< Construir vector reservando @a tam posiciones */
-        MiVec(size_t tam, const T& ini);/**< Construir vector reservando @a tam posiciones 
+        MiVec(size_type tam); /**< Construir vector reservando @a tam posiciones */
+        MiVec(size_type tam, const T& ini);/**< Construir vector reservando @a tam posiciones 
                                              y rellenándolas con el valor @a ini */
 
         MiVec(const std::vector<T, Alloc>&); /**< Constructor de copia. */
@@ -59,7 +60,7 @@ namespace mpplas{
          * @param i La posición del vector a la que acceder.
          * @return Referencia al @a i -ésimo elemento del vector.
          * */
-       T& operator[](size_t i){ return this->at(i);}
+       T& operator[](size_type i){ return this->at(i);}
          /** Operador de acceso constante.
          *
          * Acceso al elemento @a i del vector. Si tal posición no
@@ -71,7 +72,7 @@ namespace mpplas{
          * @return Referencia constante al @a i -ésimo elemento del vector.
          * 
          */
-       const T& operator[](size_t i) const { return this->at(i); }
+       const T& operator[](size_type i) const { return this->at(i); }
 #endif
 
     };
@@ -88,12 +89,12 @@ namespace mpplas{
     { }
  
   template<typename T, typename Alloc>
-    MiVec<T, Alloc>::MiVec(size_t tam)
+    MiVec<T, Alloc>::MiVec(size_type tam)
     : std::vector<T, Alloc>(tam)
     { }
 
   template<typename T, typename Alloc>
-    MiVec<T, Alloc>::MiVec(size_t tam, const T& inicio)
+    MiVec<T, Alloc>::MiVec(size_type tam, const T& inicio)
     : std::vector<T, Alloc>(tam, inicio)
     { }
   

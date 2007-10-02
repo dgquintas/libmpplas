@@ -84,7 +84,7 @@ namespace mpplas{
        *
        * @return El número de bits del resumen que genera la función hash.
        */
-      virtual size_t numBitsResumen(void) const = 0;
+      virtual int numBitsResumen(void) const = 0;
 
       virtual ~Hash(){}
 
@@ -106,7 +106,7 @@ namespace mpplas{
       virtual void procesar(void);
       virtual Z obtenerEnteroResumen(void);
       virtual MiVec<uint32_t> obtenerVectorResumen(void);
-      virtual size_t numBitsResumen(void) const { return (size_t)128; }
+      virtual int numBitsResumen(void) const { return 128; }
     
       virtual ~MD5(){}  
       
@@ -118,7 +118,7 @@ namespace mpplas{
 
       bool finalizado_;
       
-      inline uint32_t rotarIzq(uint32_t x, size_t n)
+      inline uint32_t rotarIzq(uint32_t x, int n)
       {
         return (((x) << (n)) | ((x) >> (32-(n))));
       }

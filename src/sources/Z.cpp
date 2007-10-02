@@ -23,7 +23,7 @@
 
 namespace mpplas{
 
-  size_t Z::precisionSalida_ = 0;
+  int Z::precisionSalida_ = 0;
 
   Z Z::ZERO((Digit)0);
   Z Z::ONE((Digit)1);
@@ -94,8 +94,7 @@ namespace mpplas{
     cadStream.precision(Constants::MAX_EXP10_DOUBLE); 
     cadStream << floor(otro);
     std::string cadena = cadStream.str();
-    size_t inicio = cadena.find_first_of('.');
-    cadena.erase(inicio);
+    cadena.erase(cadena.find_first_of('.'));
 
     Z temp(cadena.c_str());
 
@@ -546,11 +545,11 @@ namespace mpplas{
     
     if( derMenor ){
       this->coefPoliB_.resize(der.coefPoliB_.size(),(Digit)0);
-      for(size_t i = 0; i < der.coefPoliB_.size(); i++)
+      for(int i = 0; i < der.coefPoliB_.size(); i++)
         this->coefPoliB_[i] &= der.coefPoliB_[i];
     }
     else
-      for(size_t i = 0; i < this->coefPoliB_.size(); i++)
+      for(int i = 0; i < this->coefPoliB_.size(); i++)
         this->coefPoliB_[i] &= der.coefPoliB_[i];
 
     return *this;
@@ -565,11 +564,11 @@ namespace mpplas{
       derMenor = false;     
     
     if( derMenor ){
-      for(size_t i = 0; i < der.coefPoliB_.size(); i++)
+      for(int i = 0; i < der.coefPoliB_.size(); i++)
         this->coefPoliB_[i] |= der.coefPoliB_[i];
     }
     else{
-      size_t i;
+      int i;
       for(i = 0; i < this->coefPoliB_.size(); i++)
         this->coefPoliB_[i] |= der.coefPoliB_[i];
       for( ; i < der.coefPoliB_.size(); i++)
@@ -589,11 +588,11 @@ namespace mpplas{
       derMenor = false;     
     
     if( derMenor ){
-      for(size_t i = 0; i < der.coefPoliB_.size(); i++)
+      for(int i = 0; i < der.coefPoliB_.size(); i++)
         this->coefPoliB_[i] xor_eq der.coefPoliB_[i];
     }
     else{
-      size_t i;
+      int i;
       for(i = 0; i < this->coefPoliB_.size(); i++)
         this->coefPoliB_[i] xor_eq der.coefPoliB_[i];
       for( ; i < der.coefPoliB_.size(); i++)
@@ -696,12 +695,10 @@ namespace mpplas{
     }
 
     // Cohen pag. 40
-    size_t r, t;
-
     // Q11, Q63, Q64 y Q65 esta en constantes.h 
 
-    t = (size_t)(*this)[0] % 64; // FIXME: hacer el n % 64 con ops de bits
-    r = (size_t)(*this)[0] % 45045; // 45045 = 63*65*11
+    const int t = (int)(*this)[0] % 64; // FIXME: hacer el n % 64 con ops de bits
+    const int r = (int)(*this)[0] % 45045; // 45045 = 63*65*11
 
     if (Constants::Q64[t] == false) 
       return false;
@@ -1169,14 +1166,14 @@ namespace mpplas{
   }
 
 
-  Z& Z::operator>>=(const size_t desp)
+  Z& Z::operator>>=(const int desp)
   {
 
     VectorialCPU::rShift(coefPoliB_, desp);
     return *this;
   }
 
-  Z& Z::operator<<=(const size_t desp)
+  Z& Z::operator<<=(const int desp)
   {
 
     VectorialCPU::lShift(coefPoliB_, desp);
@@ -1293,13 +1290,13 @@ namespace mpplas{
     return *this;
   }
 
-  size_t Z::getBitLength(void) const {
-    size_t componentes = coefPoliB_.size() - 1;
+  int Z::getBitLength(void) const {
+    int componentes = coefPoliB_.size() - 1;
     return (( Constants::BITS_EN_CIFRA * componentes) + VectorialCPU::getBitLength(coefPoliB_[componentes]));
 
   }
 
-  SignedDigit Z::redondear(size_t exceso) 
+  SignedDigit Z::redondear(int exceso) 
   {
 
     return VectorialCPU::redondear(coefPoliB_, exceso, signo_);
@@ -1361,13 +1358,13 @@ namespace mpplas{
   }
 
 
-  size_t Z::numDoses(void) const
+  int Z::numDoses(void) const
   {
     if ( this->esImpar() )
       return 0;
 
     Z temp(*this);
-    size_t doses = 0;
+    int doses = 0;
 
     while( temp.esPar() ){
       if( !(temp.coefPoliB_[0] & 0x3) ){ //dos ultimos bits 0 ( ...00 )
@@ -1444,11 +1441,11 @@ namespace mpplas{
         
       
 
-  Z Z::getRightshiftedBits(const size_t n) {
+  Z Z::getRightshiftedBits(const int n) {
     assert( n <= this->getBitLength() );
-    const size_t bitPos = n;
-    const size_t digitPos =  bitPos >> Constants::LOG_2_BITS_EN_CIFRA;
-    const size_t inDigitPos = ( bitPos & Constants::DIGIT_MOD_MASK );
+    const int bitPos = n;
+    const int digitPos =  bitPos >> Constants::LOG_2_BITS_EN_CIFRA;
+    const int inDigitPos = ( bitPos & Constants::DIGIT_MOD_MASK );
     const Digit inDigitPosMask = ((Digit)1 << inDigitPos)-1;
 
     Z res;
@@ -1466,7 +1463,7 @@ namespace mpplas{
       
 
   
-  Z& Z::divisionBase(const size_t n)
+  Z& Z::divisionBase(const int n)
   {
     if( coefPoliB_.size() > n ){
       coefPoliB_.erase(coefPoliB_.begin(), coefPoliB_.begin()+n);
@@ -1477,7 +1474,7 @@ namespace mpplas{
     return *this;
   }
 
-  Z& Z::moduloBase(const size_t n)
+  Z& Z::moduloBase(const int n)
   {
     coefPoliB_.resize(n);
     limpiarCeros();
@@ -1485,8 +1482,8 @@ namespace mpplas{
     return *this;
   }
 
-  Z& Z::powerOfTwo(const size_t n){
-    const size_t digits = n >> Constants::LOG_2_BITS_EN_CIFRA;
+  Z& Z::powerOfTwo(const int n){
+    const int digits = n >> Constants::LOG_2_BITS_EN_CIFRA;
 
     //has to be a Digit because it's a index that can have bits
     //up to the Digit's bitlength
@@ -1501,7 +1498,7 @@ namespace mpplas{
 
 
 
-  Z& Z::potenciaBase(const size_t n)
+  Z& Z::potenciaBase(const int n)
   {
 //    coefPoliB_.clear();
 //    coefPoliB_.resize(n+1,0); 
@@ -1553,8 +1550,8 @@ namespace mpplas{
         }
       }
       else{ //precisionSalida_ > 0 ==> limitacion
-        size_t digitos10 = (size_t)ceil(num.getBitLength() * Constants::LOG_10_2);
-        size_t digitos10Mostrados = 0;
+        int digitos10 = (int)ceil(num.getBitLength() * Constants::LOG_10_2);
+        int digitos10Mostrados = 0;
 
         if(num.esCero()){
           oss << "0";
@@ -1745,13 +1742,13 @@ namespace mpplas{
 
 
   
-  Z operator>>(Z num, const size_t desp)
+  Z operator>>(Z num, const int desp)
   {
     num >>= desp;
     return num;
   }
 
-  Z operator<<(Z num, const size_t desp)
+  Z operator<<(Z num, const int desp)
   {
     num <<= desp;
     return num;
@@ -2390,15 +2387,15 @@ namespace mpplas{
     return x.esCuadrado();
   }
 
-  size_t getBitLength(const Z& x)
+  int getBitLength(const Z& x)
   {
     return x.getBitLength();
   }
-  size_t getBitLength(const Digit x)
+  int getBitLength(const Digit x)
   {
     return VectorialCPU::getBitLength(x);
   }
-  size_t getBitLength(const SignedDigit x)
+  int getBitLength(const SignedDigit x)
   {
     return VectorialCPU::getBitLength((Digit)labs(x));
   }

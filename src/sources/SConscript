@@ -235,6 +235,7 @@ def CheckX86Arch(context):
         asm ( "cpuid;"
           : "=d"(edx)
           : "a"(eax)
+          : "ebx", "ecx"
           );
         if( edx & (1L << 29) ){ 
           std::cout << "x86_64"; /* the CPU has x86-64 support */ 

@@ -40,7 +40,7 @@ void RSATest::testRSA(){
   //se declaran 4 numeros enteros. 
   Z p,q,n,phi; 
  
-  size_t tamPrimos = 1024;
+  int tamPrimos = 1024;
   
 //  const clock_t t1 = clock();
   // cogemos los primos... del tamaño en bits que queramos
@@ -83,7 +83,7 @@ void RSATest::testRSA(){
   Z mdesc;
   mdesc = potMod->potModular(c,d,n);
   
-  size_t tam = (mdesc.getBitLength() >> 3)+1;
+  const int tam = (mdesc.getBitLength() >> 3)+1;
   resString.resize(tam);
   mdesc.escribirBytes(resString.begin(), resString.end());
 

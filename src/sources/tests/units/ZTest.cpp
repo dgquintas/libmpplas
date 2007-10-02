@@ -240,7 +240,7 @@ void ZTest::testFactorial(){
 void ZTest::testBitChecker(){
   Z z1("3447218540");
   Utils::BitChecker bt(z1);
-  size_t const bitCount = z1.getBitLength();
+  const int bitCount = z1.getBitLength();
   stack<bool> binaryInverse;
 
   while( bt.hasPrevious() ){
@@ -248,7 +248,7 @@ void ZTest::testBitChecker(){
   }
 
   bt.setPosition(0);
-  for(size_t i = 0; i < bitCount; i++){
+  for(int i = 0; i < bitCount; i++){
     qassertTrue( (z1[0] & 0x1) == binaryInverse.top() );
     qassertTrue( (z1[0] & 0x1) ==  bt.checkNext() );
     binaryInverse.pop();

@@ -253,7 +253,7 @@ namespace mpplas{
     int precisionVieja=0;
     if( prec ){
       precisionVieja = R::precision();
-      R::precision( (prec * Constants::LOG_2_10) +1 );
+      R::precision( (int)(prec * Constants::LOG_2_10) +1 );
 //      cout << (int)(prec * Constants::LOG_2_10) +1 << endl;
     }
     R unQuinto; unQuinto.hacerUno(); unQuinto /= 5;

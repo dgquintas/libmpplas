@@ -161,19 +161,17 @@ namespace mpplas{
     }
 
     const int t = 1+(int)floor(log2(exponente));
-    Z acum;
-    acum.hacerUno();
-    Digit mask;
+    const Z orig(*base);
+    base->hacerUno();
+    Digit mask( ((Digit)1) << (t+1));
 
     for(int i= t; i >= 0; i--){
-      mask = 1 << i;
-      acum.cuadrado();
+      mask >>= 1; // mask = 1 << i
+      base->cuadrado();
       if( exponente & mask ){
-        acum *= (*base);
+        (*base) *= orig;
       }
     }
-
-    base->operator=(acum); //FIXME
 
     return;
   }

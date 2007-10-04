@@ -11,8 +11,9 @@ namespace mpplas{
 
   Z GCD::gcd(Z u, Digit v)
   {
-    if( u.esNegativo() )
+    if( u.esNegativo() ){
       u.hacerPositivo();
+    }
 
     Digit r;
     while( v != 0 ){
@@ -33,14 +34,16 @@ namespace mpplas{
   
   Z GCDLehmer::gcd(Z u, Z v)
   {
-    if( u.esNegativo() )
+    if( u.esNegativo() ){
       u.hacerPositivo();
-    if( v.esNegativo() )
+    }
+    if( v.esNegativo() ){
       v.hacerPositivo();
+    }
 
     // "u" ha de ser >= que "v"
     if( u < v ){
-      Z temp(u);
+      const Z temp(u);
       u = v;
       v = temp;
     }
@@ -59,54 +62,65 @@ namespace mpplas{
 
 
     while(true){
-      if( v.longitud() == 1)
+      if( v.longitud() == 1){
         return GCD::gcd(u,v[0]);
+      }
       else{
         const int p = u.getBitLength() - Constants::BITS_EN_CIFRA;
-        uHat = (u >> p)[0];
-        vHat = (v >> p)[0];
+
+        uHat = u.getBitsInDigit(p);
+        vHat = v.getBitsInDigit(p);
+
 
         A=1; B=0; C=0; D=1;
 
         while(true){
           uPrima = uHat + B;
           vPrima = vHat + D; /* OF! */ bool vPrimaOF = false;
-          if( vPrima < vHat )
+          if( vPrima < vHat ){
             vPrimaOF = true;
+          }
 
           uPrimaSegunda = uHat + A; /* OF! */ bool uPrimaSegundaOF = false;
-          if( uPrima < uHat )  
+          if( uPrima < uHat )  {
             uPrimaSegundaOF = true;
+          }
 
           vPrimaSegunda = vHat + C;
 
-          if( vPrima == 0 || vPrimaSegunda == 0)
+          if( vPrima == 0 || vPrimaSegunda == 0){
             break;
+          }
 
-          if ( vPrimaOF )
+          if ( vPrimaOF ){
             q = 0; // el hecho de que el divisor sea mayor que la base 
                   //(en la que SI esta dividendo) implica necesariamente 
                   //que el floor del cociente es 0 
-          else
+          }
+          else{
             q = uPrima / vPrima;
+          }
 
           if( uPrimaSegundaOF ){
-            if( vPrimaSegunda == 1 )
+            if( vPrimaSegunda == 1 ){
               break; 
               // ya que el cociente uPrimaSegunda / vPrimaSegunda 
               //seria igual a la base y dado que uPrima / vPrima es 
               //siempre < base, es imposible que sean  iguales 
+            }
             else{
               Z uZ = Z(Constants::CIFRA_MAX); uZ++;
               q2 = (uZ/vPrimaSegunda)[0]; /* el resultado de esa div sera siempre < base
                                              ya que uZ == base y vPrimaSegunda > 1 */
             }
           }
-          else
+          else{
             q2 = uPrimaSegunda / vPrimaSegunda;
+          }
 
-          if( q != q2 )
+          if( q != q2 ){
             break;
+          }
           else{
             T = A - q*C;
             A = C;
@@ -158,7 +172,7 @@ namespace mpplas{
       y.hacerPositivo();
     }
 
-    unsigned long g; g = 0;
+    int g(0);
     while( x.esPar() && y.esPar() ){
       x >>= 1; // x = x/2;
       y >>= 1; // y = y/2;
@@ -207,10 +221,12 @@ namespace mpplas{
 
     //para que todo funcione correctamente con negativos y se 
     //verifique la ecuacion gcd(x,y) = xC + yD
-    if( xNegativo )
+    if( xNegativo ) {
       C.cambiarSigno();
-    if( yNegativo )
+    }
+    if( yNegativo ) {
       D.cambiarSigno();
+    }
 
     return ( v <<= g );
   }

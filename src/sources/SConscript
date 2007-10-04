@@ -167,12 +167,19 @@ if env['enableRelease']:
   env.Append(CPPDEFINES = ['RELEASE','NDEBUG'])
 
 
-#if env['enableExtraOpt']: 
-#  env.Append(CCFLAGS = ' -ffast-math')  #FIXME: esto con icc no chuta
+if env['enableExtraOpt']: 
+  if( env['CXX'][:3] == 'g++' ): #gcc
+    env.Append(CCFLAGS = ' -ffast-math')  
+    
+  elif ( env['CXX'][:2] == 'ic' ): #intel c compiler
+    pass
 
 if env['enableDebug']:
-  env.Append(CCFLAGS = ' -ggdb3')
-
+  if( env['CXX'][:3] == 'g++' ): #gcc
+    env.Append(CCFLAGS = ' -ggdb3')
+    
+  elif ( env['CXX'][:2] == 'ic' ): #intel c compiler
+    env.Append(CCFLAGS = ' -g')
 
 
 if env['enableWarnings']:

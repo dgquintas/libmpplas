@@ -9,7 +9,7 @@ opts.AddOptions(
     EnumOption('arch', 'Target architecture', 'auto',
                 allowed_values=('auto', 'generic','x86','x86Prof','ppc','x86_64','x86_64Prof')),
     
-   # BoolOption('enableExtraOpt', 'Use extra optimization flags', 1),
+    BoolOption('enableExtraOpt', 'Use extra optimization flags', 0),
     BoolOption('enableDebug', 'Generate debug symbols', 0),
     BoolOption('enableAOPProf', 'Enable the profiling mechanisms via AOP', 0),
     BoolOption('enableOpenmp', 'Use OpenMP (if available)', 1),

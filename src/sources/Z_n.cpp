@@ -83,9 +83,7 @@ namespace mpplas{
     return *this;
   }
 
-  Z_n& Z_n::operator=(const Z_n& enteroModular)
-  {
-
+  Z_n& Z_n::operator=(const Z_n& enteroModular) {
     Z::operator=(enteroModular);
     if( enteroModular.n_ > n_ )
       this->operator%=(n_);
@@ -93,18 +91,17 @@ namespace mpplas{
     return *this;
   }
 
-  Z_n& Z_n::operator+=(const Z& der)
-  {
+  Z_n& Z_n::operator+=(const Z& der) {
     Z::operator+=(der);
 
-    if( *this >= n_ )
+    if( *this >= n_ ){
       Z::operator%=(n_);
+    }
 
     return *this;
   }
 
-  Z_n& Z_n::operator-=(const Z& der)
-  {
+  Z_n& Z_n::operator-=(const Z& der){
     Z::operator-=(der);
 
     if( *this < (Digit)0 )
@@ -113,19 +110,16 @@ namespace mpplas{
     return *this;
   }
 
-  Z_n& Z_n::operator*=(const Z& der)
-  {
+  Z_n& Z_n::operator*=(const Z& der)  {
     Z::operator*=(der);
     Z::operator%=(n_);
 
     return *this;
   }
 
-  Z_n& Z_n::operator/=(const Z& der)
-  {
+  Z_n& Z_n::operator/=(const Z& der)  {
     Z_n inv(n_);
-    MethodsFactory *funcs = MethodsFactory::getInstance();
-    PotModular *potMod; funcs->getFunc(potMod);
+    PotModular *potMod; MethodsFactory::getReference().getFunc(potMod);
     inv = Z_n(potMod->inversa(der, n_), n_, false);
     operator*=(inv);
 
@@ -134,8 +128,7 @@ namespace mpplas{
 
 
   /* simple prec */
-  Z_n& Z_n::operator+=(const SignedDigit derC)
-  {
+  Z_n& Z_n::operator+=(const SignedDigit derC) {
     Z::operator+=(derC);
 
     //substraction is less expensive than division.
@@ -148,8 +141,7 @@ namespace mpplas{
     return *this;
   }
 
-  Z_n& Z_n::operator-=(const SignedDigit derC)
-  {
+  Z_n& Z_n::operator-=(const SignedDigit derC) {
 
     Z::operator-=(derC);
 
@@ -177,9 +169,7 @@ namespace mpplas{
   {
     Z_n derEntero(Z(derC), n_);
 
-    MethodsFactory *funcs = MethodsFactory::getInstance();
-
-    PotModular *potMod; funcs->getFunc(potMod);
+    PotModular *potMod; MethodsFactory::getReference().getFunc(potMod);
     Z_n inv(potMod->inversa(derEntero, n_), n_, false);
 
     operator*=(inv);
@@ -230,8 +220,7 @@ namespace mpplas{
     Z_n inv(n_);
     Z derEntero(der);
 
-    MethodsFactory *funcs = MethodsFactory::getInstance();
-    PotModular *potMod; funcs->getFunc(potMod);
+    PotModular *potMod; MethodsFactory::getReference().getFunc(potMod);
     inv = Z_n(potMod->inversa(Z(der), n_), n_, false);
     operator*=(inv);
 
@@ -242,19 +231,15 @@ namespace mpplas{
 
   Z_n& Z_n::operator^=(const Digit e)
   {
-    MethodsFactory *funcs = MethodsFactory::getInstance();
-
-    Z eZ(e);
-    PotModular *potMod; funcs->getFunc(potMod);
+    const Z eZ(e);
+    PotModular *potMod; MethodsFactory::getReference().getFunc(potMod);
     potMod->potModular(this, eZ, n_);
     return *this;
   }
 
   Z_n& Z_n::operator^=(const SignedDigit e) 
   {
-    MethodsFactory *funcs = MethodsFactory::getInstance();
-
-    PotModular *potMod; funcs->getFunc(potMod);
+    PotModular *potMod; MethodsFactory::getReference().getFunc(potMod);
     Z eZ(e);
     potMod->potModular(this, eZ, n_);
     return *this;
@@ -262,9 +247,7 @@ namespace mpplas{
 
   Z_n& Z_n::operator^=(const Z& e)
   {
-    MethodsFactory *funcs = MethodsFactory::getInstance();
-
-    PotModular *potMod; funcs->getFunc(potMod);
+    PotModular *potMod; MethodsFactory::getReference().getFunc(potMod);
     potMod->potModular(this, e, n_);
     return *this;
   }

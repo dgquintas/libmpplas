@@ -44,8 +44,8 @@ void RSATest::testRSA(){
   
 //  const clock_t t1 = clock();
   // cogemos los primos... del tamaño en bits que queramos
-  p = genPrimos->leerPrimoProb(tamPrimos);
-  q = genPrimos->leerPrimoProb(tamPrimos);
+  p = genPrimos->getPrime(tamPrimos);
+  q = genPrimos->getPrime(tamPrimos);
 
   //se sigue con las operaciones propias del RSA
   n = p*q;

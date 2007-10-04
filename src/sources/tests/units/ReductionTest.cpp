@@ -43,7 +43,7 @@ void ReductionTest::testMontgomeryPrecomp(){
   dummy.potenciaBase(1);
   
 
-  _integer = _primeGen->leerPrimoProb(128);
+  _integer = _primeGen->getPrime(128);
   GEN x,m;
 
   x = gp_read_str(const_cast<char*>(_integer.toString().c_str()));
@@ -61,8 +61,8 @@ void ReductionTest::testMontgomeryPrecomp(){
 }
 
 void ReductionTest::testMontgomeryReduction(){
-  Z primeMod(_primeGen->leerPrimoProb(128));
-  _integer = _rnd->getInteger(256);
+  Z primeMod(_primeGen->getPrime(64));
+  _integer = _rnd->getInteger(100);
   int n = primeMod.longitud();
   Z R; R.hacerCero();
   R.potenciaBase(n);
@@ -84,9 +84,18 @@ void ReductionTest::testMontgomeryReduction(){
   
   Z mPrima = _redMont.precomputaciones(primeMod);
 
+  const Z orig(_integer);
   _redMont.redMontgomery(&_integer, primeMod, mPrima);
 
-  qassertTrue( _integer.toString() == pariStr );
+  bool res(_integer.toString() == pariStr );
+  if( !res ){
+    std::cout << "mont failed" << std::endl;
+    std::cout << orig << std::endl;
+    std::cout << primeMod << std::endl;
+    std::cout << _integer << std::endl;
+    std::cout << pariStr << std::endl;
+  }
+  qassertTrue( res );
 
 }
 

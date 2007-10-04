@@ -21,7 +21,7 @@ void PrimesTest::tearDown(){
 }
 
 void PrimesTest::testRabinMiller(){
-  const Z prime( _primeGen.leerPrimoProb( brand(128,512) ) );
+  const Z prime( _primeGen.getPrime( brand(128,512) ) );
   const bool res = _rm.esPrimo(prime) ;
   const GEN p = gp_read_str(const_cast<char*>(prime.toString().c_str()));
   long pariRes = isprime(p);
@@ -31,7 +31,7 @@ void PrimesTest::testRabinMiller(){
 void PrimesTest::testMersenneLucasLehmer(){
 }
 void PrimesTest::testGenerator(){
-  const Z prime( _primeGen.leerPrimoProb( brand(128,512) ) );
+  const Z prime( _primeGen.getPrime( brand(128,512) ) );
   const GEN p = gp_read_str(const_cast<char*>(prime.toString().c_str()));
   long pariRes = isprime(p);
   qassertTrue( pariRes );

@@ -256,7 +256,7 @@ void Z_nTest::testDivisionWithZ(){
   //make sure the modulus is prime (ie, invertible)
   GenPrimos* genPrimos=0;
   funcs->getFunc(genPrimos);
-  this->modulus = genPrimos->leerPrimoProb(128);  
+  this->modulus = genPrimos->getPrime(128);  
   delete this->modularInteger; //get rid of the one set up by setUp()
   this->modularInteger = new Z_n(rnd->getInteger(1234), modulus);
   Z_n res = (*modularInteger) / integer ; 
@@ -298,7 +298,7 @@ void Z_nTest::testDivisionWithDigit(){
   //make sure the modulus is prime (ie, invertible)
   GenPrimos* genPrimos=0;
   funcs->getFunc(genPrimos);
-  this->modulus = genPrimos->leerPrimoProb(128);  
+  this->modulus = genPrimos->getPrime(128);  
   delete this->modularInteger; //get rid of the one set up by setUp()
   this->modularInteger = new Z_n(rnd->getInteger(1234), modulus);
   Z_n res = (*modularInteger) / cifra ; 
@@ -342,7 +342,7 @@ void Z_nTest::testDivisionWithSignedDigit(){
   //make sure the modulus is prime (ie, invertible)
   GenPrimos* genPrimos=0;
   funcs->getFunc(genPrimos);
-  this->modulus = genPrimos->leerPrimoProb(128);  
+  this->modulus = genPrimos->getPrime(128);  
   delete this->modularInteger; //get rid of the one set up by setUp()
   this->modularInteger = new Z_n(rnd->getInteger(1234), modulus);
   Z_n res = (*modularInteger) / cifraSigno ; 
@@ -409,7 +409,7 @@ void Z_nTest::testExponentiationWithDigit(){
   //make sure the modulus is coprime with the base
     GenPrimos* genPrimos=0;
   funcs->getFunc(genPrimos);
-  this->modulus = genPrimos->leerPrimoProb(128);
+  this->modulus = genPrimos->getPrime(128);
   delete this->modularInteger;
   this->modularInteger = new Z_n(rnd->getInteger(1234), modulus);
 
@@ -437,7 +437,7 @@ void Z_nTest::testExponentiationWithSignedDigit(){
    GenPrimos* genPrimos=0;
   funcs->getFunc(genPrimos);
 
-  this->modulus = genPrimos->leerPrimoProb(128);
+  this->modulus = genPrimos->getPrime(128);
   delete this->modularInteger;
   this->modularInteger = new Z_n(rnd->getInteger(1234), modulus);
 

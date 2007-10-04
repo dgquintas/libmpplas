@@ -272,19 +272,19 @@ namespace mpplas{
     Z menosUno; menosUno.hacerUno(); menosUno.hacerNegativo();
     
 //    do{
-//      p = gprimos->leerPrimoProb(_quality);
+//      p = gprimos->getPrime(_quality);
 //    } while( slegendre->simboloLegendre(menosUno, p) != (SignedDigit)-1 );
 //    
 //    do{
-//      q = gprimos->leerPrimoProb(_quality);
+//      q = gprimos->getPrime(_quality);
 //    } while( slegendre->simboloLegendre(menosUno, q) != (SignedDigit)-1 );
  
     do{
-      p = gprimos->leerPrimoProb(_quality);
+      p = gprimos->getPrime(_quality);
     } while( (p[0] & 0x3) != 3 ); // p & 0x3 == p mod 4
     
     do{
-      q = gprimos->leerPrimoProb(_quality);
+      q = gprimos->getPrime(_quality);
     } while( (q[0] & 0x3) != 3 );
 
     

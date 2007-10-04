@@ -68,8 +68,8 @@ namespace mpplas{
       else{
         const int p = u.getBitLength() - Constants::BITS_EN_CIFRA;
 
-        uHat = u.getBitsInDigit(p);
-        vHat = v.getBitsInDigit(p);
+        uHat = u.getBitsInADigit(p);
+        vHat = v.getBitsInADigit(p);
 
 
         A=1; B=0; C=0; D=1;

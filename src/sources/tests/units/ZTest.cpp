@@ -298,19 +298,19 @@ void ZTest::testGetRightshiftedBits(){
 }
 
 void ZTest::testGetBitsInADigit(){
-  Z foo("123456789123456789123456789");
   
-  const Digit res1 = foo.getBitsInADigit(40);
-  qassertEquals((foo >> 40)[0], res1);
+  const int ini = brand(500,1000);
+  const Digit res1 = z1.getBitsInADigit(ini);
+  qassertEquals((z1 >> ini)[0], res1);
 
 
   do{
-    foo = rnd->getInteger(Constants::BITS_EN_CIFRA);
-  } while( foo.getBitLength() != Constants::BITS_EN_CIFRA); //it really has to have every bit
-  const Digit res2 = foo.getBitsInADigit(0);
-  qassertEquals(foo[0], res2);
+    z1 = rnd->getInteger(Constants::BITS_EN_CIFRA);
+  } while( z1.getBitLength() != Constants::BITS_EN_CIFRA); //it really has to have every bit
+  const Digit res2 = z1.getBitsInADigit(0);
+  qassertEquals(z1[0], res2);
 
-  const Digit res3 = foo.getBitsInADigit(666);
+  const Digit res3 = z1.getBitsInADigit(123456789);
   qassertEquals(res3, (Digit)0);
 
 

@@ -21,6 +21,7 @@
 #include "ReductionTest.h"
 #include "ExponentiationTest.h"
 #include "SystemInfoTest.h"
+#include "GCDTest.h"
 #include "qtunit/TestSuite.h"
 
 namespace com_uwyn_qtunit
@@ -48,6 +49,7 @@ namespace com_uwyn_qtunit
     ExponentiationTest _exponentiationTest;
     SystemInfoTest _systemInfoTest;
     PrimesTest _primesTest;
+    GCDTest _gcdTest;
 	};
 }
 

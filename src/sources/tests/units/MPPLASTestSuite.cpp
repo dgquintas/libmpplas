@@ -15,7 +15,7 @@ MPPLASTestSuite::MPPLASTestSuite() {
   addTestUnit(_randomTest);
   addTestUnit(_primesTest);
   addTestUnit(_kernelTest);
-	addTestUnit(_zTest);
+  addTestUnit(_zTest);
 	addTestUnit(_z_nTest);
 	addTestUnit(_zM_nTest);
   addTestUnit(_matrixZTest);
@@ -30,5 +30,6 @@ addTestUnit(_functionsTest);
   addTestUnit(_reductionTest);
   addTestUnit(_exponentiationTest);
   addTestUnit(_systemInfoTest);
+  addTestUnit(_gcdTest);
 
 }

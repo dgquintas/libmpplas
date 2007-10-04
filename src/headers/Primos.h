@@ -93,14 +93,14 @@ namespace mpplas{
 
       GenPrimos();
 
-      /** Generación de primo.
+      /** Prime number generation.
        *
        * Se genera un primo de aproximadamente @a bits bits.
        * 
        * @param bits Bits del primo a generar.
        * @return El primo generado.
        */
-      virtual Z leerPrimoProb(int bits);
+      virtual Z getPrime(const int bits) const;
 
       /** Generación del primer primos posterior a uno dado.
        *
@@ -110,8 +110,8 @@ namespace mpplas{
        * del primo.
        * @return El primer primo mayor que @a comienzo.
        */
-      virtual Z siguientePrimoProb(const Z& comienzo);
- 
+      virtual Z getPrime(Z from) const;
+
       /** Generación de primo fuerte.
        *
        * Se genera un primo fuerte de aproximadamente @a bits bits.
@@ -119,11 +119,11 @@ namespace mpplas{
        * @param bits Bits del primo a generar.
        * @return El primo fuerte generado.
        */
-      virtual Z leerPrimoFuerte(int bits);
+      virtual Z getPrimeStrong(const int bits) const ;
 
       virtual ~GenPrimos(){}
 
-      virtual void setRandomSeed(const Z& seed); 
+      virtual void setRandomSeed(const Z& seed) const; 
 
 
       typedef GenPrimos DFL;

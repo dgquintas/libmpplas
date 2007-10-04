@@ -5,15 +5,17 @@
 #include <cstring>
 #include <cassert>
 
+
 #include "ProfResults.h"
 #include "omp_mock.h"
+#include "SystemInfo.h"
 
 
 
 namespace mpplas {
 
   ProfResults::ProfResults() 
-  : _perThreadResults ( std::vector< ProfResult >( omp_get_max_threads() ) ) { //FIXME: use systeminfo
+  : _perThreadResults ( SystemInfo::getMaxNumberOfThreads() ) { 
     this->reset();
   }
 

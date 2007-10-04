@@ -44,6 +44,7 @@ namespace mpplas{
         using std::vector<T, Alloc>::reference;
         using std::vector<T, Alloc>::const_reference;
         using std::vector<T, Alloc>::reserve;
+        using std::vector<T, Alloc>::operator[];
 //        using std::vector<T, Alloc>::
 
 

@@ -5,7 +5,7 @@
 #ifndef __PROFRESULTS_H
 #define __PROFRESULTS_H
 
-#include <iostream>
+#include <ostream>
 #include <vector>
 
 #include "ProfResult.h"

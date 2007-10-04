@@ -5,7 +5,7 @@
 #ifndef __PROFRESULS_H
 #define __PROFRESULS_H
 
-#include <iostream>
+#include <ostream>
 
 #include "BasicTypedefs.h"
 

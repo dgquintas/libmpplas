@@ -205,7 +205,7 @@ void ZTest::testIsPerfectSquare(){
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
   const Z itIs(pariStr);
-  const Z itIsnt(itIs + 1);
+  const Z itIsnt(itIs + (Digit)1);
   Z root;
 
   qassertTrue( itIs.isPerfectSquare(&root) );

@@ -14,8 +14,7 @@ namespace mpplas{
 
   /*** OPERACIONES BASICAS EN VECTORES UNSIGNED ***/
   /*** DESPLAZAMIENTO ***/
-  void VectorialCPU::lShift(mpplas::MiVec <Digit>& a, const int n)
-  {
+  void VectorialCPU::lShift(mpplas::MiVec <Digit>& a, const int n) {
     if( ((a.size() == 1) && (a[0] == 0)) || n == 0 ) {
       return;
     }
@@ -46,8 +45,7 @@ namespace mpplas{
     return;
   }
 
-  void VectorialCPU::rShift(mpplas::MiVec <Digit> &a, const int n)
-  {
+  void VectorialCPU::rShift(mpplas::MiVec <Digit> &a, const int n) {
     if( ((a.size() == 1) && (a[0] == 0)) || n == 0 ) {
       return;
     }
@@ -55,14 +53,20 @@ namespace mpplas{
     const int componentes = n >> Constants::LOG_2_BITS_EN_CIFRA ; 
     const int fraccion = n & Constants::DIGIT_MOD_MASK;
 
-
-    for(int i=0; i < componentes; i++){
-      //desplazamos a la derecha componente a componente
-      //o lo que es lo mismo, se inserta una componente toda ceros
-      //en el principio y se borra la comp. del final
-      a.erase(a.begin());
-      a.push_back(0);
+     //desplazamos a la derecha componente a componente
+     //o lo que es lo mismo, se inserta una componente toda ceros
+     //en el principio y se borra la comp. del final
+     //a.erase(a.begin());
+    if( componentes > 0 ){
+      if( a.size() <= componentes ){
+        a.clear();
+        a.push_back(0);
+      }
+      else{
+        a.erase(a.begin(), a.begin() + componentes );
+      }
     }
+
 
     Digit resto = 0;
     if(fraccion){
@@ -403,13 +407,13 @@ namespace mpplas{
       if( maxSize >= Constants::UMBRAL_KARATSUBA ){ 
         if ( maxSize  < 2 * std::min(tamA, tamB)) { //if the bigger factor is less than twice the size of the other
           if( tamA < tamB ){
-            MiVec<Digit> aBis(a); //FIXME : optimizar
+            MiVec<Digit> aBis(a); 
             aBis.resize(tamB, 0);
             karatsuba(w, aBis,b);
             return w;
           }
           else if ( tamA > tamB ){ 
-            MiVec<Digit> bBis(b);//FIXME : optimizar
+            MiVec<Digit> bBis(b);
             bBis.resize(tamA, 0);
             karatsuba(w, a,bBis);
             return w;

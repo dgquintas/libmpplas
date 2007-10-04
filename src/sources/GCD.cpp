@@ -11,7 +11,7 @@ namespace mpplas{
 
   Z GCD::gcd(Z u, Digit v)
   {
-    if( u.esNegativo() ){
+    if( u.isNegative() ){
       u.hacerPositivo();
     }
 
@@ -34,10 +34,10 @@ namespace mpplas{
   
   Z GCDLehmer::gcd(Z u, Z v)
   {
-    if( u.esNegativo() ){
+    if( u.isNegative() ){
       u.hacerPositivo();
     }
-    if( v.esNegativo() ){
+    if( v.isNegative() ){
       v.hacerPositivo();
     }
 
@@ -163,11 +163,11 @@ namespace mpplas{
     bool xNegativo = false;
     bool yNegativo = false;
     
-    if( x.esNegativo() ){
+    if( x.isNegative() ){
       xNegativo = true;
       x.hacerPositivo();
     }
-    if( y.esNegativo() ){
+    if( y.isNegative() ){
       yNegativo = true;
       y.hacerPositivo();
     }

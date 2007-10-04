@@ -220,7 +220,7 @@ namespace mpplas{
 
     Z e(exp);
 
-    if( e.esNegativo() ){
+    if( e.isNegative() ){
       eNegativo = true;
       base->operator=(inversa(*base, mod));
       e.hacerPositivo();

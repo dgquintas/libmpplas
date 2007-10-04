@@ -69,9 +69,9 @@ namespace mpplas{
     else //v par
       k = 1;
 
-    if( b.esNegativo() ){
+    if( b.isNegative() ){
       b.hacerPositivo();
-      if( a.esNegativo() )
+      if( a.isNegative() )
         k = -k;
     }
 
@@ -82,7 +82,7 @@ namespace mpplas{
         k *= tabla[b[0] & 0x7];
 
       //reciprocidad
-      if( a.esNegativo() ){
+      if( a.isNegative() ){
         Digit aTemp = ~a[0]; //no hace falta sumarle 1 para completar la "complementacion a dos" 
                              //ya que el ...&0x2 no lo iba a tener en
                              //cuenta de todas formas

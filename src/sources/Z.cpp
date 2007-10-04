@@ -665,57 +665,70 @@ namespace mpplas{
   }
 
 
-  Z& Z::raizCuadrada(void)
+  Z& Z::iSquareRoot(void)
   {
     //cohen p 38
-    if( (this->esUno()) || (this->esCero()) )
+    if( (this->esUno()) || (this->esCero()) ){
       return *this; //la parte entera de la raiz cuadrada de 1 es 1 y la de 0 es 0
+    }
 
-    // this >= 2 => x/2 >= floor(sqrt(x))
-    Z n(*this);
-    (*this) >>= 1 ; // x = this / 2 (ver doc.)
-    Z y;
+    const Z n(*this);
 
-    y = (*this) + (n/(*this)); y >>= 1;
+    //this method is no more than a Newton iteration.
+    //Therefore, the choice of the initial point is basic
+    //in order to minimize the number of steps.
+    //It suffices that the initial point be > than the
+    //integer sqrt. 
+    const int e( (this->getBitLength() /2) + 1 );
+    this->hacerUno(); 
+    (*this) <<= e;
 
+    Z y((*this) + (n/(*this))); 
+    y >>= 1;
     while( y < (*this) ){
       (*this) = y;
-      y = (*this) + (n/(*this)); y >>= 1;
+      y = (*this) + (n/(*this)); 
+      y >>= 1;
     }
 
     return *this;
   }
 
-  bool Z::esCuadrado(Z* raiz)
+  bool Z::isPerfectSquare(Z* root) const
   {
-    if( raiz ){
-      //se pone inicialmente el valor que tomara el entero "raiz" de
+    if( root ){
+      //se pone inicialmente el valor que tomara el entero "root" de
       //darse el caso de no ser *this un cuadrado perfecto
-      raiz->hacerUno(); raiz->hacerNegativo(); 
+      root->hacerUno(); root->hacerNegativo(); 
     }
 
     // Cohen pag. 40
     // Q11, Q63, Q64 y Q65 esta en constantes.h 
+    const int t = ((*this)[0] & (64-1));  // equivalent to reduction modulo 64
+    const int r = (int)((*this) % (Digit)45045)[0]; // 45045 = 63*65*11
 
-    const int t = (int)(*this)[0] % 64; // FIXME: hacer el n % 64 con ops de bits
-    const int r = (int)(*this)[0] % 45045; // 45045 = 63*65*11
+    if (Constants::Q64[t] == false) {
+      return false;
+    }
+    if (Constants::Q63[r % 63] == false)  {
+      return false;
+    }
+    if (Constants::Q65[r % 65] == false) {
+      return false;
+    }
+    if (Constants::Q11[r % 11] == false){
+      return false;
+    }
 
-    if (Constants::Q64[t] == false) 
+    Z sqRoot(*this);
+    sqRoot.iSquareRoot();
+    if( mpplas::cuadrado(sqRoot) != (*this) ){
       return false;
-    if (Constants::Q63[r % 63] == false)  
-      return false;
-    if (Constants::Q65[r % 65] == false) 
-      return false;
-    if (Constants::Q11[r % 11] == false)
-      return false;
-
-    Z raizCuad(*this);
-    raizCuad.raizCuadrada();
-    if( mpplas::cuadrado(raizCuad) != (*this) )
-      return false;
+    }
     else{
-      if( raiz )
-        (*raiz) = raizCuad;
+      if( root ){
+        (*root) = sqRoot;
+      }
       return true;
     }
 
@@ -1137,8 +1150,8 @@ namespace mpplas{
 
   Z& Z::operator^=(const Digit e)
   {
-    MethodsFactory *funcs = MethodsFactory::getInstance();
-    Potencia* p; funcs->getFunc(p);
+    MethodsFactory& funcs = MethodsFactory::getReference();
+    Potencia* p; funcs.getFunc(p);
     p->potencia(this, e);
 
     return *this; 
@@ -1262,16 +1275,12 @@ namespace mpplas{
     return *this;
   }
 
-  Z& Z::operator--(int)
-  {
-    assert(coefPoliB_.size() >= 1 ); //FIXME
+  Z& Z::operator--(int){
     if( esCero() ){
       hacerUno();
       signo_ = -1;
       return *this;
     }
-
-
 
     if(signo_ > 0){
       if(coefPoliB_[0] > 0)
@@ -1291,7 +1300,7 @@ namespace mpplas{
   }
 
   int Z::getBitLength(void) const {
-    int componentes = coefPoliB_.size() - 1;
+    const int componentes = coefPoliB_.size() - 1;
     return (( Constants::BITS_EN_CIFRA * componentes) + VectorialCPU::getBitLength(coefPoliB_[componentes]));
 
   }
@@ -1360,8 +1369,9 @@ namespace mpplas{
 
   int Z::numDoses(void) const
   {
-    if ( this->esImpar() )
+    if ( this->esImpar() ){
       return 0;
+    }
 
     Z temp(*this);
     int doses = 0;
@@ -1399,12 +1409,13 @@ namespace mpplas{
     //cohen p 42
     Z p,q;
     Z a;
-    MethodsFactory *funcs = MethodsFactory::getInstance();
-    TestPrimoProb* primTest; funcs->getFunc(primTest);
-    GCD* gcd; funcs->getFunc(gcd);
+    MethodsFactory &funcs = MethodsFactory::getReference();
+    TestPrimoProb* primTest; funcs.getFunc(primTest);
+    GCD* gcd; funcs.getFunc(gcd);
     
-    if( this->esPar() )
+    if( this->esPar() ){
       p = Z((Digit)2);
+    }
     else{
       q = (*this);
       while(true){
@@ -1413,14 +1424,14 @@ namespace mpplas{
           break;
         }
         else{
-          Z d;
-          d = gcd->gcd((a^q)-a,q);
+          const Z d(gcd->gcd((a^q)-a,q));
           if( d.esUno() || (d == q) ){
             primo->hacerCero();
             return false;
           }
-          else
+          else{
             q = d;
+          }
         }
       }
     }
@@ -1510,6 +1521,30 @@ namespace mpplas{
     
     return *this;
   }
+
+
+
+  Digit Z::getBitsInADigit(const int ini) const {
+    if( ini+Constants::BITS_EN_CIFRA > this->getBitLength() ){
+      return 0;
+    }
+    Digit res;
+    // digitPos = ini / BITS_EN_CIFRA
+    const int digitPos(ini >> Constants::LOG_2_BITS_EN_CIFRA);
+    // inDigitShift = ini % BITS_IN_DIGIT
+    const int inDigitShift(ini & Constants::DIGIT_MOD_MASK);
+    Digit inDigitMask( ~((((Digit)1) << ( inDigitShift )) -1));
+    res = (coefPoliB_[digitPos] & inDigitMask) >> inDigitShift;
+    inDigitMask = ~inDigitMask;
+    if( inDigitMask ){
+      res |= ((coefPoliB_[digitPos+1] & inDigitMask) << ( Constants::BITS_EN_CIFRA - inDigitShift));
+    }
+
+    return res;
+  }
+
+
+
 
 
   std::string Z::toString(void) const {
@@ -1628,7 +1663,7 @@ namespace mpplas{
       if( std::isdigit(c) ) {
         n *= 10;
         ++numDigits;
-        n += c - '0';  //FIXME: is this portable?
+        n += c - '0';  
         if( numDigits >= Constants::MAX_EXP10_CIFRA ){ //shouldn't ever be >
           //put into the number to return
           res *= Constants::MAX_BASE10_POWER_DIGIT;
@@ -1792,7 +1827,7 @@ namespace mpplas{
     //    Z cociente = Z::convertir((Digit)labs(corto) / largo[0]); 
     //    //if( corto < 0 ) // => largo tb sera negativo, asi q cociente positivo FIXME: PROBAR TO ESTO
     //    if( corto >= 0) 
-    //      if( largo.esNegativo() )
+    //      if( largo.isNegative() )
     //        cociente.hacerNegativo();
     //      
     //    return cociente;
@@ -2357,13 +2392,13 @@ namespace mpplas{
   }
 
 
-  Z raizCuadrada(Z x)
+  Z iSquareRoot(Z x)
   {
-    x.raizCuadrada();
+    x.iSquareRoot();
     return x;
   }
 
-  Digit raizCuadrada(Digit x)
+  Digit iSquareRoot(Digit x)
   {
     if( (x == 1) || (x == 0 ) )
       return x;
@@ -2382,9 +2417,9 @@ namespace mpplas{
     return n;
   } 
 
-  bool esCuadrado(Z x)
+  bool isPerfectSquare(const Z& x)
   {
-    return x.esCuadrado();
+    return x.isPerfectSquare();
   }
 
   int getBitLength(const Z& x)

@@ -50,7 +50,7 @@ namespace com_uwyn_qtunit{
       void testPowerOfTwo();
       void testGetRightshiftedBits();
 
-      void testGetBitsInDigit();
+      void testGetBitsInADigit();
   };
 }
 

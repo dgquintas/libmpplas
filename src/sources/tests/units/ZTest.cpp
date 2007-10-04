@@ -39,7 +39,7 @@ ZTest::ZTest()
   addTest(ZTest, testBitChecker);
   addTest(ZTest, testPowerOfTwo);
   addTest(ZTest, testGetRightshiftedBits);
-  addTest(ZTest, testGetBitsInDigit);
+  addTest(ZTest, testGetBitsInADigit);
 }
 
 void ZTest::setUp(){
@@ -297,13 +297,21 @@ void ZTest::testGetRightshiftedBits(){
 
 }
 
-void ZTest::testGetBitsInDigit(){
+void ZTest::testGetBitsInADigit(){
   Z foo("123456789123456789123456789");
-  const Digit resToBe(4260553649UL); //this shit aint portable 
   
-  const Digit res = foo.getBitsInDigit(40);
+  const Digit res1 = foo.getBitsInADigit(40);
+  qassertEquals((foo >> 40)[0], res1);
 
-  qassertEquals(res, resToBe);
-  qassertEquals((foo >> 40)[0], resToBe);
+
+  do{
+    foo = rnd->getInteger(Constants::BITS_EN_CIFRA);
+  } while( foo.getBitLength() != Constants::BITS_EN_CIFRA); //it really has to have every bit
+  const Digit res2 = foo.getBitsInADigit(0);
+  qassertEquals(foo[0], res2);
+
+  const Digit res3 = foo.getBitsInADigit(666);
+  qassertEquals(res3, (Digit)0);
+
 
 }

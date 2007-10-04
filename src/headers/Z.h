@@ -312,7 +312,7 @@ namespace mpplas
        *  @return Entero verificando ser igual a \f$
        *  \lfloor\sqrt{x}\rfloor \f$.
        */
-      Z& raizCuadrada(void);
+      Z& iSquareRoot(void);
       
       /** Determinar si es cuadrado perfecto.
        * 
@@ -335,7 +335,7 @@ namespace mpplas
        * utilice a -1 como indicador de no existencia de raiz para el
        * parametro opcional @e raíz
        */
-      bool esCuadrado(Z* raiz = NULL);
+      bool isPerfectSquare(Z* raiz = NULL) const;
       
       /** Versión de precisión simple de suma. @sa operator+=(const Z&)*/
       Z& operator+=(const SignedDigit); 
@@ -837,19 +837,6 @@ namespace mpplas
       inline bool isNegative(void) const { return signo_ < 0; }
 
 
-      /** Comprobar signo negativo.
-       * 
-       * \par Complejidad:
-       *      \f$ O(1) \f$
-       *
-       * @return true si *this es un entero negativo\n 
-       *         false si no.
-       *  
-       *  El objetivo de este método es ser un atajo para la frecuente 
-       *  operacion de comprobar si un número es negativo.
-       */
-     inline bool esNegativo(void) const { return signo_ < 0; }
- 
       /** Eliminar ceros no significativos.
        * 
        * \par Complejidad:
@@ -1033,6 +1020,10 @@ namespace mpplas
        * El entero actual (*this) toma el valor \f$2^{BITS_EN_BASE \cdot n}\f$.
        */
       Z& potenciaBase(const int n);
+
+
+      Digit getBitsInADigit(const int ini) const ;
+
 
 
       /////////////////////////////////
@@ -1539,23 +1530,23 @@ namespace mpplas
   Z factorial(Z x);
    /** Raíz cuadrada entera (versión "función").
    *
-   * @sa Z::raizCuadrada()
+   * @sa Z::iSquareRoot()
    * 
    */
-  Z raizCuadrada(Z x);
+  Z iSquareRoot(Z x);
   /** Raíz cuadrada entera precisión simple (versión "función").
    *
-   * @sa Z::raizCuadrada()
+   * @sa Z::iSquareRoot()
    * 
    */
-  Digit raizCuadrada(Digit x);
+  Digit iSquareRoot(Digit x);
   
   
   /** Determinar si es cuadrado perfecto (versión "función")
    *
-   * @sa Z::esCuadrado()
+   * @sa Z::isPerfectSquare()
    */
-  bool esCuadrado(Z x);
+  bool isPerfectSquare(const Z& x);
 
   /** Valor absoluto (versión "función")
    * @sa Z::abs()

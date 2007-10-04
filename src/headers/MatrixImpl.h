@@ -639,26 +639,26 @@ Matrix<T, Alloc> transpose(const Matrix<T, Alloc>& matrix){
 template<typename T, typename Alloc>
   Matrix<T, Alloc> operator*(const Matrix<T, Alloc>& lhs, const Matrix<T, Alloc>& rhs){
 
-  const int ACols = lhs.getColumns();
-  const int BRows = rhs.getRows();
+  const int aCols = lhs.getColumns();
+  const int bRows = rhs.getRows();
 
-  if( ACols != BRows ){
+  if( aCols != bRows ){
     std::ostringstream oss;
     oss << "Left-hand-side operator size = " << lhs.getDimensions().toString() << "\n";
     oss << "Right-hand-side operator size = " << rhs.getDimensions().toString();
     throw Errors::NonConformantDimensions(lhs.getDimensions(), rhs.getDimensions(),  oss.str());
   }
-  const int ARows = lhs.getRows();
-  const int BCols = rhs.getColumns();
+  const int aRows = lhs.getRows();
+  const int bCols = rhs.getColumns();
 
-  Matrix<T, Alloc> res( lhs.getRows(), rhs.getColumns() );
+  Matrix<T, Alloc> res( aRows, bCols );
 
   const int rowsPerBlock = 4; //FIXME
   const int colsPerBlock = 4;
 
-  const int aRowBlocks = ARows / rowsPerBlock;
-  const int aColBlocks = ACols / colsPerBlock;
-  const int bColBlocks = BCols / colsPerBlock;
+  const int aRowBlocks = aRows / rowsPerBlock;
+  const int aColBlocks = aCols / colsPerBlock;
+  const int bColBlocks = bCols / colsPerBlock;
 
   MatrixHelpers::Strassen<T> strassen;
 
@@ -672,7 +672,7 @@ template<typename T, typename Alloc>
       
         strassen.run(C,A,B,
                      rowsPerBlock,colsPerBlock,rowsPerBlock,
-                     BCols, ACols, BCols);
+                     bCols, aCols, bCols);
 
       }
     }
@@ -801,19 +801,9 @@ std::istream& operator>>(std::istream& in, Matrix<T, Alloc>& m) {
 namespace MatrixHelpers{
 
   template<typename T>
-    Strassen<T>::Strassen()
-    {}
-
-
-  template<typename T>
    void Strassen<T>::run(T* C, const T* const A, const T* const B, 
             const int numRowsA, const int numColsA, const int numColsB,
-            const int strideC, const int strideA, const int strideB){
-
-     if( numRowsA == 4){ //FIXME: esto ha de pulirse, no se puede comprobar solo una dim
-       _baseMult(C,A,B, numRowsA, numColsA, numColsB, strideC, strideA, strideB);
-       return;
-     }
+            const int strideC, const int strideA, const int strideB) const{
 
       const int halfRowsA = numRowsA / 2;
       const int halfColsA = numColsA / 2;
@@ -825,10 +815,13 @@ namespace MatrixHelpers{
        * And the Q's would be ( halfRowsA x halfColsB ) 
        * */
       const int qsSize( halfRowsA * halfColsB );
+
+      //space for the 7 Q's is reserved right away and contiguously 
+      //just for performance reasons
       T Qs[qsSize*7];
 
       memset(Qs, 0, qsSize*7*sizeof(T));
-      _generateQs(Qs, A, B, numRowsA, numColsA, numColsB, strideA, strideB);
+      _generateQs(Qs, A, B, halfRowsA, halfColsA, halfColsB, strideA, strideB);
       
       const T* const Q0(Qs); 
       const T* const Q1(Qs + 1*qsSize);
@@ -889,19 +882,13 @@ namespace MatrixHelpers{
           halfRowsA, halfColsB,
           strideC, strideC, halfColsB);
 
-
-
-
       return;
 
     }
 
   template<typename T>
-    void Strassen<T>::_generateQs(T* Q, const T* const A, const T* const B, const int numRowsA, const int numColsA, const int numColsB,
-        const int strideA, const int strideB) {
-      const int halfRowsA = numRowsA / 2;
-      const int halfColsA = numColsA / 2;
-      const int halfColsB = numColsB / 2;
+    void Strassen<T>::_generateQs(T* Q, const T* const A, const T* const B, const int halfRowsA, const int halfColsA, const int halfColsB,
+        const int strideA, const int strideB) const {
       const int halfRowsB = halfColsA; // it's redundant, but makes things clearer
 
       const int qsSize = halfRowsA * halfColsB;
@@ -985,14 +972,13 @@ namespace MatrixHelpers{
       _multBlocks(Q6, tmpAs, tmpBs,
           halfRowsA, halfColsA, halfColsB,
           halfColsB, halfColsA, halfColsB);
-
-
     }
   
   template<typename T>
-    void  Strassen<T>::_addBlocks(T* res, const T* const A, const T* const B, 
+    void Strassen<T>::_addBlocks(T* res, const T* const A, const T* const B, 
         const int rows, const int cols,
-        const int strideRes, const int strideA, const int strideB) {
+        const int strideRes, const int strideA, const int strideB) const {
+
       for(int row=0; row < rows; row++){
         for(int col=0; col < cols; col++){
           res[row * strideRes + col] = A[ (row * strideA) + col ] + B[(row * strideB) + col];
@@ -1003,7 +989,7 @@ namespace MatrixHelpers{
   template<typename T>
     void  Strassen<T>::_subBlocks(T* res,const T* const A, const T* const B,
         const int rows, const int cols,
-        const int strideRes, const int strideA, const int strideB) {
+        const int strideRes, const int strideA, const int strideB) const {
       for(int row=0; row < rows; row++){
         for(int col=0; col < cols; col++){
           res[row * strideRes + col] = A[ (row * strideA) + col ] - B[(row * strideB) + col];
@@ -1012,28 +998,25 @@ namespace MatrixHelpers{
     }
 
   template<typename T>
-    void  Strassen<T>::_multBlocks(T* res,const T* const A, const T* const B,
-      const int numRowsA, const int numColsA, const int numColsB,
-      const int strideRes, const int strideA, const int strideB) {
-    
-      run(res, A, B,
-          numRowsA, numColsA, numColsB,
-          strideRes, strideA, strideB);
-    }
-
-
-  template<typename T>
-    void Strassen<T>::_baseMult(
+    void Strassen<T>::_multBlocks(
         T* C, const T* const A, const T* const B,
         const int numRowsA, const int numColsA, const int numColsB,
-        const int strideC, const int strideA, const int strideB) {
+        const int strideC, const int strideA, const int strideB) const {
 
-      for (int aRow = 0; aRow < numRowsA; aRow++) {
-        for (int bCol = 0; bCol < numColsB; bCol++) {
-          for (int aCol = 0; aCol < numColsA; aCol++) {
-            C[aRow * strideC + bCol] += A[ aRow * strideA + aCol] * B[aCol * strideB + bCol];
+      if( numRowsA <= 4){ //FIXME: esto ha de pulirse, no se puede comprobar solo una dim
+        for (int aRow = 0; aRow < numRowsA; aRow++) {
+          for (int bCol = 0; bCol < numColsB; bCol++) {
+            for (int aCol = 0; aCol < numColsA; aCol++) {
+              C[aRow * strideC + bCol] += A[ aRow * strideA + aCol] * B[aCol * strideB + bCol];
+            }
           }
         }
+        return;
+      }
+      else{
+        run(C, A, B,
+            numRowsA, numColsA, numColsB,
+            strideC, strideA, strideB);
       }
       return;
     }

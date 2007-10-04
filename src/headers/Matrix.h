@@ -185,34 +185,28 @@ namespace mpplas {
     template<typename T>
     class Strassen{
       public:
-        Strassen();
-
         void run(T* C, const T* const A, const T* const B, 
             const int numRowsA, const int numColsA, const int numColsB,
-            const int strideC, const int strideA, const int strideB);
+            const int strideC, const int strideA, const int strideB) const;
         
       private:
-        void _baseMult(T* C, const T* const A, const T* const B,
-            const int numRowsA, const int numColsA, const int numColsB,
-            const int strideC, const int strideA, const int strideB) ;
-
-        
-        void _generateQs(T* Q, const T* const A, const T* const B, 
-            const int numRowsA, const int numColsA, const int numColsB,
-            const int strideA, const int strideB) ;
-
-
         virtual void _addBlocks(T* res, const T* const A, const T* const B, 
             const int rows, const int cols,
-            const int strideRes, const int strideA, const int strideB) ;
+            const int strideRes, const int strideA, const int strideB) const;
 
         virtual void _subBlocks(T* res,const T* const A, const T* const B,
             const int rows, const int cols,
-            const int strideRes, const int strideA, const int strideB) ;
+            const int strideRes, const int strideA, const int strideB) const;
 
         virtual void _multBlocks(T* res,const T* const A, const T* const B,
             const int numRowsA, const int numColsA, const int numColsB,
-            const int strideRes, const int strideA, const int strideB) ;
+            const int strideRes, const int strideA, const int strideB) const;
+
+        
+        void _generateQs(T* Q, const T* const A, const T* const B, 
+            const int halfRowsA, const int halfColsA, const int halfColsB,
+            const int strideA, const int strideB) const;
+
     };
     
   } /* namespace MatrixHelpers */

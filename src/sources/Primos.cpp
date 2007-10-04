@@ -21,7 +21,7 @@ namespace mpplas{
 
   bool RabinMiller::esPrimo(const Z& p, Z* testigo) 
   {
-    MethodsFactory *funcs = MethodsFactory::getInstance();
+    MethodsFactory* const funcs = MethodsFactory::getInstance();
     GCD* gcd;
     funcs->getFunc(gcd);
     RandomFast* rnd; funcs->getFunc(rnd);
@@ -68,11 +68,13 @@ namespace mpplas{
         if( (!z.esUno()) && ( z != pMenosUno) ){
           for(int j = 0; (j < b) && (z != pMenosUno) ; j++ ){
             z.cuadrado();  // recordar que z es Zp
-            if( z.esUno() ) //ya que no cambiará aun en los cuadrados sucesivos...
+            if( z.esUno() ){ //ya que no cambiará aun en los cuadrados sucesivos...
               return false;
+            }
           }
-          if ( z != pMenosUno )
+          if ( z != pMenosUno ){
             return false;
+          }
         }
       }
       // si resulta que "es primo", no tiene sentido hablar de
@@ -88,28 +90,23 @@ namespace mpplas{
 
       int cota;
       if( p <= (Digit)4000000 ){ // 2000^2
-        cota = raizCuadrada(p[0]);
+        cota = iSquareRoot(p[0]);
         for(int i = 0; Constants::TABLA_PRIMOS_2000[i] <= cota; i++){
           if ( (!gcd->gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
             return false;
           }
         }
-
-        return true;
-
         /* Resultado GANTIZADO */
+        return true;
       }
       else{
         cota = 303;
       }
-
       for(int i = 0; i < cota; i++){
         if ( (!gcd->gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
           return false;
         }
       }
-
-
       /* Sloane's A014233: 
        * Menores impares para los cuales el test de Rabin-Miller para los
        * k primeros primos falla.
@@ -123,9 +120,7 @@ namespace mpplas{
        5 | 2152302898747
        6 | 3474749660383
        7 | 341550071728321
-       8 | 341550071728321 <- fuera por superfluo
-
-*/
+       8 | 341550071728321 <- fuera por superfluo */
       static const Z psi_3("25326001");
       static const Z psi_4("3215031751");
       static const Z psi_5("2152302898747");
@@ -149,30 +144,33 @@ namespace mpplas{
       Z_n z(p); 
       Z pMenosUno(p); pMenosUno--;
       const int b = pMenosUno.numDoses();
-      const Z m = pMenosUno >> b;
+      const Z m(pMenosUno >> b);
       for( int i = 0; i < iteraciones_; i++){
-
         //Por 4.28 Menezes, el producto de 2 "mentirosos fuertes" (bases
         //que poducen un pseudoprimo fuerte "n" en realidad compuesto)
         //es casi con toda seguridad, también un mentiroso fuerte. 
         //Por tanto, se utilizan como bases los primos sucesivos.
-        if(i >= 303 ) 
+        if(i >= 303 ) {
           //por si a alguien se le ocurre la "brillante" idea de poner un numero
           //de iteraciones asi de grande
           z = rnd->getInteger( std::min(16,p.getBitLength()-1) );
-        else
+        }
+        else{
           z = Z(Constants::TABLA_PRIMOS_2000[i]);
+        }
 
         z ^= m;
 
         if( (!z.esUno()) && ( z != pMenosUno) ){
           for(int j = 0; (j < b) && (z != pMenosUno) ; j++ ){
-            z ^= (Digit)2; //FIXME
-            if( z.esUno() ) //ya que no cambiará aun en los cuadrados sucesivos...
+            z.cuadrado();
+            if( z.esUno() ){ //ya que no cambiará aun en los cuadrados sucesivos...
               return false;
+            }
           }
-          if ( z != pMenosUno )
+          if ( z != pMenosUno ){
             return false;
+          }
         }
       }
 
@@ -222,142 +220,120 @@ namespace mpplas{
 
 ////////////////////////////////////////////////
 
-  GenPrimos::GenPrimos()
-  {
+  GenPrimos::GenPrimos(){
     MethodsFactory::getInstance()->getFunc(_rnd);
   }
 
-  void GenPrimos::setRandomSeed(const Z& seed)
-  {
+  void GenPrimos::setRandomSeed(const Z& seed) const {
     _rnd->setSeed(seed);
   }
 
-  Z GenPrimos::leerPrimoProb(int bits)
-  {
-    MethodsFactory *funcs = MethodsFactory::getInstance();
-    TestPrimoProb* test; funcs->getFunc(test);
+
+  Z GenPrimos::getPrime(const int bits) const {
 
     Z n(_rnd->getInteger(bits));
+
+
+    //because it _might_ happen that the length of the 
+    //generated integer is less than the bits argument,
+    //so that in the next step, we _might_ get an out of 
+    //bounds exception
+    const int actualBits = n.getBitLength();
 
     //poner a 1 los bits más y menos significativos 
     //poner a 1 el bit mas significativo hace que el nº
     //generado tenga el numero de bits especificado
-    const int i = (bits-1) / Constants::BITS_EN_CIFRA;
-    const int j = (bits-1) % Constants::BITS_EN_CIFRA;
-    const Digit mascara = (1U << j);
+    const int i = (actualBits-1) / Constants::BITS_EN_CIFRA;
+    const int j = (actualBits-1) % Constants::BITS_EN_CIFRA;
+    const Digit mask = (((Digit)1) << j);
 
-    n[i] |= mascara; //el más
-    n[0] |= 0x1;     //el menos
+    n[i] |= mask; // MSB
+    n[0] |= 0x1;     // LSB
 
 
-    int iteraciones;
-    // pagina 148 Handbook of Applied Cryptography
-    // Se garantiza una probabilidad de error <= que (1/2)^80
-    if( bits >= 1300 )
-      iteraciones = 2;
-    else if( bits >= 850 )
-      iteraciones = 3;
-    else if( bits >= 650 )
-      iteraciones = 4;
-    else if( bits >= 550 )
-      iteraciones = 5;
-    else if( bits >= 450 )
-      iteraciones = 6;
-    else if( bits >= 400 )
-      iteraciones = 7;
-    else if( bits >= 350 )
-      iteraciones = 8;
-    else if( bits >= 300 )
-      iteraciones = 9;
-    else if( bits >= 250 )
-      iteraciones = 12;
-    else if( bits >= 200 )
-      iteraciones = 15;
-    else if( bits >= 150 )
-      iteraciones = 18;
-    else if( bits >= 100 )
-      iteraciones = 27;
-    else
-      iteraciones = 30;
+    return this->getPrime(n);
 
-    test->ponerIteraciones(iteraciones);
-    while( !test->esPrimo(n) ){
-      n += (Digit)2;
-    }
-    
-    //aquí, esPrimo(n) == true
-
-    return n;
   }
 
-  Z GenPrimos::siguientePrimoProb(const Z& comienzo)
-  {
-    MethodsFactory *funcs = MethodsFactory::getInstance();
+  Z GenPrimos::getPrime(Z from) const {
+    MethodsFactory* const funcs = MethodsFactory::getInstance();
     TestPrimoProb* test; funcs->getFunc(test);
 
     //caso especial
-    if( comienzo == (Digit)2 )
+    if( from == (Digit)2 ){
       return Z((Digit)3);
+    }
     
-    Z n = comienzo;
-    if( comienzo.esPar() ){
-      n++;
+    if( from.esPar() ){
+      from++;
     }
     else{
-      n++; n++;
+      from += (Digit)2;
     }
-      
+
+    const int bits = from.getBitLength();
 
     int iteraciones;
-    int bits = n.getBitLength();
     // pagina 148 Handbook of Applied Cryptography
     // Se garantiza una probabilidad de error <= que (1/2)^80
-    if( bits >= 1300 )
+    if( bits >= 1300 ) {
       iteraciones = 2;
-    else if( bits >= 850 )
+    }
+    else if( bits >= 850 ) { 
       iteraciones = 3;
-    else if( bits >= 650 )
+    }
+    else if( bits >= 650 ) {
       iteraciones = 4;
-    else if( bits >= 550 )
+    }
+    else if( bits >= 550 ) {
       iteraciones = 5;
-    else if( bits >= 450 )
+    }
+    else if( bits >= 450 ) {
       iteraciones = 6;
-    else if( bits >= 400 )
+    }
+    else if( bits >= 400 ) {
       iteraciones = 7;
-    else if( bits >= 350 )
+    }
+    else if( bits >= 350 ) {
       iteraciones = 8;
-    else if( bits >= 300 )
+    }
+    else if( bits >= 300 ) {
       iteraciones = 9;
-    else if( bits >= 250 )
+    }
+    else if( bits >= 250 ) {
       iteraciones = 12;
-    else if( bits >= 200 )
+    }
+    else if( bits >= 200 ) {
       iteraciones = 15;
-    else if( bits >= 150 )
+    }
+    else if( bits >= 150 ) {
       iteraciones = 18;
-    else if( bits >= 100 )
+    }
+    else if( bits >= 100 ) {
       iteraciones = 27;
-    else
+    }
+    else {
       iteraciones = 30;
+    }
 
     test->ponerIteraciones(iteraciones);
-    while( !test->esPrimo(n) ){
-      n++; n++;
+    while( !test->esPrimo(from) ){
+      from += (Digit)2;
     }
     
-    //aquí, esPrimo(n) == true
+    //aquí, esPrimo(from) == true
 
-    return n;
+    return from;
+
   }
 
 
-  Z GenPrimos::leerPrimoFuerte(int bits)
-  {
-    MethodsFactory *funcs = MethodsFactory::getInstance();
+  Z GenPrimos::getPrimeStrong(const int bits) const {
+    MethodsFactory* const funcs = MethodsFactory::getInstance();
     TestPrimoProb* testPrim; funcs->getFunc(testPrim);
     
-    Z s,t;
-    s = leerPrimoProb( bits/2 );
-    t = leerPrimoProb( (bits/2) - 2 );
+    const Z s(getPrime( bits/2 ));
+    Z t(getPrime( (bits/2) - 2 ));
 
     Z r(t);
     r <<= 2;
@@ -368,13 +344,12 @@ namespace mpplas{
       r += t; //este "t" es el doble del "t" inicial
     }
 
-    Z p,p0;
     PotModular *potModular; funcs->getFunc(potModular);
-    p0 = potModular->potModular(s,r-(Digit)2, r);
+    Z p0(potModular->potModular(s,r-(Digit)2, r));
     p0 *= s; p0 <<= 1; p0--;
     
     Z dosRS = r*s; dosRS <<= 1;
-    p = p0; p += dosRS;
+    Z p(p0); p += dosRS;
     while( !testPrim->esPrimo(p) ){
       p += dosRS;
     }

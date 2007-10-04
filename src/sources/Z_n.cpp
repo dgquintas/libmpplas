@@ -14,7 +14,7 @@ namespace mpplas{
     : Z(), n_(mod)
     {
       // equivalence classes modulo n and -n are the same
-      if( n_.esNegativo() ){
+      if( n_.isNegative() ){
         n_.cambiarSigno();
       }
     }
@@ -39,7 +39,7 @@ namespace mpplas{
     : Z(num)
     {
       n_ = mod; 
-      if( n_.esNegativo() ){
+      if( n_.isNegative() ){
         n_.cambiarSigno();
       }
 
@@ -60,7 +60,7 @@ namespace mpplas{
   Z_n::Z_n(const Z& num, SignedDigit mod, bool reducir)
     : Z(num), n_(mod)
     {
-      if( n_.esNegativo() ){
+      if( n_.isNegative() ){
         n_.cambiarSigno();
       }
 
@@ -346,7 +346,7 @@ namespace mpplas{
     //largo.cambiarSigno();
     // en Z_n_n el cambio de signo es equivalente a restar el n� a cambiar
     // de signo al modulo
-    if(temp.esNegativo() ){
+    if(temp.isNegative() ){
       temp += largo.modulo();
     }
 
@@ -418,7 +418,7 @@ namespace mpplas{
     //largo.cambiarSigno();
     // en Z_n_n el cambio de signo es equivalente a restar el n� a cambiar
     // de signo al modulo
-    if(temp.esNegativo())
+    if(temp.isNegative())
       temp += largo.modulo();
 
     return Z_n(temp, largo.modulo(),false) ;

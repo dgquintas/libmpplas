@@ -45,7 +45,7 @@ namespace mpplas{
     //  this->coefPoliB_.resize(2*k,0);
     Z mod(modulo);
     bool modNegativo = false;
-    if( mod.esNegativo() ){
+    if( mod.isNegative() ){
       modNegativo = true;
       mod.cambiarSigno();
     }
@@ -95,10 +95,11 @@ namespace mpplas{
   Z RedMontgomery::precomputaciones(const Z& modulo)
   {
     MethodsFactory *funcs = MethodsFactory::getInstance();
+    PotModular* potMod; funcs->getFunc(potMod);
+
     Z modPrima;
     
     modPrima.potenciaBase(1);
-    PotModular* potMod; funcs->getFunc(potMod);
     modPrima -= potMod->inversa(modulo, modPrima); // modPrima = -mod^{-1} (mod base)
 
     return modPrima;
@@ -113,9 +114,8 @@ namespace mpplas{
       throw Errors::ModuloParEnMontgomery();
     }
     
-
     const int n = mod.longitud();
-    if( num->longitud() > 2*n){
+    if( (num->longitud() > 2*n)  ){ //FIXME: añadir comprobacion de si num >= mod*R
       throw Errors::TooBig();
     }
     Digit u;

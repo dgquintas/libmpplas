@@ -31,6 +31,7 @@ ZTest::ZTest()
   addTest(ZTest, testModulus);
   addTest(ZTest, testExponentiation);
   addTest(ZTest, testSquare);
+  addTest(ZTest, testIsPerfectSquare);
   addTest(ZTest, testDivideByZeroThrows);
   addTest(ZTest, testModulusByZeroThrows);
   addTest(ZTest, testFactorial);
@@ -38,10 +39,12 @@ ZTest::ZTest()
   addTest(ZTest, testBitChecker);
   addTest(ZTest, testPowerOfTwo);
   addTest(ZTest, testGetRightshiftedBits);
+  addTest(ZTest, testGetBitsInDigit);
 }
 
 void ZTest::setUp(){
 
+  rnd->setSeed(Z::ZERO);
   z1 = rnd->getInteger(brand(2000,5000));
   z2 = rnd->getInteger(brand(2000,5000));
 
@@ -194,6 +197,23 @@ void ZTest::testSquare(){
   qassertEquals( pariStr, thisStr );
 };
 
+void ZTest::testIsPerfectSquare(){
+  string tmp;
+  tmp += z1.toString();
+  tmp += " ^ ";
+  tmp += "2";
+
+  string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
+  const Z itIs(pariStr);
+  const Z itIsnt(itIs + 1);
+  Z root;
+
+  qassertTrue( itIs.isPerfectSquare(&root) );
+  qassertEquals( root.toString(), z1.toString() );
+  qassertTrue( !itIsnt.isPerfectSquare() );
+};
+
+
 
 void ZTest::testDivideByZeroThrows(){
   try{
@@ -274,5 +294,16 @@ void ZTest::testGetRightshiftedBits(){
   res = foo.getRightshiftedBits(66);
 
   qassertEquals( res.toString(), res2.toString() );
+
+}
+
+void ZTest::testGetBitsInDigit(){
+  Z foo("123456789123456789123456789");
+  const Digit resToBe(4260553649UL); //this shit aint portable 
+  
+  const Digit res = foo.getBitsInDigit(40);
+
+  qassertEquals(res, resToBe);
+  qassertEquals((foo >> 40)[0], resToBe);
 
 }

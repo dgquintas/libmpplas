@@ -41,6 +41,7 @@ namespace com_uwyn_qtunit{
       void testModulus();
       void testExponentiation();
       void testSquare();
+      void testIsPerfectSquare();
       void testDivideByZeroThrows();
       void testModulusByZeroThrows();
 
@@ -48,6 +49,8 @@ namespace com_uwyn_qtunit{
       void testBitChecker();
       void testPowerOfTwo();
       void testGetRightshiftedBits();
+
+      void testGetBitsInDigit();
   };
 }
 

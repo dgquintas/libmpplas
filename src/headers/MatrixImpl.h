@@ -653,30 +653,51 @@ template<typename T, typename Alloc>
 
   Matrix<T, Alloc> res( aRows, bCols );
 
-  const int rowsPerBlock = 4; //FIXME
-  const int colsPerBlock = 4;
+  const int rowsPerBlock = 16; //FIXME
+  const int colsPerBlock = 16;
 
   const int aRowBlocks = aRows / rowsPerBlock;
   const int aColBlocks = aCols / colsPerBlock;
   const int bColBlocks = bCols / colsPerBlock;
 
+  const int aRowsExtra = aRows % rowsPerBlock;
+  const int aColsExtra = aCols % colsPerBlock;
+  const int bColsExtra = bCols % colsPerBlock;
+
   MatrixHelpers::Strassen<T> strassen;
 
 #pragma omp parallel for schedule(static)
-  for (int aRow = 0; aRow < aRowBlocks; aRow++) {
-    for (int bCol = 0; bCol < bColBlocks; bCol++) {
-      T* C( &(res( aRow * rowsPerBlock, bCol * colsPerBlock )) );
-      for (int aCol = 0; aCol < aColBlocks; aCol++ ) {
-        const T* const A( &(lhs(aRow * rowsPerBlock, aCol * colsPerBlock)) );
-        const T* const B( &(rhs(aCol * rowsPerBlock, bCol * colsPerBlock)) );
-      
-        strassen.run(C,A,B,
-                     rowsPerBlock,colsPerBlock,rowsPerBlock,
-                     bCols, aCols, bCols);
+  for (int aRow = 0; aRow < aRows; aRow += rowsPerBlock) {
+    for (int bCol = 0; bCol < bCols; bCol += colsPerBlock) {
+      T* C( &(res( aRow, bCol )) );
+      for (int aCol = 0; aCol < aCols; aCol += colsPerBlock ) {
+        const T* const A( &(lhs(aRow, aCol)) );
+        const T* const B( &(rhs(aCol, bCol)) );
+
+        const bool aRowsOF = ((aRow + rowsPerBlock) > aRows);
+        const bool aColsOF = ((aCol + colsPerBlock) > aCols);
+        const bool bColsOF = ((bCol + colsPerBlock) > bCols);
+
+        if( aRowsOF || aColsOF || bColsOF ){
+          strassen.baseMult(C,A,B,
+              aRowsOF ? aRowsExtra : rowsPerBlock,
+              aColsOF ? aColsExtra : colsPerBlock,
+              bColsOF ? bColsExtra : rowsPerBlock,
+              bCols, aCols, bCols);
+        }
+        else {
+          strassen.run(C,A,B,
+              rowsPerBlock,colsPerBlock,rowsPerBlock,
+              bCols, aCols, bCols);
+        }
 
       }
     }
   }
+
+
+  //there might still be some rows/columns left, if the dimensions of the
+  //matrices weren't multiples of the respective block sizes
 
   return res;
 }
@@ -1003,14 +1024,10 @@ namespace MatrixHelpers{
         const int numRowsA, const int numColsA, const int numColsB,
         const int strideC, const int strideA, const int strideB) const {
 
-      if( numRowsA <= 4){ //FIXME: esto ha de pulirse, no se puede comprobar solo una dim
-        for (int aRow = 0; aRow < numRowsA; aRow++) {
-          for (int bCol = 0; bCol < numColsB; bCol++) {
-            for (int aCol = 0; aCol < numColsA; aCol++) {
-              C[aRow * strideC + bCol] += A[ aRow * strideA + aCol] * B[aCol * strideB + bCol];
-            }
-          }
-        }
+      if( numRowsA <= 16){ //FIXME: esto ha de pulirse, no se puede comprobar solo una dim
+        baseMult(C,A,B,
+            numRowsA, numColsA, numColsB,
+            strideC, strideA, strideB);
         return;
       }
       else{
@@ -1020,5 +1037,24 @@ namespace MatrixHelpers{
       }
       return;
     }
+
+  template<typename T>
+    void Strassen<T>::baseMult(
+        T* C, const T* const A, const T* const B,
+        const int numRowsA, const int numColsA, const int numColsB,
+        const int strideC, const int strideA, const int strideB) const {
+
+        for (int aRow = 0; aRow < numRowsA; aRow++) {
+          for (int bCol = 0; bCol < numColsB; bCol++) {
+            for (int aCol = 0; aCol < numColsA; aCol++) {
+              C[aRow * strideC + bCol] += 
+                A[ aRow * strideA + aCol] * B[aCol * strideB + bCol];
+            }
+          }
+        }
+
+        return;
+    }  
+
 } /* namespace MatrixHelpers */
 

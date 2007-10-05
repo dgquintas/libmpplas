@@ -152,6 +152,7 @@ namespace mpplas {
 
         void _reset();
 
+
         /** Matrix ouput operator */
         template<typename U, typename V> 
           friend std::ostream& operator<<(std::ostream&, 
@@ -188,6 +189,11 @@ namespace mpplas {
         void run(T* C, const T* const A, const T* const B, 
             const int numRowsA, const int numColsA, const int numColsB,
             const int strideC, const int strideA, const int strideB) const;
+
+        virtual void baseMult(T* C, const T* const A, const T* const B,
+        const int numRowsA, const int numColsA, const int numColsB,
+        const int strideC, const int strideA, const int strideB) const;
+
         
       private:
         virtual void _addBlocks(T* res, const T* const A, const T* const B, 
@@ -201,6 +207,7 @@ namespace mpplas {
         virtual void _multBlocks(T* res,const T* const A, const T* const B,
             const int numRowsA, const int numColsA, const int numColsB,
             const int strideRes, const int strideA, const int strideB) const;
+
 
         
         void _generateQs(T* Q, const T* const A, const T* const B, 

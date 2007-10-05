@@ -36,7 +36,7 @@ void OpenMPTest::tearDown(){
 
 void OpenMPTest::testParallelFor(){
 
-  const int num_threads_ini = omp_get_num_threads();
+  const int num_threads_ini = omp_get_max_threads();
 
   for(int i = 0; i < NUM_THREADS; i++){
     integersSEQ[i] = integers[i] * factor;

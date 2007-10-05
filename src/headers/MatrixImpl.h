@@ -115,7 +115,7 @@ Matrix<T, Alloc> Matrix<T, Alloc>::operator()(int n1, int n2,
   }
 
   const int stride = this->getColumns();
-  typename std::vector<T, Alloc>::const_iterator it(this->_data.begin());
+  typename mpplas::MiVec<T, Alloc>::const_iterator it(this->_data.begin());
   it += (n1 * stride)+m1;
 
   Matrix<T, Alloc> res;
@@ -447,16 +447,19 @@ T Matrix<T, Alloc>::getDeterminant(){
 
 
 template<typename T, typename Alloc>
-void Matrix<T, Alloc>::setDiagonal(T n){
-  typename std::vector<T, Alloc>::iterator it;
-  for(it = _data.begin(); it < _data.end(); it+= _dims.getColumns() +1){
-    *it = n;
+void Matrix<T, Alloc>::setDiagonal(const T& n){
+  const int diagElems( std::min( this->getRows(), this->getColumns() ) );
+
+  typename mpplas::MiVec<T, Alloc>::iterator it( _data.begin() );
+  for(int i = 0; i < diagElems; i++ ){
+    (*it) = n;
+    it += (_dims.getColumns()+1);
   }
   return;
 }
 
 template<typename T, typename Alloc>
-void Matrix<T, Alloc>::setAll(T n){
+void Matrix<T, Alloc>::setAll(const T& n){
   std::fill( _data.begin(), _data.end(), n );
   return ;
 }
@@ -515,7 +518,7 @@ void Matrix<T, Alloc>::setDimensions(const Dimensions& dims){
   //deal with the possible change in the # of columns 
   const int newM = dims.getColumns();
   if( newM != _m ){
-    typename std::vector<T, Alloc>::iterator it;
+    typename mpplas::MiVec<T, Alloc>::iterator it;
     if( newM > _m) {
       _data.reserve( _n * newM );
       for(it = _data.begin() + _m; it <= _data.end(); it += (_m + (newM-_m))){

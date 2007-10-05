@@ -2,11 +2,12 @@
  * $Id$
  */
 
+#include <pari/pari.h>
 #include <iostream>
+#include <algorithm>
 
 #include "MatrixZTest.h"
 #include "aux.h"
-#include <pari/pari.h>
 
 using namespace std;
 using namespace mpplas;
@@ -93,14 +94,16 @@ void MatrixZTest::testToString(){
 
 
 void MatrixZTest::testSetDiagonal(){
-  const int n = brand(100,200);
-  const int m = brand(100,200);
+  const int n = brand(10,20);
+  const int m = brand(10,20);
   MatrixZ id(n,m);
   id.setAll(Z::ZERO);
   id.setDiagonal(Z::ONE);
   
-  for(int i=0; i < id.getRows(); i++){
-    qassertTrue( id(i,i) == Z::ONE );
+  const int sentry = std::min(id.getRows(), id.getColumns());
+
+  for(int i=0; i < sentry ; i++){
+    qassertEquals( id(i,i).toString(), Z::ONE.toString() );
   }
 }
 

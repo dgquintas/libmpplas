@@ -10,7 +10,11 @@
 #include <cassert>
 
 inline int brand(int a, int b){
-  srand( time(NULL) );
+  static bool firstTime(true);
+  if( firstTime ) {
+    srand( time(NULL) );
+    firstTime = false;
+  }
 
   assert(a < b);
 

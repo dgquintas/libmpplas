@@ -30,9 +30,9 @@ MatrixZTest::MatrixZTest()
 
 void MatrixZTest::setUp(){
   
-  const int n = brand(50,120);
-  const int m = brand(50,120);
-  const int k = brand(50,120);
+  const int n = brand(100,200);
+  const int m = brand(100,200);
+  const int k = brand(100,200);
 
   const int elemsSize = brand(50, 100);
 
@@ -92,16 +92,13 @@ void MatrixZTest::testToString(){
 
 
 void MatrixZTest::testSetDiagonal(){
-  const int n = brand(10,20);
-  const int m = brand(10,20);
-  MatrixZ id(n,m);
-  id.setAll(Z::ZERO);
-  id.setDiagonal(Z::ONE);
+  _A.setAll(Z::ZERO);
+  _A.setDiagonal(Z::ONE);
   
-  const int sentry = id.getRows() > id.getColumns() ? id.getColumns() : id.getRows();
+  const int sentry = _A.getRows() > _A.getColumns() ? _A.getColumns() : _A.getRows();
 
   for(int i=0; i < sentry ; i++){
-    qassertEquals( id(i,i).toString(), Z::ONE.toString() );
+    qassertTrue( _A(i,i) == Z::ONE );
   }
 }
 

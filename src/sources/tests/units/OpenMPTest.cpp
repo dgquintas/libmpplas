@@ -36,23 +36,27 @@ void OpenMPTest::tearDown(){
 
 void OpenMPTest::testParallelFor(){
 
+  const int num_threads_ini = omp_get_num_threads();
+
   for(int i = 0; i < NUM_THREADS; i++){
-     integersSEQ[i] = integers[i] * factor;
+    integersSEQ[i] = integers[i] * factor;
   }
 
   omp_set_num_threads(NUM_THREADS);
 #pragma omp parallel default(shared)
   {
-  qassertEquals( omp_get_num_threads(), NUM_THREADS);
+    qassertEquals( omp_get_num_threads(), NUM_THREADS);
 #pragma omp for 
-  for(int i = 0; i < NUM_THREADS; i++){
-     integersPAR[i] = integers[i] * factor;
-  }
+    for(int i = 0; i < NUM_THREADS; i++){
+      integersPAR[i] = integers[i] * factor;
+    }
   }
 
   for(int i = 0; i < NUM_THREADS; i++){
     qassertTrue( integersSEQ[i] == integersPAR[i]);
   }
+
+  omp_set_num_threads(num_threads_ini);
 }
 
 

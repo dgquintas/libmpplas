@@ -35,6 +35,7 @@ namespace com_uwyn_qtunit{
       Random* rnd;
 
       static const int NUM_THREADS = 10;
+
   };
 }
 #endif

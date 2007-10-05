@@ -31,12 +31,9 @@ MatrixZTest::MatrixZTest()
 
 void MatrixZTest::setUp(){
   
-//  const int n = brand(100,200);
-//  const int m = brand(100,200);
-//  const int k = brand(100,200);
-  const int n = 128;
-  const int m = 128;
-  const int k = 128;
+  const int n = brand(50,120);
+  const int m = brand(50,120);
+  const int k = brand(50,120);
 
   const int elemsSize = brand(50, 100);
 

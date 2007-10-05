@@ -2,14 +2,12 @@
  * $Id$
  */
 
-#include <pari/pari.h>
-#include <iostream>
-#include <algorithm>
 
 #include "MatrixZTest.h"
 #include "aux.h"
 
-using namespace std;
+#include <pari/pari.h>
+
 using namespace mpplas;
 using namespace com_uwyn_qtunit;
 
@@ -100,7 +98,7 @@ void MatrixZTest::testSetDiagonal(){
   id.setAll(Z::ZERO);
   id.setDiagonal(Z::ONE);
   
-  const int sentry = std::min(id.getRows(), id.getColumns());
+  const int sentry = id.getRows() > id.getColumns() ? id.getColumns() : id.getRows();
 
   for(int i=0; i < sentry ; i++){
     qassertEquals( id(i,i).toString(), Z::ONE.toString() );

@@ -115,8 +115,13 @@ namespace mpplas{
     }
     
     const int n = mod.longitud();
-    if( (num->longitud() > 2*n)  ){ //FIXME: añadir comprobacion de si num >= mod*R
+    if( (num->longitud() > 2*n) ){ //FIXME: añadir comprobacion de si num >= mod*R
       throw Errors::TooBig();
+    }
+    else if( num->longitud() == 2*n ){
+      if( (*num)[2*n-1] >= mod[n-1] ){
+        throw Errors::TooBig();
+      }
     }
     Digit u;
     

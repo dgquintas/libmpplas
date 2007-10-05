@@ -124,8 +124,8 @@ namespace mpplas {
         Matrix<T, Alloc>& diagonalize();
         Matrix<T, Alloc>& invert();
         T getDeterminant();
-        void setDiagonal(T n);
-        void setAll(T n);
+        void setDiagonal(const T& n);
+        void setAll(const T& n);
         void setToZero();
 
         /** Number of elements in the matrix.

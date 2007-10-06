@@ -20,7 +20,7 @@ def CheckQt(context):
 
     context.env.Replace(LIBS = "qt-mt", LIBPATH = qtdir + "/lib", CPPPATH = qtdir + "/include" )
     ret = context.TryLink("""
-#include <qapp.h>
+#include <qapplication.h>
 int main(int argc, char **argv) {
   QApplication qapp(argc, argv);
   return 0;

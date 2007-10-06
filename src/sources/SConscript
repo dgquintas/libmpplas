@@ -330,6 +330,9 @@ else:
 
     elif env['arch'][:3] == 'x86':
       setBitLengthDependentParams(env, bits = 32)
+    else: # ppc, etc...
+      setBitLengthDependentParams(env, bits = 32)
+
 
   else: # env['arch'] is not 'auto'. ie, it has been manually defined
     setBitLengthDependentParams(env) #assumes 32 bits

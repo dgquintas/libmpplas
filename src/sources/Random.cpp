@@ -6,7 +6,10 @@
 #include "Seedbank.h"
 #include "Primos.h"
 #include "GCD.h"
+#include "Errors.h"
+
 #include <algorithm> //para max()
+#include <limits>
 
 namespace mpplas{
 
@@ -22,8 +25,7 @@ namespace mpplas{
     return temp;
   }
 
-  Z Random::getIntegerBounded(const Z& bound)
-  {
+  Z Random::getIntegerBounded(const Z& bound) {
     const int bitsCota = bound.getBitLength();  
     Z temp(this->getInteger(bitsCota));
 
@@ -49,8 +51,13 @@ namespace mpplas{
     _initialize();
   }
 
-  Z NumThRC4Gen::getInteger(int n)
-  {
+  Z NumThRC4Gen::getInteger(int n) {
+    if( (n >= std::numeric_limits<int>::max() - 7) || (n < 0) ){
+      throw mpplas::Errors::TooBig();
+    }
+    if( n == 0){
+      return Z::ZERO;
+    }
     const int n_bytes = (n+7) >> 3;
     MiVec<uint8_t> bytesRand(n_bytes);
     
@@ -186,9 +193,15 @@ namespace mpplas{
   }
   
       
-  Z CongruentGen::getInteger(int n)
-  {
-    int n_bytes = (n+7)/8;
+  Z CongruentGen::getInteger(int n) {
+    if( (n >= std::numeric_limits<int>::max() - 7) || (n < 0) ){
+      throw mpplas::Errors::TooBig();
+    }
+    if( n == 0){
+      return Z::ZERO;
+    }
+
+    int n_bytes = (n+7) >> 3;
     MiVec<uint8_t> bytesRand(n_bytes);
     
     int numDigits = ((n_bytes+(Constants::BYTES_EN_CIFRA-1)) / Constants::BYTES_EN_CIFRA); 
@@ -252,8 +265,7 @@ namespace mpplas{
     _initialize();
   }
 
-  void BBSGen::setQuality(int n)
-  {
+  void BBSGen::setQuality(int n)  {
     _quality = n;
     _initialize(); // tras un cambio de la calidad, hay que recomputar los primos
   }
@@ -298,9 +310,7 @@ namespace mpplas{
     return;
   }
     
-  Z BBSGen::getInteger(int num)
-  {
-    
+  Z BBSGen::getInteger(int num){
     Z resultado; resultado.hacerCero();
     //según pagina 418 de Schneier, si "n" es la longitud de "Xi", los
     //Log_2{n} bits menos significativos de Xi pueden ser usados.
@@ -313,10 +323,10 @@ namespace mpplas{
     //el más "conservador") y de cada _Xi se tomarán sus 
     //max(1,getBitLength(n)-1) bits de menos peso
     
-    int n = getBitLength(_Xi);
-    Digit longConsiderada = std::max(getBitLength((Digit)n)-1,(int)1);
+    const int n = getBitLength(_Xi);
+    Digit longConsiderada = std::max(getBitLength((Digit)n)-1,1);
     Digit mascara = (1UL << longConsiderada)-1;
-    while(num){
+    while(num > 0){
       _Xi.cuadradoModular(_n); 
       if(num < (2*longConsiderada) ){
         resultado[0] |= (_Xi[0] & mascara);
@@ -338,8 +348,7 @@ namespace mpplas{
   }
     
  
-  bool FIPS_140_1::testRandom(Random& generadorRandom)
-  {
+  bool FIPS_140_1::testRandom(Random& generadorRandom) {
     // Menezes p 183. VER TABLA DE NOTE 5.32 PARA EXPLICACION DE LOS
     // NUMEROS MAGICOS
     Z muestra(generadorRandom.getInteger(20000));

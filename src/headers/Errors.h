@@ -27,7 +27,7 @@ namespace mpplas{
         virtual ~Exception() throw()
         {}
     };
-      
+
     /** Base class for invalid arguments errors
      *
      * For instance, division by zero, non-invertible element, etc.
@@ -36,12 +36,12 @@ namespace mpplas{
     class InvalidArgument: public Exception
     {
       public:
-      virtual const char* what(void) const throw()
-      {
-        return _("Undefined invalid argument error");
-      }
+        virtual const char* what(void) const throw()
+        {
+          return _("Undefined invalid argument error");
+        }
 
-      virtual ~InvalidArgument() throw() {}
+        virtual ~InvalidArgument() throw() {}
 
     };
 
@@ -96,70 +96,70 @@ namespace mpplas{
     class DivisionPorCero : public InvalidArgument
     {
       public:
-      virtual const char* what(void) const throw() 
-      { 
-        return _("Division by zero");
-      }
+        virtual const char* what(void) const throw() 
+        { 
+          return _("Division by zero");
+        }
     };
 
     /** Resultado negativo en resta sin signo */
     class RestaNegativa : public InvalidArgument
     {
       public:
-      virtual const char* what(void) const throw()
-      {
-        return _("Subtrahend is greater than the minuend at unsigned subtraction");
-      }
+        virtual const char* what(void) const throw()
+        {
+          return _("Subtrahend is greater than the minuend at unsigned subtraction");
+        }
     };
 
     /** Elemento no invertible en un grupo finito */
     class NonInvertibleElement : public InvalidArgument
     {
       public:
-      virtual const char* what(void) const throw()
-      {
-         return _("Tried to invert an non-invertible element");
-      }
+        virtual const char* what(void) const throw()
+        {
+          return _("Tried to invert an non-invertible element");
+        }
     };
 
     /** Intento de potenciación de un elemento no inverbiel en un no-cuerpo */
     class ExponenteNegativo : public InvalidArgument
     {
       public:
-      virtual const char* what(void) const throw()
-      {
-         return _("Negative exponent on a non-invertible element");
-      }
+        virtual const char* what(void) const throw()
+        {
+          return _("Negative exponent on a non-invertible element");
+        }
     };
 
     /** Segundo argumento de un símbolo de Jacobi es par */
     class ParEnSimboloJacobi : public InvalidArgument
     {
       public:
-      virtual const char* what(void) const throw()
-      {
-         return _("Even element as second argument of a Jacoby Symbol");
-      }
+        virtual const char* what(void) const throw()
+        {
+          return _("Even element as second argument of a Jacoby Symbol");
+        }
     };
 
     /** Even modulus on a Montgomery reduction */
     class ModuloParEnMontgomery : public InvalidArgument
     {
       public:
-      virtual const char* what(void) const throw()
-      {
-         return _("Even modulus on Montgomery reduction/exponentiation"); 
-      }
+        virtual const char* what(void) const throw()
+        {
+          return _("Even modulus on Montgomery reduction/exponentiation"); 
+        }
     };
 
     /** Logaritmo de cero */
     class LogaritmoDeCero : public InvalidArgument
     {
       public:
-      virtual const char* what(void) const throw()
-      {
-         return _("Calculation of the logarithm of zero");
-      }
+        virtual const char* what(void) const throw()
+        {
+          return _("Calculation of the logarithm of zero");
+        }
     };
 
 
@@ -229,81 +229,89 @@ namespace mpplas{
     /** Signo inválido */
     class SignoInvalido : public Interno
     {
-      virtual const char* what(void) const throw()
-      {
-         return _("Incorrect sign");
-      }
+      public:
+        virtual const char* what(void) const throw()
+        {
+          return _("Incorrect sign");
+        }
 
     };
 
     /** Number too big to be used in a given context */
     class TooBig: public Interno
     {
-      virtual const char* what(void) const throw()
-      {
-         return _("Number too big");
-      }
+      public:
+        virtual const char* what(void) const throw()
+        {
+          return _("Number too big");
+        }
     };
 
     /** Intento de uso de perfilado en arquitectura que no lo soporta
      * */
     class ArchNoProfiling : public Interno
     {
-      virtual const char* what(void) const throw()
-      {
-         return _("The current architecture does not support profiling");
-      }
+      public:
+        virtual const char* what(void) const throw()
+        {
+          return _("The current architecture does not support profiling");
+        }
     };
 
 
     /** Error en el proceso de perfilado */
     class ErrorPerfilado : public Interno
     {
-      virtual const char* what(void) const throw()
-      {
-         return _("Profiling error");
-      }
+      public:
+        virtual const char* what(void) const throw()
+        {
+          return _("Profiling error");
+        }
     };
 
 
     /** Error al acceder a la fuente de entropía */
     class FuenteEntropiaInvalida : public Interno
     {
-      virtual const char* what(void) const throw()
-      {
-         return _("Error while accessing the entropy source");
-      }
+      public:
+        virtual const char* what(void) const throw()
+        {
+          return _("Error while accessing the entropy source");
+        }
     };
 
-    
+
     /** Intento de desreferenciar un puntero nulo */
     class PunteroNulo : public Interno
     {
-      virtual const char* what(void) const throw()
-      {
-         return _("Null pointer error");
-      }
+      public:
+        virtual const char* what(void) const throw()
+        {
+          return _("Null pointer error");
+        }
     };
 
     /** Exponente de reales desbordado */
     class OverflowExpReales : public Interno
     {
-      virtual const char* what(void) const throw()
-      {
-         return _("The exponent for floating-point exp. overflowed");
-      }
+      public:
+        virtual const char* what(void) const throw()
+        {
+          return _("The exponent for floating-point exp. overflowed");
+        }
     };
- 
+
     /** Función no implementada */
     class NoImplementado : public Interno
     {
-      virtual const char* what(void) const throw()
-      {
-         return _("Feature not implemented");
-      }
+      public:
+        virtual const char* what(void) const throw()
+        {
+          return _("Feature not implemented");
+        }
     };
 
-  
+
   }//namespace Errors
 }//namespace 
 

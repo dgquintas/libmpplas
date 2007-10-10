@@ -22,8 +22,6 @@ template<typename T>
       oss << "Variable '" << varId << "' not found";
       throw NoSuchVariable(oss.str());
     }
-
-
   }
 
 template<typename T>
@@ -68,7 +66,8 @@ int RuntimeData<T>::_getAvailableVarId(const int clientId){
   int rnd;
   std::set<int>& usedSet(_usedVarIds[clientId]);
   do{
-    rnd = rand();
+    rnd = -1-rand(); // the -1 is because rand() may return 0
+                     // and rnd wouldn't always be < 0 
   } while( usedSet.find(rnd) != usedSet.end() );
   usedSet.insert(rnd);
   return rnd;

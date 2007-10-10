@@ -6,6 +6,7 @@
 #include <sstream>
 #include <utility>
 #include <set>
+#include <limits>
 
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/girerr.hpp>
@@ -26,6 +27,7 @@
 #include "SystemInfo.h"
 #include "BasicTypedefs.h"
 #include "Profiling.h"
+#include "Errors.h"
 
 #include "RuntimeData.h"
 
@@ -556,11 +558,29 @@ class RandomZMethod : public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        const int clientId(paramList.getInt(0));
-        const int bits = paramList.getInt(1);
-        paramList.verifyEnd(2);
-        
+      const int clientId(paramList.getInt(0));
+      const int bitsOrVarId = paramList.getInt(1);
+      int bits;
+      mpplas::Z z;
+      sleep(5);
 
+      if( bitsOrVarId < 0 ){ //it's a varId
+        z = tableZ.get(clientId, bitsOrVarId);
+        if( z.getBitLength() > std::numeric_limits<int>::digits ){
+          mpplas::Errors::TooBig toobig;
+          throw girerr::error( toobig.what() );
+        }
+        else{
+          bits = (int)z[0]; //the cast from unsigned should be safe
+        }
+      }
+      else{
+        bits = bitsOrVarId;
+      }
+
+      paramList.verifyEnd(2);
+
+      try{
         const mpplas::Z& op(rnd->getInteger( bits ));
         int idx = tableZ.set(clientId, op);
 
@@ -569,9 +589,14 @@ class RandomZMethod : public xmlrpc_c::method {
         std::pair<std::string, xmlrpc_c::value> value("varId", xmlrpc_c::value_int(idx));
         structData.insert(type);
         structData.insert(value);
-
         *retvalP = xmlrpc_c::value_struct( structData );
       }
+      catch( const std::exception &e ){
+        throw girerr::error( e.what() );
+      }
+
+
+    }
 
   private:
     mpplas::RandomFast* rnd;
@@ -617,7 +642,7 @@ class GenPrimeMethod : public xmlrpc_c::method {
         const int bits = std::atoi( paramList.getString(0).c_str() );
         paramList.verifyEnd(1);
         
-        *retvalP = xmlrpc_c::value_string( (primes->leerPrimoProb( bits )).toString() );
+        *retvalP = xmlrpc_c::value_string( (primes->getPrime( bits )).toString() );
       }
 
   private:

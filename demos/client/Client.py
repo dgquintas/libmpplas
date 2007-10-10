@@ -7,11 +7,15 @@
 from RPCServer import RPCServer
 from Configuration import Configuration
 from xmlrpclib import Fault,MultiCall
+import threading
+import thread
+import Queue
+import wx
+import wx.lib.delayedresult as delayedresult
 
 global filteredMethods
 global global_config
 global clientId
-
 
 class Variable(object):
   def __init__(self, varId):
@@ -29,6 +33,7 @@ def __elemsToStr(ls):
   return newl
 
 
+
 def beginBatch():
   RPCServer.getInstance().setBatch(True)
 
@@ -40,6 +45,17 @@ def runBatch(reset = True):
 
 def endBatch():
   RPCServer.getInstance().setBatch(False)
+
+def toInt(arg):
+  res = 0;
+  if isinstance(arg, Z):
+  # recover the data and cast it to an XMLRPC integer (32 bits) 
+    res = int(zGet(arg.getId()))
+  else:
+    res = int(arg)
+
+  return res
+
 
 def initializeClient(configFileName = 'config.cfg'):
   global global_config
@@ -60,17 +76,14 @@ def initializeClient(configFileName = 'config.cfg'):
     for arg in args:
       if type(arg) in ( type(()), type([]) ):
         newArgs.append( __elemsToStr(arg) )
-      elif isinstance(arg, Variable):
+      elif isinstance(arg, Z):
         newArgs.append(arg.getId())
       else:
         newArgs.append(arg)
     try:
       result = rpcServer.getServer().%(methodName)s(*newArgs)
-    except Fault, e:
-      raise "Exception from the server: " + e.faultString   
     except:
       raise
- 
 
     if isinstance(result, dict):
       tpe = result['type']
@@ -78,15 +91,6 @@ def initializeClient(configFileName = 'config.cfg'):
       if tpe == "Z":
         result = Z(id=varId)
 
-#    if isinstance(result,int):
-#      if methodName[0] == 'z':
-#        result = Z(id=result)
-#      elif methodName[0] == 'r':
-#        result = R(result)
-#      elif methodName[:2] == 'mz':
-#        result = MZ(result)
-#    # else, do not chage its type   
-    
     return result
 """
   for mName in filteredMethods:
@@ -100,6 +104,112 @@ def initializeClient(configFileName = 'config.cfg'):
     } in globals()
 
   return globals()
+
+
+
+###################################################################
+
+class ThreadRunner(threading.Thread):
+  queue = Queue.Queue()
+  stopThreads = False
+  stopLock = threading.Lock()
+
+  def __init__(self):
+    threading.Thread.__init__(self)
+    ThreadRunner.results = Queue.Queue()
+
+  def stop(cls, status = True):
+    cls.stopLock.acquire()
+    cls.stopThreads = status
+    cls.stopLock.release()
+  stop = classmethod(stop)
+
+  def isStopped(cls):
+    cls.stopLock.acquire()
+    status = cls.stopThreads
+    cls.stopLock.release()
+    return status
+  isStopped = classmethod(isStopped)
+
+
+  def run(self):
+    while True and ( not ThreadRunner.isStopped() ):
+      try:
+        taskWithIndex = ThreadRunner.queue.get_nowait()
+        self.id, task = taskWithIndex
+      except Queue.Empty:
+        break
+      try:
+        exec task in globals(), locals()
+        self.appendResult(locals()['result'])
+      except Exception, e:
+        self.appendResult("ERROR: " + str(e))
+      ThreadRunner.queue.task_done()
+    
+    if ThreadRunner.isStopped():
+      #discard the rest of the tasks
+      ThreadRunner.stop(False)
+      while True:
+        try:
+          ThreadRunner.queue.get_nowait()
+          ThreadRunner.queue.task_done()
+        except (ValueError, Queue.Empty):
+          break
+ 
+
+
+  def appendResult(self, result):
+    ThreadRunner.results.put( (self.id, result) )
+
+  def getResults(cls):
+    return cls.results
+  getResults = classmethod(getResults)
+
+
+def runInParallel( listOfSnippets, numberOfThreads ):
+  runInParallel.res = None
+  progress = wx.ProgressDialog("Tasks completion progress",
+                               "",
+                               maximum = len(listOfSnippets),
+                               parent=None,
+                               style = wx.PD_CAN_ABORT
+                                | wx.PD_APP_MODAL
+                                | wx.PD_ELAPSED_TIME
+                                | wx.PD_REMAINING_TIME
+                                | wx.PD_SMOOTH
+                                )
+
+  def doRun():
+    for i in xrange( min(numberOfThreads, len(listOfSnippets)) ):
+      t = ThreadRunner()
+      t.start()
+    ThreadRunner.queue.join()
+    return ThreadRunner.getResults()
+
+  def consumer(delayedResult):
+    resQueue = delayedResult.get()
+    runInParallel.res = [None]*resQueue.qsize()
+    while not resQueue.empty():
+      elem = resQueue.get()
+      runInParallel.res[elem[0]] = elem[1]
+
+
+  for taskN, snippet in enumerate(listOfSnippets):
+    ThreadRunner.queue.put((taskN, snippet))
+
+  delayedresult.startWorker(consumer, doRun)
+  while (threading.activeCount() > 1) or (not ThreadRunner.queue.empty()):
+    wx.MilliSleep(250)
+    i = (len(listOfSnippets) - ThreadRunner.queue.qsize())-(threading.activeCount()-1)
+    keepgoing = progress.Update( i )[0]
+    if not keepgoing: 
+      ThreadRunner.stop()
+      break
+  progress.Destroy()
+
+  return runInParallel.res
+
+######################################################################################
 
 def listFuncs():
   return filteredMethods
@@ -142,7 +252,6 @@ def hasBeenUpdated(self):
 ######################################################
 
 class Z(Variable):
-
   def __init__(self, zStr="0", id=None):
     if id:
       varId = id
@@ -161,52 +270,60 @@ class Z(Variable):
     return self
 
   def __sub__(self, anotherZ): 
-    return zSub(self, anotherZ )
+    if not isinstance(anotherZ,type(self)):
+      anotherZ = Z(str(anotherZ))
+    return Z(id=zSub(self, anotherZ ))
   def __isub__(self, anotherZ): 
-    self.__integerStr = str(zSub(self, anotherZ))
+    self.setId( self.__sub__(anotherZ).getId() )
     return self
 
   def __mul__(self, anotherZ): 
-    return zMul(self, anotherZ )
+    if not isinstance(anotherZ,type(self)):
+      anotherZ = Z(str(anotherZ))
+    return Z(id=zMul(self, anotherZ ))
   def __imul__(self, anotherZ): 
-    self.__integerStr = str(zMul(self, anotherZ))
+    self.setId( self.__mul__(anotherZ).getId() )
     return self
+
 
   def __div__(self, anotherZ): 
-    return zDiv(self, anotherZ )
+    if not isinstance(anotherZ,type(self)):
+      anotherZ = Z(str(anotherZ))
+    return Z(id=zDiv(self, anotherZ ))
   def __idiv__(self, anotherZ): 
-    self.__integerStr = str(zDiv(self, anotherZ))
+    self.setId( self.__div__(anotherZ).getId() )
     return self
 
+
   def __mod__(self, anotherZ): 
-    return zMod(self, anotherZ )
-  def __mod__(self, anotherZ): 
-    self.__integerStr = str(zMod(self, anotherZ))
+    if not isinstance(anotherZ,type(self)):
+      anotherZ = Z(str(anotherZ))
+    return Z(id=zMod(self, anotherZ ))
+  def __imod__(self, anotherZ): 
+    self.setId( self.__mod__(anotherZ).getId() )
     return self
- 
+
 
   def __lt__(self, anotherZ):
-    return long(str(self)) < long(str(anotherZ))
+    return long(self.__str__()) < long(anotherZ.__str__())
   def __le__(self, anotherZ):
-    return long(str(self)) <= long(str(anotherZ))
+    return long(self.__str__()) <= long(anotherZ.__str__())
   def __eq__(self, anotherZ):
-    return long(str(self)) == long(str(anotherZ))
+    return long(self.__str__()) == long(anotherZ.__str__())
   def __ne__(self, anotherZ):
-    return long(str(self)) != long(str(anotherZ))
+    return long(self.__str__()) != long(anotherZ.__str__())
   def __gt__(self, anotherZ):
-    return long(str(self)) > long(str(anotherZ))
+    return long(self.__str__()) > long(anotherZ.__str__())
   def __ge__(self, anotherZ):
-    return long(str(self)) >= long(str(anotherZ))
+    return long(self.__str__()) >= long(anotherZ.__str__())
 
 
   def __len__(self):
-    return len(self.__integerStr);
-
-  def __getitem__(self, key):
-    return self.__integerStr[key]
+    return len(self.__str__());
 
   def __repr__(self):
     return "%s with id %d" % (type(self),self.getId())
+#    return self.__str__()
 
   def __str__(self):
     res = zGet(self.getId())

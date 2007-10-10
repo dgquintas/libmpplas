@@ -25,8 +25,8 @@ class RuntimeData {
   public:
     RuntimeData();
 
-    typedef std::map<int, T > ClientVarsType;
-    typedef std::map<int, ClientVarsType > TableType;
+    typedef std::map<int /* varId */, T > ClientVarsType;
+    typedef std::map<int /* clientId */, ClientVarsType > TableType;
     
     T& get(const int clientId, const int varId) throw(NoSuchVariable) ;
     int set(const int clientId, const T& instance);

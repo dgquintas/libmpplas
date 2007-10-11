@@ -50,7 +50,7 @@ def toInt(arg):
   res = 0;
   if isinstance(arg, Z):
   # recover the data and cast it to an XMLRPC integer (32 bits) 
-    res = int(zGet(arg.getId()))
+    res = int(getData(arg.getId()))
   else:
     res = int(arg)
 
@@ -89,10 +89,11 @@ def initializeClient(configFileName = 'config.cfg'):
     #result's first chars before the "-" indicate the type of the result
     #UNLESS the result is an string repr of the number, in which case
     #it is not processed
-    tpe = result.split("-",1)[0]
-    if tpe.isalpha():
-      strToEval = "%%s(id='%%s')" %% (tpe, result)
-      result = eval(strToEval)
+    if isinstance(result, str):
+      tpe = result.split("-",1)[0]
+      if tpe.isalpha():
+        strToEval = "%%s(id='%%s')" %% (tpe, result)
+        result = eval(strToEval)
 
     return result
 """
@@ -244,8 +245,11 @@ def performUpdate():
 
   return backupFname
 
+#FIXME: mmm? esto vale pa algo?
 def hasBeenUpdated(self):
   return self.hasBeenUpdated
+
+
 
 
 ######################################################
@@ -259,8 +263,7 @@ class Z(Variable):
     if id:
       Variable.__init__(self, id)
     else:
-      #create the instance on the server 
-      Variable.__init__(self, zCreate(zStr).getId())
+      Variable.__init__(self, zCreate(str(zStr)).getId())
 
   def __add__(self, anotherZ): 
     if not isinstance(anotherZ,type(self)):
@@ -327,7 +330,7 @@ class Z(Variable):
 #    return self.__str__()
 
   def __str__(self):
-    res = zGet(self.getId())
+    res = getData(self.getId())
     return res
 
 
@@ -336,10 +339,10 @@ class Z(Variable):
 class R(Variable):
   def __init__(self, rStr="0", id=None):
     if id:
-      varId = id
+      Variable.__init__(self, id)
     else:
       #create the instance on the server 
-      Variable.__init__(self, rCreate(rStr).getId())
+      Variable.__init__(self, rCreate(str(rStr)).getId())
 
   def __add__(self, anotherR): 
     if not isinstance(anotherR,type(self)):
@@ -403,11 +406,10 @@ class R(Variable):
     return rBitLength(self.getId())
 
   def __repr__(self):
-#    return "%s with id %d" % (type(self),self.getId())
-    return self.__str__()
+    return "%s with id %s" % (type(self),self.getId())
 
   def __str__(self):
-    res = rGet(self.getId())
+    res = getData(self.getId())
     return res
 
 

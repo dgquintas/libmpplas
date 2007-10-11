@@ -377,7 +377,7 @@ namespace mpplas
        * bits que ocupa la mantisa del real sobre la que se aplica 
        * el método.
        */ 
-    inline int getBitLength(void) { return mantisa_.getBitLength(); }
+    inline int getBitLength(void) const { return mantisa_.getBitLength(); }
     
      /** Cambiar el signo.
        * 

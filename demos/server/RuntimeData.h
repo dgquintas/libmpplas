@@ -19,12 +19,21 @@ class NoSuchVariable : public std::invalid_argument
     {}
 };
 
+//class GenericRuntimeData {
+//  public:
+//    typedef std::string varId_t;
+//    typedef int clientId_t;
+//
+//    virtual void runGC(const clientId_t clientId, const std::vector<varId_t>& usedSlots) = 0;
+//
+//};
+
 template<typename T>
+//class RuntimeData : public GenericRuntimeData {
 class RuntimeData {
 
   public:
-    RuntimeData(const std::string& containedDataName );
-
+    RuntimeData();
     typedef std::string varId_t;
     typedef int clientId_t;
 
@@ -32,7 +41,7 @@ class RuntimeData {
     typedef std::map<clientId_t /* clientId */,  ClientVarsType > TableType;
     
     T& get(const clientId_t clientId, const varId_t varId) throw(NoSuchVariable) ;
-    varId_t set(const clientId_t clientId, const T& instance);
+    varId_t set(const clientId_t clientId, const T& instance, const std::string typeStr);
 
     void runGC(const clientId_t clientId, const std::vector<varId_t>& usedSlots);
 
@@ -41,10 +50,9 @@ class RuntimeData {
     TableType _dataTable;
     pthread_mutex_t _mutex;
     std::map<clientId_t, std::set<int> > _usedVarIds;
-    const std::string _containedDataName;
     
     bool _contains(const clientId_t clientId, const varId_t varId);
-    varId_t _getAvailableVarId(const clientId_t clientId);
+    varId_t _getAvailableVarId(const clientId_t clientId, const std::string typeStr);
 
 };
 

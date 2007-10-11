@@ -2,8 +2,8 @@
 
 
 template<typename T>
-RuntimeData<T>::RuntimeData(const std::string& containedDataName)
-  : _containedDataName(containedDataName) {
+RuntimeData<T>::RuntimeData()
+ {
   assert(!pthread_mutex_init(&_mutex, NULL));
 }
 
@@ -20,15 +20,15 @@ template<typename T>
     else{
       pthread_mutex_unlock( &_mutex );
       std::ostringstream oss;
-      oss << "Variable '" << varId << "' not found for type " << this->_containedDataName;
+      oss << "Variable '" << varId << "' not found" ;
       throw NoSuchVariable(oss.str());
     }
   }
 
 template<typename T>
-  typename RuntimeData<T>::varId_t RuntimeData<T>::set(const clientId_t clientId, const T& instance){
+  typename RuntimeData<T>::varId_t RuntimeData<T>::set(const clientId_t clientId, const T& instance, const std::string typeStr){
     pthread_mutex_lock( &_mutex );
-    const varId_t varId( _getAvailableVarId(clientId) );
+    const varId_t varId( _getAvailableVarId(clientId, typeStr) );
     _dataTable[clientId][varId] = instance;
     pthread_mutex_unlock( &_mutex );
     return varId;
@@ -42,7 +42,14 @@ void RuntimeData<T>::runGC(const clientId_t clientId, const std::vector<varId_t>
   std::vector<varId_t>::const_iterator it;
   for(it = usedSlots.begin(); it != usedSlots.end(); it++){
     newClientVars[*it] = oldClientVars[*it];
+    oldClientVars.erase(*it); //the ones to keep are removed
   }
+  typename ClientVarsType::iterator toDeleteIt;
+  // the ones remeining in the old map are to be freed
+  for(toDeleteIt = oldClientVars.begin(); toDeleteIt != oldClientVars.end(); toDeleteIt++){
+    delete (*toDeleteIt).second;
+  }
+  oldClientVars.clear(); //maybe it's redundant...
   oldClientVars = newClientVars;
   pthread_mutex_unlock( &_mutex );
   return;
@@ -63,7 +70,7 @@ bool RuntimeData<T>::_contains(const clientId_t clientId, const varId_t varId){
 }
 
 template<typename T>
-typename RuntimeData<T>::varId_t RuntimeData<T>::_getAvailableVarId(const clientId_t clientId){
+typename RuntimeData<T>::varId_t RuntimeData<T>::_getAvailableVarId(const clientId_t clientId, const std::string typeStr){
   int rnd;
   std::set<int>& usedSet(_usedVarIds[clientId]);
   do{
@@ -72,10 +79,11 @@ typename RuntimeData<T>::varId_t RuntimeData<T>::_getAvailableVarId(const client
   usedSet.insert(rnd);
   
   std::ostringstream oss;
-  oss << this->_containedDataName << "-" << rnd;
+  oss << typeStr << "-" << rnd;
   return oss.str();
 }
   
+
 
 
 

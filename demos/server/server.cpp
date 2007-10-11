@@ -14,6 +14,7 @@
 #include <xmlrpc-c/server_abyss.hpp>
 #include <xmlrpc-c/abyss.h>
 
+#include "MPPDataType.h"
 #include "MiVec.h"
 #include "Z.h"
 #include "MatrixZ.h"
@@ -47,8 +48,7 @@
  */
 
 std::set<int> _idsInUse;
-RuntimeData<mpplas::Z> tableZ("Z");
-RuntimeData<mpplas::R> tableR("R");
+RuntimeData<mpplas::MPPDataType*> table;
 
 class RequestClientId: public xmlrpc_c::method {
   public:
@@ -105,10 +105,10 @@ class DiscardClientId: public xmlrpc_c::method {
  ***********************************************/
 
 
-class ZRunGC: public xmlrpc_c::method {
+class RunGC: public xmlrpc_c::method {
   public:
     
-    ZRunGC() {
+    RunGC() {
       this->_signature = "n:iA";
       this->_help = "This method garbage collects the internal table of Z's";
     }
@@ -125,7 +125,7 @@ class ZRunGC: public xmlrpc_c::method {
           usedSlots.push_back( xmlrpc_c::value_string( tmp[i] ) );
         }
 
-        tableZ.runGC(clientId, usedSlots);
+        table.runGC(clientId, usedSlots);
 
         *retvalP = xmlrpc_c::value_nil();
       }
@@ -143,20 +143,20 @@ class ZCreate: public xmlrpc_c::method {
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
         const int clientId(paramList.getInt(0));
-        const mpplas::Z op(paramList.getString(1));
+        mpplas::Z* const op( new mpplas::Z(paramList.getString(1)));
 
         paramList.verifyEnd(2);
 
-        const std::string varId(tableZ.set(clientId, op));
+        const std::string varId(table.set(clientId, op, "Z"));
 
         *retvalP = xmlrpc_c::value_string(varId);
       }
 };
 
-class ZGet: public xmlrpc_c::method {
+class GetData: public xmlrpc_c::method {
   public:
     
-    ZGet() {
+    GetData() {
       this->_signature = "s:ii";
       this->_help = "This method retrieves an integer";
     }
@@ -169,8 +169,8 @@ class ZGet: public xmlrpc_c::method {
         paramList.verifyEnd(2);
 
         try{
-          const mpplas::Z z(tableZ.get(clientId, varId));
-          *retvalP = xmlrpc_c::value_string(z.toString() );
+          const mpplas::MPPDataType* const data( table.get(clientId, varId));
+          *retvalP = xmlrpc_c::value_string(data->toString() );
         }
         catch(const NoSuchVariable& e){
           throw(girerr::error(e.what()));
@@ -195,10 +195,10 @@ class ZAddMethod : public xmlrpc_c::method {
 
         paramList.verifyEnd(3);
 
-        const mpplas::Z op1( tableZ.get(clientId, varId1 ) );
-        const mpplas::Z op2( tableZ.get(clientId, varId2 ) );
+          const mpplas::Z op1( *((mpplas::Z*)table.get(clientId, varId1)));
+          const mpplas::Z op2( *((mpplas::Z*)table.get(clientId, varId2)));
 
-        const std::string varId = tableZ.set(clientId, op1+op2);
+        const std::string varId = table.set(clientId, new mpplas::Z(op1+op2), "Z");
 
         *retvalP = xmlrpc_c::value_string( varId );
       }
@@ -327,7 +327,7 @@ class ZBitLength: public xmlrpc_c::method {
 
         paramList.verifyEnd(2);
 
-        const mpplas::Z z(tableZ.get(clientId, varId));
+          const mpplas::Z z( *((mpplas::Z*)table.get(clientId, varId)));
         const int res( z.getBitLength() );
 
         *retvalP = xmlrpc_c::value_int(res);
@@ -350,34 +350,13 @@ class RCreate: public xmlrpc_c::method {
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
         const int clientId(paramList.getInt(0));
-        const mpplas::R op(paramList.getString(1));
+        mpplas::R* const op( new mpplas::R(paramList.getString(1)));
 
         paramList.verifyEnd(2);
 
-        const std::string varId = tableR.set(clientId, op);
+        const std::string varId = table.set(clientId, op, "R");
 
         *retvalP = xmlrpc_c::value_string(varId);
-      }
-};
-
-class RGet: public xmlrpc_c::method {
-  public:
-    
-    RGet() {
-      this->_signature = "s:ii";
-      this->_help = "This method retrieves a real";
-    }
-
-    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
-
-        const int clientId(paramList.getInt(0));
-        const std::string varId(paramList.getString(1));
-
-        paramList.verifyEnd(2);
-
-        const mpplas::R r(tableR.get(clientId, varId));
-
-        *retvalP = xmlrpc_c::value_string(r.toString() );
       }
 };
 
@@ -397,10 +376,10 @@ class RAddMethod : public xmlrpc_c::method {
 
         paramList.verifyEnd(3);
 
-        const mpplas::R op1( tableR.get(clientId, varId1 ) );
-        const mpplas::R op2( tableR.get(clientId, varId2 ) );
+        const mpplas::R op1( *((mpplas::R*)table.get(clientId, varId1)));
+        const mpplas::R op2( *((mpplas::R*)table.get(clientId, varId2)));
 
-        const std::string varId = tableR.set(clientId, op1+op2);
+        const std::string varId = table.set(clientId, new mpplas::R(op1+op2), "R");
 
         *retvalP = xmlrpc_c::value_string( varId );
       }
@@ -506,7 +485,7 @@ class RBitLength: public xmlrpc_c::method {
 
         paramList.verifyEnd(2);
 
-        const mpplas::R r(tableR.get(clientId, varId));
+        const mpplas::R r( *((mpplas::R*)table.get(clientId, varId)));
         const int res( r.getBitLength() );
 
         *retvalP = xmlrpc_c::value_int(res);
@@ -672,8 +651,8 @@ class RandomZMethod : public xmlrpc_c::method {
       paramList.verifyEnd(2);
 
       try{
-        const mpplas::Z& op(rnd->getInteger( bits ));
-        const std::string varId = tableZ.set(clientId, op);
+        mpplas::Z* const op( new mpplas::Z(rnd->getInteger( bits )));
+        const std::string varId = table.set(clientId, op, "Z");
 
         *retvalP = xmlrpc_c::value_string(varId);
       }
@@ -717,19 +696,28 @@ class GenPrimeMethod : public xmlrpc_c::method {
   public:
     
     GenPrimeMethod() {
-      this->_signature = "s:s";
+      this->_signature = "s:ii";
       this->_help = "This method returns a prime of at least the specified number of bits"; 
 
       mpplas::MethodsFactory::getInstance()->getFunc(primes);
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+      const int clientId(paramList.getInt(0));
+      const int bits = paramList.getInt(1);
+      paramList.verifyEnd(2);
 
-        const int bits = std::atoi( paramList.getString(0).c_str() );
-        paramList.verifyEnd(1);
-        
-        *retvalP = xmlrpc_c::value_string( (primes->getPrime( bits )).toString() );
+      try{
+        mpplas::Z* const op( new mpplas::Z(primes->getPrime( bits ) ));
+        const std::string varId = table.set(clientId, op, "Z");
+
+        *retvalP = xmlrpc_c::value_string(varId);
       }
+      catch( const std::exception &e ){
+        throw girerr::error( e.what() );
+      }
+
+    }
 
   private:
     mpplas::GenPrimos* primes;
@@ -739,7 +727,7 @@ class PrimeTestMethod : public xmlrpc_c::method {
   public:
     
     PrimeTestMethod() {
-      this->_signature = "b:s";
+      this->_signature = "b:ii";
       this->_help = "This method returns true if its argument is prime"; 
 
       mpplas::MethodsFactory::getInstance()->getFunc(primeTest);
@@ -747,8 +735,11 @@ class PrimeTestMethod : public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        mpplas::Z const op(paramList.getString(0));
-        paramList.verifyEnd(1);
+        const int clientId(paramList.getInt(0));
+        const std::string varId(paramList.getString(1));
+        paramList.verifyEnd(2);
+
+          const mpplas::Z op( *((mpplas::Z*)table.get(clientId, varId)));
         
         *retvalP = xmlrpc_c::value_boolean( primeTest->esPrimo( op ) );
       }
@@ -925,13 +916,13 @@ class StartProfilingClockMethod: public xmlrpc_c::method {
   public:
 
     StartProfilingClockMethod() {
-      this->_signature = "n:";
+      this->_signature = "n:i";
       this->_help = "This method marks the starting point in time for profiling clock";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const retvalP) {
 
-      paramList.verifyEnd(0);
+      paramList.verifyEnd(1); //the clientId isn't used
       mpplas::Profiling::getReference().startClock();
 
       *retvalP = xmlrpc_c::value_nil();
@@ -942,13 +933,13 @@ class StopProfilingClockMethod: public xmlrpc_c::method {
   public:
 
     StopProfilingClockMethod() {
-      this->_signature = "d:";
+      this->_signature = "d:i";
       this->_help = "This method returns the time elapsed since the profiling clock was set to run";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const retvalP) {
 
-      paramList.verifyEnd(0);
+      paramList.verifyEnd(1); //the clientId isn't used
       double x =  mpplas::Profiling::getReference().stopClock();
       *retvalP = xmlrpc_c::value_double(x);
     }
@@ -959,14 +950,15 @@ class GetProfilingResultsMethod: public xmlrpc_c::method {
   public:
 
     GetProfilingResultsMethod() {
-      this->_signature = "A:";
+      this->_signature = "A:i";
       this->_help = "This method returns an array containing the profiling counters"
        "for each thread.";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const retvalP) {
 
-      paramList.verifyEnd(0);
+
+      paramList.verifyEnd(1); //clientId isn't used
       std::vector<xmlrpc_c::value> threadsArray;
 
       const mpplas::Profiling& prof( mpplas::Profiling::getReference() );
@@ -995,13 +987,13 @@ class ResetProfilingCountersMethod: public xmlrpc_c::method {
   public:
 
     ResetProfilingCountersMethod() {
-      this->_signature = "n:";
+      this->_signature = "n:i";
       this->_help = "This method resets the profiling counters";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const retvalP) {
 
-      paramList.verifyEnd(0);
+      paramList.verifyEnd(1);//clientId isn't used
       mpplas::Profiling::getReference().reset();
 
       *retvalP = xmlrpc_c::value_nil();
@@ -1016,151 +1008,154 @@ class ResetProfilingCountersMethod: public xmlrpc_c::method {
 
 int main(int const, const char ** const) {
 
-    try {
-        xmlrpc_c::registry myRegistry;
 
-        xmlrpc_c::methodPtr const RequestClientIdP(new RequestClientId);
-        xmlrpc_c::methodPtr const DiscardClientIdP(new DiscardClientId);
-        
-        xmlrpc_c::methodPtr const ZRunGCP(new ZRunGC);
-        xmlrpc_c::methodPtr const ZCreateP(new ZCreate);
-        xmlrpc_c::methodPtr const ZGetP(new ZGet);
-        xmlrpc_c::methodPtr const ZAddMethodP(new ZAddMethod);
-        xmlrpc_c::methodPtr const ZSubMethodP(new ZSubMethod);
-        xmlrpc_c::methodPtr const ZMulMethodP(new ZMulMethod);
-        xmlrpc_c::methodPtr const ZDivMethodP(new ZDivMethod);
-        xmlrpc_c::methodPtr const ZModMethodP(new ZModMethod);
-        xmlrpc_c::methodPtr const ZPowMethodP(new ZPowMethod);
-        xmlrpc_c::methodPtr const ZBitLengthP(new ZBitLength);
-        
-        xmlrpc_c::methodPtr const ZFactorialMethodP(new ZFactorialMethod);
+  try {
+    xmlrpc_c::registry myRegistry;
 
-        xmlrpc_c::methodPtr const RCreateP(new RCreate);
-        xmlrpc_c::methodPtr const RGetP(new RGet);
-        xmlrpc_c::methodPtr const RAddMethodP(new RAddMethod);
-        xmlrpc_c::methodPtr const RSubMethodP(new RSubMethod);
-        xmlrpc_c::methodPtr const RMulMethodP(new RMulMethod);
-        xmlrpc_c::methodPtr const RDivMethodP(new RDivMethod);
-        xmlrpc_c::methodPtr const RPowMethodP(new RPowMethod);
-        xmlrpc_c::methodPtr const RBitLengthP(new RBitLength);
+    xmlrpc_c::methodPtr const RequestClientIdP(new RequestClientId);
+    xmlrpc_c::methodPtr const DiscardClientIdP(new DiscardClientId);
 
 
-        xmlrpc_c::methodPtr const ModExpMethodP(new ModExpMethod);
-        xmlrpc_c::methodPtr const ModInverseMethodP(new ModInverseMethod);
-        
-        xmlrpc_c::methodPtr const RandomZMethodP(new RandomZMethod);
-        xmlrpc_c::methodPtr const RandomZLessThanMethodP(new RandomZLessThanMethod);
+    xmlrpc_c::methodPtr const GetDataP(new GetData);
 
-        xmlrpc_c::methodPtr const GenPrimeMethodP(new GenPrimeMethod);
-        xmlrpc_c::methodPtr const PrimeTestMethodP(new PrimeTestMethod);
-        
-        xmlrpc_c::methodPtr const GCDMethodP(new GCDMethod);
-        
-        xmlrpc_c::methodPtr const CRTMethodP(new CRTMethod);
-        
-        xmlrpc_c::methodPtr const SysInfoMethodP(new SysInfoMethod);
+    xmlrpc_c::methodPtr const RunGCP(new RunGC);
+    xmlrpc_c::methodPtr const ZCreateP(new ZCreate);
+    xmlrpc_c::methodPtr const ZAddMethodP(new ZAddMethod);
+    xmlrpc_c::methodPtr const ZSubMethodP(new ZSubMethod);
+    xmlrpc_c::methodPtr const ZMulMethodP(new ZMulMethod);
+    xmlrpc_c::methodPtr const ZDivMethodP(new ZDivMethod);
+    xmlrpc_c::methodPtr const ZModMethodP(new ZModMethod);
+    xmlrpc_c::methodPtr const ZPowMethodP(new ZPowMethod);
+    xmlrpc_c::methodPtr const ZBitLengthP(new ZBitLength);
 
+    xmlrpc_c::methodPtr const ZFactorialMethodP(new ZFactorialMethod);
 
-        xmlrpc_c::methodPtr const StartProfilingClockMethodP(
-            new StartProfilingClockMethod);
-        xmlrpc_c::methodPtr const StopProfilingClockMethodP(
-            new StopProfilingClockMethod);
-        xmlrpc_c::methodPtr const GetProfilingResultsMethodP(
-            new GetProfilingResultsMethod);
-        xmlrpc_c::methodPtr const ResetProfilingCountersMethodP(
-            new ResetProfilingCountersMethod);
+    xmlrpc_c::methodPtr const RCreateP(new RCreate);
+    xmlrpc_c::methodPtr const RAddMethodP(new RAddMethod);
+    xmlrpc_c::methodPtr const RSubMethodP(new RSubMethod);
+    xmlrpc_c::methodPtr const RMulMethodP(new RMulMethod);
+    xmlrpc_c::methodPtr const RDivMethodP(new RDivMethod);
+    xmlrpc_c::methodPtr const RPowMethodP(new RPowMethod);
+    xmlrpc_c::methodPtr const RBitLengthP(new RBitLength);
 
 
+    xmlrpc_c::methodPtr const ModExpMethodP(new ModExpMethod);
+    xmlrpc_c::methodPtr const ModInverseMethodP(new ModInverseMethod);
 
-        myRegistry.addMethod("_requestClientId", RequestClientIdP);
-        myRegistry.addMethod("_discardClientId", DiscardClientIdP);
+    xmlrpc_c::methodPtr const RandomZMethodP(new RandomZMethod);
+    xmlrpc_c::methodPtr const RandomZLessThanMethodP(new RandomZLessThanMethod);
 
-        myRegistry.addMethod("_zRunGC", ZRunGCP);
-        myRegistry.addMethod("zCreate", ZCreateP);
-        myRegistry.addMethod("zGet", ZGetP);
-        myRegistry.addMethod("zAdd", ZAddMethodP);
-        myRegistry.addMethod("zSub", ZSubMethodP);
-        myRegistry.addMethod("zMul", ZMulMethodP);
-        myRegistry.addMethod("zDiv", ZDivMethodP);
-        myRegistry.addMethod("zMod", ZModMethodP);
-        myRegistry.addMethod("zPow", ZPowMethodP);
-        myRegistry.addMethod("zBitLength", ZBitLengthP);
+    xmlrpc_c::methodPtr const GenPrimeMethodP(new GenPrimeMethod);
+    xmlrpc_c::methodPtr const PrimeTestMethodP(new PrimeTestMethod);
 
-        myRegistry.addMethod("rCreate", RCreateP);
-        myRegistry.addMethod("rGet", RGetP);
-        myRegistry.addMethod("rAdd", RAddMethodP);
-        myRegistry.addMethod("rSub", RSubMethodP);
-        myRegistry.addMethod("rMul", RMulMethodP);
-        myRegistry.addMethod("rDiv", RDivMethodP);
-        myRegistry.addMethod("rPow", RPowMethodP);
-        myRegistry.addMethod("rBitLength", RBitLengthP);
+    xmlrpc_c::methodPtr const GCDMethodP(new GCDMethod);
+
+    xmlrpc_c::methodPtr const CRTMethodP(new CRTMethod);
+
+    xmlrpc_c::methodPtr const SysInfoMethodP(new SysInfoMethod);
 
 
-        myRegistry.addMethod("zFactorial", ZFactorialMethodP);
-
-        xmlrpc_c::methodPtr const MZAddMethodP(new MZAddMethod);
-        xmlrpc_c::methodPtr const MZMulMethodP(new MZMulMethod);
-        myRegistry.addMethod("mzAdd", MZAddMethodP);
-        myRegistry.addMethod("mzMul", MZMulMethodP);
-
-
-        xmlrpc_c::methodPtr const MZPPrintMethodP(new MZPPrintMethod);
-        myRegistry.addMethod("_mzPPrint", MZPPrintMethodP);
+    xmlrpc_c::methodPtr const StartProfilingClockMethodP(
+        new StartProfilingClockMethod);
+    xmlrpc_c::methodPtr const StopProfilingClockMethodP(
+        new StopProfilingClockMethod);
+    xmlrpc_c::methodPtr const GetProfilingResultsMethodP(
+        new GetProfilingResultsMethod);
+    xmlrpc_c::methodPtr const ResetProfilingCountersMethodP(
+        new ResetProfilingCountersMethod);
 
 
 
-        
-        myRegistry.addMethod("modExp", ModExpMethodP);
-        myRegistry.addMethod("modInverse", ModInverseMethodP);
-        
-        myRegistry.addMethod("getRandomZ", RandomZMethodP);
-        myRegistry.addMethod("getRandomZLessThan", RandomZLessThanMethodP);
-
-        myRegistry.addMethod("getPrime", GenPrimeMethodP);
-        myRegistry.addMethod("isPrime", PrimeTestMethodP);
-        
-        myRegistry.addMethod("gcd", GCDMethodP);
-        
-        myRegistry.addMethod("crt", CRTMethodP);
-        
-        myRegistry.addMethod("systemInfo", SysInfoMethodP);
-        
-        
-        myRegistry.addMethod("startProfClock", 
-            StartProfilingClockMethodP);
-        myRegistry.addMethod("stopProfClock", 
-            StopProfilingClockMethodP);
-        myRegistry.addMethod("getProfRes", 
-            GetProfilingResultsMethodP);
-        myRegistry.addMethod("resetProf", 
-            ResetProfilingCountersMethodP);
+    myRegistry.addMethod("_requestClientId", RequestClientIdP);
+    myRegistry.addMethod("_discardClientId", DiscardClientIdP);
 
 
-        
-//        xmlrpc_c::serverAbyss abyssServer(xmlrpc_c::serverAbyss::constrOpt()
-//            .registryP(&myRegistry)
-//            .portNumber(1729)
-//            );
+    myRegistry.addMethod("getData", GetDataP);
 
-	TServer abyssServer;
-	MIMETypeAdd("text/html", "html");
-	MIMETypeInit();
-	MIMETypeAdd("text/html", "html");
-	ServerCreate(&abyssServer, "XmlRpcServer", 1729,
-                    "./",
-	            "./abyss.log");
+    myRegistry.addMethod("_runGC", RunGCP);
+    myRegistry.addMethod("zCreate", ZCreateP);
+    myRegistry.addMethod("zAdd", ZAddMethodP);
+    myRegistry.addMethod("zSub", ZSubMethodP);
+    myRegistry.addMethod("zMul", ZMulMethodP);
+    myRegistry.addMethod("zDiv", ZDivMethodP);
+    myRegistry.addMethod("zMod", ZModMethodP);
+    myRegistry.addMethod("zPow", ZPowMethodP);
+    myRegistry.addMethod("zBitLength", ZBitLengthP);
 
-	xmlrpc_c::server_abyss_set_handlers(&abyssServer, &myRegistry);
-	ServerDefaultHandler(&abyssServer, NULL);
-	ServerInit(&abyssServer);
-	
-	MIMETypeAdd("text/html", "html");
-	ServerRun(&abyssServer);
-	MIMETypeAdd("text/html", "html");
-//        abyssServer.run();
-        // xmlrpc_c::serverAbyss.run() never returns
-        assert(false);
-    } catch (std::exception const& e) {
+    myRegistry.addMethod("rCreate", RCreateP);
+    myRegistry.addMethod("rAdd", RAddMethodP);
+    myRegistry.addMethod("rSub", RSubMethodP);
+    myRegistry.addMethod("rMul", RMulMethodP);
+    myRegistry.addMethod("rDiv", RDivMethodP);
+    myRegistry.addMethod("rPow", RPowMethodP);
+    myRegistry.addMethod("rBitLength", RBitLengthP);
+
+
+    myRegistry.addMethod("zFactorial", ZFactorialMethodP);
+
+    xmlrpc_c::methodPtr const MZAddMethodP(new MZAddMethod);
+    xmlrpc_c::methodPtr const MZMulMethodP(new MZMulMethod);
+    myRegistry.addMethod("mzAdd", MZAddMethodP);
+    myRegistry.addMethod("mzMul", MZMulMethodP);
+
+
+    xmlrpc_c::methodPtr const MZPPrintMethodP(new MZPPrintMethod);
+    myRegistry.addMethod("_mzPPrint", MZPPrintMethodP);
+
+
+
+
+    myRegistry.addMethod("modExp", ModExpMethodP);
+    myRegistry.addMethod("modInverse", ModInverseMethodP);
+
+    myRegistry.addMethod("getRandomZ", RandomZMethodP);
+    myRegistry.addMethod("getRandomZLessThan", RandomZLessThanMethodP);
+
+    myRegistry.addMethod("getPrime", GenPrimeMethodP);
+    myRegistry.addMethod("isPrime", PrimeTestMethodP);
+
+    myRegistry.addMethod("gcd", GCDMethodP);
+
+    myRegistry.addMethod("crt", CRTMethodP);
+
+    myRegistry.addMethod("systemInfo", SysInfoMethodP);
+
+
+    myRegistry.addMethod("startProfClock", 
+        StartProfilingClockMethodP);
+    myRegistry.addMethod("stopProfClock", 
+        StopProfilingClockMethodP);
+    myRegistry.addMethod("getProfRes", 
+        GetProfilingResultsMethodP);
+    myRegistry.addMethod("resetProf", 
+        ResetProfilingCountersMethodP);
+
+
+
+    //        xmlrpc_c::serverAbyss abyssServer(xmlrpc_c::serverAbyss::constrOpt()
+    //            .registryP(&myRegistry)
+    //            .portNumber(1729)
+    //            );
+
+    TServer abyssServer;
+    MIMETypeAdd("text/html", "html");
+    MIMETypeInit();
+    MIMETypeAdd("text/html", "html");
+    ServerCreate(&abyssServer, "XmlRpcServer", 1729,
+        "./",
+        "./abyss.log");
+
+    xmlrpc_c::server_abyss_set_handlers(&abyssServer, &myRegistry);
+    ServerDefaultHandler(&abyssServer, NULL);
+    ServerInit(&abyssServer);
+
+    MIMETypeAdd("text/html", "html");
+    ServerRun(&abyssServer);
+    MIMETypeAdd("text/html", "html");
+    //        abyssServer.run();
+    // xmlrpc_c::serverAbyss.run() never returns
+    assert(false);
+  } catch (std::exception const& e) {
       std::cerr << "Something failed.  " << e.what() << std::endl;
     }
     return 0;

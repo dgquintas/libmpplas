@@ -18,16 +18,16 @@
 #include <limits>
 #include <sstream>
 
+#include "MPPDataType.h"
 #include "Constants.h"
 #include "Errors.h"
 #include "Z.h"
 #include "Field.h"
 
-namespace mpplas
-{
+namespace mpplas {
 
 /** Clase para la representación de enteros. */
-  class R: public Field<R>
+  class R: public Field<R>, public MPPDataType
   {
     public:
    // constructores
@@ -317,7 +317,7 @@ namespace mpplas
 
     //funciones utiles
     
-    std::string toString() const;
+    virtual std::string toString() const;
     std::string toString(int decimalPlaces) const;
     
       /** Hacer cero.

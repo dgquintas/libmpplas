@@ -13,6 +13,7 @@
 
 #include <string>
 
+#include "MPPDataType.h"
 #include "Ring.h"
 #include "MiVec.h"
 #include "Errors.h"
@@ -21,7 +22,7 @@
 namespace mpplas
 {
   /** Clase para la representación de enteros. */
-  class Z  : public Ring<Z,false /* not a division ring */>
+  class Z  : public Ring<Z,false /* not a division ring */>, public MPPDataType
   {
 
     public:
@@ -1034,7 +1035,7 @@ namespace mpplas
        *
        * @return A constant char[] representing the base-10 conversion of *this
        */
-      std::string toString(void) const;
+      virtual std::string toString() const;
 
 
       /** Get the Z as a single precision signed type.

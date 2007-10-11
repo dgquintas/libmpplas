@@ -14,6 +14,7 @@
 #include <vector>
 #include <algorithm>
 
+#include "MPPDataType.h"
 #include "Errors.h"
 #include "AlgebraUtils.h"
 #include "Constants.h"
@@ -22,8 +23,7 @@
 namespace mpplas {
 
   template<typename T, typename Alloc = std::allocator<T> >
-    class Matrix
-    {
+    class Matrix : public MPPDataType {
       public:
         Matrix();
         Matrix(const int nAndm) ;
@@ -141,7 +141,7 @@ namespace mpplas {
         inline int getColumns() const;
         inline bool isSquare() const;
 
-        std::string toString() const;
+        virtual std::string toString() const;
 
 
 

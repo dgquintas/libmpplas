@@ -76,7 +76,7 @@ def initializeClient(configFileName = 'config.cfg'):
     for arg in args:
       if type(arg) in ( type(()), type([]) ):
         newArgs.append( __elemsToStr(arg) )
-      elif isinstance(arg, Z):
+      elif isinstance(arg, Variable):
         newArgs.append(arg.getId())
       else:
         newArgs.append(arg)
@@ -85,11 +85,14 @@ def initializeClient(configFileName = 'config.cfg'):
     except:
       raise
 
-    if isinstance(result, dict):
-      tpe = result['type']
-      varId = result['varId']
-      if tpe == "Z":
-        result = Z(id=varId)
+
+    #result's first chars before the "-" indicate the type of the result
+    #UNLESS the result is an string repr of the number, in which case
+    #it is not processed
+    tpe = result.split("-",1)[0]
+    if tpe.isalpha():
+      strToEval = "%%s(id='%%s')" %% (tpe, result)
+      result = eval(strToEval)
 
     return result
 """
@@ -254,17 +257,15 @@ def hasBeenUpdated(self):
 class Z(Variable):
   def __init__(self, zStr="0", id=None):
     if id:
-      varId = id
+      Variable.__init__(self, id)
     else:
-      #create the instance on the server -> we get the varId
-      varId = zCreate(zStr)
-    #invoke Variable's constructor with the varId
-    Variable.__init__(self, varId)
+      #create the instance on the server 
+      Variable.__init__(self, zCreate(zStr).getId())
 
   def __add__(self, anotherZ): 
     if not isinstance(anotherZ,type(self)):
       anotherZ = Z(str(anotherZ))
-    return Z(id=zAdd(self, anotherZ ))
+    return zAdd(self, anotherZ )
   def __iadd__(self, anotherZ): 
     self.setId( self.__add__(anotherZ).getId() )
     return self
@@ -319,10 +320,10 @@ class Z(Variable):
 
 
   def __len__(self):
-    return len(self.__str__());
+    return zBitLength(self.getId())
 
   def __repr__(self):
-    return "%s with id %d" % (type(self),self.getId())
+    return "%s with id %s" % (type(self),self.getId())
 #    return self.__str__()
 
   def __str__(self):
@@ -333,60 +334,82 @@ class Z(Variable):
 #######################################################################
 
 class R(Variable):
-
-  def __init__(self, rStr=""):
-    self.__realStr = str(rStr)
+  def __init__(self, rStr="0", id=None):
+    if id:
+      varId = id
+    else:
+      #create the instance on the server 
+      Variable.__init__(self, rCreate(rStr).getId())
 
   def __add__(self, anotherR): 
+    if not isinstance(anotherR,type(self)):
+      anotherR = R(str(anotherR))
     return rAdd(self, anotherR )
   def __iadd__(self, anotherR): 
-    self.__realStr = str(rAdd(self, anotherR))
+    self.setId( self.__add__(anotherR).getId() )
     return self
 
   def __sub__(self, anotherR): 
-    return rSub(self, anotherR )
+    if not isinstance(anotherR,type(self)):
+      anotherR = R(str(anotherR))
+    return R(id=rSub(self, anotherR ))
   def __isub__(self, anotherR): 
-    self.__realStr = str(rSub(self, anotherR))
+    self.setId( self.__sub__(anotherR).getId() )
     return self
 
   def __mul__(self, anotherR): 
-    return rMul(self, anotherR )
+    if not isinstance(anotherR,type(self)):
+      anotherR = R(str(anotherR))
+    return R(id=rMul(self, anotherR ))
   def __imul__(self, anotherR): 
-    self.__realStr = str(rMul(self, anotherR))
+    self.setId( self.__mul__(anotherR).getId() )
     return self
+
 
   def __div__(self, anotherR): 
-    return rDiv(self, anotherR )
+    if not isinstance(anotherR,type(self)):
+      anotherR = R(str(anotherR))
+    return R(id=rDiv(self, anotherR ))
   def __idiv__(self, anotherR): 
-    self.__realStr = str(rDiv(self, anotherR))
+    self.setId( self.__div__(anotherR).getId() )
     return self
 
 
-  def __lt__(self, anotherR):
-    return long(str(self)) < long(str(anotherR))
-  def __le__(self, anotherR):
-    return long(str(self)) <= long(str(anotherR))
-  def __eq__(self, anotherR):
-    return long(str(self)) == long(str(anotherR))
-  def __ne__(self, anotherR):
-    return long(str(self)) != long(str(anotherR))
-  def __gt__(self, anotherR):
-    return long(str(self)) > long(str(anotherR))
-  def __ge__(self, anotherR):
-    return long(str(self)) >= long(str(anotherR))
+  def __mod__(self, anotherR): 
+    if not isinstance(anotherR,type(self)):
+      anotherR = R(str(anotherR))
+    return R(id=rMod(self, anotherR ))
+  def __imod__(self, anotherR): 
+    self.setId( self.__mod__(anotherR).getId() )
+    return self
+ 
+#TODO: no se pueden usar operadores de python. hay que recurrir
+#a los operadores de la libreria apropiaos
+#  def __lt__(self, anotherZ):
+#    return long(self.__str__()) < long(anotherZ.__str__())
+#  def __le__(self, anotherZ):
+#    return long(self.__str__()) <= long(anotherZ.__str__())
+#  def __eq__(self, anotherZ):
+#    return long(self.__str__()) == long(anotherZ.__str__())
+#  def __ne__(self, anotherZ):
+#    return long(self.__str__()) != long(anotherZ.__str__())
+#  def __gt__(self, anotherZ):
+#    return long(self.__str__()) > long(anotherZ.__str__())
+#  def __ge__(self, anotherZ):
+#    return long(self.__str__()) >= long(anotherZ.__str__())
 
 
   def __len__(self):
-    return len(self.__realStr);
-
-  def __getitem__(self, key):
-    return self.__realStr[key]
+    return rBitLength(self.getId())
 
   def __repr__(self):
-    return 'R("' + self.__realStr + '")'
+#    return "%s with id %d" % (type(self),self.getId())
+    return self.__str__()
 
   def __str__(self):
-    return self.__realStr
+    res = rGet(self.getId())
+    return res
+
 
 
 ###############################################################################

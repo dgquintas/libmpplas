@@ -23,25 +23,28 @@ template<typename T>
 class RuntimeData {
 
   public:
-    RuntimeData();
+    RuntimeData(const std::string& containedDataName );
 
-    typedef std::map<int /* varId */, T > ClientVarsType;
-    typedef std::map<int /* clientId */, ClientVarsType > TableType;
+    typedef std::string varId_t;
+    typedef int clientId_t;
+
+    typedef std::map<varId_t    /* varId */, T > ClientVarsType;
+    typedef std::map<clientId_t /* clientId */,  ClientVarsType > TableType;
     
-    T& get(const int clientId, const int varId) throw(NoSuchVariable) ;
-    int set(const int clientId, const T& instance);
+    T& get(const clientId_t clientId, const varId_t varId) throw(NoSuchVariable) ;
+    varId_t set(const clientId_t clientId, const T& instance);
 
-    void runGC(const int clientId, const std::vector<int>& usedSlots);
+    void runGC(const clientId_t clientId, const std::vector<varId_t>& usedSlots);
 
 
   private:
     TableType _dataTable;
     pthread_mutex_t _mutex;
-    std::map<int, std::set<int> > _usedVarIds;
-    std::map<int, std::vector<int> > _clientUsedSlots;
+    std::map<clientId_t, std::set<int> > _usedVarIds;
+    const std::string _containedDataName;
     
-    bool _contains(const int clientId, const int varId);
-    int _getAvailableVarId(const int clientId);
+    bool _contains(const clientId_t clientId, const varId_t varId);
+    varId_t _getAvailableVarId(const clientId_t clientId);
 
 };
 

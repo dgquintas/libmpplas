@@ -2,12 +2,13 @@
 
 
 template<typename T>
-RuntimeData<T>::RuntimeData(){
+RuntimeData<T>::RuntimeData(const std::string& containedDataName)
+  : _containedDataName(containedDataName) {
   assert(!pthread_mutex_init(&_mutex, NULL));
 }
 
 template<typename T>
-  T& RuntimeData<T>::get(const int clientId, const int varId) throw(NoSuchVariable) {
+  T& RuntimeData<T>::get(const clientId_t clientId, const varId_t varId) throw(NoSuchVariable) {
     pthread_mutex_lock( &_mutex );
     
     T* instance;
@@ -19,26 +20,26 @@ template<typename T>
     else{
       pthread_mutex_unlock( &_mutex );
       std::ostringstream oss;
-      oss << "Variable '" << varId << "' not found";
+      oss << "Variable '" << varId << "' not found for type " << this->_containedDataName;
       throw NoSuchVariable(oss.str());
     }
   }
 
 template<typename T>
-  int RuntimeData<T>::set(const int clientId, const T& instance){
+  typename RuntimeData<T>::varId_t RuntimeData<T>::set(const clientId_t clientId, const T& instance){
     pthread_mutex_lock( &_mutex );
-    const int varId( _getAvailableVarId(clientId) );
+    const varId_t varId( _getAvailableVarId(clientId) );
     _dataTable[clientId][varId] = instance;
     pthread_mutex_unlock( &_mutex );
     return varId;
   }
 
 template<typename T>
-void RuntimeData<T>::runGC(const int clientId, const std::vector<int>& usedSlots){
+void RuntimeData<T>::runGC(const clientId_t clientId, const std::vector<varId_t>& usedSlots){
   pthread_mutex_lock( &_mutex );
   ClientVarsType newClientVars;
   ClientVarsType& oldClientVars( _dataTable[clientId] );
-  std::vector<int>::const_iterator it;
+  std::vector<varId_t>::const_iterator it;
   for(it = usedSlots.begin(); it != usedSlots.end(); it++){
     newClientVars[*it] = oldClientVars[*it];
   }
@@ -50,7 +51,7 @@ void RuntimeData<T>::runGC(const int clientId, const std::vector<int>& usedSlots
 
 
 template<typename T>
-bool RuntimeData<T>::_contains(const int clientId, const int varId){
+bool RuntimeData<T>::_contains(const clientId_t clientId, const varId_t varId){
   ClientVarsType clientVars = _dataTable[clientId];
   const typename ClientVarsType::iterator it = clientVars.find(varId);
   if( it == clientVars.end() ){
@@ -62,15 +63,17 @@ bool RuntimeData<T>::_contains(const int clientId, const int varId){
 }
 
 template<typename T>
-int RuntimeData<T>::_getAvailableVarId(const int clientId){
+typename RuntimeData<T>::varId_t RuntimeData<T>::_getAvailableVarId(const clientId_t clientId){
   int rnd;
   std::set<int>& usedSet(_usedVarIds[clientId]);
   do{
-    rnd = -1-rand(); // the -1 is because rand() may return 0
-                     // and rnd wouldn't always be < 0 
+    rnd = rand(); 
   } while( usedSet.find(rnd) != usedSet.end() );
   usedSet.insert(rnd);
-  return rnd;
+  
+  std::ostringstream oss;
+  oss << this->_containedDataName << "-" << rnd;
+  return oss.str();
 }
   
 

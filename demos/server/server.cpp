@@ -47,7 +47,8 @@
  */
 
 std::set<int> _idsInUse;
-RuntimeData<mpplas::Z> tableZ;
+RuntimeData<mpplas::Z> tableZ("Z");
+RuntimeData<mpplas::R> tableR("R");
 
 class RequestClientId: public xmlrpc_c::method {
   public:
@@ -119,9 +120,9 @@ class ZRunGC: public xmlrpc_c::method {
 
         paramList.verifyEnd(2);
 
-        std::vector<int> usedSlots( tmp.size() );
+        std::vector< RuntimeData<mpplas::Z>::varId_t > usedSlots( tmp.size() );
         for(int i=0; i< tmp.size(); i++){
-          usedSlots.push_back( xmlrpc_c::value_int( tmp[i] ) );
+          usedSlots.push_back( xmlrpc_c::value_string( tmp[i] ) );
         }
 
         tableZ.runGC(clientId, usedSlots);
@@ -135,7 +136,7 @@ class ZCreate: public xmlrpc_c::method {
   public:
     
     ZCreate() {
-      this->_signature = "i:is";
+      this->_signature = "s:is";
       this->_help = "This method creates a new integer";
     }
 
@@ -146,9 +147,9 @@ class ZCreate: public xmlrpc_c::method {
 
         paramList.verifyEnd(2);
 
-        int idx = tableZ.set(clientId, op);
+        const std::string varId(tableZ.set(clientId, op));
 
-        *retvalP = xmlrpc_c::value_int(idx);
+        *retvalP = xmlrpc_c::value_string(varId);
       }
 };
 
@@ -163,13 +164,18 @@ class ZGet: public xmlrpc_c::method {
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
         const int clientId(paramList.getInt(0));
-        const int varId(paramList.getInt(1));
+        const std::string varId(paramList.getString(1));
 
         paramList.verifyEnd(2);
 
-        const mpplas::Z z(tableZ.get(clientId, varId));
+        try{
+          const mpplas::Z z(tableZ.get(clientId, varId));
+          *retvalP = xmlrpc_c::value_string(z.toString() );
+        }
+        catch(const NoSuchVariable& e){
+          throw(girerr::error(e.what()));
+        }
 
-        *retvalP = xmlrpc_c::value_string(z.toString() );
       }
 };
 
@@ -177,24 +183,24 @@ class ZAddMethod : public xmlrpc_c::method {
   public:
     
     ZAddMethod() {
-      this->_signature = "i:iii";
+      this->_signature = "s:iii";
       this->_help = "This method adds two integers together";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
         const int clientId(paramList.getInt(0));
-        const int varId1(paramList.getInt(1));
-        const int varId2(paramList.getInt(2));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
 
         paramList.verifyEnd(3);
 
         const mpplas::Z op1( tableZ.get(clientId, varId1 ) );
         const mpplas::Z op2( tableZ.get(clientId, varId2 ) );
 
-        int idx = tableZ.set(clientId, op1+op2);
+        const std::string varId = tableZ.set(clientId, op1+op2);
 
-        *retvalP = xmlrpc_c::value_int( idx );
+        *retvalP = xmlrpc_c::value_string( varId );
       }
 };
 class ZSubMethod : public xmlrpc_c::method {
@@ -306,26 +312,97 @@ class ZPowMethod : public xmlrpc_c::method {
 };
 
 
+class ZBitLength: public xmlrpc_c::method {
+  public:
+    
+    ZBitLength() {
+      this->_signature = "i:ii";
+      this->_help = "This method returns the bit-length of an integer";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        const mpplas::Z z(tableZ.get(clientId, varId));
+        const int res( z.getBitLength() );
+
+        *retvalP = xmlrpc_c::value_int(res);
+      }
+};
+
+
 /***********************************************
  **************   REALS  ***********************
  ***********************************************/
+
+class RCreate: public xmlrpc_c::method {
+  public:
+    
+    RCreate() {
+      this->_signature = "s:is";
+      this->_help = "This method creates a new real";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const mpplas::R op(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        const std::string varId = tableR.set(clientId, op);
+
+        *retvalP = xmlrpc_c::value_string(varId);
+      }
+};
+
+class RGet: public xmlrpc_c::method {
+  public:
+    
+    RGet() {
+      this->_signature = "s:ii";
+      this->_help = "This method retrieves a real";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        const mpplas::R r(tableR.get(clientId, varId));
+
+        *retvalP = xmlrpc_c::value_string(r.toString() );
+      }
+};
 
 class RAddMethod : public xmlrpc_c::method {
   public:
     
     RAddMethod() {
-      this->_signature = "s:ss";
+      this->_signature = "s:iii";
       this->_help = "This method adds two reals together";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        mpplas::R const op1(paramList.getString(0));
-        mpplas::R const op2(paramList.getString(1));
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
 
-        paramList.verifyEnd(2);
+        paramList.verifyEnd(3);
 
-        *retvalP = xmlrpc_c::value_string( (op1+op2).toString() );
+        const mpplas::R op1( tableR.get(clientId, varId1 ) );
+        const mpplas::R op2( tableR.get(clientId, varId2 ) );
+
+        const std::string varId = tableR.set(clientId, op1+op2);
+
+        *retvalP = xmlrpc_c::value_string( varId );
       }
 };
 class RSubMethod : public xmlrpc_c::method {
@@ -383,6 +460,14 @@ class RDivMethod : public xmlrpc_c::method {
       }
 };
 
+
+
+
+
+
+
+
+
 class RPowMethod : public xmlrpc_c::method {
   public:
     
@@ -401,6 +486,30 @@ class RPowMethod : public xmlrpc_c::method {
         paramList.verifyEnd(2);
 
         *retvalP = xmlrpc_c::value_string( (op1 ^ op2).toString() );
+      }
+};
+
+
+
+class RBitLength: public xmlrpc_c::method {
+  public:
+    
+    RBitLength() {
+      this->_signature = "i:ii";
+      this->_help = "This method returns the bit-length of an integer";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        const mpplas::R r(tableR.get(clientId, varId));
+        const int res( r.getBitLength() );
+
+        *retvalP = xmlrpc_c::value_int(res);
       }
 };
 
@@ -550,7 +659,7 @@ class RandomZMethod : public xmlrpc_c::method {
   public:
     
     RandomZMethod() {
-      this->_signature = "S:ii";
+      this->_signature = "s:ii";
       this->_help = "This method returns a random interger of the specified number of bits"; 
 
       mpplas::MethodsFactory::getInstance()->getFunc(rnd);
@@ -559,37 +668,14 @@ class RandomZMethod : public xmlrpc_c::method {
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
       const int clientId(paramList.getInt(0));
-      const int bitsOrVarId = paramList.getInt(1);
-      int bits;
-      mpplas::Z z;
-      sleep(5);
-
-      if( bitsOrVarId < 0 ){ //it's a varId
-        z = tableZ.get(clientId, bitsOrVarId);
-        if( z.getBitLength() > std::numeric_limits<int>::digits ){
-          mpplas::Errors::TooBig toobig;
-          throw girerr::error( toobig.what() );
-        }
-        else{
-          bits = (int)z[0]; //the cast from unsigned should be safe
-        }
-      }
-      else{
-        bits = bitsOrVarId;
-      }
-
+      const int bits = paramList.getInt(1);
       paramList.verifyEnd(2);
 
       try{
         const mpplas::Z& op(rnd->getInteger( bits ));
-        int idx = tableZ.set(clientId, op);
+        const std::string varId = tableZ.set(clientId, op);
 
-        std::map<std::string, xmlrpc_c::value> structData;
-        std::pair<std::string, xmlrpc_c::value> type("type", xmlrpc_c::value_string("Z"));
-        std::pair<std::string, xmlrpc_c::value> value("varId", xmlrpc_c::value_int(idx));
-        structData.insert(type);
-        structData.insert(value);
-        *retvalP = xmlrpc_c::value_struct( structData );
+        *retvalP = xmlrpc_c::value_string(varId);
       }
       catch( const std::exception &e ){
         throw girerr::error( e.what() );
@@ -743,13 +829,13 @@ class SysInfoMethod : public xmlrpc_c::method {
   public:
 
     SysInfoMethod() {
-      this->_signature = "S:";
+      this->_signature = "S:i";
       this->_help = "This method returns a map with some information about the host system";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const retvalP) {
 
-      paramList.verifyEnd(0);
+      paramList.verifyEnd(1); //the clientId isn't used
       std::map<std::string, xmlrpc_c::value> structData;
 
 
@@ -945,14 +1031,18 @@ int main(int const, const char ** const) {
         xmlrpc_c::methodPtr const ZDivMethodP(new ZDivMethod);
         xmlrpc_c::methodPtr const ZModMethodP(new ZModMethod);
         xmlrpc_c::methodPtr const ZPowMethodP(new ZPowMethod);
+        xmlrpc_c::methodPtr const ZBitLengthP(new ZBitLength);
         
         xmlrpc_c::methodPtr const ZFactorialMethodP(new ZFactorialMethod);
 
+        xmlrpc_c::methodPtr const RCreateP(new RCreate);
+        xmlrpc_c::methodPtr const RGetP(new RGet);
         xmlrpc_c::methodPtr const RAddMethodP(new RAddMethod);
         xmlrpc_c::methodPtr const RSubMethodP(new RSubMethod);
         xmlrpc_c::methodPtr const RMulMethodP(new RMulMethod);
         xmlrpc_c::methodPtr const RDivMethodP(new RDivMethod);
         xmlrpc_c::methodPtr const RPowMethodP(new RPowMethod);
+        xmlrpc_c::methodPtr const RBitLengthP(new RBitLength);
 
 
         xmlrpc_c::methodPtr const ModExpMethodP(new ModExpMethod);
@@ -994,12 +1084,16 @@ int main(int const, const char ** const) {
         myRegistry.addMethod("zDiv", ZDivMethodP);
         myRegistry.addMethod("zMod", ZModMethodP);
         myRegistry.addMethod("zPow", ZPowMethodP);
+        myRegistry.addMethod("zBitLength", ZBitLengthP);
 
+        myRegistry.addMethod("rCreate", RCreateP);
+        myRegistry.addMethod("rGet", RGetP);
         myRegistry.addMethod("rAdd", RAddMethodP);
         myRegistry.addMethod("rSub", RSubMethodP);
         myRegistry.addMethod("rMul", RMulMethodP);
         myRegistry.addMethod("rDiv", RDivMethodP);
         myRegistry.addMethod("rPow", RPowMethodP);
+        myRegistry.addMethod("rBitLength", RBitLengthP);
 
 
         myRegistry.addMethod("zFactorial", ZFactorialMethodP);

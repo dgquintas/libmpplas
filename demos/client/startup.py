@@ -18,7 +18,17 @@ if Client.checkForUpdates():
 else:
   globals()['updated'] = False 
   
-  
+def runGC():
+  global clientId
+
+  usedSlots = []
+  for inst in globals().values():
+    if isinstance(inst, Variable):
+      usedSlots.append(inst.getId())
+
+  print usedSlots
+  RPCServer.getInstance().getServer()._runGC(clientId, usedSlots)
+
 
 import matplotlib
 matplotlib.interactive(True)

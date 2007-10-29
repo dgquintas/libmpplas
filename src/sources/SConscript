@@ -32,6 +32,9 @@ filesStr = """
     VectorR.cpp
     Z.cpp
     Z_n.cpp
+    Z_p.cpp
+    Z_px.cpp
+    Zx.cpp
     ZM_n.cpp
 
     """

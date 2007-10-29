@@ -4,6 +4,7 @@
 # $Id$
 #
 
+
 from RPCServer import RPCServer
 from Configuration import Configuration
 from xmlrpclib import Fault,MultiCall
@@ -16,6 +17,7 @@ import wx.lib.delayedresult as delayedresult
 global filteredMethods
 global global_config
 global clientId
+global createCount
 
 class Variable(object):
   def __init__(self, varId):
@@ -60,19 +62,26 @@ def toInt(arg):
 def initializeClient(configFileName = 'config.cfg'):
   global global_config
   global clientId
+  global createCount
+  global gcThreshold
+  createCount = 0
   global_config = Configuration(configFileName)
   rpcServer = RPCServer.getInstance( global_config.RPCServerURL )
   clientId = rpcServer.getServer()._requestClientId()
-
+  gcThreshold = global_config.GCThreshold
   global filteredMethods
   filteredMethods = filter(lambda mName: mName[:7] != 'system.' and mName[0] != '_', 
                             rpcServer.getInteractiveServer().system.listMethods())
 
   proxyFuncsSrc = """def %(methodName)s(*args):
     \"\"\"%(methodHelp)s\"\"\"
-    methodName = '%(methodName)s'[:2]
+    global createCount
+    global gcThreshold 
+    mName = '%(methodName)s'
     newArgs = [clientId]
     rpcServer = RPCServer.getInstance()
+
+
     for arg in args:
       if type(arg) in ( type(()), type([]) ):
         newArgs.append( __elemsToStr(arg) )
@@ -94,6 +103,13 @@ def initializeClient(configFileName = 'config.cfg'):
       if tpe.isalpha():
         strToEval = "%%s(id='%%s')" %% (tpe, result)
         result = eval(strToEval)
+
+    if mName.endswith("Create"):
+      createCount += 1
+      if createCount > gcThreshold:
+        runGC(result.getId())
+        createCount = 0
+
 
     return result
 """
@@ -245,12 +261,6 @@ def performUpdate():
 
   return backupFname
 
-#FIXME: mmm? esto vale pa algo?
-def hasBeenUpdated(self):
-  return self.hasBeenUpdated
-
-
-
 
 ######################################################
 #
@@ -276,7 +286,7 @@ class Z(Variable):
   def __sub__(self, anotherZ): 
     if not isinstance(anotherZ,type(self)):
       anotherZ = Z(str(anotherZ))
-    return Z(id=zSub(self, anotherZ ))
+    return zSub(self, anotherZ)
   def __isub__(self, anotherZ): 
     self.setId( self.__sub__(anotherZ).getId() )
     return self
@@ -284,7 +294,7 @@ class Z(Variable):
   def __mul__(self, anotherZ): 
     if not isinstance(anotherZ,type(self)):
       anotherZ = Z(str(anotherZ))
-    return Z(id=zMul(self, anotherZ ))
+    return zMul(self, anotherZ)
   def __imul__(self, anotherZ): 
     self.setId( self.__mul__(anotherZ).getId() )
     return self
@@ -293,7 +303,7 @@ class Z(Variable):
   def __div__(self, anotherZ): 
     if not isinstance(anotherZ,type(self)):
       anotherZ = Z(str(anotherZ))
-    return Z(id=zDiv(self, anotherZ ))
+    return zDiv(self, anotherZ)
   def __idiv__(self, anotherZ): 
     self.setId( self.__div__(anotherZ).getId() )
     return self
@@ -302,7 +312,7 @@ class Z(Variable):
   def __mod__(self, anotherZ): 
     if not isinstance(anotherZ,type(self)):
       anotherZ = Z(str(anotherZ))
-    return Z(id=zMod(self, anotherZ ))
+    return zMod(self, anotherZ)
   def __imod__(self, anotherZ): 
     self.setId( self.__mod__(anotherZ).getId() )
     return self
@@ -326,8 +336,8 @@ class Z(Variable):
     return zBitLength(self.getId())
 
   def __repr__(self):
-    return "%s with id %s" % (type(self),self.getId())
-#    return self.__str__()
+#    return "%s with id %s" % (type(self),self.getId())
+    return self.__str__()
 
   def __str__(self):
     res = getData(self.getId())
@@ -355,7 +365,7 @@ class R(Variable):
   def __sub__(self, anotherR): 
     if not isinstance(anotherR,type(self)):
       anotherR = R(str(anotherR))
-    return R(id=rSub(self, anotherR ))
+    rSub(self, anotherR)
   def __isub__(self, anotherR): 
     self.setId( self.__sub__(anotherR).getId() )
     return self
@@ -363,7 +373,7 @@ class R(Variable):
   def __mul__(self, anotherR): 
     if not isinstance(anotherR,type(self)):
       anotherR = R(str(anotherR))
-    return R(id=rMul(self, anotherR ))
+    return rMul(self, anotherR)
   def __imul__(self, anotherR): 
     self.setId( self.__mul__(anotherR).getId() )
     return self
@@ -372,7 +382,7 @@ class R(Variable):
   def __div__(self, anotherR): 
     if not isinstance(anotherR,type(self)):
       anotherR = R(str(anotherR))
-    return R(id=rDiv(self, anotherR ))
+    return rDiv(self, anotherR)
   def __idiv__(self, anotherR): 
     self.setId( self.__div__(anotherR).getId() )
     return self
@@ -381,7 +391,7 @@ class R(Variable):
   def __mod__(self, anotherR): 
     if not isinstance(anotherR,type(self)):
       anotherR = R(str(anotherR))
-    return R(id=rMod(self, anotherR ))
+    return rMod(self, anotherR)
   def __imod__(self, anotherR): 
     self.setId( self.__mod__(anotherR).getId() )
     return self
@@ -406,7 +416,8 @@ class R(Variable):
     return rBitLength(self.getId())
 
   def __repr__(self):
-    return "%s with id %s" % (type(self),self.getId())
+#    return "%s with id %s" % (type(self),self.getId())
+    return self.__str__()
 
   def __str__(self):
     res = getData(self.getId())
@@ -418,19 +429,29 @@ class R(Variable):
 
 class MZ(Variable): #matrix Z
 
-  def __init__(self, mzStr=""):
-    self.__matrixZStr = str(mzStr)
+  def __init__(self, mzStr="[]", id=None):
+    if id:
+      Variable.__init__(self, id)
+    else:
+      #create the instance on the server 
+      Variable.__init__(self,mzCreate(str(mzStr)).getId())
+
 
   def __add__(self, anotherMZ): 
-    return mzAdd(self.__matrixZStr, anotherMZ.__matrixZStr )
+    if not isinstance(anotherMZ,type(self)):
+      anotherMZ = MZ(repr(anotherMZ))
+    return mzAdd(self, anotherMZ )
   def __iadd__(self, anotherMZ): 
-    self.__matrixZStr = str( mzAdd( self.__matrixZStr, anotherMZ.__matrixZStr ) )
+    self.setId( self.__add__(anotherMZ).getId() )
     return self
- 
+
+
   def __mul__(self, anotherMZ): 
-    return mzMul(self.__matrixZStr, anotherMZ.__matrixZStr )
+    if not isinstance(anotherMZ,type(self)):
+      anotherMZ = MZ(repr(anotherMZ))
+    return mzMul(self, anotherMZ )
   def __imul__(self, anotherMZ): 
-    self.__matrixZStr = str( mzMul( self.__matrixZStr, anotherMZ.__matrixZStr ) )
+    self.setId( self.__mul__(anotherMZ).getId() )
     return self
 
 
@@ -439,10 +460,13 @@ class MZ(Variable): #matrix Z
     return pyRep[row]
 
   def __repr__(self):
-    return 'MZ("' + self.__matrixZStr + '")'
+    #return "%s with id %s" % (type(self),self.getId())
+    res = getData(self.getId())
+    return res
 
   def __str__(self):
-    return RPCServer.getInstance().getInteractiveServer()._mzPPrint(self.__matrixZStr)
+    global clientId
+    return RPCServer.getInstance().getInteractiveServer()._mzPPrint(clientId, self.getId())
 
   def __strToPyRep(self, str):
     res = []

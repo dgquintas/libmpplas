@@ -47,7 +47,7 @@
  *
  */
 
-std::set<int> _idsInUse;
+std::set<clientId_t> _idsInUse;
 RuntimeData<mpplas::MPPDataType*> table;
 
 class RequestClientId: public xmlrpc_c::method {
@@ -82,17 +82,18 @@ class DiscardClientId: public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
+        bool res = false;
         const int clientId(paramList.getInt(0));
         paramList.verifyEnd(1);
     
-        std::set<int>::iterator it = _idsInUse.find(clientId);
-        bool res = false;
+        //remove data from the data table
+        table.eraseClient(clientId);
+
+        std::set<clientId_t>::iterator it = _idsInUse.find(clientId);
         if( it != _idsInUse.end() ){
           _idsInUse.erase(it);
-      
-          //TODO: remove data from the tables
-          res = true;
         }
+        res = true;
 
         *retvalP = xmlrpc_c::value_boolean(res);
       }
@@ -157,8 +158,8 @@ class GetData: public xmlrpc_c::method {
   public:
     
     GetData() {
-      this->_signature = "s:ii";
-      this->_help = "This method retrieves an integer";
+      this->_signature = "s:is";
+      this->_help = "To retrieve data";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -183,7 +184,7 @@ class ZAddMethod : public xmlrpc_c::method {
   public:
     
     ZAddMethod() {
-      this->_signature = "s:iii";
+      this->_signature = "s:iss";
       this->_help = "This method adds two integers together";
     }
 
@@ -207,107 +208,144 @@ class ZSubMethod : public xmlrpc_c::method {
   public:
     
     ZSubMethod() {
-      this->_signature = "s:ss";
-      this->_help = "This method substracts the second integer from the first";
+      this->_signature = "s:iss";
+      this->_help = "This method substracts two integers";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        mpplas::Z const op1(paramList.getString(0));
-        mpplas::Z const op2(paramList.getString(1));
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
 
-        paramList.verifyEnd(2);
+        paramList.verifyEnd(3);
 
-        *retvalP = xmlrpc_c::value_string( (op1 - op2).toString() );
+          const mpplas::Z op1( *((mpplas::Z*)table.get(clientId, varId1)));
+          const mpplas::Z op2( *((mpplas::Z*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::Z(op1-op2), "Z");
+
+        *retvalP = xmlrpc_c::value_string( varId );
       }
 };
 class ZMulMethod : public xmlrpc_c::method {
   public:
     
     ZMulMethod() {
-      this->_signature = "s:ss";
+      this->_signature = "s:iss";
       this->_help = "This method multiplies two integers together";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        mpplas::Z const op1(paramList.getString(0));
-        mpplas::Z const op2(paramList.getString(1));
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
 
-        paramList.verifyEnd(2);
+        paramList.verifyEnd(3);
 
-        *retvalP = xmlrpc_c::value_string( (op1 * op2).toString() );
+          const mpplas::Z op1( *((mpplas::Z*)table.get(clientId, varId1)));
+          const mpplas::Z op2( *((mpplas::Z*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::Z(op1 * op2), "Z");
+
+        *retvalP = xmlrpc_c::value_string( varId );
       }
 };
 class ZDivMethod : public xmlrpc_c::method {
   public:
     
     ZDivMethod() {
-      this->_signature = "s:ss";
-      this->_help = "This method divides the first integer by the second (integer division)"; 
+      this->_signature = "s:iss";
+      this->_help = "This method divides (integer division) two integers";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        mpplas::Z const op1(paramList.getString(0));
-        mpplas::Z const op2(paramList.getString(1));
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
 
-        paramList.verifyEnd(2);
+        paramList.verifyEnd(3);
 
-        *retvalP = xmlrpc_c::value_string( (op1 / op2).toString() );
+          const mpplas::Z op1( *((mpplas::Z*)table.get(clientId, varId1)));
+          const mpplas::Z op2( *((mpplas::Z*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::Z(op1/op2), "Z");
+
+        *retvalP = xmlrpc_c::value_string( varId );
       }
 };
 class ZModMethod : public xmlrpc_c::method {
   public:
     
     ZModMethod() {
-      this->_signature = "s:ss";
-      this->_help = "This method gives the remainder after the division of the first integer by the second"; 
+      this->_signature = "s:iss";
+      this->_help = "This method calculates de remainder of the integer division of two integers";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        mpplas::Z const op1(paramList.getString(0));
-        mpplas::Z const op2(paramList.getString(1));
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
 
-        paramList.verifyEnd(2);
+        paramList.verifyEnd(3);
 
-        *retvalP = xmlrpc_c::value_string( (op1 % op2).toString() );
+          const mpplas::Z op1( *((mpplas::Z*)table.get(clientId, varId1)));
+          const mpplas::Z op2( *((mpplas::Z*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::Z(op1%op2), "Z");
+
+        *retvalP = xmlrpc_c::value_string( varId );
       }
 };
+
 class ZFactorialMethod : public xmlrpc_c::method {
   public:
     
     ZFactorialMethod() {
-      this->_signature = "s:s";
+      this->_signature = "s:is";
       this->_help = "This method returns the factorial of the given integer"; 
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        mpplas::Z op1(paramList.getString(0));
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
 
-        paramList.verifyEnd(1);
+        paramList.verifyEnd(2);
 
-        *retvalP = xmlrpc_c::value_string( (op1.factorial()).toString() );
+        mpplas::Z op1( *((mpplas::Z*)table.get(clientId, varId1)));
+ 
+        const std::string varId = table.set(clientId, new mpplas::Z( op1.factorial() ), "Z");
+
+        *retvalP = xmlrpc_c::value_string( varId );
       }
 };
 class ZPowMethod : public xmlrpc_c::method {
   public:
     
     ZPowMethod() {
-      this->_signature = "s:s";
+      this->_signature = "s:iss";
       this->_help = "This method returns the exponentiation of the first argument (base) by the second (exponent)"; 
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(1));
 
-        mpplas::Z op1(paramList.getString(0));
-        mpplas::Z op2(paramList.getString(1));
+        paramList.verifyEnd(3);
 
-        paramList.verifyEnd(2);
+        const mpplas::Z op1( *((mpplas::Z*)table.get(clientId, varId1)));
+        const mpplas::Z op2( *((mpplas::Z*)table.get(clientId, varId2)));
 
-        *retvalP = xmlrpc_c::value_string( (op1 ^ op2).toString() );
+
+        const std::string varId = table.set(clientId, new mpplas::Z(  op1 ^ op2 ), "Z");
+        
+        *retvalP = xmlrpc_c::value_string( varId );
+
       }
 };
 
@@ -384,89 +422,110 @@ class RAddMethod : public xmlrpc_c::method {
         *retvalP = xmlrpc_c::value_string( varId );
       }
 };
+
+
 class RSubMethod : public xmlrpc_c::method {
   public:
     
     RSubMethod() {
-      this->_signature = "s:ss";
-      this->_help = "This method substracts the second real from the first";
+      this->_signature = "s:iss";
+      this->_help = "This method substracts two reals";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        mpplas::R const op1(paramList.getString(0));
-        mpplas::R const op2(paramList.getString(1));
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
 
-        paramList.verifyEnd(2);
+        paramList.verifyEnd(3);
 
-        *retvalP = xmlrpc_c::value_string( (op1 - op2).toString() );
+          const mpplas::R op1( *((mpplas::R*)table.get(clientId, varId1)));
+          const mpplas::R op2( *((mpplas::R*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::R(op1-op2), "R");
+
+        *retvalP = xmlrpc_c::value_string( varId );
       }
 };
 class RMulMethod : public xmlrpc_c::method {
   public:
     
     RMulMethod() {
-      this->_signature = "s:ss";
+      this->_signature = "s:iss";
       this->_help = "This method multiplies two reals together";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        mpplas::R const op1(paramList.getString(0));
-        mpplas::R const op2(paramList.getString(1));
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
 
-        paramList.verifyEnd(2);
+        paramList.verifyEnd(3);
 
-        *retvalP = xmlrpc_c::value_string( (op1 * op2).toString() );
+          const mpplas::R op1( *((mpplas::R*)table.get(clientId, varId1)));
+          const mpplas::R op2( *((mpplas::R*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::R(op1 * op2), "R");
+
+        *retvalP = xmlrpc_c::value_string( varId );
       }
 };
 class RDivMethod : public xmlrpc_c::method {
   public:
     
     RDivMethod() {
-      this->_signature = "s:ss";
-      this->_help = "This method divides the first real by the second"; 
+      this->_signature = "s:iss";
+      this->_help = "This method divides two reals";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        mpplas::R const op1(paramList.getString(0));
-        mpplas::R const op2(paramList.getString(1));
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
 
-        paramList.verifyEnd(2);
+        paramList.verifyEnd(3);
 
-        *retvalP = xmlrpc_c::value_string( (op1 / op2).toString() );
+          const mpplas::R op1( *((mpplas::R*)table.get(clientId, varId1)));
+          const mpplas::R op2( *((mpplas::R*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::R(op1/op2), "R");
+
+        *retvalP = xmlrpc_c::value_string( varId );
       }
 };
-
-
-
-
-
-
-
-
 
 class RPowMethod : public xmlrpc_c::method {
   public:
     
     RPowMethod() {
-      this->_signature = "s:s";
+      this->_signature = "s:iss";
       this->_help = "This method returns the exponentiation of the first argument (base) by the second (exponent)"; 
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(1));
 
-        mpplas::R op1(paramList.getString(0));
-        mpplas::SignedDigit op2;
-        std::stringstream ss(paramList.getString(1));
-        ss >> op2;
+        paramList.verifyEnd(3);
 
-        paramList.verifyEnd(2);
+        const mpplas::R op1( *((mpplas::R*)table.get(clientId, varId1)));
+        const mpplas::Z op2( *((mpplas::Z*)table.get(clientId, varId2)));
 
-        *retvalP = xmlrpc_c::value_string( (op1 ^ op2).toString() );
+
+        const std::string varId = table.set(clientId, new mpplas::R(  op1 ^ op2 ), "R");
+        
+        *retvalP = xmlrpc_c::value_string( varId );
+
       }
 };
+
+
+
+
 
 
 
@@ -501,7 +560,7 @@ class ModExpMethod : public xmlrpc_c::method {
   public:
     
     ModExpMethod() {
-      this->_signature = "s:sss";
+      this->_signature = "s:isss";
       this->_help = "This method returns the result of the modular exponentiation (arg1 ^ arg2) MOD arg3"; 
 
       mpplas::MethodsFactory::getInstance()->getFunc(pmod);
@@ -509,15 +568,21 @@ class ModExpMethod : public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        mpplas::Z op1(paramList.getString(0));
-        mpplas::Z const op2(paramList.getString(1));
-        mpplas::Z const op3(paramList.getString(2));
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+        const std::string varId3(paramList.getString(3));
 
-        paramList.verifyEnd(3);
+        paramList.verifyEnd(4);
+
+        mpplas::Z op1( *((mpplas::Z*)table.get(clientId, varId1)));
+        const mpplas::Z op2( *((mpplas::Z*)table.get(clientId, varId2)));
+        const mpplas::Z op3( *((mpplas::Z*)table.get(clientId, varId3)));
 
         pmod->potModular(&op1,op2,op3);
+        const std::string varId = table.set(clientId, new mpplas::Z( op1 ), "Z");
         
-        *retvalP = xmlrpc_c::value_string( op1.toString() );
+        *retvalP = xmlrpc_c::value_string( varId );
       }
 
   private:
@@ -528,7 +593,7 @@ class ModInverseMethod : public xmlrpc_c::method {
   public:
     
     ModInverseMethod() {
-      this->_signature = "s:ss";
+      this->_signature = "s:iss";
       this->_help = "This method returns the result of the modular inverse (arg1 ^ -1) MOD arg2"; 
 
       mpplas::MethodsFactory::getInstance()->getFunc(pmod);
@@ -536,24 +601,27 @@ class ModInverseMethod : public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        mpplas::Z const op1(paramList.getString(0));
-        mpplas::Z const op2(paramList.getString(1));
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
 
-        paramList.verifyEnd(2);
+        paramList.verifyEnd(3);
 
-        mpplas::Z res;
-        
+        const mpplas::Z op1( *((mpplas::Z*)table.get(clientId, varId1)));
+        const mpplas::Z op2( *((mpplas::Z*)table.get(clientId, varId2)));
+
+        mpplas::Z* newInst; 
         try {
-          res = pmod->inversa(op1,op2);
+          newInst = new mpplas::Z( pmod->inversa(op1,op2) );
         }
-        catch(mpplas::Errors::NonInvertibleElement e){
-          res.hacerCero();
+        catch(const std::exception& e){
           throw(girerr::error(e.what()));
         }
-          
+
+        const std::string varId = table.set(clientId, newInst , "Z");
         
-        
-        *retvalP = xmlrpc_c::value_string( res.toString() );
+        *retvalP = xmlrpc_c::value_string( varId );
+
       }
 
   private:
@@ -569,42 +637,76 @@ class ModInverseMethod : public xmlrpc_c::method {
 /***********************************************
  ************** INTEGER MATRICES ****************
  ***********************************************/
+class MZCreate: public xmlrpc_c::method {
+  public:
+    
+    MZCreate() {
+      this->_signature = "s:is";
+      this->_help = "This method creates a new integer matrix";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        mpplas::MatrixZ* const op( new mpplas::MatrixZ(paramList.getString(1)));
+
+        paramList.verifyEnd(2);
+
+        const std::string varId(table.set(clientId, op, "MZ"));
+
+        *retvalP = xmlrpc_c::value_string(varId);
+      }
+};
 
 class MZAddMethod : public xmlrpc_c::method {
   public:
     
     MZAddMethod() {
-      this->_signature = "s:ss";
+      this->_signature = "s:iss";
       this->_help = "This method adds two integer matrices together";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        mpplas::MatrixZ const op1(paramList.getString(0));
-        mpplas::MatrixZ const op2(paramList.getString(1));
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
 
-        paramList.verifyEnd(2);
+        paramList.verifyEnd(3);
 
-        *retvalP = xmlrpc_c::value_string( (op1+op2).toString() );
+        const mpplas::MatrixZ op1( *((mpplas::MatrixZ*)table.get(clientId, varId1)));
+        const mpplas::MatrixZ op2( *((mpplas::MatrixZ*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixZ(op1+op2), "MZ");
+
+        *retvalP = xmlrpc_c::value_string( varId );
       }
+
 };
 class MZMulMethod : public xmlrpc_c::method {
   public:
     
     MZMulMethod() {
-      this->_signature = "s:ss";
+      this->_signature = "s:iss";
       this->_help = "This method multiplies two integer matrices";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        mpplas::MatrixZ const op1(paramList.getString(0));
-        mpplas::MatrixZ const op2(paramList.getString(1));
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
 
-        paramList.verifyEnd(2);
+        paramList.verifyEnd(3);
 
-        *retvalP = xmlrpc_c::value_string( (op1*op2).toString() );
+        const mpplas::MatrixZ op1( *((mpplas::MatrixZ*)table.get(clientId, varId1)));
+        const mpplas::MatrixZ op2( *((mpplas::MatrixZ*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixZ(op1*op2), "MZ");
+
+        *retvalP = xmlrpc_c::value_string( varId );
       }
+
 };
 
 
@@ -612,18 +714,20 @@ class MZPPrintMethod : public xmlrpc_c::method {
   public:
     
     MZPPrintMethod() {
-      this->_signature = "s:s";
+      this->_signature = "s:is";
       this->_help = "This method returns an alternative representation of the matrix, more human readable";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+        const int clientId(paramList.getInt(0));
+        const std::string varId(paramList.getString(1));
 
-        mpplas::MatrixZ const op1(paramList.getString(0));
-
-        paramList.verifyEnd(1);
+        const mpplas::MatrixZ* const op1( (mpplas::MatrixZ*)table.get(clientId, varId));
+        
+        paramList.verifyEnd(2);
 
         std::ostringstream oss;
-        oss << op1;
+        oss << (*op1);
 
         *retvalP = xmlrpc_c::value_string( oss.str() );
       }
@@ -650,17 +754,10 @@ class RandomZMethod : public xmlrpc_c::method {
       const int bits = paramList.getInt(1);
       paramList.verifyEnd(2);
 
-      try{
-        mpplas::Z* const op( new mpplas::Z(rnd->getInteger( bits )));
-        const std::string varId = table.set(clientId, op, "Z");
+      mpplas::Z* const op( new mpplas::Z(rnd->getInteger( bits )));
+      const std::string varId = table.set(clientId, op, "Z");
 
-        *retvalP = xmlrpc_c::value_string(varId);
-      }
-      catch( const std::exception &e ){
-        throw girerr::error( e.what() );
-      }
-
-
+      *retvalP = xmlrpc_c::value_string(varId);
     }
 
   private:
@@ -671,19 +768,24 @@ class RandomZLessThanMethod : public xmlrpc_c::method {
   public:
     
     RandomZLessThanMethod() {
-      this->_signature = "s:s";
+      this->_signature = "s:is";
       this->_help = "This method returns a random interger that is less than the given one"; 
 
       mpplas::MethodsFactory::getInstance()->getFunc(rnd);
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
 
-        mpplas::Z const op1(paramList.getString(0));
-        paramList.verifyEnd(1);
-        
-        *retvalP = xmlrpc_c::value_string( (rnd->getIntegerBounded( op1 )).toString() );
-      }
+      paramList.verifyEnd(2);
+
+      const mpplas::Z op1( *((mpplas::Z*)table.get(clientId, varId1)));
+
+      const std::string varId = table.set(clientId, new mpplas::Z( rnd->getIntegerBounded(op1)), "Z");
+
+      *retvalP = xmlrpc_c::value_string(varId);
+    }
 
   private:
     mpplas::RandomFast* rnd;
@@ -727,7 +829,7 @@ class PrimeTestMethod : public xmlrpc_c::method {
   public:
     
     PrimeTestMethod() {
-      this->_signature = "b:ii";
+      this->_signature = "b:is";
       this->_help = "This method returns true if its argument is prime"; 
 
       mpplas::MethodsFactory::getInstance()->getFunc(primeTest);
@@ -735,14 +837,14 @@ class PrimeTestMethod : public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        const int clientId(paramList.getInt(0));
-        const std::string varId(paramList.getString(1));
-        paramList.verifyEnd(2);
+      const int clientId(paramList.getInt(0));
+      const std::string varId(paramList.getString(1));
+      paramList.verifyEnd(2);
 
-          const mpplas::Z op( *((mpplas::Z*)table.get(clientId, varId)));
-        
-        *retvalP = xmlrpc_c::value_boolean( primeTest->esPrimo( op ) );
-      }
+      const mpplas::Z op( *((mpplas::Z*)table.get(clientId, varId)));
+
+      *retvalP = xmlrpc_c::value_boolean( primeTest->esPrimo( op ) );
+    }
 
   private:
     mpplas::TestPrimoProb* primeTest;
@@ -753,9 +855,9 @@ class PrimeTestMethod : public xmlrpc_c::method {
  ***********************************************/
 class GCDMethod : public xmlrpc_c::method {
   public:
-    
+
     GCDMethod() {
-      this->_signature = "s:ss";
+      this->_signature = "s:iss";
       this->_help = "This method returns a the greatest common divisor of both integer arguments"; 
 
       mpplas::MethodsFactory::getInstance()->getFunc(gcd);
@@ -763,14 +865,22 @@ class GCDMethod : public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-        mpplas::Z const op1(paramList.getString(0));
-        mpplas::Z const op2(paramList.getString(1));
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const std::string varId2(paramList.getString(2));
+      paramList.verifyEnd(3);
 
-        paramList.verifyEnd(2);
-
-        
-        *retvalP = xmlrpc_c::value_string( (gcd->gcd(op1,op2)).toString() );
+      const mpplas::Z op1( *((mpplas::Z*)table.get(clientId, varId1)));
+      const mpplas::Z op2( *((mpplas::Z*)table.get(clientId, varId2)));
+ 
+      try{
+        const std::string varId = table.set(clientId, new mpplas::Z(gcd->gcd(op1,op2)), "Z");
+        *retvalP = xmlrpc_c::value_string( varId );
       }
+      catch(const std::exception& e){
+        throw(girerr::error(e.what()));
+      }
+    }
 
   private:
     mpplas::GCD* gcd;
@@ -781,9 +891,9 @@ class GCDMethod : public xmlrpc_c::method {
  ***********************************************/
 class CRTMethod : public xmlrpc_c::method {
   public:
-    
+
     CRTMethod() {
-      this->_signature = "s:AA";
+      this->_signature = "s:iAA";
       this->_help = "This method returns the modular eq. system defined by the two arrays of integers given";
 
       mpplas::MethodsFactory::getInstance()->getFunc(crt);
@@ -791,22 +901,29 @@ class CRTMethod : public xmlrpc_c::method {
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
 
-      std::vector<xmlrpc_c::value> y = paramList.getArray(0);
-      std::vector<xmlrpc_c::value> m = paramList.getArray(1);
+      const int clientId(paramList.getInt(0));
+      std::vector<xmlrpc_c::value> y = paramList.getArray(1);
+      std::vector<xmlrpc_c::value> m = paramList.getArray(2);
 
-      paramList.verifyEnd(2);
+      paramList.verifyEnd(3);
       if ( y.size() != m.size() ){
-          throw(girerr::error("Array parameters for the CRT should have the same length"));
+        throw(girerr::error("Array parameters for the CRT should have the same length"));
       }
 
       mpplas::MiVec<mpplas::Z> yZ, mZ;
       for( int i = 0; i < y.size(); i++ ){ //both 
-
         yZ.push_back( mpplas::Z(( xmlrpc_c::value_string(y[i]) ) ));
         mZ.push_back( mpplas::Z(( xmlrpc_c::value_string(m[i]) ) ));
       }
+      
+      try{
+        const std::string varId = table.set(clientId, new mpplas::Z( crt->crt(yZ, mZ) ), "Z");
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+      catch(const std::exception& e){
+        throw(girerr::error(e.what()));
+      }
 
-      *retvalP = xmlrpc_c::value_string( (crt->crt(yZ, mZ)).toString() );
     }
 
   private:
@@ -847,6 +964,9 @@ class SysInfoMethod : public xmlrpc_c::method {
 
       std::pair<std::string, xmlrpc_c::value> isOpenMPEnabled("OpenMPEnabled", 
           xmlrpc_c::value_boolean( mpplas::SystemInfo::isOpenMPEnabled() ));
+
+      std::pair<std::string, xmlrpc_c::value> maxNumOfThreads("MaxNumberOfThreads", 
+          xmlrpc_c::value_int( mpplas::SystemInfo::getMaxNumberOfThreads() ));
 
       std::pair<std::string, xmlrpc_c::value> isReleaseVersion("ReleaseVersion", 
           xmlrpc_c::value_boolean( mpplas::SystemInfo::isReleaseVersion() ));
@@ -897,6 +1017,7 @@ class SysInfoMethod : public xmlrpc_c::method {
       structData.insert(optimizationLevel );
       structData.insert(isProfilingEnabled );
       structData.insert(isOpenMPEnabled );
+      structData.insert(maxNumOfThreads);
       structData.insert(isReleaseVersion );
       structData.insert(simdKernel );
       structData.insert(compilerCmd );
@@ -952,12 +1073,10 @@ class GetProfilingResultsMethod: public xmlrpc_c::method {
     GetProfilingResultsMethod() {
       this->_signature = "A:i";
       this->_help = "This method returns an array containing the profiling counters"
-       "for each thread.";
+        "for each thread.";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const retvalP) {
-
-
       paramList.verifyEnd(1); //clientId isn't used
       std::vector<xmlrpc_c::value> threadsArray;
 
@@ -965,12 +1084,12 @@ class GetProfilingResultsMethod: public xmlrpc_c::method {
       for( int i = 0; i < mpplas::SystemInfo::getMaxNumberOfThreads(); i++){
         const mpplas::ProfResult& profForThreadN( prof[i] );
         std::map<std::string, xmlrpc_c::value> threadResults;
-        
+
         for( int j=0; j < mpplas::BasicCPU::__OpsEnum_SIZE; j++ ){
           const std::pair<std::string, xmlrpc_c::value> opTmp(
               mpplas::BasicCPU::OpsNames[j], 
               xmlrpc_c::value_int( profForThreadN[j] )
-          );
+              );
           threadResults.insert( opTmp );
         }
         threadsArray.push_back(xmlrpc_c::value_struct(threadResults));
@@ -1042,6 +1161,7 @@ int main(int const, const char ** const) {
     xmlrpc_c::methodPtr const ModExpMethodP(new ModExpMethod);
     xmlrpc_c::methodPtr const ModInverseMethodP(new ModInverseMethod);
 
+
     xmlrpc_c::methodPtr const RandomZMethodP(new RandomZMethod);
     xmlrpc_c::methodPtr const RandomZLessThanMethodP(new RandomZLessThanMethod);
 
@@ -1093,8 +1213,10 @@ int main(int const, const char ** const) {
 
     myRegistry.addMethod("zFactorial", ZFactorialMethodP);
 
+    xmlrpc_c::methodPtr const MZCreateP(new MZCreate);
     xmlrpc_c::methodPtr const MZAddMethodP(new MZAddMethod);
     xmlrpc_c::methodPtr const MZMulMethodP(new MZMulMethod);
+    myRegistry.addMethod("mzCreate", MZCreateP);
     myRegistry.addMethod("mzAdd", MZAddMethodP);
     myRegistry.addMethod("mzMul", MZMulMethodP);
 
@@ -1118,7 +1240,7 @@ int main(int const, const char ** const) {
 
     myRegistry.addMethod("crt", CRTMethodP);
 
-    myRegistry.addMethod("systemInfo", SysInfoMethodP);
+    myRegistry.addMethod("getSystemInfo", SysInfoMethodP);
 
 
     myRegistry.addMethod("startProfClock", 
@@ -1156,7 +1278,7 @@ int main(int const, const char ** const) {
     // xmlrpc_c::serverAbyss.run() never returns
     assert(false);
   } catch (std::exception const& e) {
-      std::cerr << "Something failed.  " << e.what() << std::endl;
-    }
-    return 0;
+    std::cerr << "Something failed.  " << e.what() << std::endl;
+  }
+  return 0;
 }

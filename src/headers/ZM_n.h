@@ -6,6 +6,7 @@
 #define __ZM_N_H
 
 #include "Z.h"
+#include "Z_n.h"
 
 namespace mpplas{
 
@@ -21,8 +22,7 @@ namespace mpplas{
    * @Warning This type can only be used with odd modulus.
    *
    * */
-  class ZM_n : public Z
-  {
+  class ZM_n : public Z {
     public: 
       /** Constructor given the modulus \f$n\f$.
        *
@@ -35,7 +35,8 @@ namespace mpplas{
       explicit ZM_n( const Z& mod);
 
       ZM_n( const Z& num, const Z& mod);
-      ZM_n( const ZM_n& otro);
+      ZM_n( const Z_n& src);
+      ZM_n( const ZM_n& src);
 
 
       ZM_n& operator=(const Z&);

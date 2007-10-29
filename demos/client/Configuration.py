@@ -80,3 +80,14 @@ class Configuration(object):
   clientFilename = property( fget = _getClientFilename )
 
 
+  ######################################
+
+  def _getGCThreshold(self):
+    return int(self.__config.get('CLIENT', 'GCThreshold'))
+
+
+  GCThreshold = property( fget = _getGCThreshold )
+
+
+
+  ######################################

@@ -88,9 +88,9 @@ namespace mpplas{
     template<>
       inline void Div<int8xSIMD_t>(SIMDDigit<int8xSIMD_t>& out,const SIMDDigit<int8xSIMD_t>& arg1, const SIMDDigit<int8xSIMD_t>& arg2){
         // not supported. ad-hoc method
-        const int16_t* const a( (const int16_t* const)(&(arg1.data)) );
-        const int16_t* const b( (const int16_t* const)(&(arg2.data)) );
-        int16_t* const c( (int16_t* const)(&(out.data)) );
+        int16_t* a( (int16_t* )(&(arg1.data)) );
+        int16_t* b( (int16_t* )(&(arg2.data)) );
+        int16_t* c( (int16_t* )(&(out.data)) );
 
         for( int i = 0; i < 8 ; ++i){
           c[i] = a[i] / b[i];

@@ -187,7 +187,7 @@ namespace mpplas{
 
         /** Number of basic elements per SIMDDigit */
     template<typename SIMDTYPE>
-        inline const short getElementsPerSIMDDigit();
+        inline short getElementsPerSIMDDigit();
       
   } /* namespace SIMDCPU */
 } /* namespace mpplas */

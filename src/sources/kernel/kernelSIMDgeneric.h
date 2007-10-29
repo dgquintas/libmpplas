@@ -11,7 +11,7 @@ namespace mpplas{
   namespace SIMDCPU{ 
  
     template<typename T> 
-      const short getElementsPerSIMDDigit(){
+      short getElementsPerSIMDDigit(){
         typedef typename SIMDDigit<T>::BasicType BasicType;
         return (sizeof(T)/sizeof(BasicType));
       }

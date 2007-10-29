@@ -32,7 +32,7 @@ int main(){
 
   baseOrig = rnd->getInteger(2048);
   exp =  rnd->getInteger(5120);
-  mod = prime->leerPrimoProb(1500);
+  mod = prime->getPrime(1500);
 
 
   cout << "BLA"<<endl;

@@ -19,6 +19,7 @@ int main(){
   cout << mat1 * mat2 << endl;
   cout << mat3 * mat4 << endl;
 
+  cout << mat1.toString()  << endl;
 
   return 0;
 }

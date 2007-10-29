@@ -1,7 +1,6 @@
-
-#include "omp_mock.h"
-
-#include <algorithm>
+/* 
+ * $Id$
+ */
 
 //////////////////////////////////////////
 //   IMPLEMENTATION
@@ -448,6 +447,7 @@ T Matrix<T, Alloc>::getDeterminant(){
 
 template<typename T, typename Alloc>
 void Matrix<T, Alloc>::setDiagonal(const T& n){
+#undef min //pari lib might interfere
   const int diagElems( std::min( this->getRows(), this->getColumns() ) );
 
   typename mpplas::MiVec<T, Alloc>::iterator it( _data.begin() );
@@ -535,26 +535,26 @@ void Matrix<T, Alloc>::setDimensions(const Dimensions& dims){
 }
 
 
+
 template<typename T, typename Alloc>
 std::string Matrix<T, Alloc>::toString() const { 
   const int _n = _dims.getRows();
   const int _m = _dims.getColumns();
 
-  std::string res("[ ");
+  std::ostringstream oss;
+  oss << "[ ";
   for(int i=0; i < _n; i++){
     for(int j=0; j < _m; j++){
-      std::ostringstream oss;
       oss << (this->operator()(i,j));
-      res += oss.str();
-      res += " ";
+      oss << " ";
     }
     if( i != _n-1){
-      res += "; ";
+      oss << "; ";
     }
   }
-  res += " ]";
+  oss << " ]";
 
-  return res;
+  return oss.str();
 }
 
 
@@ -717,6 +717,7 @@ std::ostream& operator<<(std::ostream& out, const Matrix<T, Alloc>& m){
   for(int i=0; i < m._data.size(); i++){
     oss.str("");
     oss << m._data[i];
+#undef max //pari lib might interfere
     maxWidth[i % COLS] = std::max(oss.str().size()+2, maxWidth[i % COLS]);
   }
 
@@ -844,7 +845,6 @@ namespace MatrixHelpers{
       //just for performance reasons
       T Qs[qsSize*7];
 
-      memset(Qs, 0, qsSize*7*sizeof(T));
       _generateQs(Qs, A, B, halfRowsA, halfColsA, halfColsB, strideA, strideB);
       
       const T* const Q0(Qs); 

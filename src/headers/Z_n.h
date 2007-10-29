@@ -7,13 +7,9 @@
 
 #include "Z.h"
 
-
 namespace mpplas{
-  
-  
   /** Clase para la representación de enteros modulares */
-  class Z_n : public Z
-  {
+  class Z_n : public Z, public Ring<Z_n> {
 
     public:
       /** Constructor de \f$Z_n\f$ dado \f$n\f$.
@@ -74,6 +70,12 @@ namespace mpplas{
       Z_n& operator=(const Z&);
       Z_n& operator=(const Z_n&);
       
+      Z_n& operator+=(const Z_n& rhs);
+      Z_n& operator-=(const Z_n& rhs);
+      Z_n& operator*=(const Z_n& rhs);
+      Z_n& operator/=(const Z_n& rhs);
+
+
       
       Z_n& operator+=(const Z&);
       Z_n& operator-=(const Z&);
@@ -90,8 +92,6 @@ namespace mpplas{
       Z_n& operator*=(const Digit);
       Z_n& operator/=(const Digit);
 
-      Z_n& operator^=(const Digit e);
-      Z_n& operator^=(const SignedDigit e);
       Z_n& operator^=(const Z& e);
    
       Z_n& inverse();
@@ -99,11 +99,47 @@ namespace mpplas{
       Z_n& cuadrado(void);
       
       //funciones de informacion
-      inline const Z& modulo(void) const { return n_; }
+      inline const Z& getMod() const { return n_; }
 
-      ~Z_n(){};
 
-    private:
+//      virtual std::string toString() const;
+
+     
+    /* Ring and Group methods */
+      static Z_n ZERO;
+      static Z_n ONE;
+
+      static const bool addCommutative;
+      static const bool groupCyclic;
+
+      static const bool unitaryRing;
+      static const bool multCommutative;
+      static const bool multAssociative;
+      static const bool divisionRing;
+
+
+      static const Z_n& getMultIdentity() {
+        return Z_n::ONE ;
+      };
+      static const Z_n& getAddIdentity() {
+        return Z_n::ZERO;
+      };
+      Z_n getAddInverse() const{
+        Z_n tmp(*this);
+        tmp.cambiarSigno();
+        return tmp;
+      };
+      static const Z_n& getGroupGenerator() {
+        return Z_n::ONE;
+      }
+      const Z& getCharacteristic() const {
+        return n_;
+      }
+
+
+      virtual ~Z_n(){};
+
+    protected:
       Z n_; //el modulo reductor
     
     /** Operador obtencion del número */
@@ -112,10 +148,10 @@ namespace mpplas{
   };
 
  
-//  Z_n operator+(Z_n, const Z_n&);
-//  Z_n operator-(Z_n, const Z_n&);
-//  Z_n operator*(Z_n, const Z_n&);
-//  Z_n operator/(Z_n, const Z_n&);
+  Z_n operator+(Z_n, const Z_n&);
+  Z_n operator-(Z_n, const Z_n&);
+  Z_n operator*(Z_n, const Z_n&);
+  Z_n operator/(Z_n, const Z_n&);
 
   Z_n operator+(Z_n, const Z&);
   Z_n operator-(Z_n, const Z&);

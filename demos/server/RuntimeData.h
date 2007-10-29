@@ -19,29 +19,22 @@ class NoSuchVariable : public std::invalid_argument
     {}
 };
 
-//class GenericRuntimeData {
-//  public:
-//    typedef std::string varId_t;
-//    typedef int clientId_t;
-//
-//    virtual void runGC(const clientId_t clientId, const std::vector<varId_t>& usedSlots) = 0;
-//
-//};
 
+typedef int clientId_t;
 template<typename T>
-//class RuntimeData : public GenericRuntimeData {
 class RuntimeData {
 
   public:
     RuntimeData();
     typedef std::string varId_t;
-    typedef int clientId_t;
 
     typedef std::map<varId_t    /* varId */, T > ClientVarsType;
     typedef std::map<clientId_t /* clientId */,  ClientVarsType > TableType;
     
     T& get(const clientId_t clientId, const varId_t varId) throw(NoSuchVariable) ;
     varId_t set(const clientId_t clientId, const T& instance, const std::string typeStr);
+
+    void eraseClient(const clientId_t clientId);
 
     void runGC(const clientId_t clientId, const std::vector<varId_t>& usedSlots);
 

@@ -35,6 +35,25 @@ template<typename T>
   }
 
 template<typename T>
+void RuntimeData<T>::eraseClient(const clientId_t clientId){
+
+  pthread_mutex_lock( &_mutex );
+  ClientVarsType& varIds( _dataTable[clientId] );
+  typename ClientVarsType::iterator toDeleteIt;
+  for(toDeleteIt = varIds.begin(); toDeleteIt != varIds.end(); toDeleteIt++){
+    delete (*toDeleteIt).second;
+    std::cout << "cleared " << (*toDeleteIt).first << std::endl;
+  }
+
+  _dataTable.erase(clientId);
+  pthread_mutex_unlock( &_mutex );
+
+  std::cout << "clientId " << clientId << " deleted\n" 
+    << "table size now: " << _dataTable.size() << std::endl;
+
+}
+
+template<typename T>
 void RuntimeData<T>::runGC(const clientId_t clientId, const std::vector<varId_t>& usedSlots){
   pthread_mutex_lock( &_mutex );
   ClientVarsType newClientVars;

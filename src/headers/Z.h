@@ -22,7 +22,7 @@
 namespace mpplas
 {
   /** Clase para la representación de enteros. */
-  class Z  : public Ring<Z,false /* not a division ring */>, public MPPDataType
+  class Z  : public Ring<Z>, public MPPDataType
   {
 
     public:
@@ -1031,12 +1031,7 @@ namespace mpplas
       //      CONVERSION METHODS     //
       /////////////////////////////////
 
-      /** Get a text representation of the integer.
-       *
-       * @return A constant char[] representing the base-10 conversion of *this
-       */
       virtual std::string toString() const;
-
 
       /** Get the Z as a single precision signed type.
        *
@@ -1071,7 +1066,7 @@ namespace mpplas
 
       
       //destructor
-      ~Z();
+      virtual ~Z();
 
       /////////////////////////////////
       //   FUNCIONES DE INFORMACIÓN  //
@@ -1200,43 +1195,48 @@ namespace mpplas
       }
 
 
+
+
+
+
+      static Z gcd(const Z& u, const Z& v, Z* const s = NULL, Z* const t = NULL);
+
+
+
+
+
       /** TODO */
       static Z ZERO;
       static Z ONE;
 
       /* Ring and Group methods */
-        static bool isUnitaryRing(){
-          return true;
-        };
-        static const Z& getMultIdentity() {
-          return ONE ;
-        };
+        static const bool addCommutative;
+        static const bool groupCyclic;
 
-        static bool isMultCommutative() {
-          return true;
-        }
-        static bool isMultAssociative() {
-          return true;
-        }
+        static const bool unitaryRing;
+        static const bool multCommutative;
+        static const bool multAssociative;
+        static const bool divisionRing;
 
-
-
-        static const Z& getGroupIdentity() {
+        static const Z& getAddIdentity() {
           return ZERO;
         };
-        Z getGroupInverse()  const{
+        Z getAddInverse()  const{
           Z tmp(*this);
           tmp.cambiarSigno();
           return tmp;
         };
-
-        static bool isGroupCyclic() {
-          return true;
-        }
-
         static const Z& getGroupGenerator() {
           return ONE;
         }
+        static const Z& getMultIdentity() {
+          return ONE ;
+        }; 
+        const Z& getCharacteristic() const {
+          return Z::ZERO;
+        }
+
+
 
 
 

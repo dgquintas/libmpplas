@@ -1,5 +1,6 @@
 #include "Profiling.h"
 #include "BasicTypedefs.h"
+#include "omp_mock.h"
 
 aspect ProfilingTrace {
   

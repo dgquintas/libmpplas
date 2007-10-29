@@ -26,8 +26,7 @@ namespace mpplas{
    * This is called from within the auto_ptr mecanisms, presumably when the 
    * program is about to finish.
    */
-  MethodsFactory::~MethodsFactory()
-  { 
+  MethodsFactory::~MethodsFactory() { 
     std::map<std::string, AbstractMethod* >::iterator it;
     for(it = _methods.begin(); it != _methods.end(); it++){
       delete (*it).second;

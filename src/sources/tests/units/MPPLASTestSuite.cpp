@@ -16,6 +16,7 @@ MPPLASTestSuite::MPPLASTestSuite() {
   addTestUnit(_primesTest);
   addTestUnit(_kernelTest);
   addTestUnit(_zTest);
+  addTestUnit(_zxTest);
 	addTestUnit(_z_nTest);
 	addTestUnit(_zM_nTest);
   addTestUnit(_matrixZTest);

@@ -52,6 +52,7 @@ if not myenv.GetOption('clean'):
 moduleFiles = Split("""
     KernelTest.cpp
     ZTest.cpp
+    ZxTest.cpp
     Z_nTest.cpp
     ZM_nTest.cpp
     RSATest.cpp

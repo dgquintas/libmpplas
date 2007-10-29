@@ -441,7 +441,7 @@ void Z_nTest::testExponentiationWithSignedDigit(){
   delete this->modularInteger;
   this->modularInteger = new Z_n(rnd->getInteger(1234), modulus);
 
-  Z_n res = (*modularInteger) ^ cifraSigno ;
+  Z_n res = (*modularInteger) ^ Z(cifraSigno) ;
 
   ostringstream oss;
   oss << cifraSigno;
@@ -458,7 +458,7 @@ void Z_nTest::testExponentiationWithSignedDigit(){
   string pariStr(GENtostr( pariRes ));
   string thisStr = res.toString();
 
-  qassertTrue(pariStr == thisStr );
+  qassertEquals(thisStr, pariStr);
 }
 void Z_nTest::testExponentiationWithSignedDigitThrows(){
   //make sure the modulus isn't coprime with the base
@@ -471,7 +471,6 @@ void Z_nTest::testExponentiationWithSignedDigitThrows(){
   catch(exception& e){
     cerr << e.what() << endl;
   }
-
 
   qassertTrue(false);
 

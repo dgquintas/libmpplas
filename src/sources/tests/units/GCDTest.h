@@ -27,6 +27,7 @@ namespace com_uwyn_qtunit{
     /* The actual tests */
     void testGCDLehmer();
     void testGCDExtBinario();
+    void testGCDList();
 
     Z z1,z2;
 

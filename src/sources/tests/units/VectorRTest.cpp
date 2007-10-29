@@ -3,7 +3,6 @@
  */
 
 #include "VectorRTest.h"
-#include "err.h"
 #include <iostream>
 
 

@@ -183,7 +183,7 @@ void ZM_nTest::testSquare(){
 
 void ZM_nTest::testInverse(){
 
-  GCD::DFL gcd;
+  GCD<Z>::DFL gcd;
   while( !gcd.gcd( modularInteger->toZ(), modularInteger->getMod() ).esUno() ){
     modulus = rnd->getInteger(brand(500,1000));
     if( modulus.esPar() ){

@@ -6,6 +6,7 @@
 #define __MPPLASTESTSUITE_H
 
 #include "ZTest.h"
+#include "ZxTest.h"
 #include "Z_nTest.h"
 #include "ZM_nTest.h"
 #include "KernelTest.h"
@@ -32,6 +33,7 @@ namespace com_uwyn_qtunit
 	
 	private:
 		ZTest _zTest;
+		ZxTest _zxTest;
     Z_nTest _z_nTest;
     ZM_nTest _zM_nTest;
     KernelTest _kernelTest;

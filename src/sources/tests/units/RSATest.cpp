@@ -6,6 +6,7 @@
 #include "RSATest.h"
 #include "MethodsFactory.h"
 #include "Z.h"
+#include "Z_n.h"
 #include "Random.h"
 #include "Primos.h"
 #include "GCD.h"
@@ -56,14 +57,14 @@ void RSATest::testRSA(){
  
   //se busca una clave de encriptacion coprima con phi, como define
   //el algoritmo
-  GCD* gcd; funcs->getFunc(gcd);
-  PotModular* potMod; funcs->getFunc(potMod);
+  GCD<Z>* gcd; funcs->getFunc(gcd);
+  Exponentiation<Z_n>* potMod; funcs->getFunc(potMod);
   do{
     e = genRandom->getIntegerBounded(n);
   } while( !(gcd->gcd(e,phi).esUno()) );
 
   //y la clave de desencriptacion la inversa de "e" modulo "phi"
-  d = potMod->inversa(e,phi);
+  d = potMod->inverse(e,phi);
   
   // y se lee lo que se quiere encriptar.
   // OJO!! no meter mas bits que la longitud de n. Obviamente 
@@ -76,12 +77,12 @@ void RSATest::testRSA(){
   m.leerBytes(sourceString.begin(), sourceString.end());
 
   // se encripta con la exponenciacion modular 
-  Z c;
-  c = potMod->potModular(m,e,n);
+  Z_n c(m,n);
+  potMod->exponentiation(&c,e);
  
   // y el entero que representa el mensaje desencriptado
-  Z mdesc;
-  mdesc = potMod->potModular(c,d,n);
+  Z_n mdesc(c,n);
+  potMod->exponentiation(&mdesc,d);
   
   const int tam = (mdesc.getBitLength() >> 3)+1;
   resString.resize(tam);

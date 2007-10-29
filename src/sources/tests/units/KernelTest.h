@@ -8,7 +8,6 @@
 #include "qtunit/TestCase.h"
 #include <string>
 #include "Z.h"
-#include "err.h"
 #include "BasicTypedefs.h"
 
 using namespace mpplas;
@@ -43,7 +42,7 @@ namespace com_uwyn_qtunit{
       Digit one;
       Digit two;
       Digit three;
-      Digit zero;
+      Digit zro;
 
       Digit overflow;
       Digit resto;

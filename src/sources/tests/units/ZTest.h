@@ -8,7 +8,6 @@
 #include "qtunit/TestCase.h"
 #include <string>
 #include "Z.h"
-#include "err.h"
 #include "MethodsFactory.h"
 #include "Random.h"
 

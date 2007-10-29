@@ -8,7 +8,6 @@
 
 #include <string>
 #include "Z.h"
-#include "err.h"
 #include "Random.h"
 #include "MethodsFactory.h"
 

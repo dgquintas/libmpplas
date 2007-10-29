@@ -29,7 +29,7 @@ void KernelTest::setUp(){
   one = (Digit)1;
   two = (Digit)2;
   three = (Digit)3;
-  zero = (Digit)0;
+  zro = (Digit)0;
 
   overflow = resto = 0;
 
@@ -45,14 +45,14 @@ void KernelTest::tearDown(){
 
 void KernelTest::testAdd(){
   qassertTrue( three == BasicCPU::Add(one,two, overflow) );
-  qassertTrue( zero == BasicCPU::Add(Constants::CIFRA_MAX, one, overflow) );
+  qassertTrue( zro == BasicCPU::Add(Constants::CIFRA_MAX, one, overflow) );
   qassertTrue( one == overflow );
 }
 
 void KernelTest::testAddx(){
   const Digit CM = Constants::CIFRA_MAX;
-  qassertTrue( zero ==BasicCPU::Addx(CM, one, overflow) );
-  qassertTrue( one == BasicCPU::Addx(zero,zero, overflow) );
+  qassertTrue( zro ==BasicCPU::Addx(CM, one, overflow) );
+  qassertTrue( one == BasicCPU::Addx(zro,zro, overflow) );
   qassertTrue( CM-1 == BasicCPU::Addx(CM,CM, overflow) );
   qassertTrue( one == overflow );
 
@@ -60,36 +60,36 @@ void KernelTest::testAddx(){
 
 void KernelTest::testSub(){ 
     qassertTrue(two == BasicCPU::Sub(three, one, overflow) );
-  qassertTrue( zero == overflow );
+  qassertTrue( zro == overflow );
 
   qassertTrue( one == BasicCPU::Sub(three, two, overflow) );
-  qassertTrue( zero == overflow );
+  qassertTrue( zro == overflow );
 
 
-  qassertTrue( zero == BasicCPU::Sub(three, three, overflow) );
-  qassertTrue( zero == overflow );
+  qassertTrue( zro == BasicCPU::Sub(three, three, overflow) );
+  qassertTrue( zro == overflow );
 
-  qassertTrue( Constants::CIFRA_MAX == BasicCPU::Sub(zero, one, overflow) );
+  qassertTrue( Constants::CIFRA_MAX == BasicCPU::Sub(zro, one, overflow) );
   qassertTrue( one == overflow );
 }
 
 void KernelTest::testSubx(){
   qassertTrue( one == BasicCPU::Subx(three, two, overflow) );
-  qassertTrue( zero == overflow);
+  qassertTrue( zro == overflow);
 
-  qassertTrue( zero == BasicCPU::Subx(three, three, overflow) );
-  qassertTrue( zero ==  overflow );
+  qassertTrue( zro == BasicCPU::Subx(three, three, overflow) );
+  qassertTrue( zro ==  overflow );
   
 //  qassertTrue( (Digit)(Constants::CIFRASIGNO_MAX)+1 == BasicCPU::Sub(Constants::CIFRA_MAX, (Digit)Constants::CIFRASIGNO_MAX) );
-//  qassertTrue( zero ==  overflow );
+//  qassertTrue( zro ==  overflow );
 
-  qassertTrue( Constants::CIFRA_MAX == BasicCPU::Sub(zero, one, overflow) );
+  qassertTrue( Constants::CIFRA_MAX == BasicCPU::Sub(zro, one, overflow) );
   qassertTrue( one ==  overflow );
 
-  qassertTrue( zero == BasicCPU::Subx(three, two, overflow) );
-  qassertTrue( zero ==  overflow );
+  qassertTrue( zro == BasicCPU::Subx(three, two, overflow) );
+  qassertTrue( zro ==  overflow );
 
-  qassertTrue( Constants::CIFRA_MAX == BasicCPU::Sub(zero, one, overflow) );
+  qassertTrue( Constants::CIFRA_MAX == BasicCPU::Sub(zro, one, overflow) );
   qassertTrue( one ==  overflow );
 
   qassertTrue( Constants::CIFRA_MAX == BasicCPU::Subx(two, two, overflow) );
@@ -97,7 +97,7 @@ void KernelTest::testSubx(){
 }
 
 void KernelTest::testMul(){
-  qassertTrue( zero == BasicCPU::Mul(one, zero, resto) );
+  qassertTrue( zro == BasicCPU::Mul(one, zro, resto) );
 
   qassertTrue( one == BasicCPU::Mul(Constants::CIFRA_MAX, Constants::CIFRA_MAX, resto) );
   qassertTrue( Constants::CIFRA_MAX - 1 /* base -2 */ ==  resto );
@@ -105,7 +105,7 @@ void KernelTest::testMul(){
 void KernelTest::testAddmul(){
   BasicCPU::Mul(Constants::CIFRA_MAX, Constants::CIFRA_MAX, resto);
   //  resto  == BASE-2
-  qassertTrue( Constants::CIFRA_MAX-1 == BasicCPU::Addmul( zero, one, resto ) );
+  qassertTrue( Constants::CIFRA_MAX-1 == BasicCPU::Addmul( zro, one, resto ) );
 
   resto = 0;
 
@@ -114,15 +114,15 @@ void KernelTest::testAddmul(){
 }
 
 void KernelTest::testDiv(){
-  //shouldn't try to divide by zero
+  //shouldn't try to divide by zro
   qassertTrue( three == BasicCPU::Div(three, one, resto) );
 
 
-  qassertTrue( zero == BasicCPU::Div(one, two, resto) ); 
+  qassertTrue( zro == BasicCPU::Div(one, two, resto) ); 
   qassertTrue( one ==  resto ); 
   
-  qassertTrue( (Constants::CIFRA_MAX/2) +1 == BasicCPU::Div(zero, two, resto) ); 
-  qassertTrue( zero ==  resto );
+  qassertTrue( (Constants::CIFRA_MAX/2) +1 == BasicCPU::Div(zro, two, resto) ); 
+  qassertTrue( zro ==  resto );
 }
 
 void KernelTest::testShiftl(){
@@ -131,7 +131,7 @@ void KernelTest::testShiftl(){
   tmp <<= Constants::BITS_EN_CIFRA-1;
   qassertTrue( tmp == BasicCPU::Shiftl(one, Constants::BITS_EN_CIFRA-1, resto));
 
-  qassertTrue( zero == BasicCPU::Shiftl(two, Constants::BITS_EN_CIFRA-1, resto));
+  qassertTrue( zro == BasicCPU::Shiftl(two, Constants::BITS_EN_CIFRA-1, resto));
   qassertTrue( (Digit)1 ==  resto);
 }
 
@@ -142,7 +142,7 @@ void KernelTest::testShiftlr(){
   qassertTrue( tmp ==  resto);
 
   qassertTrue( one == BasicCPU::Shiftlr(two, 1, resto) );
-  qassertTrue( zero ==  resto);
+  qassertTrue( zro ==  resto);
 
 }
 
@@ -150,8 +150,8 @@ void KernelTest::testShiftlr(){
 void KernelTest::testMnob(){
   qassertTrue( (Digit)1 == BasicCPU::Mnob(one));
   qassertTrue( (Digit)2 == BasicCPU::Mnob(two));
-  qassertTrue( (Digit)1 == BasicCPU::Mnob(zero));
-  qassertTrue( (Digit)1 == BasicCPU::Mnob(zero));
+  qassertTrue( (Digit)1 == BasicCPU::Mnob(zro));
+  qassertTrue( (Digit)1 == BasicCPU::Mnob(zro));
   qassertTrue( (Digit)25== BasicCPU::Mnob((Digit)32490673));
   qassertTrue( (Digit)Constants::BITS_EN_CIFRA == BasicCPU::Mnob(Constants::CIFRA_MAX));
 

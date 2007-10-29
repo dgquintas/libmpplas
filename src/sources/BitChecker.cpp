@@ -1,4 +1,8 @@
+
+#include <cassert>
+
 #include "BitChecker.h"
+
 
 namespace mpplas{
   namespace Utils{

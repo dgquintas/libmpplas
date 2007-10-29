@@ -35,6 +35,20 @@ namespace mpplas{
     *this = _montgomeryProd(*this,_rSqr);
   }
 
+  ZM_n::ZM_n( const Z_n& num ) 
+    : _mod(num.getMod()), Z(num) 
+  {
+    _r.potenciaBase( _mod.longitud() );
+    _r %= _mod;
+    _rSqr.potenciaBase( _mod.longitud() * 2 );
+    _rSqr %= _mod;
+
+    _precomputations();
+    this->operator%=(_mod);
+    *this = _montgomeryProd(*this,_rSqr);
+  }
+
+
   ZM_n::ZM_n( const ZM_n& rhs) 
     : Z(rhs), _mod(rhs._mod), _r(rhs._r), _rSqr(rhs._rSqr), _mPrime(rhs._mPrime)
   {}
@@ -152,6 +166,7 @@ namespace mpplas{
 
 
   ZM_n& ZM_n::inverse(){
+    //FIXME : no comprueba si la inversa existe!!!
     *this = _newMontgomeryInverse(*this);
 
     return *this;
@@ -226,10 +241,10 @@ namespace mpplas{
     
     _mPrime.hacerUno();
     _mPrime.potenciaBase(1);
-    PotModular* potMod; 
+    Exponentiation<Z_n>* potMod; 
     funcs->getFunc(potMod);
 
-    _mPrime -= potMod->inversa(_mod, _mPrime); // m' = -mod^{-1} (mod base)
+    _mPrime -= potMod->inverse(_mod, _mPrime); // m' = -mod^{-1} (mod base)
 
     return;
   }

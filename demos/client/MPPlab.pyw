@@ -90,8 +90,17 @@ def main():
         del md['App']
     if md.has_key('__main__') and md['__main__'] is __main__:
         del md['__main__']
+    global clientId
     # Start the wxPython event loop.
-    app.MainLoop()
+    try:
+      app.MainLoop()
+    except:
+      pass
+    finally:
+      #cleanup
+      from RPCServer import RPCServer
+      rpcServer = RPCServer.getInstance()
+      rpcServer.getServer()._discardClientId(clientId)
 
 if __name__ == '__main__':
     import os

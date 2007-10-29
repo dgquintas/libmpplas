@@ -5,15 +5,12 @@
 #ifndef __ERRORS_H
 #define __ERRORS_H
 
-#include <iostream>
 #include <string>
 #include <stdexcept>
 #include <exception>
 
 #include "AlgebraUtils.h"
 
-//FIXME
-#define _(STRING) STRING
 
 namespace mpplas{
   /** Espacio de nombres contenedor del mecanismo de errores. */
@@ -24,8 +21,13 @@ namespace mpplas{
     class Exception: public std::exception 
     {
       public:
-        virtual ~Exception() throw()
-        {}
+        virtual const char* what(void) const throw() {
+          return _msg.c_str();
+        }
+        virtual ~Exception() throw() {}
+      protected:
+        Exception(){};
+        std::string _msg;
     };
 
     /** Base class for invalid arguments errors
@@ -36,13 +38,11 @@ namespace mpplas{
     class InvalidArgument: public Exception
     {
       public:
-        virtual const char* what(void) const throw()
-        {
-          return _("Undefined invalid argument error");
+        InvalidArgument( std::string msg = "<empty>" ){
+          _msg += "Invalid Argument error: ";
+          _msg += msg;
         }
-
         virtual ~InvalidArgument() throw() {}
-
     };
 
     /** Clase base para errores de tipo sintáctico.
@@ -51,24 +51,13 @@ namespace mpplas{
      * de entrada ">>".
      * 
      */
-    class Sintactic : public Exception
-    {
+    class Sintactic : public Exception {
       public:
-        Sintactic( std::string msg = "<empty>" )
-        {
-          _msg = "Sintactic error: ";
+        Sintactic( std::string msg = "<empty>" ){
+          _msg += "Sintactic error: ";
           _msg += msg;
         }
-        virtual const char* what(void) const throw() 
-        {
-          return _msg.c_str();
-        }
-
         virtual ~Sintactic() throw() {}
-
-      private:
-        std::string _msg;
-
     };
 
     /** Clase base para errores internos.
@@ -76,13 +65,14 @@ namespace mpplas{
      * Por ejemplo al detectar un puntero inválido, intento de acceso
      * a una posición de memoria no reservada, etc.
      * */
-    class Interno : public Exception
-    {
+    class Interno : public Exception  {
       public:
-        virtual const char* what(void) const throw()
-        {
-          return _("Undefined internal error");
-        }
+      Interno( std::string msg = "<empty>" ) {
+        _msg += "Internal error: ";
+        _msg += msg;
+      }
+
+      virtual ~Interno() throw() {}
     };
 
 
@@ -93,108 +83,94 @@ namespace mpplas{
 
     // Tipos derivados
     /** Error de división por cero */
-    class DivisionPorCero : public InvalidArgument
-    {
+    class DivisionPorCero : public InvalidArgument {
       public:
-        virtual const char* what(void) const throw() 
-        { 
-          return _("Division by zero");
-        }
+        DivisionPorCero(const std::string details = "")
+          : InvalidArgument("Division by zero; ") {
+            _msg += details;
+          }
     };
 
     /** Resultado negativo en resta sin signo */
-    class RestaNegativa : public InvalidArgument
-    {
+    class RestaNegativa : public InvalidArgument  {
       public:
-        virtual const char* what(void) const throw()
-        {
-          return _("Subtrahend is greater than the minuend at unsigned subtraction");
-        }
+        RestaNegativa(const std::string details = "")
+          : InvalidArgument("Subtrahend is greater than the minuend at unsigned subtraction; "){
+            _msg += details;
+          }
     };
 
     /** Elemento no invertible en un grupo finito */
-    class NonInvertibleElement : public InvalidArgument
-    {
+    class NonInvertibleElement : public InvalidArgument  {
       public:
-        virtual const char* what(void) const throw()
-        {
-          return _("Tried to invert an non-invertible element");
-        }
+        NonInvertibleElement(const std::string details = "")
+          : InvalidArgument("Tried to invert an non-invertible element; "){
+            _msg += details;
+          }
     };
 
-    /** Intento de potenciación de un elemento no inverbiel en un no-cuerpo */
-    class ExponenteNegativo : public InvalidArgument
-    {
+    /** Intento de potenciación de un elemento no invertible en un no-cuerpo */
+    class ExponenteNegativo : public InvalidArgument  {
       public:
-        virtual const char* what(void) const throw()
-        {
-          return _("Negative exponent on a non-invertible element");
-        }
+        ExponenteNegativo(const std::string details = "")
+          : InvalidArgument("Negative exponent on a non-invertible element; ") {
+            _msg += details;
+          }
     };
 
     /** Segundo argumento de un símbolo de Jacobi es par */
-    class ParEnSimboloJacobi : public InvalidArgument
-    {
+    class ParEnSimboloJacobi : public InvalidArgument {
       public:
-        virtual const char* what(void) const throw()
-        {
-          return _("Even element as second argument of a Jacoby Symbol");
-        }
+        ParEnSimboloJacobi(const std::string details = "")
+          : InvalidArgument("Even element as second argument of a Jacoby Symbol; "){
+            _msg += details;
+          }
     };
 
     /** Even modulus on a Montgomery reduction */
-    class ModuloParEnMontgomery : public InvalidArgument
-    {
+    class ModuloParEnMontgomery : public InvalidArgument  {
       public:
-        virtual const char* what(void) const throw()
-        {
-          return _("Even modulus on Montgomery reduction/exponentiation"); 
-        }
+        ModuloParEnMontgomery(const std::string details = "") 
+          : InvalidArgument("Even modulus on Montgomery reduction/exponentiation; "){
+            _msg += details;
+          }
     };
 
     /** Logaritmo de cero */
-    class LogaritmoDeCero : public InvalidArgument
-    {
+    class LogaritmoDeCero : public InvalidArgument  {
       public:
-        virtual const char* what(void) const throw()
-        {
-          return _("Calculation of the logarithm of zero");
-        }
+        LogaritmoDeCero(const std::string details = "") 
+          : InvalidArgument("Calculation of the logarithm of zero; "){
+            _msg += details;
+          }
+    };
+
+    /** Prime number required */
+    class PrimeRequired : public InvalidArgument{
+      public:
+        PrimeRequired( std::string details = "" )
+          : InvalidArgument("Prime number required") {
+            _msg += details;
+          }
     };
 
 
-    class NonConformantDimensions: public InvalidArgument
-    {
+    class NonConformantDimensions: public InvalidArgument  {
       public:
-        NonConformantDimensions(const Dimensions& dimsLeft, const Dimensions& dimsRight, std::string str = ""){
-          _str = "Non conformant dimensions: " + dimsLeft.toString() + " and " + dimsRight.toString() + " " + str;
+        NonConformantDimensions(const Dimensions& dimsLeft, const Dimensions& dimsRight, std::string str = "")
+          : InvalidArgument("Non conformant dimensions; ") {
+          std::string tmpStr = dimsLeft.toString() + " and " + dimsRight.toString() + " " + str;
+          _msg += tmpStr;
         }
-
-        virtual const char* what(void) const throw() {
-          return _str.c_str();
-        }
-
-        virtual ~NonConformantDimensions() throw() {}
-      private:
-        std::string _str;
     };
 
 
     class InvalidRange : public InvalidArgument {
       public:
-        InvalidRange(const std::string& str){
-          _str = "Invalid range: " + str;
+        InvalidRange(const std::string details = "")
+        : InvalidArgument("Invalid range; ") {
+          _msg += details;
         }
-
-        virtual const char* what(void) const throw() {
-          return _str.c_str();
-        }
-
-        virtual ~InvalidRange() throw() {}
-
-
-      private:
-        std::string _str;
     };
 
 
@@ -207,19 +183,10 @@ namespace mpplas{
     class InvalidSymbol: public Sintactic
     {
       public:
-        InvalidSymbol(std::string str = "<empty>"){
-          _str = "Invalid symbol: ";
-          _str += str;
+        InvalidSymbol(const std::string str = "")
+          : Sintactic("Invalid symbol; ") {
+          _msg += str;
         }
-        virtual const char* what(void) const throw()  { 
-          return _str.c_str();
-        }
-
-        virtual ~InvalidSymbol() throw() {}
-
-      private:
-        std::string _str;
-
     };
 
     ////////////////////////////////////////////
@@ -229,44 +196,40 @@ namespace mpplas{
     /** Signo inválido */
     class SignoInvalido : public Interno
     {
-      public:
-        virtual const char* what(void) const throw()
-        {
-          return _("Incorrect sign");
-        }
-
+      public: 
+        SignoInvalido(const std::string details = "")
+          : Interno("Incorrect sign; "){
+            _msg += details;
+          }
     };
 
     /** Number too big to be used in a given context */
-    class TooBig: public Interno
-    {
+    class TooBig: public Interno  {
       public:
-        virtual const char* what(void) const throw()
-        {
-          return _("Number too big");
-        }
+        TooBig(const std::string details = "")
+          : Interno("Number too big; "){
+            _msg += details;
+          }
     };
 
     /** Intento de uso de perfilado en arquitectura que no lo soporta
      * */
-    class ArchNoProfiling : public Interno
-    {
+    class ArchNoProfiling : public Interno  {
       public:
-        virtual const char* what(void) const throw()
-        {
-          return _("The current architecture does not support profiling");
-        }
+        ArchNoProfiling(const std::string details = "")
+          : Interno("The current architecture does not support profiling; "){
+            _msg += details;
+          }
     };
 
 
     /** Error en el proceso de perfilado */
-    class ErrorPerfilado : public Interno
-    {
-      public:
-        virtual const char* what(void) const throw()
-        {
-          return _("Profiling error");
-        }
+    class ErrorPerfilado : public Interno  {
+      public: 
+        ErrorPerfilado(const std::string details = "")
+          : Interno("Profiling error; "){
+            _msg += details;
+          }
     };
 
 
@@ -274,41 +237,39 @@ namespace mpplas{
     class FuenteEntropiaInvalida : public Interno
     {
       public:
-        virtual const char* what(void) const throw()
-        {
-          return _("Error while accessing the entropy source");
-        }
+        FuenteEntropiaInvalida(const std::string details = "")
+          : Interno("Error while accessing the entropy source; "){
+            _msg += details;
+          }
     };
 
 
     /** Intento de desreferenciar un puntero nulo */
-    class PunteroNulo : public Interno
-    {
+    class PunteroNulo : public Interno {
       public:
-        virtual const char* what(void) const throw()
-        {
-          return _("Null pointer error");
-        }
+        PunteroNulo(const std::string details = "")
+          : Interno("Null pointer; "){
+            _msg += details;
+          }
     };
 
     /** Exponente de reales desbordado */
-    class OverflowExpReales : public Interno
-    {
-      public:
-        virtual const char* what(void) const throw()
-        {
-          return _("The exponent for floating-point exp. overflowed");
-        }
+    class OverflowExpReales : public Interno {
+      public: 
+        OverflowExpReales(const std::string details = "")
+          : Interno("The exponent for floating-point exp. overflowed; "){
+            _msg += details;
+          }
     };
 
     /** Función no implementada */
     class NoImplementado : public Interno
     {
       public:
-        virtual const char* what(void) const throw()
-        {
-          return _("Feature not implemented");
-        }
+        NoImplementado(const std::string details = "")
+          : Interno("Feature not implemented; "){
+            _msg += details;
+          }
     };
 
 

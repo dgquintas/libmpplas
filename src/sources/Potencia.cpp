@@ -4,8 +4,6 @@
 
 
 #include "Potencia.h"
-#include "RedModular.h"
-#include "Potencia.h"
 #include "GCD.h"
 #include "DigitUtils.h"
 #include "BitChecker.h"
@@ -16,42 +14,42 @@
 
 namespace mpplas{
 
-  Potencia::Potencia()
-    : funcs(MethodsFactory::getInstance())
-  {}
-
-  Z Potencia::potencia(Z base, SignedDigit exp)
-  {
-    this->potencia(base, exp);
+  template<typename T>
+  T ExponentiationBase<T>::exponentiation(T base, const Z& exp) {
+    this->exponentiation(&base, exp);
     return base;
   }
 
 
-
-  PotModular::PotModular()
-    : funcs(MethodsFactory::getInstance())
+  Exponentiation<Z_n>::Exponentiation()
+    : funcs(MethodsFactory::getReference())
   {}
 
-  Z PotModular::potModular(Z base, const Z& exp, const Z& mod)
-  {
-    this->potModular(&base, exp, mod);
+  void Exponentiation<Z_n>::invert(Z_n* const base) const {
+    invert(base, base->getMod());
+    return;
+  }
+  Z_n Exponentiation<Z_n>::inverse(Z_n base) const {
+    invert(&base);
     return base;
   }
-
-  Z PotModular::inversa(const Z& base, const Z& mod) const {
-    Z inv;
+ 
+  void Exponentiation<Z_n>::invert(Z* const base, const Z& mod) const{
     Z temp;
-    GCDExt *gcdext; funcs->getFunc(gcdext);
-    if( !(gcdext->gcdext(base, mod, inv, temp)).esUno() ){
+    if( !(Z::gcd(*base, mod, base, &temp)).esUno() ){
       throw Errors::NonInvertibleElement();
     }
 
-    if( inv.signo() < 0 ){
-      inv += mod;
+    if( base->signo() < 0 ){
+      (*base) += mod;
     }
-
-    return inv;
   }
+
+  Z Exponentiation<Z_n>::inverse(Z base, const Z& mod) const{
+    invert(&base, mod);
+    return base;
+  }
+
   
 
 
@@ -60,11 +58,18 @@ namespace mpplas{
 
 
 
-  void PotVentanaDeslizante::potencia(Z* const base,const SignedDigit e)
-  {
-    if( e < 0 ){
+  void PotVentanaDeslizante::exponentiation(Z* const base,const Z& exp) {
+    if( base == NULL ){
+      throw Errors::PunteroNulo();
+    }
+    if( exp.isNegative() ){
       throw Errors::ExponenteNegativo();
     }
+    if( exp.longitud() > 1 ){
+      throw Errors::TooBig();
+    }
+
+    const Digit e( exp[0] );
 
     if(e == 0){
       base->hacerUno();
@@ -150,17 +155,21 @@ namespace mpplas{
     return;
   }
   
-  void PotLeftRight::potencia(Z* const base, SignedDigit exponente)
+  void PotLeftRight::exponentiation(Z* const base, const Z& exp)
   {
-    if( exponente < 0 ){
-      throw Errors::ExponenteNegativo();
-    }
-
     if( base == NULL ){
       throw Errors::PunteroNulo();
     }
+    if( exp.isNegative() ){
+      throw Errors::ExponenteNegativo();
+    }
+    if( exp.longitud() > 1 ){
+      throw Errors::TooBig();
+    }
 
-    const int t = 1+(int)floor(log2(exponente));
+    const Digit e( exp[0] );
+
+    const int t = 1+(int)floor(log2(e));
     const Z orig(*base);
     base->hacerUno();
     Digit mask( ((Digit)1) << (t+1));
@@ -168,7 +177,7 @@ namespace mpplas{
     for(int i= t; i >= 0; i--){
       mask >>= 1; // mask = 1 << i
       base->cuadrado();
-      if( exponente & mask ){
+      if( e & mask ){
         (*base) *= orig;
       }
     }
@@ -176,18 +185,16 @@ namespace mpplas{
     return;
   }
 
-  void PotMontgomery::potModular(Z* const base, const Z& e, const Z& mod)
-  {
+  void PotMontgomery::exponentiation(Z_n* const base, const Z& e) {
     if( base == NULL ){
       throw Errors::PunteroNulo();
     }
 
-    if( mod.esPar() ){ //modulo par => No puede aplicarse Montgomery
+    if( base->getMod().esPar() ){ //modulo par => No puede aplicarse Montgomery
       throw Errors::ModuloParEnMontgomery();
     }
 
-    
-    ZM_n tmp(*base, mod);
+    ZM_n tmp(*base);
     tmp ^= e;
     
     base->operator=(tmp.toZ());
@@ -198,46 +205,42 @@ namespace mpplas{
 
  ///////////////////////////////////
  
-  void ClasicoConBarrett::potModular(Z* const base, const Z& exp, const Z& mod) {
-    RedBarrett* redbarrett; funcs->getFunc(redbarrett);
-    const Z mu(redbarrett->precomputaciones(mod));
-    potModular(base, exp, mod, mu);
+  ClasicoConBarrett::ClasicoConBarrett(){
+    MethodsFactory::getReference().getFunc(redbarrett);
+  }
+ 
+  void ClasicoConBarrett::exponentiation(Z_n* const base, const Z& exp) { 
+    if( base == NULL ){
+      throw Errors::PunteroNulo();
+    }
+    const Z mu(redbarrett->precomputaciones(base->getMod()));
+    barrettStep(base, exp, mu);
     return;
   }
 
 
-  void ClasicoConBarrett::potModular(Z* const base, const Z& exp, const Z& mod, const Z& mu) const {
-    if( base == NULL ){
-      throw Errors::PunteroNulo();
-    }
-
-    RedBarrett* redbarrett; funcs->getFunc(redbarrett);
+  void ClasicoConBarrett::barrettStep(Z_n* const base, const Z& exp, const Z& mu) const {
     bool eNegativo = false;
+    const Z& mod( base->getMod() );
 
-    if( *base >= mod){
-      base->operator%=(mod);
-    }
-
-    Z e(exp);
-
-    if( e.isNegative() ){
+    if( exp.isNegative() ){
       eNegativo = true;
-      base->operator=(inversa(*base, mod));
-      e.hacerPositivo();
+      invert(base);
+//      base->operator=(inverse(*base, mod));
     }
 
-    Z valorInicial(*base);
+    const Z valorInicial(*base);
 
     base->hacerUno();
 
-    Utils::BitChecker bc(e);
+    Utils::BitChecker bc(exp);
 
     while( bc.hasPrevious() ){
       base->cuadrado();
       redbarrett->redBarrett(base, mod, mu);
 
       if( bc.checkPrevious() ){
-        base->operator*=(valorInicial); 
+        ((Z*)base)->operator*=(valorInicial); 
         redbarrett->redBarrett(base, mod,mu);
       }
     }
@@ -247,10 +250,18 @@ namespace mpplas{
 
 /**********************/
   
-  void PotVentanaDeslizanteR::potenciaR(R* base, SignedDigit e)
-  {
-    if( e < 0 )
-      throw Errors::NoImplementado();
+  void PotVentanaDeslizanteR::exponentiation(R* const base, const Z& exp) {
+    if( base == NULL ){
+      throw Errors::PunteroNulo("NULL pointer at R exponentiation");
+    }
+    if( exp.isNegative() ){
+      throw Errors::NoImplementado("Negative exponentiation for R not yet implemented");
+    }
+    if( exp.longitud() > 1 ){
+      throw Errors::TooBig("Exponent for exp. in R must be < max(Digit)");
+    }
+
+    const Digit e( exp[0] );
 
     if(e == 0){
       base->hacerUno();
@@ -277,15 +288,15 @@ namespace mpplas{
     R g2(*base);
     g2.cuadrado();
     Digit guarda = ( 1 << (k-1) ) - 1; // 2^{k-1} - 1
-    std::vector<R> ges(guarda+1); 
+    mpplas::MiVec<R> ges(guarda+1); 
 
     // guarda >= 0 ; ges.size() >= 1
-    ges.at(0) = *base; // g1
+    ges[0] = *base; // g1
 
     if( guarda >= 1 ){ //ges.size() >= 2
-      ges.at(1) = *base * g2;
+      ges[1] = *base * g2;
       for(Digit i = 2 ; i <= guarda; i++)
-        ges.at(i) = ges.at(i - 1) * g2;
+        ges[i] = ges[i - 1] * g2;
     }
 
 
@@ -335,7 +346,7 @@ namespace mpplas{
 
 //////////////////////////////////////////////////////////7
 
-  void TwoThreadedModularExp::potModular(Z* const base, const Z& exp, const Z& mod){
+  void TwoThreadedModularExp::exponentiation(Z_n* const base, const Z& exp){
     std::vector<int> diffsX;
     std::vector<int> diffsY;
 
@@ -347,12 +358,12 @@ namespace mpplas{
     _getOnePartitions( exp, diffsX, diffsY );
 
     Z powOf2Exp;
-    ZM_n tmpLeft(*base, mod);
+    ZM_n tmpLeft(*base);
     assert( diffsX.size() > 0 );
     tmpLeft ^= powOf2Exp.powerOfTwo(diffsX[0]);
     ZM_n left(tmpLeft); 
 
-    ZM_n tmpRight(*base, mod);
+    ZM_n tmpRight(*base);
     tmpRight.inverse();
     assert( diffsY.size() > 0 );
     tmpRight ^= powOf2Exp.powerOfTwo(diffsY[0]);
@@ -378,7 +389,7 @@ namespace mpplas{
 
     left *= right;
 
-    base->operator=(left.toZ());
+    ((Z*)base)->operator=(left.toZ());
   }
   
   void TwoThreadedModularExp::_getOnePartitions(const Z& e, 
@@ -423,39 +434,37 @@ namespace mpplas{
 
   //////////////////////////////////////
   
-  void MultiThreadedModularExp::potModular(Z* const base,
-      const Z& exp, const Z& mod){
+  void MultiThreadedModularExp::exponentiation(Z_n* const base, const Z& exp){
     std::vector< Z > sections;
     const int sectionSizes( _getExponentSections(exp, sections));
 
     ClasicoConBarrett potMod;
     const int numSects = sections.size();
+    const Z& mod(base->getMod());
     
-    RedBarrett* redbarrett; funcs->getFunc(redbarrett);
+    RedBarrett* redbarrett; funcs.getFunc(redbarrett);
     const Z mu(redbarrett->precomputaciones(mod));
-    Z partialAllTwos(*base);
+    Z_n partialAllTwos(*base);
 
-    potMod.potModular( &partialAllTwos, Z::getPowerOfTwo(sectionSizes), mod, mu);
-    std::vector< Z > partialResults(numSects, partialAllTwos); //pos 0 wont ever be used
+    potMod.barrettStep( &partialAllTwos, Z::getPowerOfTwo(sectionSizes), mu);
+    mpplas::MiVec< Z_n > partialResults(numSects, partialAllTwos); //pos 0 wont ever be used
 #pragma omp parallel for shared(sections, potMod,partialResults)
     for(int i = 0 ; i < numSects;  i++){
       if( i == 0 ){
-        potMod.potModular( base, sections[0], mod, mu);
+        potMod.barrettStep( base, sections[0], mu);
       }
       else{
         sections[i] <<= ((i-1)*sectionSizes) ;
         std::cout << "thread " << omp_get_thread_num() << " IN: " << sections[i].getBitLength() <<std::endl;
-        potMod.potModular( &(partialResults[i]), sections[i], mod, mu);
+        potMod.barrettStep( &(partialResults[i]), sections[i], mu);
       }
     }
 
 
     for(int i = 1 ; i < numSects;  i++){
-      (*base) *= partialResults[i];
+      ((Z*)base)->operator*=(partialResults[i]);
     }
-
-    (*base) %= mod;
-
+    ((Z*)base)->operator%=(mod);
   }
 
 

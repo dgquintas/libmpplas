@@ -9,8 +9,11 @@
 
 #include "R.h"
 #include "Z.h"
+#include "Z_n.h"
+#include "Z_px.h"
 #include "AbstractMethod.h"
 #include "MethodsFactory.h"
+#include "RedModular.h"
 
 namespace mpplas{
 
@@ -32,12 +35,9 @@ namespace mpplas{
    * enteros.
    * 
    */
-  class Potencia :  public AbstractMethod
-  {
+  template<typename T>
+  class ExponentiationBase :  public AbstractMethod {
     public:
-
-      Potencia();
-
       /** Potenciación "in-situ".
        *
        * Realizar una potenciación "in-situ". Es ligeramente más
@@ -52,14 +52,13 @@ namespace mpplas{
        *
        * @exception Se devuelve Errores::PunteroNulo si @a n o @a
        *  factores son punteros iguales a NULL.
-
        * 
        *  @note La razón de que el argumento @a exp sea de tipo
        *  SignedDigit cuando no puede ser negativo es para evitar
        *  problemas de conversión automática por parte de C++ entre
        *  tipos con y sin signo.
        */
-      virtual void potencia(Z* const base,  SignedDigit exp) = 0; 
+      virtual void exponentiation(T* const base, const Z& exp) = 0; 
 
       /** Potenciación.
        *
@@ -78,25 +77,28 @@ namespace mpplas{
        *  problemas de conversión automática por parte de C++ entre
        *  tipos con y sin signo.
        */
-      Z potencia(Z base,  SignedDigit exp); 
+      T exponentiation(T base, const Z& exp); 
 
-      virtual ~Potencia(){}
-
-
-      typedef PotVentanaDeslizante DFL;
-
-    protected:
-      MethodsFactory* const funcs;
+      virtual ~ExponentiationBase(){}
   };
  
 
-  class PotenciaR : public AbstractMethod
-  {
-    public:
-      virtual void potenciaR(R* const base,  SignedDigit exp) = 0; 
-      R potenciaR(R base,  SignedDigit exp); 
+  template<typename T>
+    class Exponentiation{};
 
-      virtual ~PotenciaR(){}
+  template<>
+  class Exponentiation<Z> : public ExponentiationBase<Z> {
+    public:
+      virtual ~Exponentiation(){}
+
+      typedef PotVentanaDeslizante DFL;
+  };
+
+
+  template<>
+  class Exponentiation<R> : public ExponentiationBase<R> {
+    public:
+      virtual ~Exponentiation(){}
 
       typedef PotVentanaDeslizanteR DFL;
   };
@@ -108,11 +110,10 @@ namespace mpplas{
    * modular sobre enteros.
    * 
    */
-  class PotModular : public AbstractMethod
-  {
+  template<>
+  class Exponentiation< Z_n > : public ExponentiationBase< Z_n >{
     public:
-
-      PotModular();
+      Exponentiation();
 
        /** Potenciación modular "in-situ".
        *
@@ -132,7 +133,7 @@ namespace mpplas{
        *
        * @param mod El módulo reductor.
        */
-      virtual void potModular(Z* const base, const Z& exp, const Z& mod) = 0; 
+//      virtual void potModular(Z* const base, const Z& exp, const Z& mod) = 0; 
   
       /** Potenciación modular.
        *
@@ -149,7 +150,7 @@ namespace mpplas{
        *
        * @return El entero resultado de \f$base^{exp} \bmod mod\f$.
        */
-      Z potModular(Z base, const Z& exp, const Z& mod); 
+//      Z potModular(Z base, const Z& exp, const Z& mod); 
  
       /** Cálculo de la inversa.
        *
@@ -162,15 +163,29 @@ namespace mpplas{
        *
        * @return El entero resultado de \f$base^{-1} \bmod mod\f$.
        */
-      Z inversa(const Z& base, const Z& mod) const;
+      void invert(Z_n* const base) const;
+      Z_n inverse(Z_n base) const;
 
-      virtual ~PotModular(){}
+      void invert(Z* const base, const Z& mod) const;
+      Z inverse(Z base, const Z& mod) const;
+
+
+      virtual ~Exponentiation(){}
 
       typedef ClasicoConBarrett DFL;
     
     protected:
-      MethodsFactory* const funcs;
+      MethodsFactory& funcs;
 
+  };
+
+
+  template<>
+  class Exponentiation< Z_px > : public ExponentiationBase< Z_px >{
+    public:
+      virtual ~Exponentiation(){}
+
+//      typedef BLABLA DFL; TODO
   };
 
 
@@ -183,20 +198,20 @@ namespace mpplas{
    *
    * @note Es el método que la librería utiliza por omisión.
    */
-  class PotVentanaDeslizante : public Potencia
+  class PotVentanaDeslizante : public Exponentiation<Z>
   {
     public:
-      virtual void potencia(Z* const base,  SignedDigit exp);
+      virtual void exponentiation(Z* const base, const Z& exp);
 
       virtual ~PotVentanaDeslizante(){}
   };
 
  
   
-  class PotVentanaDeslizanteR : public PotenciaR
+  class PotVentanaDeslizanteR : public Exponentiation<R>
   {
     public:
-      virtual void potenciaR(R* const base,  SignedDigit exp);
+      virtual void exponentiation(R* const base, const Z& exp);
 
       virtual ~PotVentanaDeslizanteR(){}
   };
@@ -208,10 +223,10 @@ namespace mpplas{
    * Described in Handbook of Applied Cryptography 615 
    *
    */
-  class PotLeftRight : public Potencia
+  class PotLeftRight : public Exponentiation<Z>
   {
     public:
-      virtual void potencia(Z* const base,  SignedDigit exp);
+      virtual void exponentiation(Z* const base, const Z& exp);
 
       virtual ~PotLeftRight(){}
   };
@@ -224,9 +239,9 @@ namespace mpplas{
    * Descrito en Handbook of Applied Cryptography, algoritmo 14.94.
    *
    */
-  class PotMontgomery : public PotModular   {
+  class PotMontgomery : public Exponentiation<Z_n>   {
     public:
-      virtual void potModular(Z* const base, const Z& exp, const Z& mod); 
+      virtual void exponentiation(Z_n* const base, const Z& exp); 
 
       virtual ~PotMontgomery(){}
   };
@@ -239,21 +254,24 @@ namespace mpplas{
    * @note Es el método que la librería utiliza por omisión.
    *
    */
-  class ClasicoConBarrett : public PotModular
+  class ClasicoConBarrett : public Exponentiation<Z_n>
   {
     public:
-      virtual void potModular(Z* const base, const Z& exp, const Z& mod); 
-      void potModular(Z* const base, const Z& exp, const Z& mod, const Z& mu) const ; 
-
+      ClasicoConBarrett();
+      virtual void exponentiation(Z_n* const base, const Z& exp); 
+      void barrettStep(Z_n* const base, const Z& exp, const Z& mu) const ; 
       virtual ~ClasicoConBarrett(){}
+
+    private:
+      RedBarrett* redbarrett;
 
   };
 
 
 
-  class TwoThreadedModularExp : public PotModular {
+  class TwoThreadedModularExp : public Exponentiation<Z_n> {
     public:
-      virtual void potModular(Z* const base, const Z& exp, const Z& mod); 
+      virtual void exponentiation(Z_n* const base, const Z& exp); 
 
       virtual ~TwoThreadedModularExp(){};
 
@@ -264,9 +282,9 @@ namespace mpplas{
   };
 
 
-  class MultiThreadedModularExp : public PotModular {
+  class MultiThreadedModularExp : public Exponentiation<Z_n> {
     public:
-      virtual void potModular(Z* const base, const Z& exp, const Z& mod); 
+      virtual void exponentiation(Z_n* const base, const Z& exp); 
 
       virtual ~MultiThreadedModularExp(){};
 

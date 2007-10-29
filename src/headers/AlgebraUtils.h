@@ -2,7 +2,6 @@
 #define __ALGEBRAUTILS_H
 
 #include <string>
-#include <sstream>
 
 namespace mpplas{
 

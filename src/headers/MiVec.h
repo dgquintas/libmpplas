@@ -6,6 +6,7 @@
 #define __MIVEC_H
 
 #include <vector>
+#include <algorithm>
 
 
 namespace mpplas{
@@ -24,8 +25,10 @@ namespace mpplas{
         MiVec(const std::vector<T, Alloc>&); /**< Constructor de copia. */
 
         MiVec& operator=(const MiVec<T, Alloc>& rhs);
+        bool operator==(const MiVec<T, Alloc>& rhs) const;
 
         using std::vector<T, Alloc>::size;
+        using std::vector<T, Alloc>::empty;
         using std::vector<T, Alloc>::clear;
         using std::vector<T, Alloc>::push_back;
         using std::vector<T, Alloc>::insert;
@@ -103,6 +106,13 @@ namespace mpplas{
   MiVec<T, Alloc>& MiVec<T, Alloc>::operator=(const MiVec<T, Alloc>& rhs) { 
     std::vector<T,Alloc>::operator=(rhs);
     return *this;
+  }
+  template<typename T, typename Alloc>
+  bool MiVec<T, Alloc>::operator==(const MiVec<T, Alloc>& rhs) const { 
+    if( this->size() != rhs.size() ){
+      return false;
+    }
+    return std::equal(this->begin(), this->end(), rhs.begin());
   }
 
   

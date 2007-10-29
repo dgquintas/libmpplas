@@ -8,11 +8,13 @@
 #include <string>
 #include <iterator>
 #include <cassert>
-#include <sstream>
 #include <cstring>
 #include <iomanip>
 #include <vector>
 #include <algorithm>
+#include <sstream>
+#include <iostream>
+
 
 #include "MPPDataType.h"
 #include "Errors.h"
@@ -144,7 +146,6 @@ namespace mpplas {
         virtual std::string toString() const;
 
 
-
       protected:
         Dimensions _dims;
         mpplas::MiVec<T, Alloc> _data; /**< Row-major vector representation of the matrix */
@@ -177,6 +178,13 @@ namespace mpplas {
       lhs += rhs;
       return lhs;
     }
+
+  template<typename T, typename Alloc>
+    Matrix<T, Alloc> operator-(Matrix<T, Alloc> lhs, const Matrix<T, Alloc>& rhs){
+      lhs -= rhs;
+      return lhs;
+    }
+
 
   template<typename T, typename Alloc>
     Matrix<T, Alloc> operator*(const Matrix<T, Alloc>& lhs, const Matrix<T, Alloc>& rhs);

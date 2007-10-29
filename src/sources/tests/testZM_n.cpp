@@ -11,22 +11,30 @@ int main(){
   ZM_n zm2(Z("43531213242235236235325"),Z("3202342424227"));
   Z_n zn(Z("43531213242235236235325"),zm2.getMod());
 
-
-  Profiling& prof( Profiling::getReference() );
-  ProfResults pr1, pr2;
+  ZM_n x(Z("43531213242235236235329"),Z("9607027272681"));
+  ZM_n supposedInv(x);
+  supposedInv.inverse();
   
-  prof.reset();
-  zm2.inverse();
-  cout << prof << endl;
-  pr1 = prof.getResults();
+  cout << x.toZ() << endl;
+  cout << supposedInv.toZ() << endl;
 
-  prof.reset();
-  zn.inverse();
-  cout << prof << endl;
-  pr2 = prof.getResults();
+  cout << (supposedInv * x).toZ() << endl;
 
-  cout << "Diff: " << endl;
-  cout << pr1 - pr2 << endl;
+//  Profiling& prof( Profiling::getReference() );
+//  ProfResults pr1, pr2;
+//  
+//  prof.reset();
+//  zm2.inverse();
+//  cout << prof << endl;
+//  pr1 = prof.getResults();
+//
+//  prof.reset();
+//  zn.inverse();
+//  cout << prof << endl;
+//  pr2 = prof.getResults();
+//
+//  cout << "Diff: " << endl;
+//  cout << pr1 - pr2 << endl;
 
 //  cout << zn << endl;
 //  cout << zm2.toZ() << endl;

@@ -3,14 +3,15 @@
  */
 
 
-#include "GCD.h"
 #include <cstdlib>
+#include <algorithm>
+
+#include "GCD.h"
 
 namespace mpplas{
 
 
-  Z GCD::gcd(Z u, Digit v)
-  {
+  Z GCD<Z>::_gcd(Z u, Digit v) {
     if( u.isNegative() ){
       u.hacerPositivo();
     }
@@ -25,12 +26,12 @@ namespace mpplas{
     return u;
   }
 
-  Z GCD::gcd(Z u, SignedDigit v)
-  {
+  Z GCD<Z>::_gcd(Z u, SignedDigit v) {
     v = labs(v);
     return gcd(u, (Digit)v);
   }
   
+  //////////////////////
   
   Z GCDLehmer::gcd(Z u, Z v)
   {
@@ -40,12 +41,16 @@ namespace mpplas{
     if( v.isNegative() ){
       v.hacerPositivo();
     }
+    if( u.esCero() ){
+      return v;
+    }
+    if( v.esCero() ){
+      return u;
+    }
 
     // "u" ha de ser >= que "v"
     if( u < v ){
-      const Z temp(u);
-      u = v;
-      v = temp;
+      std::swap(u,v);
     }
 
     Digit uHat;
@@ -63,7 +68,7 @@ namespace mpplas{
 
     while(true){
       if( v.longitud() == 1){
-        return GCD::gcd(u,v[0]);
+        return _gcd(u,v[0]);
       }
       else{
         const int p = u.getBitLength() - Constants::BITS_EN_CIFRA;
@@ -156,8 +161,7 @@ namespace mpplas{
   }
 
 
-  Z GCDExtBinario::gcdext(Z x, Z y, Z& C, Z& D)
-  {
+  Z GCDExtBinario::gcdext(Z x, Z y, Z* const C, Z* const D) {
     Z A, B;
 
     bool xNegativo = false;
@@ -182,7 +186,7 @@ namespace mpplas{
     Z u(x);
     Z v(y);
 
-    A.hacerUno(); B.hacerCero(); C.hacerCero(); D.hacerUno();
+    A.hacerUno(); B.hacerCero(); C->hacerCero(); D->hacerUno();
     while( !u.esCero() ){
       while( u.esPar() ){
         u >>= 1;
@@ -197,24 +201,24 @@ namespace mpplas{
       }
       while( v.esPar() ){
         v >>= 1;
-        if( C.esPar() && D.esPar() ){
-          C >>= 1;
-          D >>= 1;
+        if( C->esPar() && D->esPar() ){
+          (*C) >>= 1;
+          (*D) >>= 1;
         }
         else{
-          C += y; C >>= 1; // C = (C+y)/2;
-          D -= x; D >>= 1; // D = (D-x)/2;
+          (*C) += y; (*C) >>= 1; // C = (C+y)/2;
+          (*D) -= x; (*D) >>= 1; // D = (D-x)/2;
         }
       }
       if( u >= v ){
         u -= v;
-        A -= C;
-        B -= D;
+        A -= (*C);
+        B -= (*D);
       }
       else{
         v -= u;
-        C -= A;
-        D -= B;
+        (*C) -= A;
+        (*D) -= B;
       }
     }
     // aqui u == 0
@@ -222,10 +226,10 @@ namespace mpplas{
     //para que todo funcione correctamente con negativos y se 
     //verifique la ecuacion gcd(x,y) = xC + yD
     if( xNegativo ) {
-      C.cambiarSigno();
+      C->cambiarSigno();
     }
     if( yNegativo ) {
-      D.cambiarSigno();
+      D->cambiarSigno();
     }
 
     return ( v <<= g );

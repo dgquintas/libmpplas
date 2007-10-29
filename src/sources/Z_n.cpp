@@ -1,18 +1,32 @@
 /*
  * $Id$
  */
+#include <algorithm>
+#include <cassert>
+#include <sstream>
 
 #include "Z_n.h"
 #include "MethodsFactory.h"
 #include "Potencia.h"
-#include <algorithm>
 
 
 namespace mpplas{
 
+  Z_n Z_n::ZERO( (Digit)0, (Digit)0, false); 
+  Z_n Z_n::ONE ( (Digit)1, (Digit)0, false);
+
+  const bool Z_n::addCommutative(true); 
+  const bool Z_n::groupCyclic(true);
+
+  const bool Z_n::divisionRing(false);
+  const bool Z_n::multAssociative(true);
+  const bool Z_n::multCommutative(true);
+  const bool Z_n::unitaryRing(true);
+
+
+
   Z_n::Z_n(const Z& mod)
-    : Z(), n_(mod)
-    {
+    : Z(), n_(mod)  {
       // equivalence classes modulo n and -n are the same
       if( n_.isNegative() ){
         n_.cambiarSigno();
@@ -20,8 +34,7 @@ namespace mpplas{
     }
 
   Z_n::Z_n(Digit mod)
-    : Z(), n_(mod)
-    {
+    : Z(), n_(mod)  {
 //      n_ = Z::convertir(mod);
     }
 
@@ -43,8 +56,9 @@ namespace mpplas{
         n_.cambiarSigno();
       }
 
-      if( reducir)
+      if( reducir){
         this->operator%=(n_);
+      }
     }
 
   Z_n::Z_n(const Z& num, Digit mod, bool reducir)
@@ -58,25 +72,25 @@ namespace mpplas{
 
 
   Z_n::Z_n(const Z& num, SignedDigit mod, bool reducir)
-    : Z(num), n_(mod)
-    {
+    : Z(num), n_(mod)  {
       if( n_.isNegative() ){
         n_.cambiarSigno();
       }
 
-      if( reducir )
+      if( reducir ){
         Z::operator%=(n_);
+      }
     }
 
   Z_n::Z_n(const Z_n& otro)
-    : Z(otro), n_(otro.n_)
-    {
+    : Z(otro), n_(otro.n_) {
       // the modulus (n_) should already be positive
+      //assert( otro.n_ > 0 ); //the only cases with mod == 0 are the special cases ZERO and ONE
+                             //but those should NOT be copied, thus avoiding having them as a lhs-value
     }
 
 
-  Z_n& Z_n::operator=(const Z& entero)
-  {
+  Z_n& Z_n::operator=(const Z& entero) {
     Z::operator=(entero);
     this->operator%=(n_);
 
@@ -85,15 +99,90 @@ namespace mpplas{
 
   Z_n& Z_n::operator=(const Z_n& enteroModular) {
     Z::operator=(enteroModular);
-    if( enteroModular.n_ > n_ )
+    if( this->n_.esCero() ){
+      this->n_ = enteroModular.n_;
+    }
+    else if( enteroModular.n_ > n_ ){
       this->operator%=(n_);
+    }
 
     return *this;
   }
 
-  Z_n& Z_n::operator+=(const Z& der) {
+ 
+ 
+ 
+  Z_n& Z_n::operator+=(const Z_n& der) {
+    if( n_.esCero() ){
+      n_ = der.n_;
+    }
     Z::operator+=(der);
+    if( *this >= n_ ){
+      Z::operator%=(n_);
+    }
 
+    return *this;
+  }
+
+  Z_n& Z_n::operator-=(const Z_n& der){
+    if( n_.esCero() ){
+      n_ = der.n_;
+    }
+    Z::operator-=(der);
+
+    if( *this < (Digit)0 ){
+      Z::operator%=(n_);
+    }
+
+    return *this;
+  }
+
+  Z_n& Z_n::operator*=(const Z_n& der)  {
+    if( n_.esCero() ){
+      n_ = der.n_;
+      if( this->esUno() ){
+        Z::operator=(der);
+      }
+      else{ // must be zero
+        this->hacerCero();
+      }
+    }
+    else{
+      Z::operator*=(der);
+      Z::operator%=(n_);
+    }
+
+    return *this;
+  }
+
+  Z_n& Z_n::operator/=(const Z_n& der)  {
+    if( n_.esCero() ){
+      n_ = der.n_;
+      if( this->esUno() ){
+        Exponentiation<Z_n> *potMod; MethodsFactory::getReference().getFunc(potMod);
+        (*this) = der;
+        potMod->invert(this);
+      }
+      else{ // must be zero
+        throw Errors::DivisionPorCero();  
+      }
+    }
+    else{
+      Exponentiation<Z_n> *potMod; MethodsFactory::getReference().getFunc(potMod);
+      Z_n inv(der);
+      potMod->invert(&inv);
+      operator*=(inv);
+    }
+
+    return *this;
+  }
+
+ 
+ 
+ 
+  Z_n& Z_n::operator+=(const Z& der) {
+    assert( !this->n_.esCero() );
+    Z::operator+=(der);
     if( *this >= n_ ){
       Z::operator%=(n_);
     }
@@ -102,15 +191,18 @@ namespace mpplas{
   }
 
   Z_n& Z_n::operator-=(const Z& der){
+    assert( !this->n_.esCero() );
     Z::operator-=(der);
 
-    if( *this < (Digit)0 )
+    if( *this < (Digit)0 ){
       Z::operator%=(n_);
+    }
 
     return *this;
   }
 
   Z_n& Z_n::operator*=(const Z& der)  {
+    assert( !n_.esCero() );
     Z::operator*=(der);
     Z::operator%=(n_);
 
@@ -118,9 +210,10 @@ namespace mpplas{
   }
 
   Z_n& Z_n::operator/=(const Z& der)  {
-    Z_n inv(n_);
-    PotModular *potMod; MethodsFactory::getReference().getFunc(potMod);
-    inv = Z_n(potMod->inversa(der, n_), n_, false);
+    assert( !n_.esCero() );
+    Z_n inv(der, n_);
+    Exponentiation<Z_n> *potMod; MethodsFactory::getReference().getFunc(potMod);
+    potMod->invert(&inv);
     operator*=(inv);
 
     return *this;
@@ -129,6 +222,7 @@ namespace mpplas{
 
   /* simple prec */
   Z_n& Z_n::operator+=(const SignedDigit derC) {
+    assert( !n_.esCero() );
     Z::operator+=(derC);
 
     //substraction is less expensive than division.
@@ -142,6 +236,7 @@ namespace mpplas{
   }
 
   Z_n& Z_n::operator-=(const SignedDigit derC) {
+    assert( !n_.esCero() );
 
     Z::operator-=(derC);
 
@@ -155,8 +250,8 @@ namespace mpplas{
     return *this;
   }
 
-  Z_n& Z_n::operator*=(const SignedDigit derC)
-  {
+  Z_n& Z_n::operator*=(const SignedDigit derC)  {
+    assert( !n_.esCero() );
 
     Z::operator*=(derC);
     Z::operator%=(n_);
@@ -165,21 +260,17 @@ namespace mpplas{
     return *this;
   }
 
-  Z_n& Z_n::operator/=(const SignedDigit derC)
-  {
+  Z_n& Z_n::operator/=(const SignedDigit derC) {
+    assert( !n_.esCero() );
     Z_n derEntero(Z(derC), n_);
-
-    PotModular *potMod; MethodsFactory::getReference().getFunc(potMod);
-    Z_n inv(potMod->inversa(derEntero, n_), n_, false);
-
-    operator*=(inv);
-
+    
+    operator/=(derEntero);
     return *this;
   }
 
 
-  Z_n& Z_n::operator+=(const Digit derC)
-  {
+  Z_n& Z_n::operator+=(const Digit derC) {
+    assert( !n_.esCero() );
     Digit der = (derC % n_).toDigit();
 
     Z::operator+=(der);
@@ -190,8 +281,8 @@ namespace mpplas{
     return *this;
   }
 
-  Z_n& Z_n::operator-=(const Digit derC)
-  { 
+  Z_n& Z_n::operator-=(const Digit derC) { 
+    assert( !n_.esCero() );
     Digit der = (derC % n_).toDigit();
 
     Z::operator-=(der);
@@ -202,8 +293,8 @@ namespace mpplas{
     return *this;
   }
 
-  Z_n& Z_n::operator*=(const Digit derC)
-  {
+  Z_n& Z_n::operator*=(const Digit derC) {
+    assert( !n_.esCero() );
     Digit der = (derC % n_).toDigit();
 
     Z::operator*=(der);
@@ -213,42 +304,24 @@ namespace mpplas{
     return *this;
   }
 
-  Z_n& Z_n::operator/=(const Digit derC)
-  {
-    Digit der = (derC % n_).toDigit();
-
-    Z_n inv(n_);
-    Z derEntero(der);
-
-    PotModular *potMod; MethodsFactory::getReference().getFunc(potMod);
-    inv = Z_n(potMod->inversa(Z(der), n_), n_, false);
-    operator*=(inv);
+  Z_n& Z_n::operator/=(const Digit derC) {
+    assert( !n_.esCero() );
+    Z_n derEntero(Z(derC), n_);
+    
+    operator/=(derEntero);
+    return *this;
 
     return *this;
 
   }
 
 
-  Z_n& Z_n::operator^=(const Digit e)
-  {
-    const Z eZ(e);
-    PotModular *potMod; MethodsFactory::getReference().getFunc(potMod);
-    potMod->potModular(this, eZ, n_);
-    return *this;
-  }
-
-  Z_n& Z_n::operator^=(const SignedDigit e) 
-  {
-    PotModular *potMod; MethodsFactory::getReference().getFunc(potMod);
-    Z eZ(e);
-    potMod->potModular(this, eZ, n_);
-    return *this;
-  }
-
-  Z_n& Z_n::operator^=(const Z& e)
-  {
-    PotModular *potMod; MethodsFactory::getReference().getFunc(potMod);
-    potMod->potModular(this, e, n_);
+  Z_n& Z_n::operator^=(const Z& e) {
+    if( n_.esCero() && e.isPositive() ){
+      return Z_n::ONE;
+    }
+    Exponentiation<Z_n> *potMod; MethodsFactory::getReference().getFunc(potMod);
+    potMod->exponentiation(this, e);
     return *this;
   }
 
@@ -259,8 +332,7 @@ namespace mpplas{
 
 
   std::istream& 
-    operator>>(std::istream& is, Z_n& numero)
-    {
+    operator>>(std::istream& is, Z_n& numero) {
       operator>>(is, (Z&)numero);
       numero %= numero.n_;
 
@@ -268,61 +340,62 @@ namespace mpplas{
     }
 
 
-//  Z_n operator+(Z_n izq, const Z_n& der)
-//  {
-//    izq += der;
-//
-//    return izq;
-//  }
-//
-//  Z_n operator-(Z_n izq, const Z_n& der)
-//  {
-//    izq -= der;
-//
-//    return izq;
-//  } 
-//
-//  Z_n operator*(Z_n izq, const Z_n& der)
-//  {
-//    izq *= der;
-//
-//    return izq;
-//  }
-//
-//  Z_n operator/(Z_n izq, const Z_n& der)
-//  {
-//    if( der.esCero() )
-//      throw Errors::DivisionPorCero();  
-//
-//    izq /= der;
-//
-//    return izq;
-//  }
-
-
-  Z_n operator+(Z_n izq, const Z& der)
-  {
+  Z_n operator+(Z_n izq, const Z_n& der) {
     izq += der;
 
     return izq;
   }
 
-  Z_n operator-(Z_n izq, const Z& der)
-  {
+  Z_n operator-(Z_n izq, const Z_n& der) {
     izq -= der;
 
     return izq;
   } 
 
-  Z_n operator*(Z_n izq, const Z& der)
-  {
+  Z_n operator*(Z_n izq, const Z_n& der) {
     izq *= der;
 
     return izq;
   }
 
-  Z_n operator/(Z_n izq, const Z& der)
+  Z_n operator/(Z_n izq, const Z_n& der)
   {
+    if( der.esCero() ){
+      throw Errors::DivisionPorCero();  
+    }
+
+    izq /= der;
+
+    return izq;
+  }
+
+
+
+
+
+
+
+
+
+  Z_n operator+(Z_n izq, const Z& der){
+    izq += der;
+
+    return izq;
+  }
+
+  Z_n operator-(Z_n izq, const Z& der){
+    izq -= der;
+
+    return izq;
+  } 
+
+  Z_n operator*(Z_n izq, const Z& der) {
+    izq *= der;
+
+    return izq;
+  }
+
+  Z_n operator/(Z_n izq, const Z& der) {
     if( der.esCero() )
       throw Errors::DivisionPorCero();  
 
@@ -332,36 +405,32 @@ namespace mpplas{
   }
 
 
-  Z_n operator+(const SignedDigit corto, Z_n largo)
-  {
+  Z_n operator+(const SignedDigit corto, Z_n largo) {
     largo += corto;
     return largo;
   }
 
-  Z_n operator-(const SignedDigit corto, Z_n largo)
-  {
+  Z_n operator-(const SignedDigit corto, Z_n largo) {
     Z temp(corto);
-    temp %= largo.modulo();
+    temp %= largo.getMod();
     temp -= largo;
     //largo.cambiarSigno();
     // en Z_n_n el cambio de signo es equivalente a restar el n� a cambiar
     // de signo al modulo
     if(temp.isNegative() ){
-      temp += largo.modulo();
+      temp += largo.getMod();
     }
 
-    return Z_n(temp, largo.modulo(), false);
+    return Z_n(temp, largo.getMod(), false);
   }
 
-  Z_n operator*(const SignedDigit corto, Z_n largo)
-  {
+  Z_n operator*(const SignedDigit corto, Z_n largo) {
     largo *= corto;
     return largo;
   }
 
-  Z_n operator/(const SignedDigit corto, const Z_n& largo)
-  {
-    Z_n cortoZn(Z(corto), largo.modulo() );
+  Z_n operator/(const SignedDigit corto, const Z_n& largo) {
+    Z_n cortoZn(Z(corto), largo.getMod() );
 
     cortoZn /= largo;
 
@@ -371,23 +440,19 @@ namespace mpplas{
 
 
 
-  Z_n operator+(Z_n largo, const SignedDigit corto)
-  {
+  Z_n operator+(Z_n largo, const SignedDigit corto) {
     largo += corto;
     return largo;
   }
-  Z_n operator-(Z_n largo, const SignedDigit corto)
-  {
+  Z_n operator-(Z_n largo, const SignedDigit corto) {
     largo -= corto;
     return largo;
   }
-  Z_n operator*(Z_n largo, const SignedDigit corto)
-  {
+  Z_n operator*(Z_n largo, const SignedDigit corto) {
     largo *= corto;
     return largo;
   }
-  Z_n operator/(Z_n largo, const SignedDigit corto)
-  {
+  Z_n operator/(Z_n largo, const SignedDigit corto) {
     if( corto == 0 )
       throw Errors::DivisionPorCero(); 
 
@@ -413,15 +478,15 @@ namespace mpplas{
   Z_n operator-(const Digit corto, Z_n largo)
   {
     Z temp(corto);
-    temp %= largo.modulo();
+    temp %= largo.getMod();
     temp -= largo;
     //largo.cambiarSigno();
     // en Z_n_n el cambio de signo es equivalente a restar el n� a cambiar
     // de signo al modulo
     if(temp.isNegative())
-      temp += largo.modulo();
+      temp += largo.getMod();
 
-    return Z_n(temp, largo.modulo(),false) ;
+    return Z_n(temp, largo.getMod(),false) ;
   }
 
   Z_n operator*(const Digit corto, Z_n largo)
@@ -435,7 +500,7 @@ namespace mpplas{
     if( largo.esCero() )
       throw Errors::DivisionPorCero();
 
-    Z_n cortoZ_n(Z_n(corto), largo.modulo() );
+    Z_n cortoZ_n(Z_n(corto), largo.getMod() );
 
     cortoZ_n /= largo;
 
@@ -478,28 +543,38 @@ namespace mpplas{
 
 
 
-  Z_n operator^(Z_n base, const Z& exp)
-  {
+  Z_n operator^(Z_n base, const Z& exp) {
     base ^= exp;
     return base;
   }
 
-  Z_n operator^(Z_n base, const Digit exp)
-  {
-    base ^= exp;
+  Z_n operator^(Z_n base, const Digit exp) {
+    base ^= Z(exp);
     return base;
   }
 
-  Z_n operator^(Z_n base, const SignedDigit exp)
-  {
-    base ^= exp;
+  Z_n operator^(Z_n base, const SignedDigit exp) {
+    base ^= Z(exp);
     return base;
   }
 
-  Z_n& Z_n::cuadrado(void)
-  {
+  Z_n& Z_n::cuadrado(void) {
     Z::cuadradoModular(n_);
     return *this;
   }
-  
+ 
+
+//  std::string Z_n::toString(void) const {
+//    // presents the polynomial as [(coeff_n, exp_n)...(coeff_0, 0)]
+//    std::ostringstream oss;
+//    oss << "(" << (*this) << ", " << n_<< ")";
+//    return oss.str();
+//  }
+
+
+
+
+
+
+
 }

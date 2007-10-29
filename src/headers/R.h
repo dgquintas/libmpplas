@@ -319,7 +319,7 @@ namespace mpplas {
     
     virtual std::string toString() const;
     std::string toString(int decimalPlaces) const;
-    
+
       /** Hacer cero.
        * 
        * \par Complejidad:
@@ -540,48 +540,42 @@ namespace mpplas {
     
     static R ZERO;
     static R ONE;
-     
+
     /* Ring, Group and Field methods */
+
+    static const bool addCommutative;
+    static const bool groupCyclic;
+
+    static const bool unitaryRing;
+    static const bool multCommutative;
+    static const bool multAssociative;
+    static const bool divisionRing;
+
 
     R getMultInverse() const {
       R tmp(ONE);
       tmp /= (*this);
       return tmp;
     }
-
-
-    static bool isUnitaryRing(){
-      return true;
-    };
     static const R& getMultIdentity() {
       return ONE ;
     };
-
-    static bool isMultCommutative() {
-      return true;
-    }
-    static bool isMultAssociative() {
-      return true;
-    }
-
-
-
-    static const R& getGroupIdentity() {
+    static const R& getAddIdentity() {
       return ZERO;
     };
-    R getGroupInverse()  const{
+    R getAddInverse()  const{
       R tmp(*this);
       tmp.cambiarSigno();
       return tmp;
     };
-
-    static bool isGroupCyclic() {
-      return true;
-    }
-
     static const R& getGroupGenerator() {
       return ONE;
+    } 
+    const Z& getCharacteristic() const {
+        return Z::ZERO;
     }
+
+
 
 
 

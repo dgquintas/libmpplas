@@ -5,24 +5,27 @@
 
 namespace mpplas{
   template<class T>
-    class Field: public Ring<T, true /* division ring */>
+    class Field: public Ring<T>
     {
       public:
 
-        T getMultInverse() const {
-          return T::getMultInverse();
-        }
+//        virtual T getMultInverse() const = 0;
 
         ~Field() {
-          assert( ValidateRequirements() );
+          // for a ring to be also a field, it must fullfil the following
+          // two conditions
+          STATIC_ASSERT( T::divisionRing );
+          STATIC_ASSERT( T::multCommutative );
+          STATIC_ASSERT( ValidateRequirements() );
         }
-
+      protected:
+        Field(){};
       private:
         static bool ValidateRequirements() {
-          T (T::*getMultInverse)() const __attribute__ ((__unused__)) 
-            = &(T::getMultInverse) ;
+          T (T::*getMultInverse)() const __attribute__ ((__unused__))  = &(T::getMultInverse) ;
           return true;
         }
+
     };
 }
 

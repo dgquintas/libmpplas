@@ -1,52 +1,33 @@
 #ifndef __GROUP_H
 #define __GROUP_H
 
-#include <cassert>
+#include "Constraints.h"
 
 // http://www.gotw.ca/gotw/071.htm
 
 namespace mpplas{
-  template<class T, bool ABELIAN>
-    class Group
-    {
+  template<class T>
+    class Group {
       public:
-        const T& getGroupIdentity() const{
-          return T::getGroupIdentity();
-        };
-        T getGroupInverse()  const{
-          return T::getAdditionInverse();
-        };
+//        T getAddInverse() const ;
 
-        bool isGroupCommutative() const {
-          return ABELIAN;
-        }
-
-        bool isGroupCyclic() const {
-          return T::isGroupCyclic();
-        }
-
-        const T& getGroupGenerator() const {
-          return T::getGroupGenerator();
-        }
-
+        static const T& getAddIdentity() { return T::getAddIdentity();  };
+        static const T& getGroupGenerator() { return T::getGroupGenerator(); }
+        static bool isGroupCommutative() { return T::addCommutative; }
+        static bool isGroupCyclic() { return T::groupCyclic; }
 
         ~Group() {
-          assert( ValidateRequirements() );
+          STATIC_ASSERT( ValidateRequirements() );
         }
 
+      protected:
+        Group(){};
       private:
         static bool ValidateRequirements() {
-          T& (T::*closure)(const T&) __attribute__ ((__unused__)) 
-            = &(T::operator+=) ;
-
-          const T& (*getGroupIdentity)() __attribute__ ((__unused__)) 
-            = &(T::getGroupIdentity) ;
-          T (T::*getGroupInverse)() const __attribute__ ((__unused__)) 
-            = &(T::getGroupInverse) ;
-          bool (*isGroupCyclic )() __attribute__ ((__unused__)) 
-            = &(T::isGroupCyclic) ;
-          const T& (*getGroupGenerator)() __attribute__ ((__unused__)) 
-            = &(T::getGroupGenerator) ;
+//          T& (T::*closure)(const T&) __attribute__ ((__unused__))      = &(T::operator+=) ;
+          T (T::*getAddInverse)() const __attribute__ ((__unused__))  = &(T::getAddInverse) ;
+          const T& (*getAddIdentity)() __attribute__ ((__unused__))  = &(T::getAddIdentity) ;
+          const T& (*getGroupGenerator)() __attribute__ ((__unused__)) = &(T::getGroupGenerator) ;
 
           return true;
         }

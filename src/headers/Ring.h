@@ -4,46 +4,40 @@
 #include "Group.h"
 
 namespace mpplas{
-  template<class T, bool DIVISION_RING >
-    class Ring : public Group<T, true /* abelian */> 
+  class Z;
+  template<class T>
+    class Ring : public Group<T> 
     {
       public:
+        /** The smallest number of times one must add the multiplicative 
+         * identity element (1) to itself to get the additive identity 
+         * element (0) */
+        //inline const Z& getCharacteristic() const;
 
-        bool isUnitaryRing() const {
-          return T::isUnitary();
-        };
-        bool isDivisionRing() const {
-          return DIVISION_RING;
-        }
-        const T& getMultIdentity() const {
-          return T::getMultIdentity();
-        };
-        bool isMultCommutative() const {
-          return T::isMultCommutative();
-        }
-        bool isMultAssociative() const {
-          return T::isMultAssociative();
-        }
+        static const T& getMultIdentity() { return T::getMultIdentity();  };
+
+        static bool isMultCommutative() { return T::multCommutative; }
+        static bool isMultAssociative() { return T::multAssociative; }
+        static bool isUnitaryRing() { return T::unitaryRing; };
+        static bool isDivisionRing() { return T::divisionRing; }
 
 
         ~Ring() {
-          assert( ValidateRequirements() );
+          STATIC_ASSERT( ValidateRequirements() );
+
+          // the group "component" of the ring must be commutative (abelian)
+          STATIC_ASSERT( T::addCommutative );
         }
+
+      protected:
+        Ring(){};
 
       private:
         static bool ValidateRequirements() {
-          T& (T::*multiplication)(const T&) __attribute__ ((__unused__)) 
-            = &(T::operator*=) ;
-          bool (*isUnitaryRing)() __attribute__ ((__unused__)) 
-            = &(T::isUnitaryRing) ;
-          const T& (*getMultIdentity)() __attribute__ ((__unused__)) 
-            = &(T::getMultIdentity) ;
-          bool (*isMultCommutative)() __attribute__ ((__unused__)) 
-            = &(T::isMultCommutative) ;
-          bool (*isMultAssociative)() __attribute__ ((__unused__)) 
-            = &(T::isMultAssociative) ;
-
-
+//          T& (T::*multiplication)(const T&) __attribute__ ((__unused__)) = &(T::operator*=) ;
+          const T& (*getMultIdentity)() __attribute__ ((__unused__)) = &(T::getMultIdentity) ;
+          T (T::*getAddInverse)() const __attribute__ ((__unused__)) = &(T::getAddInverse) ;
+          const Z& (T::*getCharacteristic)() const __attribute__ ((__unused__)) = &(T::getCharacteristic) ;
           return true;
         }
     };

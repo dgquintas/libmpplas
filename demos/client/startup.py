@@ -7,6 +7,7 @@
 
 import Client
 from sys import argv
+from pprint import pprint
 
 if len(argv) > 1:
   globals().update( Client.initializeClient(argv[1]) )
@@ -17,18 +18,24 @@ if Client.checkForUpdates():
   globals()['updated'] = True
 else:
   globals()['updated'] = False 
-  
-def runGC():
+ 
+#the "grace" is a single varId that is
+#to be kept from the gc.
+#the reason why is because the GC is performed just after a 
+#create operation. If such creation hasn't been asigned to any
+#variable, it'd be gc'd, but then the interpreter wouldn't 
+#be able to show it's value, raising an exception
+def _runGC(grace):
   global clientId
 
-  usedSlots = []
+  usedSlots = [grace]
   for inst in globals().values():
-    if isinstance(inst, Variable):
+    if isinstance(inst, Variable) and inst.getId() not in usedSlots:
       usedSlots.append(inst.getId())
 
-  print usedSlots
   RPCServer.getInstance().getServer()._runGC(clientId, usedSlots)
 
+Client.runGC = _runGC
 
 import matplotlib
 matplotlib.interactive(True)

@@ -5,6 +5,9 @@
 #ifndef __CONSTRAINTS_H
 #define __CONSTRAINTS_H
 
+#define STATIC_ASSERT(ex) \
+  do { typedef int ai[(ex) ? 1 : -1]; } while(0) 
+
 namespace mpplas {
 
   namespace Constraints {

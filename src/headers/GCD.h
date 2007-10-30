@@ -175,35 +175,61 @@ namespace mpplas{
     const int chunk_size = (int)ceil( ((float)nums.size())/omp_get_max_threads() );
     
     const int listSize( nums.size() );
+    int cont = 1;
 
 #pragma omp parallel for schedule(static,1)
     for( int i=0; i < listSize; i+= chunk_size){
+
       T d;
       if( (listSize - i) == 1 ){
         d = nums[i];
       }
       else{
         d = gcd( nums[i], nums[i+1] );
+        if( d == T::getMultIdentity() ){
+#pragma omp atomic
+          cont--;
+
+        }
+        else{
 #undef min
-        const int real_cs = std::min( chunk_size, (int)listSize - i );
-        for( int j = 0; j < real_cs-2; j++){
-          d = gcd(d, nums[i+2+j]);
+          const int real_cs = std::min( chunk_size, (int)listSize - i );
+          for( int j = 0; (j < real_cs-2) && cont; j++){
+            d = gcd(d, nums[i+2+j]);
+            if( d == T::getMultIdentity() ){
+#pragma omp atomic
+              cont--;
+
+            }
+          }
         }
       }
 
       gcds[omp_get_thread_num()] = d;
-    }
+    } //end omp parallel for
 
-    if( SystemInfo::getMaxNumberOfThreads() == 1 ){
-      return gcds[0];
+    T commonGCD;
+    if( !cont ) { //at least one gcd was 1
+      commonGCD = T::getMultIdentity();
     }
-    T commonGCD(gcd(gcds[0], gcds[1]));
-    for(int i = 2; i < SystemInfo::getMaxNumberOfThreads(); i++){
-      commonGCD = gcd( commonGCD, gcds[i] );
+    else{
+      if( SystemInfo::getMaxNumberOfThreads() == 1 ){
+        commonGCD = gcds[0];
+      }
+      else{
+        commonGCD = gcd(gcds[0], gcds[1]);
+        for(int i = 2; i < SystemInfo::getMaxNumberOfThreads(); i++){
+          commonGCD = gcd( commonGCD, gcds[i] );
+          if( commonGCD == T::getMultIdentity() ){
+            break;
+          }
+        }
+      }
     }
 
     delete[] gcds;
     return commonGCD;
+
   }
 
 

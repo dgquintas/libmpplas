@@ -114,7 +114,7 @@ void ZxTest::testPseudoDivision(){
     n = polB.getDegree();
   }
   Z lv = polB.getLeadingCoefficient();
-  lv ^= (m-n+1);
+  lv ^= (Digit)(m-n+1);
   Zx q,r;
   Zx::divAndMod(polA, polB, &q,&r);
 

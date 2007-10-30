@@ -79,6 +79,7 @@ std::istream& operator>>(std::istream& in, Vector<T>& v) {
 template<typename T>
 Vector<T>& Vector<T>::operator=(const Vector<T>& rhs){
   Matrix<T>::operator=(rhs);
+  return *this;
 }
 
 

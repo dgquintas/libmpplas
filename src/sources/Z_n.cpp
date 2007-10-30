@@ -83,7 +83,7 @@ namespace mpplas{
     }
 
   Z_n::Z_n(const Z_n& otro)
-    : Z(otro), n_(otro.n_) {
+    : Z(otro), n_(otro.n_), _exponentiationPrecompts(otro._exponentiationPrecompts) {
       // the modulus (n_) should already be positive
       //assert( otro.n_ > 0 ); //the only cases with mod == 0 are the special cases ZERO and ONE
                              //but those should NOT be copied, thus avoiding having them as a lhs-value
@@ -320,8 +320,12 @@ namespace mpplas{
     if( n_.esCero() && e.isPositive() ){
       return Z_n::ONE;
     }
-    Exponentiation<Z_n> *potMod; MethodsFactory::getReference().getFunc(potMod);
-    potMod->exponentiation(this, e);
+    ClasicoConBarrett potMod;
+    RedBarrett rb; 
+    if( _exponentiationPrecompts.esCero() ){
+      _exponentiationPrecompts = rb.precomputaciones( n_ );
+    }
+    potMod.barrettStep(this, e, n_, _exponentiationPrecompts);
     return *this;
   }
 

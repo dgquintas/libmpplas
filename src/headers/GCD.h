@@ -52,12 +52,7 @@ namespace mpplas{
          */
 //        virtual Z gcd(Z u, Z v ) = 0;
 
-        virtual ~GCD(){};
 
-        typedef GCDLehmer DFL;
-
-
-      protected:
         /** Máximo común divisor, versión especial precisión simple.
          *
          * Realiza el cálculo del máximo común divisor de un entero y un
@@ -85,6 +80,11 @@ namespace mpplas{
          * signo, por las conversiones automáticas que realiza C++.
          */
         Z _gcd(Z u, SignedDigit v ); 
+
+        virtual ~GCD(){};
+
+        typedef GCDLehmer DFL;
+
 
     };
 

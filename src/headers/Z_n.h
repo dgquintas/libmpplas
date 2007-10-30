@@ -141,6 +141,9 @@ namespace mpplas{
 
     protected:
       Z n_; //el modulo reductor
+
+    private:
+      Z _exponentiationPrecompts;
     
     /** Operador obtencion del número */
     friend std::istream& operator>>(std::istream&, Z_n&);

@@ -23,6 +23,7 @@ namespace mpplas{
   {
     MethodsFactory* const funcs = MethodsFactory::getInstance();
     RandomFast* rnd; funcs->getFunc(rnd);
+    GCD<Z>* gcd; funcs->getFunc(gcd);
     
     if( p == (Digit)2 ){
       return true;
@@ -79,7 +80,7 @@ namespace mpplas{
       // testigos, asi que se le da el imposible valor de cero a éste.
       testigo->hacerCero();
       return true;
-    }
+    } /* if testigo */
     else{ //no hay que devolver testigo
 
       if( p.esPar() || p.esUno() ) {
@@ -90,7 +91,8 @@ namespace mpplas{
       if( p <= (Digit)4000000 ){ // 2000^2
         cota = iSquareRoot(p[0]);
         for(int i = 0; Constants::TABLA_PRIMOS_2000[i] <= cota; i++){
-          if ( (!Z::gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
+//          if ( (!Z::gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
+if ( (!gcd->_gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
             return false;
           }
         }
@@ -101,8 +103,9 @@ namespace mpplas{
         cota = 303;
       }
       for(int i = 0; i < cota; i++){
-        if ( (!Z::gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
-          return false;
+//        if ( (!Z::gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
+if ( (!gcd->_gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno...
+        return false;
         }
       }
       /* Sloane's A014233: 

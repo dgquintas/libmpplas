@@ -43,7 +43,7 @@ namespace mpplas{
        * @param precomp El entero \f$\mu\f$, precomputación descrita
        * por el método de Barrett.
        */
-      virtual void redBarrett(Z* num, const Z& mod, const Z& precomp);
+      virtual void redBarrett(Z* const num, const Z& mod, const Z& precomp);
 
       /**  Realiza las precomputaciones del método. 
        *  @param modulo Entero representando el módulo reductor para

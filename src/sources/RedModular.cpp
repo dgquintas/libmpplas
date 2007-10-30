@@ -26,8 +26,7 @@ namespace mpplas{
   
   
   
-  Z RedBarrett::precomputaciones(const Z& modulo)
-  {
+  Z RedBarrett::precomputaciones(const Z& modulo) {
     Z mu;
     // realizar la computacion de mu_
     const int k = modulo.longitud();
@@ -38,8 +37,7 @@ namespace mpplas{
     return mu;
   }
 
-  void RedBarrett::redBarrett(Z* num, const Z& modulo, const Z& mu)
-  {
+  void RedBarrett::redBarrett(Z* const num, const Z& modulo, const Z& mu) {
     assert( num ); 
 
     //  this->coefPoliB_.resize(2*k,0);
@@ -67,23 +65,17 @@ namespace mpplas{
     r2 *= mod;
     r2.moduloBase(k+1);
 
-    Z r(r1);
-    r -= r2;
+    (*num) = r1;
+    (*num) -= r2;
 
-    if( r < (Digit)0 ){
+    if( (*num) < (Digit)0 ){
       Z temp; 
       temp.potenciaBase(k+1);
-      r += temp;
+      (*num) += temp;
     }
 
-    while ( r >= mod ){
-      r -= mod;
-    }
-
-    num->operator=(r);
-
-    if( modNegativo ){
-      mod.cambiarSigno();
+    while ( (*num) >= mod ){
+      (*num) -= mod;
     }
 
     return;

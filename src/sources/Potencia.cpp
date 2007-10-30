@@ -214,18 +214,17 @@ namespace mpplas{
       throw Errors::PunteroNulo();
     }
     const Z mu(redbarrett->precomputaciones(base->getMod()));
-    barrettStep(base, exp, mu);
+    barrettStep(base, exp, base->getMod(), mu);
     return;
   }
 
 
-  void ClasicoConBarrett::barrettStep(Z_n* const base, const Z& exp, const Z& mu) const {
+  void ClasicoConBarrett::barrettStep(Z* const base, const Z& exp, const Z& mod, const Z& mu) const {
     bool eNegativo = false;
-    const Z& mod( base->getMod() );
 
     if( exp.isNegative() ){
       eNegativo = true;
-      invert(base);
+      invert(base, mod);
 //      base->operator=(inverse(*base, mod));
     }
 
@@ -240,7 +239,7 @@ namespace mpplas{
       redbarrett->redBarrett(base, mod, mu);
 
       if( bc.checkPrevious() ){
-        ((Z*)base)->operator*=(valorInicial); 
+        base->operator*=(valorInicial); 
         redbarrett->redBarrett(base, mod,mu);
       }
     }
@@ -432,6 +431,30 @@ namespace mpplas{
     return;
   }
 
+  //////////////////////////////////////////
+
+  void SqrAndMultGFExp::exponentiation(GF* const base, const Z& k){
+    // k should verify 0 <= k < p^m-1 ; m = deg(fx)
+    GF g(*base);
+    base->makeOne();
+    if( k == 0 ){
+      return;
+    }
+    
+    Utils::BitChecker bc(k, true);
+    if( bc.checkNext() ){
+      (*base) = g;
+
+    }
+    while( bc.hasNext() ){
+      g.square();
+      if( bc.checkNext() ){
+        (*base) *= g;
+      }
+    }
+    return;
+  }
+
   //////////////////////////////////////
   
   void MultiThreadedModularExp::exponentiation(Z_n* const base, const Z& exp){
@@ -444,19 +467,19 @@ namespace mpplas{
     
     RedBarrett* redbarrett; funcs.getFunc(redbarrett);
     const Z mu(redbarrett->precomputaciones(mod));
-    Z_n partialAllTwos(*base);
+    Z partialAllTwos(*base);
 
-    potMod.barrettStep( &partialAllTwos, Z::getPowerOfTwo(sectionSizes), mu);
-    mpplas::MiVec< Z_n > partialResults(numSects, partialAllTwos); //pos 0 wont ever be used
+    potMod.barrettStep( &partialAllTwos, Z::getPowerOfTwo(sectionSizes),mod, mu);
+    mpplas::MiVec< Z > partialResults(numSects, partialAllTwos); //pos 0 wont ever be used
 #pragma omp parallel for shared(sections, potMod,partialResults)
     for(int i = 0 ; i < numSects;  i++){
       if( i == 0 ){
-        potMod.barrettStep( base, sections[0], mu);
+        potMod.barrettStep( base, sections[0], mod, mu);
       }
       else{
         sections[i] <<= ((i-1)*sectionSizes) ;
         std::cout << "thread " << omp_get_thread_num() << " IN: " << sections[i].getBitLength() <<std::endl;
-        potMod.barrettStep( &(partialResults[i]), sections[i], mu);
+        potMod.barrettStep( &(partialResults[i]), sections[i], mod, mu);
       }
     }
 

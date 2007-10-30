@@ -14,6 +14,7 @@
 #include "AbstractMethod.h"
 #include "MethodsFactory.h"
 #include "RedModular.h"
+#include "GF.h"
 
 namespace mpplas{
 
@@ -24,6 +25,7 @@ namespace mpplas{
   class ClasicoConBarrett;
   class TwoThreadedModularExp;
   class MultiThreadedModularExp;
+  class SqrAndMultGFExp;
 
   // la razon de que el exponente se considere con signo pese a no
   // poder realizarse exponenciaciones negativas en enteros es para
@@ -181,11 +183,12 @@ namespace mpplas{
 
 
   template<>
-  class Exponentiation< Z_px > : public ExponentiationBase< Z_px >{
+  class Exponentiation< GF > : public ExponentiationBase< GF >{
+
     public:
       virtual ~Exponentiation(){}
 
-//      typedef BLABLA DFL; TODO
+      typedef SqrAndMultGFExp DFL;
   };
 
 
@@ -259,7 +262,7 @@ namespace mpplas{
     public:
       ClasicoConBarrett();
       virtual void exponentiation(Z_n* const base, const Z& exp); 
-      void barrettStep(Z_n* const base, const Z& exp, const Z& mu) const ; 
+      void barrettStep(Z* const base, const Z& exp, const Z& mod, const Z& mu) const ; 
       virtual ~ClasicoConBarrett(){}
 
     private:
@@ -292,6 +295,17 @@ namespace mpplas{
       static int _getExponentSections(Z e, std::vector< Z >& sections);
 
   };
+
+
+
+
+  class SqrAndMultGFExp: public Exponentiation< GF > {
+    public:
+      virtual void exponentiation(GF* const base, const Z& exp);
+
+      virtual ~SqrAndMultGFExp(){}
+  };
+
 
 };
 

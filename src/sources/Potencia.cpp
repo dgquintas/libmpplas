@@ -437,7 +437,7 @@ namespace mpplas{
     // k should verify 0 <= k < p^m-1 ; m = deg(fx)
     GF g(*base);
     base->makeOne();
-    if( k == 0 ){
+    if( k.esCero() ){
       return;
     }
     

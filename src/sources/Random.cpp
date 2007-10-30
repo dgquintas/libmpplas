@@ -277,7 +277,6 @@ namespace mpplas{
     MethodsFactory *funcs = MethodsFactory::getInstance();
     GenPrimos* gprimos; funcs->getFunc(gprimos);
 //    SimboloLegendre* slegendre = funcs->simboloLegendre();
-    GCD* gcd; funcs->getFunc(gcd);
     RandomFast* rnd; funcs->getFunc(rnd);
  
     Z p,q;
@@ -303,7 +302,7 @@ namespace mpplas{
     _n = p*q;
     do{
       _Xi = rnd->getIntegerBounded(_n);
-    }while( gcd->gcd(_Xi, _n) != (Digit)1);
+    }while( Z::gcd(_Xi, _n) != (Digit)1);
 
     _Xi.cuadradoModular(_n); 
     

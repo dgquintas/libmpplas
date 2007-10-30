@@ -22,8 +22,7 @@ namespace mpplas{
     //propiedad del gcd/lcm recogida en knuth p. 317 (10)
     // uv = gcd(u,v)·lcm(u,v)
     u.hacerPositivo();
-    GCD* gcd; funcs->getFunc(gcd);
-    return ((u*v)/gcd->gcd(u,v));
+    return ((u*v)/Z::gcd(u,v));
   }
   Z LCM::lcm(Z u, SignedDigit v)
   {
@@ -35,8 +34,7 @@ namespace mpplas{
     
     u.hacerPositivo();
 
-    GCD* gcd; funcs->getFunc(gcd);
-    return ((u*v)/gcd->gcd(u,v));
+    return ((u*v)/Z::gcd(u,v));
   }
 
 
@@ -49,8 +47,7 @@ namespace mpplas{
     u.hacerPositivo();
     v.hacerPositivo();
     
-    GCD* gcd; funcs->getFunc(gcd);
-    return ((u*v)/gcd->gcd(u,v));
+    return ((u*v)/Z::gcd(u,v));
   }
 
 }

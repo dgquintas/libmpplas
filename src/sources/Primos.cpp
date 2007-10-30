@@ -22,8 +22,6 @@ namespace mpplas{
   bool RabinMiller::esPrimo(const Z& p, Z* testigo) 
   {
     MethodsFactory* const funcs = MethodsFactory::getInstance();
-    GCD* gcd;
-    funcs->getFunc(gcd);
     RandomFast* rnd; funcs->getFunc(rnd);
     
     if( p == (Digit)2 ){
@@ -92,7 +90,7 @@ namespace mpplas{
       if( p <= (Digit)4000000 ){ // 2000^2
         cota = iSquareRoot(p[0]);
         for(int i = 0; Constants::TABLA_PRIMOS_2000[i] <= cota; i++){
-          if ( (!gcd->gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
+          if ( (!Z::gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
             return false;
           }
         }
@@ -103,7 +101,7 @@ namespace mpplas{
         cota = 303;
       }
       for(int i = 0; i < cota; i++){
-        if ( (!gcd->gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
+        if ( (!Z::gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
           return false;
         }
       }
@@ -344,8 +342,10 @@ namespace mpplas{
       r += t; //este "t" es el doble del "t" inicial
     }
 
-    PotModular *potModular; funcs->getFunc(potModular);
-    Z p0(potModular->potModular(s,r-(Digit)2, r));
+    Exponentiation<Z_n> *potModular; funcs->getFunc(potModular);
+    Z_n p0_n(s,r);
+    potModular->exponentiation(&p0_n, r-(Digit)2);
+    Z p0( p0_n );
     p0 *= s; p0 <<= 1; p0--;
     
     Z dosRS = r*s; dosRS <<= 1;

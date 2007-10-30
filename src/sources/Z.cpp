@@ -24,6 +24,14 @@
 namespace mpplas{
 
   int Z::precisionSalida_ = 0;
+  
+  const bool Z::addCommutative(true); 
+  const bool Z::groupCyclic(true);
+
+  const bool Z::divisionRing(false);
+  const bool Z::multAssociative(true);
+  const bool Z::multCommutative(true);
+  const bool Z::unitaryRing(true);
 
   Z Z::ZERO((Digit)0);
   Z Z::ONE((Digit)1);
@@ -194,15 +202,20 @@ namespace mpplas{
 
   }
 
-  bool Z::operator==(const Z& der) const
-  {
-
-
-    if( signo_ == der.signo_ )
-      if ( VectorialCPU::igual(coefPoliB_, der.coefPoliB_) )
+  bool Z::operator==(const Z& der) const {
+    if( signo_ == der.signo_ ){
+      if ( VectorialCPU::igual(coefPoliB_, der.coefPoliB_) ){
         return true;
-
-    return false;
+      }
+      else{
+        return false;
+      }
+    }
+    else{
+      //the only case in which with different signs we still
+      //can have == numbers is if both are 0
+     return this->esCero() && der.esCero();
+    }
   }
 
   bool Z::operator!=(const Z& der) const
@@ -1148,11 +1161,15 @@ namespace mpplas{
 
   
 
-  Z& Z::operator^=(const Digit e)
-  {
-    MethodsFactory& funcs = MethodsFactory::getReference();
-    Potencia* p; funcs.getFunc(p);
-    p->potencia(this, e);
+  Z& Z::operator^=(const Digit e) {
+    if( e == 2 ){
+      this->cuadrado();
+    }
+    else{
+      MethodsFactory& funcs = MethodsFactory::getReference();
+      Exponentiation<Z>* p; funcs.getFunc(p);
+      p->exponentiation(this, e);
+    }
 
     return *this; 
 
@@ -1409,9 +1426,8 @@ namespace mpplas{
     //cohen p 42
     Z p,q;
     Z a;
-    MethodsFactory &funcs = MethodsFactory::getReference();
-    TestPrimoProb* primTest; funcs.getFunc(primTest);
-    GCD* gcd; funcs.getFunc(gcd);
+    TestPrimoProb* primTest; 
+    MethodsFactory::getReference().getFunc(primTest);
     
     if( this->esPar() ){
       p = Z((Digit)2);
@@ -1424,7 +1440,7 @@ namespace mpplas{
           break;
         }
         else{
-          const Z d(gcd->gcd((a^q)-a,q));
+          const Z d(Z::gcd((a^q)-a,q));
           if( d.esUno() || (d == q) ){
             primo->hacerCero();
             return false;
@@ -1546,13 +1562,30 @@ namespace mpplas{
 
 
 
-
   std::string Z::toString(void) const {
     std::ostringstream oss;
     oss << *this;
 
     return oss.str().c_str();
   }
+
+
+  Z Z::gcd(const Z& u, const Z& v, Z* const s, Z* const t){
+    if( s && t ){
+      GCDExt<Z>* gcdext;
+      MethodsFactory::getReference().getFunc(gcdext);
+      return gcdext->gcdext(u,v,s,t);
+    }
+    else{
+      GCD<Z>* gcd;
+      MethodsFactory::getReference().getFunc(gcd);
+      return gcd->gcd(u,v);
+    }
+  }
+
+
+
+
 
   /******************************/
   std::ostream& 
@@ -1562,11 +1595,18 @@ namespace mpplas{
       Digit resto;
       std::ostringstream oss;
 
-
-      if( num.signo_ < 0 ){
+      //we assume 0 has always + sign
+      if( (num.signo_ < 0) && (!num.esCero()) ){
         oss << "-";
         num.hacerPositivo();
       }
+      else{
+        const std::ios_base::fmtflags ff(out.flags());
+        if( ff & std::ios_base::showpos ){
+          oss << "+";
+        }
+      }
+
 
       if( Z::precisionSalida_ == 0){ //sin limitacion
         while( num.longitud() > 1 ){

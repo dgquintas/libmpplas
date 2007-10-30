@@ -19,7 +19,7 @@ namespace mpplas{
                "addq %[_arg2], %[_arg1]; "
                "adcq $0, %[_of]; "
           : "=r" (arg1), [_of] "=r" (overflow)
-          : [_arg1] "0" (arg1), [_arg2] "r" (arg2), "1" (overflow)
+          : [_arg1] "0" (arg1), [_arg2] "g" (arg2), "1" (overflow)
           : "cc" /* modificamos eflags */
           );
 
@@ -32,7 +32,7 @@ namespace mpplas{
                "adcq %[_arg2], %[_arg1];" 
                "adcq $0, %[_of]; "
           : "=r" (arg1), [_of] "=r" (overflow) 
-          : [_arg1] "0" (arg1), [_arg2] "r" (arg2), "1" (overflow) 
+          : [_arg1] "0" (arg1), [_arg2] "g" (arg2), "1" (overflow) 
           : "cc" /* modificamos eflags */
           );
 
@@ -46,7 +46,7 @@ namespace mpplas{
                "subq %[_arg2], %[_arg1];"
                "adcq $0, %[_of]; " 
           : "=r" (arg1), [_of] "=r" (overflow) 
-          : [_arg1] "0" (arg1), [_arg2] "rm" (arg2)
+          : [_arg1] "0" (arg1), [_arg2] "g" (arg2)
           : "cc" /* modificamos eflags */
           ); 
 
@@ -58,7 +58,7 @@ namespace mpplas{
                "sbbq %[_arg2], %[_arg1];"
                "adcq $0, %[_of];" 
           : "=r" (arg1), [_of] "=r" (overflow) 
-          : [_arg1] "0" (arg1), [_arg2] "rm" (arg2), "1" (overflow) 
+          : [_arg1] "0" (arg1), [_arg2] "g" (arg2), "1" (overflow) 
           : "cc" /* modificamos eflags */
           );
       return arg1; 
@@ -80,7 +80,7 @@ namespace mpplas{
                "addq %[_restoViejo],%[_ret];" 
                "adcq $0, %%rdx;"      
           : [_ret] "=a" (arg1), "=&d" (resto) 
-          : [_arg1] "0" (arg1), [_arg2] "rm" (arg2), [_restoViejo] "rm" (resto) 
+          : [_arg1] "0" (arg1), [_arg2] "rm" (arg2), [_restoViejo] "g" (resto) 
           ); 
 
       return arg1; 
@@ -90,7 +90,7 @@ namespace mpplas{
     { 
       __asm__ (" divq %[_arg2]" 
           : "=a" (arg1), "=d" (resto) 
-          : [_arg1] "0" (arg1), [_arg2] "r" (arg2), "1" (resto)
+          : [_arg1] "0" (arg1), [_arg2] "g" (arg2), "1" (resto)
           ); 
 
       return arg1;

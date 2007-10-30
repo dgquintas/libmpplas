@@ -6,6 +6,7 @@ filesStr = """
     CPUInfo.cpp
     CRT.cpp
     Factor.cpp
+    GF.cpp
     MethodsFactory.cpp
     GCD.cpp
     Hash.cpp

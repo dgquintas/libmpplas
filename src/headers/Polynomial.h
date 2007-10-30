@@ -69,6 +69,7 @@ namespace mpplas{
 
         Polynomial<S>& operator*=(const Polynomial<S>& rhs);
         Polynomial<S>& operator*=(const S& s); 
+        Polynomial<S>& square();
 
         Polynomial<S>& operator/=(const Polynomial<S>& rhs);
         Polynomial<S>& operator/=(const S& s); 

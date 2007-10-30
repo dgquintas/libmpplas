@@ -214,6 +214,7 @@ Polynomial<S>& Polynomial<S>::operator*=(const Polynomial<S>& rhs){
   this->_data.clear();
   this->_data.resize( k+l-1, this->_ini );
   
+  //TODO: optimize: karatsuba
   for(int i = 0; i < k; i++){
     for( int j = 0; j < l; j++) {
       this->_data[i+j] += dataOrig[i] * rhs._data[j];
@@ -241,6 +242,17 @@ void Polynomial<S>::_divide(const Polynomial<S>& rhs){
     tmp._ufdDivide(rhs, this, false);
   }
 }
+
+template<typename S>
+Polynomial<S>& Polynomial<S>::square(){
+  //TODO: optimize: karatsuba
+  const Polynomial<S> tmp(*this);
+  this->operator*=(tmp);
+
+  return *this;
+}
+
+
 
 
 template<typename S>

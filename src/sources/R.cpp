@@ -14,7 +14,16 @@ namespace mpplas{
 
   int R::precision_ = 300;
   int R::precisionSalida_ = 20;
+  
+  const bool R::groupCyclic(true);
+  const bool R::addCommutative(true); 
 
+  const bool R::multAssociative(true);
+  const bool R::multCommutative(true);
+  const bool R::unitaryRing(true);
+  const bool R::divisionRing(true);
+
+  
   R R::ZERO((Digit)0);
   R R::ONE((Digit)1);
   
@@ -290,9 +299,9 @@ namespace mpplas{
     //  exponente_ *= exponente;
 
     MethodsFactory *funcs = MethodsFactory::getInstance();
-    PotenciaR *potR; funcs->getFunc(potR);
+    Exponentiation<R> *potR; funcs->getFunc(potR);
       
-    potR->potenciaR(this, exponente);
+    potR->exponentiation(this, exponente);
 
     normalizar();
 
@@ -335,6 +344,8 @@ namespace mpplas{
 
     return *this;
   }
+
+
 
   std::string R::toString(void) const {
     std::ostringstream oss;
@@ -750,11 +761,18 @@ namespace mpplas{
 
       std::ostringstream oss;
 
-
-      if(numero.signo() < 0){
-        numero.cambiarSigno();
+      //we assume 0 has always + sign
+      if( (numero.signo() < 0) && (!numero.esCero()) ){
         oss << "-";
+        numero.cambiarSigno();
       }
+      else{
+        const std::ios_base::fmtflags ff(out.flags());
+        if( ff & std::ios_base::showpos ){
+          oss << "+";
+        }
+      }
+
 
       if( numero.exponente_ >= 0 ){
         const int limitePrec = (int)floor(R::precision() / Constants::LOG_2_10);

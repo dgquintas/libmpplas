@@ -95,12 +95,12 @@ namespace mpplas{
   Z RedMontgomery::precomputaciones(const Z& modulo)
   {
     MethodsFactory *funcs = MethodsFactory::getInstance();
-    PotModular* potMod; funcs->getFunc(potMod);
+    Exponentiation<Z_n>* potMod; funcs->getFunc(potMod);
 
     Z modPrima;
     
     modPrima.potenciaBase(1);
-    modPrima -= potMod->inversa(modulo, modPrima); // modPrima = -mod^{-1} (mod base)
+    modPrima -= potMod->inverse(modulo, modPrima); // modPrima = -mod^{-1} (mod base)
 
     return modPrima;
   }

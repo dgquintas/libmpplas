@@ -336,7 +336,6 @@ namespace mpplas{
     MethodsFactory* const funcs = MethodsFactory::getInstance();
     RedBarrett* reduccion; funcs->getFunc(reduccion);
     Z mu = reduccion->precomputaciones(*n);
-    GCD* gcd;funcs->getFunc(gcd);
     TestPrimoProb* test; funcs->getFunc(test);
     Z a((Digit)2);
     Z b((Digit)2);
@@ -360,7 +359,7 @@ namespace mpplas{
       b++;
       reduccion->redBarrett(&b,*n,mu);
 
-      d = gcd->gcd( a - b, *n );
+      d = Z::gcd( a - b, *n );
 
       if( (d > (Digit)1) && (d < (*n)) ){
         factores->push_back(d);

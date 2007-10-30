@@ -4,6 +4,7 @@
 
 
 #include "CRT.h"
+#include "Z_n.h"
 #include "MethodsFactory.h"
 #include "RedModular.h"
 #include "Potencia.h"
@@ -13,7 +14,7 @@ namespace mpplas{
   Z CRTGarner::crt(MiVec<Z> y, MiVec<Z> m)
   {
     MethodsFactory* const funcs = MethodsFactory::getInstance();
-    PotModular* potModular; funcs->getFunc(potModular);
+    Exponentiation<Z_n>* potModular; funcs->getFunc(potModular);
     const int t = y.size();
     MiVec<Z> C(t);
     Z x, u;
@@ -21,7 +22,7 @@ namespace mpplas{
     for(int i = 1; i < t; i++){
       (C[i]).hacerUno();
       for(int j = 0; j < i; j++){
-        u = potModular->inversa(m[j], m[i]);
+        u = potModular->inverse(m[j], m[i]);
         C[i] *= u;
         C[i] %= m[i];
       }

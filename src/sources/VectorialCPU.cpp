@@ -322,11 +322,13 @@ namespace mpplas{
       Digit overflow = 0;
       c[0]= BasicCPU::Addx(a[0],b, overflow);
 
-      for(i=1; i < tamA; i++)
+      for(i=1; i < tamA; i++){
         c[i] = BasicCPU::Addx(a[i],0, overflow);
+      }
 
-      if( i < c.size() )
+      if( i < c.size() ){
         c[i] = overflow;
+      }
 
       limpiarCeros(c);
 

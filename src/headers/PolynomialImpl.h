@@ -346,7 +346,7 @@ void Polynomial<S>::_ufdDivide(const Polynomial<S>& rhs, Polynomial<S>* const q,
   }
   const Polynomial<S>& v(rhs);
   const S& vn(rhs.getLeadingCoefficient()); 
-  S vnK( vn ^ (m-n) ); 
+  S vnK( vn ^ (Digit)(m-n) ); 
 
   for(int k = m-n; k >= 0; k--){
     if( q != NULL ){
@@ -480,7 +480,7 @@ void Polynomial<S>::_horner2ndOrder(S& result, const S& x0) const {
   //described in [knuth] 4.6.4, page 487
   //and [dorn] 
   const int n = this->getDegree();
-  const S x0Sqr( x0 ^ 2 ); 
+  const S x0Sqr( x0 ^ (Digit)2 ); 
 
   S res1, res2;
 

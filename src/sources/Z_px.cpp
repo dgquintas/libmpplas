@@ -4,6 +4,7 @@
 
 #include "Z_px.h"
 #include "MethodsFactory.h"
+#include "GCD.h"
 
 
 namespace mpplas{
@@ -43,9 +44,17 @@ namespace mpplas{
 
 
   Z_px Z_px::gcd(Z_px u, Z_px v, Z_px* const s, Z_px* const t){
-    mpplas::GCDExtPoly< mpplas::Z_p >* gcdext;
-    MethodsFactory::getReference().getFunc(gcdext);
-    return gcdext->gcdext(u,v,s,t);
+    assert(u.getCharacteristic() == v.getCharacteristic());
+    if( s && t ){
+      mpplas::GCDExt< Polynomial<mpplas::Z_p> >* gcdext;
+      MethodsFactory::getReference().getFunc(gcdext);
+      return gcdext->gcdext(u,v,s,t);
+    }
+    else{
+      mpplas::GCD< Polynomial<mpplas::Z_p> >* gcd;
+      MethodsFactory::getReference().getFunc(gcd);
+      return gcd->gcd(u,v);
+    }
   }
 
 

@@ -20,9 +20,8 @@ namespace mpplas{
       Z_px(const std::vector<Z_p>& coeffs, const Z& p);
       Z_px(const Z_p& coeff, const int exp, const Z& p);
       Z_px(const Z& coeff, const int exp, const Z& p);
-
-
-      static Z_px gcd(Z_px u, Z_px v, Z_px* const s, Z_px* const t);
+  
+      static Z_px gcd(Z_px u, Z_px v, Z_px* const s = NULL, Z_px* const t = NULL);
 
       /* Ring, Group and Field methods */
       static Z_px ZERO;

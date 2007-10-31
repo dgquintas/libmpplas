@@ -35,7 +35,7 @@ namespace mpplas
 
       Z( const Digit ); /**< construccion desde 'token' básico */
       Z( const MiVec<Digit>& vec);
-      explicit Z( const SignedDigit ); /**< construccion desde simple precision */
+      Z( const SignedDigit ); /**< construccion desde simple precision */
       explicit Z( const double ); /**< construccion desde double  */
       explicit Z( const char* ); /**< construccion desde cadena de caracteres */
       explicit Z(const std::string& str); /**< construction from a std::string */

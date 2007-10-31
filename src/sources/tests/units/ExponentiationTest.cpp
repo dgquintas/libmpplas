@@ -82,7 +82,7 @@ void ExponentiationTest::testExpMontgomery(){
   qassertEquals( base_n.toString(), pariStr );
 }
 void ExponentiationTest::testExpBarrett(){
-  Z _mod(rnd->getInteger( brand(1000,2000) ));
+  Z _mod(primes->getPrime( brand(100,200) ));
   GEN m = gp_read_str(const_cast<char*>(_mod.toString().c_str()));
   GEN pariRes = Fp_pow(x,Y,m);
   ClasicoConBarrett potFunc;
@@ -90,7 +90,17 @@ void ExponentiationTest::testExpBarrett(){
   potFunc.exponentiation(&base_n,_expZ);
 
   std::string pariStr(GENtostr( pariRes ));
-  qassertTrue( base_n.toString() == pariStr );
+  qassertEquals( base_n.toString(), pariStr );
+
+  Y = gmul(Y, gp_read_str("-1"));
+  pariRes = Fp_pow(x,Y,m);
+
+  base_n = _base;
+  _expZ.cambiarSigno();
+  potFunc.exponentiation(&base_n,_expZ);
+  pariStr = GENtostr( pariRes );
+  qassertEquals( base_n.toString() ,pariStr );
+
 
 }
 

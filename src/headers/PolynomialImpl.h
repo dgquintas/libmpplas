@@ -52,7 +52,7 @@ Polynomial<S>::Polynomial(const S& coeff, const int exp, const S& ini)
       throw Errors::ExponenteNegativo();
     }
     _data.resize(exp+1, ini);
-    _data.front() = coeff;
+    _data.back() = coeff;
 
     _isSaField = bool(dynamic_cast<mpplas::Field<S>*>(&(_data[0])));
   }
@@ -89,12 +89,6 @@ inline bool Polynomial<S>::isMonic() const {
 }
 
 template<typename S>
-inline bool Polynomial<S>::isZero() const {
-  assert( !_data.empty() );
-  return ( this->getDegree() == 0 ) && ( this->operator[](0) == S::getAddIdentity() );
-}
-
-template<typename S>
 inline const S& Polynomial<S>::getIni() const {
   return this->_ini;
 }
@@ -116,6 +110,26 @@ inline void Polynomial<S>::makeOne() {
   this->_data.resize(1, this->_ini);
   this->_data[0] = S::getMultIdentity();
 }
+template<typename S>
+inline bool Polynomial<S>::isZero () const {
+  if( (this->_data.size() == 1) && ( this->_data[0] == S::getAddIdentity() ) ){
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+template<typename S>
+inline bool Polynomial<S>::isOne() const {
+  if( (this->_data.size() == 1) && ( this->_data[0] == S::getMultIdentity() ) ){
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+
+
 template<typename S>
 void Polynomial<S>::changeSign() {
   for(int i = 0; i < this->_data.size(); i++){
@@ -161,6 +175,7 @@ Polynomial<S>& Polynomial<S>::operator+=(const Polynomial<S>& rhs){
       _data[i] += rhs._data[i];
     }
 
+    _eraseLeadingZeros();
     return *this;
   }
 
@@ -198,6 +213,7 @@ Polynomial<S>& Polynomial<S>::operator-=(const Polynomial<S>& rhs){
     _data[i] -= rhs._data[i];
   }
 
+  _eraseLeadingZeros();
   return *this;
 }
 template<typename S>
@@ -221,6 +237,7 @@ Polynomial<S>& Polynomial<S>::operator*=(const Polynomial<S>& rhs){
     }
   }
 
+  _eraseLeadingZeros();
   return *this;
 }
 template<typename S>
@@ -228,6 +245,8 @@ Polynomial<S>& Polynomial<S>::operator*=(const S& s){
   for(int i = 0; i < this->_data.size(); i++){
     this->_data[i] *= s;
   }
+
+  _eraseLeadingZeros();
   return *this;
 }
 
@@ -392,13 +411,14 @@ Polynomial<S>& Polynomial<S>::operator/=(const S& s){
   for(int i = 0; i < dataSize; i++){
     this->_data[i] /= s;
   }
-
+  _eraseLeadingZeros();
   return *this;
 }
 
 template<typename S>
 Polynomial<S>& Polynomial<S>::operator%=(const Polynomial<S>& rhs){
   this->_reduce(rhs);
+  _eraseLeadingZeros();
   return *this;
 }
 
@@ -406,6 +426,7 @@ template<typename S>
 Polynomial<S>& Polynomial<S>::operator%=(const S& rhs){
   Polynomial<S> tmp( rhs, 0, this->_ini );
   this->operator%=(tmp);
+  _eraseLeadingZeros();
   return *this;
 }
 
@@ -795,6 +816,7 @@ std::istream& operator>>(std::istream& in, Polynomial<S>& p) {
  
       Constraints::must_have_base<S, Field<S> > dummy __attribute__ ((__unused__));
 
+      assert( s && t);
       if( h.isZero() ){
         s->makeOne();
         t->makeZero();
@@ -826,6 +848,26 @@ std::istream& operator>>(std::istream& in, Polynomial<S>& p) {
       (*t) = t2;
 
       return g;
+    }
+
+  template<typename S>
+    Polynomial<S> GCDEuclid4Fields<S>::gcd(Polynomial<S> u, Polynomial<S> v){
+      
+      Constraints::must_have_base<S, Field<S> > dummy __attribute__ ((__unused__));
+//      if( u.isOne() ){
+//        return u;
+//      }
+//      if( v.isOne() ){
+//        return v;
+//      }
+
+      Polynomial<S> r;
+      while( !v.isZero() ){
+        r = u % v;
+        u = v;
+        v = r;
+      }
+      return u;
     }
 
 

@@ -25,6 +25,7 @@
 #include "MethodsFactory.h"
 #include "GCD.h"
 #include "Z.h"
+#include "Z_p.h"
 #include "R.h"
 
 namespace mpplas{
@@ -43,14 +44,15 @@ namespace mpplas{
         inline int getDegree() const;
         inline const S& getLeadingCoefficient() const;
         inline bool isMonic() const;
-        inline bool isZero() const;
-
         inline const S& getIni() const;
 
         bool isCoeffsDomainAField() const ;
 
         inline void makeZero();
         inline void makeOne();
+
+        inline bool isZero() const;
+        inline bool isOne() const;
 
         void changeSign();
 
@@ -158,8 +160,6 @@ namespace mpplas{
   ////////////////////////////////////////
 
   template<typename S>
-  class GCDPolyKnuth;
-  template<typename S>
   class GCDPolyCollins;
 
   template<typename S>
@@ -169,6 +169,8 @@ namespace mpplas{
         typedef GCDPolyCollins<S> DFL;
     };
 
+  template<typename S>
+  class GCDEuclid4Fields;
 
 
   template<typename S>
@@ -180,6 +182,14 @@ namespace mpplas{
         virtual ~GCDExt(){}
         typedef GCDExtPoly<S> DFL;
     };
+
+  template<>
+  class GCD< Polynomial<Z_p> > : public GCDBase< Polynomial<Z_p> > {
+    public:
+      virtual ~GCD(){};
+      typedef GCDEuclid4Fields<Z_p> DFL;
+  };
+
 
   ////////////////////////////////////
   
@@ -199,6 +209,12 @@ namespace mpplas{
       public:
         virtual Polynomial<S> gcdext(Polynomial<S> x, Polynomial<S> y, Polynomial<S>* const C, Polynomial<S>* const D);
     };
+  template<typename S>
+    class GCDEuclid4Fields: public GCD< Polynomial<S> >{
+      public:
+      virtual Polynomial<S> gcd( Polynomial<S> u, Polynomial<S> v );
+    };
+
 
   #include "PolynomialImpl.h"
 

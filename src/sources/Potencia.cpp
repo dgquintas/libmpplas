@@ -220,16 +220,11 @@ namespace mpplas{
 
 
   void ClasicoConBarrett::barrettStep(Z* const base, const Z& exp, const Z& mod, const Z& mu) const {
-    bool eNegativo = false;
 
     if( exp.isNegative() ){
-      eNegativo = true;
       invert(base, mod);
-//      base->operator=(inverse(*base, mod));
     }
-
-    const Z valorInicial(*base);
-
+    const Z orig(*base);
     base->hacerUno();
 
     Utils::BitChecker bc(exp);
@@ -239,7 +234,7 @@ namespace mpplas{
       redbarrett->redBarrett(base, mod, mu);
 
       if( bc.checkPrevious() ){
-        base->operator*=(valorInicial); 
+        base->operator*=(orig); 
         redbarrett->redBarrett(base, mod,mu);
       }
     }
@@ -439,6 +434,9 @@ namespace mpplas{
     base->makeOne();
     if( k.esCero() ){
       return;
+    }
+    if( k.isNegative() ){
+      g.invert();
     }
     
     Utils::BitChecker bc(k, true);

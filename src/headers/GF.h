@@ -23,6 +23,7 @@ namespace mpplas{
       inline Z getOrder() const;
       inline const Z_px& getMod() const;
 
+
       GF& operator*=(const GF& rhs);
       GF& square();
 
@@ -31,7 +32,10 @@ namespace mpplas{
       GF& invert();
       GF getInverse() const;
 
+      GF& operator^=(const Z& exp);
 
+      static bool _isIrreducible(const Z_px& fx, const Z& p);
+      static Z_px _genIrreducible(const int degree, const Z& p);
 
     protected:
       Z_px _fx;
@@ -39,8 +43,6 @@ namespace mpplas{
       Z _p;
       Digit _n;
 
-//      static Z_px _genIrreduciblePolynomial(const int degree);
-//      static Z_px _testForIrreducibility(const Z& p, const Z_px& fx);
 //      static Z_px _genPrimitivePolynomial(const int degree);
 
   }; /* class GF */

@@ -4,6 +4,9 @@
 
 
 #include "GF.h"
+#include "Potencia.h"
+#include "MethodsFactory.h"
+#include "Random.h"
 
 namespace mpplas {
 
@@ -53,6 +56,13 @@ namespace mpplas {
     return inv;
   }
 
+  GF& GF::operator^=(const Z& exp){
+    Exponentiation< GF > *potMod; 
+    MethodsFactory::getReference().getFunc(potMod);
+    potMod->exponentiation(this,exp);
+    return *this;
+  }
+
   GF& GF::operator=(const GF& src){
     Z_px::operator=(src);
     this->_fx = src._fx;
@@ -61,12 +71,41 @@ namespace mpplas {
     return *this;
   }
 
-//  Z_px GF::_testForIrreducibility(const Z& p, const Z_px& fx){
-//    Z_px u(1, 1, p);
-//  }
-//  Z_px GF::_genIrreduciblePolynomial(const int degree){
-//    
-//  }
+  bool GF::_isIrreducible(const Z_px& fx, const Z& p ){
+    assert( fx.getCharacteristic() == p );
+    const int m = fx.getDegree();
+    const Z_px x(Z_px(1, 1, p));
+    GF u(x,fx); 
+    Exponentiation< GF > *potMod; 
+    MethodsFactory::getReference().getFunc(potMod);
+
+    for(int i = 0; i < (m/2); i++){
+      potMod->exponentiation(&u,p);
+      if( !(Z_px::gcd(fx, u - x).isOne()) ){
+        return false; //reducible
+      }
+    }
+    return true; //irreducible
+
+  }
+  Z_px GF::_genIrreducible(const int m, const Z& p){
+    RandomFast *rnd; MethodsFactory::getReference().getFunc(rnd);
+    
+    Z_px fx(Z::ONE, m, p);
+    do{
+      do {
+        fx[0] = rnd->getIntegerBounded(p);
+      } while(fx[0].esCero());
+
+      for( int i = 1; i < m; i++){
+        fx[i] = rnd->getIntegerBounded(p);
+      }
+    }
+    while( !_isIrreducible(fx, p) );
+
+    return fx;
+    
+  }
 //  Z_px GF::_genPrimitivePolynomial(const int degree){
 //  }
 

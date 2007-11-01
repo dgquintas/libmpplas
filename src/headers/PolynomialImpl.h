@@ -204,7 +204,7 @@ Polynomial<S>& Polynomial<S>::operator-=(const Polynomial<S>& rhs){
     typename MiVec<S>::iterator thisIt(this->_data.begin());
     rhsIt += iniSize; thisIt+= iniSize;
     for( ; rhsIt != rhs._data.end(); rhsIt++, thisIt++){
-      (*thisIt) = -(*rhsIt);
+      (*thisIt) = (*rhsIt).getAddInverse();
     }
 //    std::transform( rhsIt, rhs._data.end(), thisIt, std::negate<S>());
   }

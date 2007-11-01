@@ -7,8 +7,8 @@
 
 namespace mpplas{
 
-  Zx Zx::ZERO(Z((Digit)0),0);
-  Zx Zx::ONE(Z((Digit)1), 0);
+  const Zx Zx::ZERO(Z((Digit)0),0);
+  const Zx Zx::ONE(Z((Digit)1), 0);
   
   const bool Zx::addCommutative(true); 
   const bool Zx::groupCyclic(true);

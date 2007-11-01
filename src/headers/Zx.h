@@ -25,8 +25,8 @@ namespace mpplas{
 
 
 
-      static Zx ZERO;
-      static Zx ONE;
+      static const Zx ZERO;
+      static const Zx ONE;
 
       /* Ring and Group methods */
         static const bool addCommutative;

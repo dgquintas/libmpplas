@@ -106,8 +106,8 @@ namespace mpplas{
 
      
     /* Ring and Group methods */
-      static Z_n ZERO;
-      static Z_n ONE;
+      static const Z_n ZERO;
+      static const Z_n ONE;
 
       static const bool addCommutative;
       static const bool groupCyclic;
@@ -125,9 +125,7 @@ namespace mpplas{
         return Z_n::ZERO;
       };
       Z_n getAddInverse() const{
-        Z_n tmp(*this);
-        tmp.cambiarSigno();
-        return tmp;
+        return Z_n((n_ - (*this),this->getMod()) );
       };
       static const Z_n& getGroupGenerator() {
         return Z_n::ONE;
@@ -150,6 +148,7 @@ namespace mpplas{
     
   };
 
+  Z_n operator-(const Z_n& rhs);
  
   Z_n operator+(Z_n, const Z_n&);
   Z_n operator-(Z_n, const Z_n&);

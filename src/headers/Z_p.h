@@ -24,8 +24,8 @@ namespace mpplas{
       virtual ~Z_p(){};
 
       /* Ring, Group and Field methods */
-      static Z_p ZERO;
-      static Z_p ONE;
+      static const Z_p ZERO;
+      static const Z_p ONE;
 
       static const bool addCommutative;
       static const bool groupCyclic;

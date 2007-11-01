@@ -9,8 +9,8 @@
 
 namespace mpplas{
 
-  Z_px Z_px::ZERO( Z_px( Z_p((Digit)0, (Digit)0, false, false), 0, 0) );
-  Z_px Z_px::ONE ( Z_px( Z_p((Digit)1, (Digit)0, false, false), 0, 0) );
+  const Z_px Z_px::ZERO( Z_px( Z_p((Digit)0, (Digit)0, false, false), 0, 0) );
+  const Z_px Z_px::ONE ( Z_px( Z_p((Digit)1, (Digit)0, false, false), 0, 0) );
 
   const bool Z_px::groupCyclic(true);
   const bool Z_px::addCommutative(true); 
@@ -41,6 +41,12 @@ namespace mpplas{
   Z_px::Z_px(const Z& coeff, const int exp, const Z& p)
     : Polynomial<Z_p>( Z_p(coeff,p), exp, Z_p(p) ), _p(p) {}
 
+
+  Z_px& Z_px::operator=(const Z_px& src){
+    Polynomial<Z_p>::operator=(src);
+    this->_p = src._p;
+    return *this;
+  }
 
 
   Z_px Z_px::gcd(Z_px u, Z_px v, Z_px* const s, Z_px* const t){

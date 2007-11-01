@@ -33,8 +33,8 @@ namespace mpplas{
   const bool Z::multCommutative(true);
   const bool Z::unitaryRing(true);
 
-  Z Z::ZERO((Digit)0);
-  Z Z::ONE((Digit)1);
+  const Z Z::ZERO((Digit)0);
+  const Z Z::ONE((Digit)1);
 
   // implementacion constructores
   Z::Z()

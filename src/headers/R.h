@@ -538,8 +538,8 @@ namespace mpplas {
       int8_t signo(void) const { return mantisa_.signo(); }
 
     
-    static R ZERO;
-    static R ONE;
+    static const R ZERO;
+    static const R ONE;
 
     /* Ring, Group and Field methods */
 

@@ -1206,8 +1206,8 @@ namespace mpplas
 
 
       /** TODO */
-      static Z ZERO;
-      static Z ONE;
+      static const Z ZERO;
+      static const Z ONE;
 
       /* Ring and Group methods */
         static const bool addCommutative;

@@ -12,8 +12,8 @@
 
 namespace mpplas{
 
-  Z_n Z_n::ZERO( (Digit)0, (Digit)0, false); 
-  Z_n Z_n::ONE ( (Digit)1, (Digit)0, false);
+  const Z_n Z_n::ZERO( (Digit)0, (Digit)0, false); 
+  const Z_n Z_n::ONE ( (Digit)1, (Digit)0, false);
 
   const bool Z_n::addCommutative(true); 
   const bool Z_n::groupCyclic(true);
@@ -99,12 +99,13 @@ namespace mpplas{
 
   Z_n& Z_n::operator=(const Z_n& enteroModular) {
     Z::operator=(enteroModular);
-    if( this->n_.esCero() ){
-      this->n_ = enteroModular.n_;
-    }
-    else if( enteroModular.n_ > n_ ){
-      this->operator%=(n_);
-    }
+//    if( this->n_.esCero() ){
+//      this->n_ = enteroModular.n_;
+//    }
+//    else if( enteroModular.n_ > n_ ){
+//      this->operator%=(n_);
+//    }
+    this->n_ = enteroModular.n_;
 
     return *this;
   }
@@ -318,14 +319,16 @@ namespace mpplas{
 
   Z_n& Z_n::operator^=(const Z& e) {
     if( n_.esCero() && e.isPositive() ){
-      return Z_n::ONE;
+      (*this) = Z_n::ONE;
     }
-    ClasicoConBarrett potMod;
-    RedBarrett rb; 
-    if( _exponentiationPrecompts.esCero() ){
-      _exponentiationPrecompts = rb.precomputaciones( n_ );
+    else{
+      ClasicoConBarrett potMod;
+      RedBarrett rb; 
+      if( _exponentiationPrecompts.esCero() ){
+        _exponentiationPrecompts = rb.precomputaciones( n_ );
+      }
+      potMod.barrettStep(this, e, n_, _exponentiationPrecompts);
     }
-    potMod.barrettStep(this, e, n_, _exponentiationPrecompts);
     return *this;
   }
 
@@ -342,6 +345,15 @@ namespace mpplas{
 
       return is;
     }
+
+
+  Z_n operator-(const Z_n& rhs){
+    return rhs.getAddInverse();
+  }
+
+
+
+
 
 
   Z_n operator+(Z_n izq, const Z_n& der) {

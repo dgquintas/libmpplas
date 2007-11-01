@@ -21,11 +21,13 @@ namespace mpplas{
       Z_px(const Z_p& coeff, const int exp, const Z& p);
       Z_px(const Z& coeff, const int exp, const Z& p);
   
+      Z_px& operator=(const Z_px& src);
+
       static Z_px gcd(Z_px u, Z_px v, Z_px* const s = NULL, Z_px* const t = NULL);
 
       /* Ring, Group and Field methods */
-      static Z_px ZERO;
-      static Z_px ONE;
+      static const Z_px ZERO;
+      static const Z_px ONE;
 
       static const bool addCommutative;
       static const bool groupCyclic;
@@ -46,7 +48,11 @@ namespace mpplas{
         return Z_px::ZERO;
       };
       Z_px getAddInverse() const{
-        return -(*this);
+        Z_px addInv(*this);
+        for( int i = 0 ; i < addInv._data.size(); i++){
+          addInv._data[i] = this->_p - addInv._data[i];
+        }
+        return addInv;
       };
       static const Z_px& getGroupGenerator() {
         return Z_px::ONE;

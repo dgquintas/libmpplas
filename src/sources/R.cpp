@@ -24,8 +24,8 @@ namespace mpplas{
   const bool R::divisionRing(true);
 
   
-  R R::ZERO((Digit)0);
-  R R::ONE((Digit)1);
+  const R R::ZERO((Digit)0);
+  const R R::ONE((Digit)1);
   
   R::R() 
     : exponente_(0)  

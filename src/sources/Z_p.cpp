@@ -9,8 +9,8 @@
 
 namespace mpplas{
 
-  Z_p Z_p::ZERO( (Digit)0, (Digit)0, false, false ); 
-  Z_p Z_p::ONE ( (Digit)1, (Digit)0, false, false);
+  const Z_p Z_p::ZERO( (Digit)0, (Digit)0, false, false ); 
+  const Z_p Z_p::ONE ( (Digit)1, (Digit)0, false, false);
 
   const bool Z_p::groupCyclic(true);
   const bool Z_p::addCommutative(true); 

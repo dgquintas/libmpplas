@@ -7,6 +7,8 @@
 #include <algorithm>
 
 #include "GCD.h"
+#include "kernel.h"
+#include "Constants.h"
 
 namespace mpplas{
 
@@ -234,5 +236,9 @@ namespace mpplas{
 
     return ( v <<= g );
   }
+
+
+
+  ////////////////////
 
 }

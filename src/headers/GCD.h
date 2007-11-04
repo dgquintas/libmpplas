@@ -29,7 +29,16 @@ namespace mpplas{
    */
   template<typename T>
   class GCDBase  : public AbstractMethod  {
-    public:
+    public: 
+      /** Máximo común divisor.
+      *
+      * Realiza el cálculo del máximo común divisor de dos enteros.
+      * 
+      *  @param u,v Enteros de los que calcular el máximo común
+      *  divisor.
+      * 
+      * @return El máximo común divisor de @a u y @a v.
+      */
       virtual T gcd(T u, T v ) = 0;
       T gcd( const MiVec<T>& nums ) throw(Errors::InvalidArgument) ;
 
@@ -38,21 +47,37 @@ namespace mpplas{
   template<typename T>
     class GCD {};
 
+  /** Interfaz para la versión extendida del máximo común divisor. 
+   * 
+   * Clase base para algoritmos que implementen el cálculo de la
+   * versión extendida máximo común divisor.
+   * Esto es, que devuelvan los coeficientes \f$C\f$ y \f$D\f$ de la
+   * ecuación \f$d = Ca + Db\f$ para \f$d = \gcd(a,b)\f$.
+   * 
+   */
+  template<typename T>
+  class GCDExtBase : public AbstractMethod
+  {
+    public: 
+      /** Cálculo del máximo común divisor y coeficientes.
+         *
+         * @param x,y Enteros de los que calcular el máximo común
+         * divisor.
+         * @param C,D Coeficientes de @a x e @a y respectivamente en la
+         * relación \f$d = Cx + Dy\f$ para \f$d = \gcd(x,y)\f$.
+         */
+      virtual T gcdext(T x, T y, T* const C, T* const D) = 0;
+      virtual ~GCDExtBase(){}
+  };
+  template<typename T>
+    class GCDExt {};
+
+
+  /////////////////////////////////////////////////////////////
+
   template<>
     class GCD<Z> : public GCDBase<Z> {
       public:
-        /** Máximo común divisor.
-         *
-         * Realiza el cálculo del máximo común divisor de dos enteros.
-         * 
-         *  @param u,v Enteros de los que calcular el máximo común
-         *  divisor.
-         * 
-         * @return El máximo común divisor de @a u y @a v.
-         */
-//        virtual Z gcd(Z u, Z v ) = 0;
-
-
         /** Máximo común divisor, versión especial precisión simple.
          *
          * Realiza el cálculo del máximo común divisor de un entero y un
@@ -82,49 +107,20 @@ namespace mpplas{
         Z _gcd(Z u, SignedDigit v ); 
 
         virtual ~GCD(){};
-
         typedef GCDLehmer DFL;
-
-
     };
-
-
-  /** Interfaz para la versión extendida del máximo común divisor. 
-   * 
-   * Clase base para algoritmos que implementen el cálculo de la
-   * versión extendida máximo común divisor.
-   * Esto es, que devuelvan los coeficientes \f$C\f$ y \f$D\f$ de la
-   * ecuación \f$d = Ca + Db\f$ para \f$d = \gcd(a,b)\f$.
-   * 
-   */
-  template<typename T>
-  class GCDExtBase : public AbstractMethod
-  {
-    public:
-      virtual T gcdext(T x, T y, T* const C, T* const D) = 0;
-      virtual ~GCDExtBase(){}
-  };
-  template<typename T>
-    class GCDExt {};
-
 
   template<>
     class GCDExt<Z> : public GCDExtBase<Z> {
       public:
-        /** Cálculo del máximo común divisor y coeficientes.
-         *
-         * @param x,y Enteros de los que calcular el máximo común
-         * divisor.
-         * @param C,D Coeficientes de @a x e @a y respectivamente en la
-         * relación \f$d = Cx + Dy\f$ para \f$d = \gcd(x,y)\f$.
-         */
-//        virtual T gcdext(T x, T y, T& C, T& D) = 0;
-
         virtual ~GCDExt(){}
-
         typedef GCDExtBinario DFL;
-
     };
+
+
+
+
+
 
 
   //////////////////////////////////////////////////////////////
@@ -158,6 +154,7 @@ namespace mpplas{
 
       virtual ~GCDExtBinario(){}
   };
+
 
 
 //////////////////////////////////////////////////////////////////
@@ -231,11 +228,7 @@ namespace mpplas{
     return commonGCD;
 
   }
-
-
-
 }
-
       
       
 #endif 

@@ -854,12 +854,12 @@ std::istream& operator>>(std::istream& in, Polynomial<S>& p) {
     Polynomial<S> GCDEuclid4Fields<S>::gcd(Polynomial<S> u, Polynomial<S> v){
       
       Constraints::must_have_base<S, Field<S> > dummy __attribute__ ((__unused__));
-//      if( u.isOne() ){
-//        return u;
-//      }
-//      if( v.isOne() ){
-//        return v;
-//      }
+      if( u.isOne() ){
+        return u;
+      }
+      if( v.isOne() ){
+        return v;
+      }
 
       Polynomial<S> r;
       while( !v.isZero() ){
@@ -869,5 +869,6 @@ std::istream& operator>>(std::istream& in, Polynomial<S>& p) {
       }
       return u;
     }
+
 
 

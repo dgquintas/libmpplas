@@ -130,7 +130,7 @@ namespace mpplas{
       static const Z_n& getGroupGenerator() {
         return Z_n::ONE;
       }
-      const Z& getCharacteristic() const {
+      Z getCharacteristic() const {
         return n_;
       }
 

@@ -49,7 +49,7 @@ namespace mpplas{
         static const Zx& getMultIdentity() {
           return ONE ;
         }; 
-        const Z& getCharacteristic() const {
+        Z getCharacteristic() const {
           return Z::ZERO;
         }
 

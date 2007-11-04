@@ -1232,7 +1232,7 @@ namespace mpplas
         static const Z& getMultIdentity() {
           return ONE ;
         }; 
-        const Z& getCharacteristic() const {
+        Z getCharacteristic() const {
           return Z::ZERO;
         }
 

@@ -37,7 +37,7 @@ namespace mpplas{
 //          T& (T::*multiplication)(const T&) __attribute__ ((__unused__)) = &(T::operator*=) ;
           const T& (*getMultIdentity)() __attribute__ ((__unused__)) = &(T::getMultIdentity) ;
           T (T::*getAddInverse)() const __attribute__ ((__unused__)) = &(T::getAddInverse) ;
-          const Z& (T::*getCharacteristic)() const __attribute__ ((__unused__)) = &(T::getCharacteristic) ;
+          Z (T::*getCharacteristic)() const __attribute__ ((__unused__)) = &(T::getCharacteristic) ;
           return true;
         }
     };

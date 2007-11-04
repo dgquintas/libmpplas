@@ -49,8 +49,9 @@ namespace mpplas{
       };
       Z_px getAddInverse() const{
         Z_px addInv(*this);
+        const Z& p( this->_data[0].getMod() );
         for( int i = 0 ; i < addInv._data.size(); i++){
-          addInv._data[i] = this->_p - addInv._data[i];
+          addInv._data[i] = p - addInv._data[i];
         }
         return addInv;
       };
@@ -62,17 +63,9 @@ namespace mpplas{
         tmp /= (*this);
         return tmp;
       }
-      const Z& getCharacteristic() const {
-        return this->_p;
+      Z getCharacteristic() const {
+        return this->_data[0].getMod();
       }
-
-
-
-
-
-
-    private:
-      Z _p;
 
   }; /* class Z_px */
 

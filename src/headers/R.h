@@ -571,7 +571,7 @@ namespace mpplas {
     static const R& getGroupGenerator() {
       return ONE;
     } 
-    const Z& getCharacteristic() const {
+    Z getCharacteristic() const {
         return Z::ZERO;
     }
 

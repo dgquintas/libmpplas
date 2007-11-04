@@ -9,6 +9,8 @@
 #include "Z.h"
 #include "Z_px.h"
 
+
+
 namespace mpplas{
 
   class GF : public Z_px , public Field< GF > {
@@ -34,10 +36,7 @@ namespace mpplas{
 
       GF& operator^=(const Z& exp);
 
-      static bool isIrreducible(const Z_px& fx, const Z& p);
-      static Z_px generateIrreducible(const int degree, const Z& p);
-      static bool isPrimitive(const Z_px& fx, const MiVec<Z>& factors, const Z& p);
-      static Z_px generatePrimitive(const int degree, const MiVec<Z>& factors, const Z& p);
+
 
 
 
@@ -91,6 +90,12 @@ namespace mpplas{
   GF operator^(GF lhs, const Z& rhs);
 
 
+
+
+
+
+
+  ////////////////////////////////////
 
 } /* namespace mpplas */
 

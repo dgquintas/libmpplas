@@ -6,7 +6,7 @@
 #include "GF.h"
 #include "Potencia.h"
 #include "MethodsFactory.h"
-#include "Random.h"
+#include "PolynomialUtils.h"
 
 namespace mpplas {
 
@@ -24,7 +24,7 @@ namespace mpplas {
 
 
   GF::GF(const Z& p, const int n)
-    : Z_px(p), _p(p), _n(n),_fx(generateIrreducible(n,p)){
+    : Z_px(p), _p(p), _n(n),_fx(PolynomialUtils::generateIrreducible<mpplas::Z_px>(n,p)){
       this->operator%=(_fx);
   }
 
@@ -97,76 +97,9 @@ namespace mpplas {
     return *this;
   }
 
-  bool GF::isIrreducible(const Z_px& fx, const Z& p ){
-    //TODO: fx has to be monic
-    assert( fx.getCharacteristic() == p );
-    const int m = fx.getDegree();
-    const Z_px x(Z_px(1, 1, p));
-    GF u(x,fx); 
-    Exponentiation< GF > *potMod; 
-    MethodsFactory::getReference().getFunc(potMod);
-
-    for(int i = 0; i < (m/2); i++){
-      potMod->exponentiation(&u,p);
-      if( !(Z_px::gcd(fx, u - x).isOne()) ){
-        return false; //reducible
-      }
-    }
-    return true; //irreducible
-
-  }
-  Z_px GF::generateIrreducible(const int m, const Z& p){
-    RandomFast *rnd; MethodsFactory::getReference().getFunc(rnd);
-    
-    Z_px fx(Z::ONE, m, p);
-    do{
-      do {
-        fx[0] = rnd->getIntegerBounded(p);
-      } while(fx[0].esCero());
-
-      for( int i = 1; i < m; i++){
-        fx[i] = rnd->getIntegerBounded(p);
-      }
-    }
-    while( !isIrreducible(fx, p) );
-
-    return fx;
-    
-  }
-
-
-  bool GF::isPrimitive(const Z_px& fx, const MiVec<Z>& factors, const Z& p){
-    //TODO: fx has to be monic
-    if( !isIrreducible(fx, p) ){ // primitive => irreducible
-      return false;
-    } 
-    Exponentiation< GF > *potMod; 
-    MethodsFactory::getReference().getFunc(potMod);
-
-    const int m( fx.getDegree() );
-    const GF lx(Z_px(1,1, p), fx);
-    GF ltmp(lx);
-    const Z pM_1( ((p ^ m) -1) );
-    for(int i = 0 ; i < factors.size(); i++){
-      potMod->exponentiation(&ltmp, pM_1 / factors[i]);
-      if( ltmp.isOne() ){
-        return false;
-      }
-      ltmp = lx;
-    }
-    return true;
-  }
 
 
 
-  Z_px GF::generatePrimitive(const int degree, const MiVec<Z>& factors, const Z& p){
-    Z_px fx(p);
-    do{
-      fx = generateIrreducible( degree , p);
-    } while( !isPrimitive(fx,factors,p) );
-
-    return fx;
-  }
 
 
 

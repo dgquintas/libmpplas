@@ -26,6 +26,7 @@
 #include "GCD.h"
 #include "Z.h"
 #include "Z_p.h"
+#include "Digit_p.h"
 #include "R.h"
 
 namespace mpplas{
@@ -120,6 +121,7 @@ namespace mpplas{
   
   }; /* class polynomial */
 
+
   template<typename S>
     Polynomial<S> operator-(Polynomial<S> m); /**< Unary negation, sign inversion */
 
@@ -189,6 +191,14 @@ namespace mpplas{
       virtual ~GCD(){};
       typedef GCDEuclid4Fields<Z_p> DFL;
   };
+  
+  template<>
+  class GCD< Polynomial<Digit_p> > : public GCDBase< Polynomial<Digit_p> > {
+    public:
+      virtual ~GCD(){};
+      typedef GCDEuclid4Fields<Digit_p> DFL;
+  };
+
 
 
   ////////////////////////////////////

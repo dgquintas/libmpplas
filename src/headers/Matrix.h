@@ -144,6 +144,7 @@ namespace mpplas {
         inline bool isSquare() const;
 
         virtual std::string toString() const;
+        virtual std::string toHRString() const;
 
 
       protected:

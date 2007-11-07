@@ -26,7 +26,7 @@
 #include "GCD.h"
 #include "Z.h"
 #include "Z_p.h"
-#include "Digit_p.h"
+//#include "Digit_p.h"
 #include "R.h"
 
 namespace mpplas{
@@ -38,6 +38,7 @@ namespace mpplas{
         Polynomial(const S& ini = S::getAddIdentity() );
         Polynomial(const Polynomial<S>& src );
         Polynomial<S>& operator=(const Polynomial<S>& src);
+        Polynomial<S>& fromString(const std::string& str);
 
         inline S& operator[](int i);
         inline const S& operator[](int i) const;
@@ -45,6 +46,7 @@ namespace mpplas{
         inline int getDegree() const;
         inline const S& getLeadingCoefficient() const;
         inline bool isMonic() const;
+        Polynomial<S>& makeMonic() ;
         inline const S& getIni() const;
 
         bool isCoeffsDomainAField() const ;
@@ -57,32 +59,35 @@ namespace mpplas{
 
         void changeSign();
 
-        S evaluate(const S& x0) const;
+        template<typename T>
+          T evaluate(const T& x0) const;
 
         S getContent() const;
         Polynomial<S>& makePrimitive();
 
         bool operator==(const Polynomial<S>& rhs) const;
+        bool operator<(const Polynomial<S>& rhs) const;
 
-        Polynomial<S>& operator+=(const Polynomial<S>& rhs);
-        Polynomial<S>& operator+=(const S& s);
+        virtual Polynomial<S>& operator+=(const Polynomial<S>& rhs);
+        virtual Polynomial<S>& operator+=(const S& s);
 
-        Polynomial<S>& operator-=(const Polynomial<S>& rhs);
-        Polynomial<S>& operator-=(const S& s);
+        virtual Polynomial<S>& operator-=(const Polynomial<S>& rhs);
+        virtual Polynomial<S>& operator-=(const S& s);
 
-        Polynomial<S>& operator*=(const Polynomial<S>& rhs);
-        Polynomial<S>& operator*=(const S& s); 
-        Polynomial<S>& square();
+        virtual Polynomial<S>& operator*=(const Polynomial<S>& rhs);
+        virtual Polynomial<S>& operator*=(const S& s); 
+        virtual Polynomial<S>& square();
 
-        Polynomial<S>& operator/=(const Polynomial<S>& rhs);
-        Polynomial<S>& operator/=(const S& s); 
+        virtual Polynomial<S>& operator/=(const Polynomial<S>& rhs);
+        virtual Polynomial<S>& operator/=(const S& s); 
 
-        Polynomial<S>& operator%=(const Polynomial<S>& rhs);
-        Polynomial<S>& operator%=(const S& s); 
+        virtual Polynomial<S>& operator%=(const Polynomial<S>& rhs);
+        virtual Polynomial<S>& operator%=(const S& s); 
 
         static void divAndMod(Polynomial<S> lhs, const Polynomial<S>& rhs, Polynomial<S>* q, Polynomial<S>* r);
 
         virtual std::string toString() const;
+        virtual std::string toHRString() const;
 
         ~Polynomial(){
           //only conditions are that S must be a commutative ring 
@@ -112,7 +117,8 @@ namespace mpplas{
 
       private:
         void _eraseLeadingZeros();
-        void _horner2ndOrder(S& result, const S& x0) const ;
+        template<typename T>
+          void _horner2ndOrder(T* const result, const T& x0) const ;
         void _ufdDivide(const Polynomial<S>& rhs, Polynomial<S>* const q, const bool reduce); 
         void _fieldDivide(const Polynomial<S>& rhs, Polynomial<S>* const q, const bool reduce ) ;
         void _reduce(const Polynomial<S>& rhs);
@@ -192,12 +198,12 @@ namespace mpplas{
       typedef GCDEuclid4Fields<Z_p> DFL;
   };
   
-  template<>
-  class GCD< Polynomial<Digit_p> > : public GCDBase< Polynomial<Digit_p> > {
-    public:
-      virtual ~GCD(){};
-      typedef GCDEuclid4Fields<Digit_p> DFL;
-  };
+//  template<>
+//  class GCD< Polynomial<Digit_p> > : public GCDBase< Polynomial<Digit_p> > {
+//    public:
+//      virtual ~GCD(){};
+//      typedef GCDEuclid4Fields<Digit_p> DFL;
+//  };
 
 
 

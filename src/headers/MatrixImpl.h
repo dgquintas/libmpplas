@@ -557,6 +557,12 @@ std::string Matrix<T, Alloc>::toString() const {
   return oss.str();
 }
 
+template<typename T, typename Alloc>
+std::string Matrix<T, Alloc>::toHRString() const { 
+  std::ostringstream oss;
+  oss << *this;
+  return oss.str();
+}
 
 ////////////////////////////////////////////
 

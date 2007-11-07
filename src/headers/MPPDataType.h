@@ -17,6 +17,12 @@ namespace mpplas{
        * @return A std::string representing the standard textual representation of the data.
        */
       virtual std::string toString() const = 0;
+  
+      /** Get a human readable representation of the data.
+       *
+       * @return A std::string representing a human readabldablee representation of the data.
+       */
+      virtual std::string toHRString() const = 0;
 
   };
 

@@ -70,6 +70,19 @@ Polynomial<S>& Polynomial<S>::operator=(const Polynomial<S>& src){
   return *this;
 }
 
+template<typename S>
+Polynomial<S>& Polynomial<S>::fromString(const std::string& str){
+
+    std::istringstream inStream(str);
+    operator>>(inStream,*this);
+
+    if( this->_data.empty() ){
+      this->_data.push_back(this->_ini);
+    }
+
+    return *this;
+}
+
 
 template<typename S>
 inline int Polynomial<S>::getDegree() const {
@@ -87,6 +100,23 @@ template<typename S>
 inline bool Polynomial<S>::isMonic() const {
   return this->_data.back() == S::getMultIdentity();
 }
+
+template<typename S>
+  Polynomial<S>& Polynomial<S>::makeMonic(){
+
+    Constraints::must_have_base<S, Field<S> > dummy __attribute__ ((__unused__));
+
+    const S& leadingCoeff(this->getLeadingCoefficient());
+    if( !(this->isMonic()) ){
+      for( int i = 0 ; i < this->_data.size() ; i++){
+        if( ! this->_data[i].esCero() ){
+          this->_data[i] /= leadingCoeff;
+        }
+      }
+    }
+      
+    return *this;
+  }
 
 template<typename S>
 inline const S& Polynomial<S>::getIni() const {
@@ -150,10 +180,30 @@ inline const S& Polynomial<S>::operator[](int i) const{
 }
 
 template<typename S>
-bool Polynomial<S>::operator==(const Polynomial<S>& rhs) const{
+bool Polynomial<S>::operator==(const Polynomial<S>& rhs) const{ 
   return this->_data == rhs._data;
 }
 
+template<typename S>
+bool Polynomial<S>::operator<(const Polynomial<S>& rhs) const{
+  if( this->getDegree() < rhs.getDegree()){
+    return true;
+  }
+  else if( this->getDegree() > rhs.getDegree() ){
+    return false;
+  }
+  else{
+    for(int i = this->_data.size()-1; i >= 0; i--){
+      if( (*this)._data[i] < rhs._data[i] ){
+        return true;
+      }
+      else if( (*this)._data[i] > rhs._data[i] ){
+        return false;
+      }
+    }
+  }
+  return false;
+}
 
 template<typename S>
 Polynomial<S>& Polynomial<S>::operator+=(const Polynomial<S>& rhs){
@@ -335,7 +385,7 @@ void Polynomial<S>::_fieldDivide(const Polynomial<S>& rhs, Polynomial<S>* const 
     this->_eraseLeadingZeros();
   }
   if( q != NULL ){
-    q->_eraseLeadingZeros(); //FIXME: necesario?
+    q->_eraseLeadingZeros(); 
   }
   else{
     delete qk;
@@ -390,7 +440,7 @@ void Polynomial<S>::_ufdDivide(const Polynomial<S>& rhs, Polynomial<S>* const q,
     this->_eraseLeadingZeros();
   }
   if( q != NULL ){
-    q->_eraseLeadingZeros(); //FIXME: necesario?
+    q->_eraseLeadingZeros(); 
   }
 
 }
@@ -436,7 +486,9 @@ Polynomial<S>& Polynomial<S>::operator%=(const S& rhs){
 template<typename S>
 void Polynomial<S>::divAndMod(Polynomial<S> lhs, const Polynomial<S>& rhs, Polynomial<S>* q, Polynomial<S>* r){
   if( lhs.isCoeffsDomainAField() ){
-    assert( rhs.isCoeffsDomainAField() ); //FIXME raise exception
+    if( !rhs.isCoeffsDomainAField() ){
+      throw Errors::FieldRequired("RHS polynomial at 'divAndMod' does not have coeffs. on a field");
+    }
     lhs._fieldDivide(rhs, q, true);
     *r = lhs;
   }
@@ -490,20 +542,34 @@ std::string Polynomial<S>::toString() const {
 }
 
 template<typename S>
-S Polynomial<S>::evaluate(const S& x0) const {
-  S result;
-  this->_horner2ndOrder(result, x0);
+std::string Polynomial<S>::toHRString() const {
+  std::ostringstream oss;
+  oss << *this;
+  return oss.str();
+}
+
+
+template<typename S>
+template<typename T>
+T Polynomial<S>::evaluate(const T& x0) const {
+  if( this->getDegree() == 0 ){
+    return this->_data[0];
+  }
+  T result(this->_ini);
+  this->_horner2ndOrder(&result, x0);
   return result;
 }
 
+
 template<typename S>
-void Polynomial<S>::_horner2ndOrder(S& result, const S& x0) const {
+template<typename T>
+void Polynomial<S>::_horner2ndOrder(T* const result, const T& x0) const {
   //described in [knuth] 4.6.4, page 487
   //and [dorn] 
   const int n = this->getDegree();
-  const S x0Sqr( x0 ^ (Digit)2 ); 
+  const T x0Sqr( x0 ^ (Digit)2 ); 
 
-  S res1, res2;
+  T res1(_ini), res2(_ini);
 
 #pragma omp parallel sections 
 {
@@ -532,8 +598,8 @@ void Polynomial<S>::_horner2ndOrder(S& result, const S& x0) const {
 }
 }
 
-  result = res1;
-  result += res2;
+  (*result) = res1;
+  (*result) += res2;
 
   return;
 }
@@ -847,6 +913,9 @@ std::istream& operator>>(std::istream& in, Polynomial<S>& p) {
       (*s) = s2;
       (*t) = t2;
 
+      s->makeMonic();
+      t->makeMonic();
+      g.makeMonic();
       return g;
     }
 
@@ -867,6 +936,7 @@ std::istream& operator>>(std::istream& in, Polynomial<S>& p) {
         u = v;
         v = r;
       }
+      u.makeMonic();
       return u;
     }
 

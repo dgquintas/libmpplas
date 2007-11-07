@@ -9,6 +9,7 @@
 #include "MethodsFactory.h"
 #include "Potencia.h"
 #include "Random.h"
+#include "Factor.h"
 #include <cassert>
 
 
@@ -32,12 +33,18 @@ namespace mpplas{
   namespace PolynomialUtils {
     template<typename T>
       bool isIrreducible(const T& fx, const Z& p ){
-        //TODO: fx has to be monic
+        //fx has to be monic
+        if( !fx.isMonic() ){
+          T tmp(fx);
+          tmp.makeMonic();
+          return isIrreducible(tmp,p);
+        }
+
         assert( fx.getCharacteristic() == p );
         const int m = fx.getDegree();
         const T x(1, 1, p);
-        GF u(x,fx); 
-        Exponentiation< GF > *potMod; 
+        typename T::GF u(x,fx); 
+        Exponentiation< typename T::GF > *potMod; 
         MethodsFactory::getReference().getFunc(potMod);
 
         for(int i = 0; i < (m/2); i++){
@@ -73,17 +80,27 @@ namespace mpplas{
 
 
     template<typename T>
-      bool isPrimitive(const T& fx, const MiVec<Z>& factors, const Z& p){
-        //TODO: fx has to be monic
+      bool isPrimitive(const T& fx,const Z& p){
+        // fx has to be monic
+        if( !fx.isMonic() ){
+          T tmp(fx);
+          tmp.makeMonic();
+          return isPrimitive(tmp,p);
+        }
+
         if( !isIrreducible(fx, p) ){ // primitive => irreducible
           return false;
         } 
-        Exponentiation< GF > *potMod; 
-        MethodsFactory::getReference().getFunc(potMod);
+        Exponentiation< typename T::GF > *potMod; 
+        mpplas::Factoriza* factorize;
 
+        MethodsFactory::getReference().getFunc(potMod);
+        MethodsFactory::getReference().getFunc(factorize);
+
+        const MiVec<Z>& factors( factorize->factoriza( ( p ^ fx.getDegree() )-1 ) );
         const int m( fx.getDegree() );
-        const GF lx(T(1,1, p), fx);
-        GF ltmp(lx);
+        const typename T::GF lx(T(1,1, p), fx);
+        typename T::GF ltmp(lx);
         const Z pM_1( ((p ^ m) -1) );
         for(int i = 0 ; i < factors.size(); i++){
           potMod->exponentiation(&ltmp, pM_1 / factors[i]);
@@ -99,11 +116,11 @@ namespace mpplas{
 
 
     template<typename T>
-      T generatePrimitive(const int degree, const MiVec<Z>& factors, const Z& p){
+      T generatePrimitive(const int degree, const Z& p){
         T fx(p);
         do{
           fx = generateIrreducible<T>( degree , p);
-        } while( !isPrimitive(fx,factors,p) );
+        } while( !isPrimitive(fx,p) );
 
         return fx;
       }

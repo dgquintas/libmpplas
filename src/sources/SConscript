@@ -5,8 +5,6 @@ filesStr = """
     BitChecker.cpp
     CPUInfo.cpp
     CRT.cpp
-    Digit_p.cpp
-    Digit_px.cpp
     Factor.cpp
     GF.cpp
     MethodsFactory.cpp

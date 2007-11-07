@@ -318,6 +318,7 @@ namespace mpplas {
     //funciones utiles
     
     virtual std::string toString() const;
+    virtual std::string toHRString() const;
     std::string toString(int decimalPlaces) const;
 
       /** Hacer cero.

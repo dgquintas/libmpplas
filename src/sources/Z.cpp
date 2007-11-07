@@ -1569,6 +1569,9 @@ namespace mpplas{
     return oss.str().c_str();
   }
 
+  std::string Z::toHRString(void) const {
+    return this->toString();
+  }
 
   Z Z::gcd(const Z& u, const Z& v, Z* const s, Z* const t){
     if( s && t ){

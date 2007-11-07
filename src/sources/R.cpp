@@ -353,6 +353,9 @@ namespace mpplas{
 
     return oss.str().c_str();
   }
+  std::string R::toHRString() const {
+    return this->toString();
+  }
   std::string R::toString(int decimalPlaces) const {
     std::string fullNum( this->toString() );
     std::string::size_type dotPos = fullNum.find('.');

@@ -1032,6 +1032,7 @@ namespace mpplas
       /////////////////////////////////
 
       virtual std::string toString() const;
+      virtual std::string toHRString() const;
 
       /** Get the Z as a single precision signed type.
        *

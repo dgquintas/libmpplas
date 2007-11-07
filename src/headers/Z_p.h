@@ -13,7 +13,7 @@
 namespace mpplas{
   class Z_p : public Z_n, public Field<Z_p> {
     public:
-      explicit Z_p( const Z& mod) throw(Errors::PrimeRequired);
+      explicit Z_p(const Z& mod, const bool checkPrimality = true) throw(Errors::PrimeRequired);
       Z_p( const Z& num, const Z& mod, const bool reduce = true, const bool checkPrimality = true) throw(Errors::PrimeRequired) ;
       Z_p(const Z_p& src);
       Z_p(const Z_n& src) throw(Errors::PrimeRequired) ;

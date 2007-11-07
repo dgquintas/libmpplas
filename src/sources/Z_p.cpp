@@ -21,9 +21,9 @@ namespace mpplas{
   const bool Z_p::divisionRing(true);
 
 
-  Z_p::Z_p( const Z& mod )throw(Errors::PrimeRequired)
+  Z_p::Z_p(const Z& mod, const bool checkPrimality )throw(Errors::PrimeRequired)
     : Z_n(mod) {
-      if ( !mod.esCero()){
+      if ( (!mod.esCero()) && checkPrimality) {
         TestPrimoProb* primeTest;
         MethodsFactory::getReference().getFunc(primeTest);
 

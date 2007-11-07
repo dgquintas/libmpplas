@@ -17,6 +17,7 @@
 #include "MPPDataType.h"
 #include "MiVec.h"
 #include "Z.h"
+#include "Z_n.h"
 #include "MatrixZ.h"
 #include "R.h"
 #include "Random.h"
@@ -29,6 +30,7 @@
 #include "BasicTypedefs.h"
 #include "Profiling.h"
 #include "Errors.h"
+#include "GF.h"
 
 #include "RuntimeData.h"
 
@@ -99,19 +101,12 @@ class DiscardClientId: public xmlrpc_c::method {
       }
 
 };
-
-
-/***********************************************
- ************** INTEGERS ***********************
- ***********************************************/
-
-
 class RunGC: public xmlrpc_c::method {
   public:
     
     RunGC() {
       this->_signature = "n:iA";
-      this->_help = "This method garbage collects the internal table of Z's";
+      this->_help = "This method starts the garbage collection";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -121,7 +116,7 @@ class RunGC: public xmlrpc_c::method {
 
         paramList.verifyEnd(2);
 
-        std::vector< RuntimeData<mpplas::Z>::varId_t > usedSlots( tmp.size() );
+        std::vector< varId_t > usedSlots( tmp.size() );
         for(int i=0; i< tmp.size(); i++){
           usedSlots.push_back( xmlrpc_c::value_string( tmp[i] ) );
         }
@@ -129,28 +124,6 @@ class RunGC: public xmlrpc_c::method {
         table.runGC(clientId, usedSlots);
 
         *retvalP = xmlrpc_c::value_nil();
-      }
-};
-
-
-class ZCreate: public xmlrpc_c::method {
-  public:
-    
-    ZCreate() {
-      this->_signature = "s:is";
-      this->_help = "This method creates a new integer";
-    }
-
-    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
-
-        const int clientId(paramList.getInt(0));
-        mpplas::Z* const op( new mpplas::Z(paramList.getString(1)));
-
-        paramList.verifyEnd(2);
-
-        const std::string varId(table.set(clientId, op, "Z"));
-
-        *retvalP = xmlrpc_c::value_string(varId);
       }
 };
 
@@ -179,6 +152,54 @@ class GetData: public xmlrpc_c::method {
 
       }
 };
+
+
+class GetHRStringMethod : public xmlrpc_c::method {
+  public:
+    
+    GetHRStringMethod() {
+      this->_signature = "s:is";
+      this->_help = "This method returns a human readable representation of the data";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+        const int clientId(paramList.getInt(0));
+        const std::string varId(paramList.getString(1));
+
+        const mpplas::MPPDataType* const op1(table.get(clientId, varId));
+        
+        paramList.verifyEnd(2);
+
+        *retvalP = xmlrpc_c::value_string( op1->toHRString() );
+      }
+};
+
+
+/***********************************************
+ ************** INTEGERS ***********************
+ ***********************************************/
+
+class ZCreate: public xmlrpc_c::method {
+  public:
+    
+    ZCreate() {
+      this->_signature = "s:is";
+      this->_help = "This method creates a new integer";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        mpplas::Z* const op( new mpplas::Z(paramList.getString(1)));
+
+        paramList.verifyEnd(2);
+
+        const std::string varId(table.set(clientId, op, "Z"));
+
+        *retvalP = xmlrpc_c::value_string(varId);
+      }
+};
+
 
 class ZAddMethod : public xmlrpc_c::method {
   public:
@@ -575,18 +596,20 @@ class ModExpMethod : public xmlrpc_c::method {
 
         paramList.verifyEnd(4);
 
-        mpplas::Z op1( *((mpplas::Z*)table.get(clientId, varId1)));
-        const mpplas::Z op2( *((mpplas::Z*)table.get(clientId, varId2)));
-        const mpplas::Z op3( *((mpplas::Z*)table.get(clientId, varId3)));
+        const mpplas::Z base( *((mpplas::Z*)table.get(clientId, varId1)));
+        const mpplas::Z exp( *((mpplas::Z*)table.get(clientId, varId2)));
+        const mpplas::Z mod( *((mpplas::Z*)table.get(clientId, varId3)));
 
-        pmod->potModular(&op1,op2,op3);
-        const std::string varId = table.set(clientId, new mpplas::Z( op1 ), "Z");
+        mpplas::Z_n op(base, mod);
+
+        pmod->exponentiation(&op,exp);
+        const std::string varId = table.set(clientId, new mpplas::Z( op ), "Z");
         
         *retvalP = xmlrpc_c::value_string( varId );
       }
 
   private:
-    mpplas::PotModular* pmod;
+    mpplas::Exponentiation< mpplas::Z_n >* pmod;
 };
 
 class ModInverseMethod : public xmlrpc_c::method {
@@ -612,7 +635,7 @@ class ModInverseMethod : public xmlrpc_c::method {
 
         mpplas::Z* newInst; 
         try {
-          newInst = new mpplas::Z( pmod->inversa(op1,op2) );
+          newInst = new mpplas::Z( pmod->inverse(op1,op2) );
         }
         catch(const std::exception& e){
           throw(girerr::error(e.what()));
@@ -625,13 +648,257 @@ class ModInverseMethod : public xmlrpc_c::method {
       }
 
   private:
-    mpplas::PotModular* pmod;
+    mpplas::Exponentiation< mpplas::Z_n >* pmod;
+};
+
+
+
+/***********************************************
+ ************** FINITE FIELDS ******************
+ ***********************************************/
+
+class GFCreate: public xmlrpc_c::method {
+  public:
+    
+    GFCreate() {
+      this->_signature = "s:issib";
+      this->_help = "This method creates a new finite field";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+
+        const std::string poly(paramList.getString(1));
+
+        const std::string varId1(paramList.getString(2));
+        const mpplas::Z p( *((mpplas::Z*)table.get(clientId, varId1)));
+
+        const int n(paramList.getInt(3));
+        const bool usePrimitive(paramList.getBoolean(4));
+
+        paramList.verifyEnd(5);
+
+        try{ 
+          mpplas::GF* const op( new mpplas::GF(p,n,usePrimitive) ); 
+          op->fromString(poly);
+          const std::string varId(table.set(clientId, op, "GF"));
+
+          *retvalP = xmlrpc_c::value_string(varId);
+
+
+        }
+        catch( const std::exception &e ){
+          throw girerr::error( e.what() );
+        }
+
+
+    }
+};
+
+class GFAddMethod : public xmlrpc_c::method {
+  public:
+    
+    GFAddMethod() {
+      this->_signature = "s:iss";
+      this->_help = "This method adds two elements of a finite field together";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+          const mpplas::GF op1( *((mpplas::GF*)table.get(clientId, varId1)));
+          const mpplas::GF op2( *((mpplas::GF*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::GF(op1+op2), "GF");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+};
+class GFSubMethod : public xmlrpc_c::method {
+  public:
+    
+    GFSubMethod() {
+      this->_signature = "s:iss";
+      this->_help = "This method substracts two elements of a finite field";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+          const mpplas::GF op1( *((mpplas::GF*)table.get(clientId, varId1)));
+          const mpplas::GF op2( *((mpplas::GF*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::GF(op1-op2), "GF");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+};
+class GFMulMethod : public xmlrpc_c::method {
+  public:
+    
+    GFMulMethod() {
+      this->_signature = "s:iss";
+      this->_help = "This method multiplies two elements of a finite field";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+          const mpplas::GF op1( *((mpplas::GF*)table.get(clientId, varId1)));
+          const mpplas::GF op2( *((mpplas::GF*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::GF(op1*op2), "GF");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+};
+class GFDivMethod : public xmlrpc_c::method {
+  public:
+    
+    GFDivMethod() {
+      this->_signature = "s:iss";
+      this->_help = "This method divides two elements of a finite field";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+          const mpplas::GF op1( *((mpplas::GF*)table.get(clientId, varId1)));
+          const mpplas::GF op2( *((mpplas::GF*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::GF(op1/op2), "GF");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+};
+class GFInvMethod : public xmlrpc_c::method {
+  public:
+    
+    GFInvMethod() {
+      this->_signature = "s:is";
+      this->_help = "Returns the inverse of a finite field element";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+          const mpplas::GF op1( *((mpplas::GF*)table.get(clientId, varId1)));
+
+        const std::string varId = table.set(clientId, new mpplas::GF( op1.getInverse() ), "GF");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
 };
 
 
 
 
+class GFGetProperties: public xmlrpc_c::method {
+  public:
+    
+    GFGetProperties() {
+      this->_signature = "S:is";
+      this->_help = "This method returns the properties for the given finite field";
+    }
 
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+        const int clientId(paramList.getInt(0));
+        const std::string varId(paramList.getString(1));
+        paramList.verifyEnd(2);
+
+        const mpplas::GF* const op( (mpplas::GF*)table.get(clientId, varId));
+
+        std::map<std::string, xmlrpc_c::value> structData;
+        
+
+        std::pair<std::string, xmlrpc_c::value> characteristic("characteristic", xmlrpc_c::value_string( op->getCharacteristic().toString() ));
+        std::pair<std::string, xmlrpc_c::value> degree("degree", xmlrpc_c::value_int( op->getDegree() ));
+        std::pair<std::string, xmlrpc_c::value> order("order", xmlrpc_c::value_string( op->getOrder().toString() ));
+        std::pair<std::string, xmlrpc_c::value> modulus("modulus", xmlrpc_c::value_string( op->getMod().toHRString() ));
+        std::pair<std::string, xmlrpc_c::value> isModulusPrimitive("isModulusPrimitive", xmlrpc_c::value_boolean( op->isModPrimitive() ));
+
+        structData.insert(characteristic);
+        structData.insert(degree);
+        structData.insert(order);
+        structData.insert(modulus);
+        structData.insert(isModulusPrimitive);
+
+        *retvalP = xmlrpc_c::value_struct( structData );
+      }
+};
+
+class GFGetValue: public xmlrpc_c::method {
+  public:
+    
+    GFGetValue() {
+      this->_signature = "s:is";
+      this->_help = "Returns the integer equivalent for the given finite field element";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+        const int clientId(paramList.getInt(0));
+        const std::string varId(paramList.getString(1));
+        paramList.verifyEnd(2);
+
+        const mpplas::GF* const op( (mpplas::GF*)table.get(clientId, varId));
+
+        *retvalP = xmlrpc_c::value_string( op->toZ().toString() );
+      }
+};
+
+class GFSetValue: public xmlrpc_c::method {
+  public:
+    
+    GFSetValue() {
+      this->_signature = "s:iss";
+      this->_help = "Sets the finite field element to the equivalent representation of the given integer";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+        paramList.verifyEnd(3);
+
+        mpplas::GF* const op( (mpplas::GF*)table.get(clientId, varId1));
+        const mpplas::Z zOp( *((mpplas::Z*)table.get(clientId, varId2)));
+        
+        try{
+          op->fromZ(zOp);
+        }
+        catch(const std::exception& e){
+          throw(girerr::error(e.what()));
+        }
+
+
+        *retvalP = xmlrpc_c::value_string( varId1 );
+      }
+};
 
 
 /***********************************************
@@ -710,28 +977,6 @@ class MZMulMethod : public xmlrpc_c::method {
 };
 
 
-class MZPPrintMethod : public xmlrpc_c::method {
-  public:
-    
-    MZPPrintMethod() {
-      this->_signature = "s:is";
-      this->_help = "This method returns an alternative representation of the matrix, more human readable";
-    }
-
-    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
-        const int clientId(paramList.getInt(0));
-        const std::string varId(paramList.getString(1));
-
-        const mpplas::MatrixZ* const op1( (mpplas::MatrixZ*)table.get(clientId, varId));
-        
-        paramList.verifyEnd(2);
-
-        std::ostringstream oss;
-        oss << (*op1);
-
-        *retvalP = xmlrpc_c::value_string( oss.str() );
-      }
-};
 
 
 
@@ -883,7 +1128,7 @@ class GCDMethod : public xmlrpc_c::method {
     }
 
   private:
-    mpplas::GCD* gcd;
+    mpplas::GCD< mpplas::Z >* gcd;
 };
 
 /***********************************************
@@ -1158,6 +1403,7 @@ int main(int const, const char ** const) {
     xmlrpc_c::methodPtr const RBitLengthP(new RBitLength);
 
 
+
     xmlrpc_c::methodPtr const ModExpMethodP(new ModExpMethod);
     xmlrpc_c::methodPtr const ModInverseMethodP(new ModInverseMethod);
 
@@ -1220,11 +1466,20 @@ int main(int const, const char ** const) {
     myRegistry.addMethod("mzAdd", MZAddMethodP);
     myRegistry.addMethod("mzMul", MZMulMethodP);
 
+    xmlrpc_c::methodPtr const GetHRStringMethodP(new GetHRStringMethod);
+    myRegistry.addMethod("getHRString", GetHRStringMethodP);
 
-    xmlrpc_c::methodPtr const MZPPrintMethodP(new MZPPrintMethod);
-    myRegistry.addMethod("_mzPPrint", MZPPrintMethodP);
+
+    myRegistry.addMethod("gfCreate", new GFCreate);
+    myRegistry.addMethod("gfAdd", new GFAddMethod);
+    myRegistry.addMethod("gfSub", new GFSubMethod);
+    myRegistry.addMethod("gfMul", new GFMulMethod);
+    myRegistry.addMethod("gfDiv", new GFDivMethod);
 
 
+    myRegistry.addMethod("gfGetProperties", new GFGetProperties);
+    myRegistry.addMethod("gfGetValue", new GFGetValue);
+    myRegistry.addMethod("gfSetValue", new GFSetValue);
 
 
     myRegistry.addMethod("modExp", ModExpMethodP);

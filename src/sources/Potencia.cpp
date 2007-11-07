@@ -6,7 +6,6 @@
 #include "Potencia.h"
 #include "GCD.h"
 #include "DigitUtils.h"
-#include "BitChecker.h"
 #include "ZM_n.h"
 #include "SystemInfo.h"
 
@@ -426,32 +425,6 @@ namespace mpplas{
     return;
   }
 
-  //////////////////////////////////////////
-
-  void SqrAndMultGFExp::exponentiation(GF* const base, const Z& k){
-    // k should verify 0 <= k < p^m-1 ; m = deg(fx)
-    GF g(*base);
-    base->makeOne();
-    if( k.esCero() ){
-      return;
-    }
-    if( k.isNegative() ){
-      g.invert();
-    }
-    
-    Utils::BitChecker bc(k, true);
-    if( bc.checkNext() ){
-      (*base) = g;
-
-    }
-    while( bc.hasNext() ){
-      g.square();
-      if( bc.checkNext() ){
-        (*base) *= g;
-      }
-    }
-    return;
-  }
 
   //////////////////////////////////////
   
@@ -503,5 +476,37 @@ namespace mpplas{
     sections.push_back(e.getRightshiftedBits(a+aLast));
     return a;
   }
+
+
+
+
+
+
+
+  void SqrAndMultGFExp::exponentiation(GF* const base, const Z& k){
+    // k should verify 0 <= k < p^m-1 ; m = deg(fx)
+    GF g(*base);
+    base->makeOne();
+    if( k.esCero() ){
+      return;
+    }
+    if( k.isNegative() ){
+      g.invert();
+    }
+    
+    Utils::BitChecker bc(k, true);
+    if( bc.checkNext() ){
+      (*base) = g;
+
+    }
+    while( bc.hasNext() ){
+      g.square();
+      if( bc.checkNext() ){
+        (*base) *= g;
+      }
+    }
+    return;
+  }
+
 
 } //namespace mpplas

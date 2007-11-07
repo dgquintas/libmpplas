@@ -10,10 +10,12 @@
 #include "R.h"
 #include "Z.h"
 #include "Z_n.h"
-#include "Z_px.h"
 #include "AbstractMethod.h"
 #include "MethodsFactory.h"
 #include "RedModular.h"
+#include "Polynomial.h"
+#include "BitChecker.h"
+#include "Errors.h"
 #include "GF.h"
 
 namespace mpplas{
@@ -25,6 +27,7 @@ namespace mpplas{
   class ClasicoConBarrett;
   class TwoThreadedModularExp;
   class MultiThreadedModularExp;
+  template<typename S> class SqrAndMultPolyExp;
   class SqrAndMultGFExp;
 
   // la razon de que el exponente se considere con signo pese a no
@@ -183,14 +186,23 @@ namespace mpplas{
 
 
   template<>
-  class Exponentiation< GF > : public ExponentiationBase< GF >{
+    template<typename S>
+    class Exponentiation< Polynomial<S> > : public ExponentiationBase< Polynomial<S> >{
 
-    public:
-      virtual ~Exponentiation(){}
+      public:
+        virtual ~Exponentiation(){}
 
-      typedef SqrAndMultGFExp DFL;
-  };
+        typedef SqrAndMultPolyExp<S> DFL;
+    };
 
+  template<>
+    class Exponentiation< GF > : public ExponentiationBase< GF >{
+
+      public:
+        virtual ~Exponentiation(){}
+
+        typedef SqrAndMultGFExp DFL;
+    };
 
 
   /* IMPLEMENTACIONES */
@@ -257,8 +269,7 @@ namespace mpplas{
    * @note Es el método que la librería utiliza por omisión.
    *
    */
-  class ClasicoConBarrett : public Exponentiation<Z_n>
-  {
+  class ClasicoConBarrett : public Exponentiation<Z_n> {
     public:
       ClasicoConBarrett();
       virtual void exponentiation(Z_n* const base, const Z& exp); 
@@ -299,12 +310,50 @@ namespace mpplas{
 
 
 
+  template<typename S>
+  class SqrAndMultPolyExp: public Exponentiation< Polynomial<S> > {
+    public:
+      virtual void exponentiation(Polynomial<S>* const base, const Z& exp);
+
+      virtual ~SqrAndMultPolyExp(){}
+  };
+
   class SqrAndMultGFExp: public Exponentiation< GF > {
     public:
       virtual void exponentiation(GF* const base, const Z& exp);
 
       virtual ~SqrAndMultGFExp(){}
   };
+
+
+
+  //////////////////////////////////////////
+
+  template<typename S>
+  void SqrAndMultPolyExp<S>::exponentiation(Polynomial<S>* const base, const Z& k){
+    // k should verify 0 <= k < p^m-1 ; m = deg(fx)
+    Polynomial<S> g(*base);
+    base->makeOne();
+    if( k.esCero() ){
+      return;
+    }
+    if( k.isNegative() ){
+      throw Errors::ExponenteNegativo();
+    }
+    
+    Utils::BitChecker bc(k, true);
+    if( bc.checkNext() ){
+      (*base) = g;
+
+    }
+    while( bc.hasNext() ){
+      g.square();
+      if( bc.checkNext() ){
+        (*base) *= g;
+      }
+    }
+    return;
+  }
 
 
 };

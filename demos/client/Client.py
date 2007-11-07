@@ -424,6 +424,49 @@ class R(Variable):
     return res
 
 
+###############################################################################
+
+
+class GF(Variable):
+  def __init__(self, poly="[(0,0)]", p=2, n=1, usePrimitive=False, id=None):
+    if id:
+      Variable.__init__(self, id)
+    else:
+      if not isinstance(p,Variable):
+        p = Z(str(p))
+      Variable.__init__(self, gfCreate(poly,p,n,usePrimitive).getId())
+
+  def __add__(self, anotherGF): 
+    return gfAdd(self, anotherGF )
+  def __iadd__(self, anotherGF): 
+    self.setId( self.__add__(anotherGF).getId() )
+    return self
+
+
+
+  def __repr__(self):
+#    return "%s with id %s" % (type(self),self.getId())
+    res = getData(self)
+    return res
+
+  def __str__(self):
+    return getHRString(self)
+    return res
+
+
+  def getProperties(self):
+    return gfGetProperties(self)
+
+  def getValue(self):
+    return gfGetValue(self)
+
+  def setValue(self, anInteger):
+    if not isinstance(anInteger,Variable):
+      anInteger = Z(str(anInteger))
+    return gfSetValue(self, anInteger)
+
+
+
 
 ###############################################################################
 
@@ -465,8 +508,7 @@ class MZ(Variable): #matrix Z
     return res
 
   def __str__(self):
-    global clientId
-    return RPCServer.getInstance().getInteractiveServer()._mzPPrint(clientId, self.getId())
+    return getHRString(self.getId())
 
   def __strToPyRep(self, str):
     res = []

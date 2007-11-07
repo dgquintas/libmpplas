@@ -173,6 +173,13 @@ namespace mpplas{
         }
     };
 
+    class FieldRequired: public InvalidArgument {
+      public:
+        FieldRequired(const std::string details = "")
+        : InvalidArgument("Field required; ") {
+          _msg += details;
+        }
+    };
 
 
     ////////////////////////////////////////////

@@ -15,19 +15,25 @@ namespace mpplas{
 
   class GF : public Z_px , public Field< GF > {
     public:
-      GF(const Z& p, const int n = 1);
+      GF(const Z& p, const int n = 1, const bool usePrimitiveMod = false);
       GF(const Z& p, const Z_px& fx);
       GF(const Z_px& poly, const Z_px& fx);
 
       GF& operator=(const GF& src);
+      GF& fromString(const std::string& str);
 
       /** Number of elements of the finite field */
       inline Z getOrder() const;
       inline const Z_px& getMod() const;
+      inline int getDegree() const;
+      inline bool isModPrimitive() const;
 
+
+      GF& operator+=(const GF& rhs);
+      GF& operator-=(const GF& rhs);
 
       GF& operator*=(const GF& rhs);
-      GF& square();
+      virtual GF& square();
 
       //inversion + product
       GF& operator/=(const GF& rhs);
@@ -36,6 +42,8 @@ namespace mpplas{
 
       GF& operator^=(const Z& exp);
 
+      Z toZ() const;
+      GF& fromZ(const Z& src);
 
 
 
@@ -75,9 +83,20 @@ namespace mpplas{
 
       Z _p;
       int _n;
+      
+      bool _primitiveMod;
 
 
   }; /* class GF */
+
+
+
+
+  GF operator+(GF lhs, const GF& rhs);
+  GF operator-(GF lhs, const GF& rhs);
+  GF operator*(GF lhs, const GF& rhs);
+  GF operator/(GF lhs, const GF& rhs);
+
 
   inline Z GF::getOrder() const{
     return (_p ^ _n);
@@ -86,6 +105,13 @@ namespace mpplas{
     return _fx;
   }
 
+  inline int GF::getDegree() const{
+    return _n;
+  }
+
+  inline bool GF::isModPrimitive() const{
+    return _primitiveMod;
+  }
 
   GF operator^(GF lhs, const Z& rhs);
 

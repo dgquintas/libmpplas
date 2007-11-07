@@ -3,10 +3,12 @@
  */
 
 
+
 #include "GF.h"
 #include "Potencia.h"
 #include "MethodsFactory.h"
 #include "PolynomialUtils.h"
+#include "Errors.h"
 
 namespace mpplas {
 
@@ -23,24 +25,46 @@ namespace mpplas {
   const bool GF::divisionRing(true);
 
 
-  GF::GF(const Z& p, const int n)
-    : Z_px(p), _p(p), _n(n),_fx(PolynomialUtils::generateIrreducible<mpplas::Z_px>(n,p)){
-      this->operator%=(_fx);
+  GF::GF(const Z& p, const int n, const bool usePrimitiveMod)
+    : Z_px(p), _p(p), _n(n), _fx(p), _primitiveMod(usePrimitiveMod)  {
+      if( usePrimitiveMod ){
+        _fx = PolynomialUtils::generatePrimitive<mpplas::Z_px>(n,p);
+      }
+      else{
+        _fx = PolynomialUtils::generateIrreducible<mpplas::Z_px>(n,p);
+      }
   }
 
   GF::GF(const Z& p, const Z_px& fx)
-    : Z_px(p), _n( fx.getDegree() ), _p(p), _fx(fx) {
-    assert( fx.getCharacteristic() == p ); //FIXME: raise exception
+    : Z_px(p), _n( fx.getDegree() ), _p(p), _fx(fx), _primitiveMod(false) {
+    if( fx.getCharacteristic() != p ){
+      throw Errors::InvalidArgument("Invalid characteristic for f(x) constructing GF");
+    }
   }
 
   GF::GF(const Z_px& poly, const Z_px& fx)
-    : Z_px(poly), _n( poly.getDegree() ), _fx(fx), _p( poly.getCharacteristic() )
+    : Z_px(poly), _n( poly.getDegree() ), _fx(fx), _p( poly.getCharacteristic() ), _primitiveMod(false)
   {
-    assert( fx.getCharacteristic() == poly.getCharacteristic() ); //FIXME: raise exception
+    if( fx.getCharacteristic() != poly.getCharacteristic() ){
+      throw Errors::InvalidArgument("Invalid characteristic for f(x) constructing GF");
+    }
     if( !fx.isZero() ){
       this->operator%=(fx);
     }
   }
+
+
+  GF& GF::operator+=(const GF& rhs){
+    Z_px::operator+=(rhs);
+    return *this;
+  }
+  GF& GF::operator-=(const GF& rhs){
+    Z_px::operator-=(rhs);
+    return *this;
+  }
+
+
+
 
   GF& GF::operator*=(const GF& rhs){
     if( this->_fx.isZero() ){
@@ -51,9 +75,10 @@ namespace mpplas {
 
     return *this;
   }
+
   GF& GF::square(){ 
     if( !this->_fx.isZero() ){
-      ((Z_px*)this)->square();
+      Z_px::square();
       this->operator%=(_fx);
     }
     return *this;
@@ -94,23 +119,70 @@ namespace mpplas {
     this->_fx = src._fx;
     this->_p = src._p;
     this->_n = src._n;
+    this->_primitiveMod = src._primitiveMod;
     return *this;
   }
 
+  GF& GF::fromString(const std::string& str){
+    Z_px::fromString(str);
+    if( !_fx.isZero() ){
+      this->operator%=(_fx);
+    }
+    return *this;
+  }
+
+  Z GF::toZ() const{
+    return this->evaluate(_p);
+  }
+
+  GF& GF::fromZ(const Z& src) {
+    if( src >= this->getOrder() ){
+      std::ostringstream oss;
+      oss << "Integer '" << src << "' too big for a GF with order '" << this->getOrder() << "'";
+      throw Errors::TooBig( oss.str() );
+    }
+
+    this->_data.clear();
+    Z_p q(_p,false),r(_p,false); //don't check for the primality of _p
+    divMod(src, _p, &q, &r);
+    this->_data.push_back(r);
+    while( q >= _p ){
+      divMod(Z(q), _p, &q, &r);
+      this->_data.push_back(r);
+    }
+    // q < _p
+    this->_data.push_back(q);
 
 
-
-
-
-
-
-
-
+    return *this;
+  }
+    
 
   GF operator^(GF lhs, const Z& rhs){
     lhs ^= rhs;
     return lhs;
   }
+
+  GF operator+(GF lhs, const GF& rhs){
+    lhs += rhs;
+    return lhs;
+  }
+  GF operator-(GF lhs, const GF& rhs){ 
+    lhs -= rhs;
+    return lhs;
+  }
+
+  GF operator*(GF lhs, const GF& rhs){  
+    lhs *= rhs;
+    return lhs;
+  }
+
+  GF operator/(GF lhs, const GF& rhs){  
+    lhs /= rhs;
+    return lhs;
+  }
+
+
 
 
 }

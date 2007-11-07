@@ -21,12 +21,12 @@ class NoSuchVariable : public std::invalid_argument
 
 
 typedef int clientId_t;
+typedef std::string varId_t;
 template<typename T>
 class RuntimeData {
 
   public:
     RuntimeData();
-    typedef std::string varId_t;
 
     typedef std::map<varId_t    /* varId */, T > ClientVarsType;
     typedef std::map<clientId_t /* clientId */,  ClientVarsType > TableType;

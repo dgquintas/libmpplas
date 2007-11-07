@@ -26,7 +26,7 @@ template<typename T>
   }
 
 template<typename T>
-  typename RuntimeData<T>::varId_t RuntimeData<T>::set(const clientId_t clientId, const T& instance, const std::string typeStr){
+  varId_t RuntimeData<T>::set(const clientId_t clientId, const T& instance, const std::string typeStr){
     pthread_mutex_lock( &_mutex );
     const varId_t varId( _getAvailableVarId(clientId, typeStr) );
     _dataTable[clientId][varId] = instance;
@@ -89,7 +89,7 @@ bool RuntimeData<T>::_contains(const clientId_t clientId, const varId_t varId){
 }
 
 template<typename T>
-typename RuntimeData<T>::varId_t RuntimeData<T>::_getAvailableVarId(const clientId_t clientId, const std::string typeStr){
+varId_t RuntimeData<T>::_getAvailableVarId(const clientId_t clientId, const std::string typeStr){
   int rnd;
   std::set<int>& usedSet(_usedVarIds[clientId]);
   do{

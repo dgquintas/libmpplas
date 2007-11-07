@@ -10,7 +10,12 @@
 
 #include <iostream>
 
+
+
 namespace mpplas{
+
+  class GF;
+
   class Z_px : public Polynomial<Z_p> , public Field<Z_px> {
     public:
       Z_px(const Z& p);
@@ -21,9 +26,13 @@ namespace mpplas{
       Z_px(const Z_p& coeff, const int exp, const Z& p);
       Z_px(const Z& coeff, const int exp, const Z& p);
   
+ 
       Z_px& operator=(const Z_px& src);
 
       static Z_px gcd(Z_px u, Z_px v, Z_px* const s = NULL, Z_px* const t = NULL);
+
+
+      typedef mpplas::GF GF;
 
       /* Ring, Group and Field methods */
       static const Z_px ZERO;

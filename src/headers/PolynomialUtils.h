@@ -6,9 +6,11 @@
 #define __POLYNOMIALUTILS_H
 
 #include "GF.h"
+#include "GFx.h"
 #include "MethodsFactory.h"
 #include "Potencia.h"
 #include "Random.h"
+#include "Factor.h"
 #include "Factor.h"
 #include <cassert>
 
@@ -18,11 +20,11 @@ namespace mpplas{
   namespace PolynomialUtils{
 
     template<typename T>
-      bool isIrreducible(const T& fx, const Z& p);
+      bool isIrreducible(const T& fx);
     template<typename T>
       T generateIrreducible(const int degree, const Z& p);
     template<typename T>
-      bool isPrimitive(const T& fx, const MiVec<Z>& factors, const Z& p);
+      bool isPrimitive(const T& fx, const MiVec<Z>& factors);
     template<typename T>
       T generatePrimitive(const int degree, const MiVec<Z>& factors, const Z& p);
   }; /* namespace PolynomialUtils */
@@ -32,19 +34,21 @@ namespace mpplas{
 
   namespace PolynomialUtils {
     template<typename T>
-      bool isIrreducible(const T& fx, const Z& p ){
+      bool isIrreducible(const T& fx ){
         //fx has to be monic
         if( !fx.isMonic() ){
           T tmp(fx);
           tmp.makeMonic();
-          return isIrreducible(tmp,p);
+          return isIrreducible(tmp);
         }
 
-        assert( fx.getCharacteristic() == p );
+        const Z& p( fx.getCharacteristic() );
         const int m = fx.getDegree();
         const T x(1, 1, p);
-        typename T::GF u(x,fx); 
-        Exponentiation< typename T::GF > *potMod; 
+        GF gfGen(p, fx);
+        GFx u(gfGen.getElement(x));
+//        typename T::GF u(x,fx); 
+        Exponentiation< GFx > *potMod; 
         MethodsFactory::getReference().getFunc(potMod);
 
         for(int i = 0; i < (m/2); i++){
@@ -72,7 +76,7 @@ namespace mpplas{
             fx[i] = rnd->getIntegerBounded(p);
           }
         }
-        while( !isIrreducible(fx, p) );
+        while( !isIrreducible(fx) );
 
         return fx;
 
@@ -80,18 +84,19 @@ namespace mpplas{
 
 
     template<typename T>
-      bool isPrimitive(const T& fx,const Z& p){
+      bool isPrimitive(const T& fx){
         // fx has to be monic
         if( !fx.isMonic() ){
           T tmp(fx);
           tmp.makeMonic();
-          return isPrimitive(tmp,p);
+          return isPrimitive(tmp);
         }
 
-        if( !isIrreducible(fx, p) ){ // primitive => irreducible
+        const Z& p( fx.getCharacteristic() );
+        if( !isIrreducible(fx) ){ // primitive => irreducible
           return false;
         } 
-        Exponentiation< typename T::GF > *potMod; 
+        Exponentiation< GFx > *potMod; 
         mpplas::Factoriza* factorize;
 
         MethodsFactory::getReference().getFunc(potMod);
@@ -99,11 +104,14 @@ namespace mpplas{
 
         const MiVec<Z>& factors( factorize->factoriza( ( p ^ fx.getDegree() )-1 ) );
         const int m( fx.getDegree() );
-        const typename T::GF lx(T(1,1, p), fx);
-        typename T::GF ltmp(lx);
+        GF gfGen(p,fx);
+        GFx lx( gfGen.getElement(T(1,1, p)) );
+//        const typename T::GF lx(T(1,1, p), fx);
+        GFx ltmp(lx);
+//        typename T::GF ltmp(lx);
         const Z pM_1( ((p ^ m) -1) );
         for(int i = 0 ; i < factors.size(); i++){
-          potMod->exponentiation(&ltmp, pM_1 / factors[i]);
+          potMod->exponentiation(&ltmp, pM_1 / factors.at(i)); //FIXME: factors[i] no chuta con icc
           if( ltmp.isOne() ){
             return false;
           }
@@ -120,7 +128,7 @@ namespace mpplas{
         T fx(p);
         do{
           fx = generateIrreducible<T>( degree , p);
-        } while( !isPrimitive(fx,p) );
+        } while( !isPrimitive(fx) );
 
         return fx;
       }

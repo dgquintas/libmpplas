@@ -483,9 +483,9 @@ namespace mpplas{
 
 
 
-  void SqrAndMultGFExp::exponentiation(GF* const base, const Z& k){
+  void SqrAndMultGFExp::exponentiation(GFx* const base, const Z& k){
     // k should verify 0 <= k < p^m-1 ; m = deg(fx)
-    GF g(*base);
+    GFx g(*base);
     base->makeOne();
     if( k.esCero() ){
       return;

@@ -16,7 +16,7 @@
 #include "Polynomial.h"
 #include "BitChecker.h"
 #include "Errors.h"
-#include "GF.h"
+#include "GFx.h"
 
 namespace mpplas{
 
@@ -185,7 +185,6 @@ namespace mpplas{
   };
 
 
-  template<>
     template<typename S>
     class Exponentiation< Polynomial<S> > : public ExponentiationBase< Polynomial<S> >{
 
@@ -196,7 +195,7 @@ namespace mpplas{
     };
 
   template<>
-    class Exponentiation< GF > : public ExponentiationBase< GF >{
+    class Exponentiation< GFx > : public ExponentiationBase< GFx >{
 
       public:
         virtual ~Exponentiation(){}
@@ -318,9 +317,9 @@ namespace mpplas{
       virtual ~SqrAndMultPolyExp(){}
   };
 
-  class SqrAndMultGFExp: public Exponentiation< GF > {
+  class SqrAndMultGFExp: public Exponentiation< GFx > {
     public:
-      virtual void exponentiation(GF* const base, const Z& exp);
+      virtual void exponentiation(GFx* const base, const Z& exp);
 
       virtual ~SqrAndMultGFExp(){}
   };

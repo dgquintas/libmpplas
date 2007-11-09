@@ -142,7 +142,8 @@ inline void Polynomial<S>::makeOne() {
 }
 template<typename S>
 inline bool Polynomial<S>::isZero () const {
-  if( (this->_data.size() == 1) && ( this->_data[0] == S::getAddIdentity() ) ){
+  if( this->_data.empty() || 
+      ((this->_data.size() == 1) && ( this->_data[0] == S::getAddIdentity() ) ) ){
     return true;
   }
   else{

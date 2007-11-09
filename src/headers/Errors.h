@@ -181,6 +181,15 @@ namespace mpplas{
         }
     };
 
+    class InconsistentGFGenerator: public InvalidArgument {
+      public:
+        InconsistentGFGenerator(const std::string details = "")
+        : InvalidArgument("GF elements do not belong to the same field; ") {
+          _msg += details;
+        }
+    };
+
+
 
     ////////////////////////////////////////////
     // SINTACTIC ERRORS

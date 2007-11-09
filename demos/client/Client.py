@@ -331,6 +331,15 @@ class Z(Variable):
   def __ge__(self, anotherZ):
     return long(self.__str__()) >= long(anotherZ.__str__())
 
+  #FIXME: implementar la exponenciacion modular. Hacerlo aqui o en un tipo de dato Z_n separao?
+  def __pow__(self, exp, mod=None):
+    if not isinstance(exp,type(self)):
+      exp = Z(str(exp))
+    return zPow(self, exp)
+  def __ipow__(self, exp, mod=None): 
+    self.setId( self.__pow__(exp).getId() )
+
+
 
   def __len__(self):
     return zBitLength(self.getId())
@@ -428,21 +437,55 @@ class R(Variable):
 
 
 class GF(Variable):
-  def __init__(self, poly="[(0,0)]", p=2, n=1, usePrimitive=False, id=None):
+  def __init__(self, p=2, n=1, usePrimitive=False, id=None):
     if id:
       Variable.__init__(self, id)
     else:
       if not isinstance(p,Variable):
         p = Z(str(p))
-      Variable.__init__(self, gfCreate(poly,p,n,usePrimitive).getId())
+      Variable.__init__(self, gfCreate(p,n,usePrimitive).getId())
+
+  def getElement(self, poly="[(0,0)]"):
+    if isinstance(poly, str):
+      return gfxCreate(self.getId(), poly)
+
+  def getProperties(self):
+    return gfGetProperties(self)
+
+
+
+
+class GFx(Variable):
+  def __init__(self, id):
+    Variable.__init__(self, id)
 
   def __add__(self, anotherGF): 
-    return gfAdd(self, anotherGF )
+    return gfxAdd(self, anotherGF )
   def __iadd__(self, anotherGF): 
     self.setId( self.__add__(anotherGF).getId() )
     return self
 
+  def __sub__(self, anotherGF): 
+    return gfxSub(self, anotherGF )
+  def __isub__(self, anotherGF): 
+    self.setId( self.__sub__(anotherGF).getId() )
+    return self
 
+
+  def __mul__(self, anotherGF): 
+    return gfxMul(self, anotherGF )
+  def __imul__(self, anotherGF): 
+    self.setId( self.__mul__(anotherGF).getId() )
+    return self
+
+  def __div__(self, anotherGF): 
+    return gfxDiv(self, anotherGF )
+  def __idiv__(self, anotherGF): 
+    self.setId( self.__div__(anotherGF).getId() )
+    return self
+
+  def getInverse(self):
+    return gfxInverse(self)
 
   def __repr__(self):
 #    return "%s with id %s" % (type(self),self.getId())
@@ -452,18 +495,18 @@ class GF(Variable):
   def __str__(self):
     return getHRString(self)
     return res
-
-
+  
   def getProperties(self):
     return gfGetProperties(self)
 
+
   def getValue(self):
-    return gfGetValue(self)
+    return gfxGetValue(self)
 
   def setValue(self, anInteger):
     if not isinstance(anInteger,Variable):
       anInteger = Z(str(anInteger))
-    return gfSetValue(self, anInteger)
+    return gfxSetValue(self, anInteger)
 
 
 

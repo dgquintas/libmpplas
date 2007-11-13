@@ -84,7 +84,7 @@ namespace mpplas{
        }
 
        // deallocate storage p of deleted elements
-       void deallocate (pointer p, size_type num) {
+       void deallocate (pointer p, size_type num __attribute__((unused)) ) {
          //_mm_free( (void*) p );
          free( (void*) p );
        }
@@ -213,6 +213,28 @@ namespace mpplas{
   std::ostream& operator<<(std::ostream& out, const SIMDDigit<float4xSIMD_t>& v);
   std::ostream& operator<<(std::ostream& out, const SIMDDigit<double2xSIMD_t>& v);
   std::ostream& operator<<(std::ostream& out, const SIMDDigit<int8xSIMD_t>& v);
+
+  template<typename T>
+  SIMDDigit<T> operator+(SIMDDigit<T> lhs, const SIMDDigit<T>& rhs){
+    lhs += rhs;
+    return lhs;
+  }
+  template<typename T>
+  SIMDDigit<T> operator-(SIMDDigit<T> lhs, const SIMDDigit<T>& rhs){
+    lhs -= rhs;
+    return lhs;
+  }
+  template<typename T>
+  SIMDDigit<T> operator*(SIMDDigit<T> lhs, const SIMDDigit<T>& rhs){
+    lhs *= rhs;
+    return lhs;
+  }
+  template<typename T>
+  SIMDDigit<T> operator/(SIMDDigit<T> lhs, const SIMDDigit<T>& rhs){
+    lhs /= rhs;
+    return lhs;
+  }
+
 
 
   template<typename T>

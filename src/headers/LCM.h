@@ -7,6 +7,7 @@
 
 #include "Z.h"
 #include "AbstractMethod.h"
+#include "MethodsFactory.h"
 
 namespace mpplas{
 
@@ -18,8 +19,7 @@ namespace mpplas{
    * mínimo común múltiplo.
    * 
    */
- class LCM : public AbstractMethod
-  {
+ class LCM : public AbstractMethod {
     public:
 
       LCM();

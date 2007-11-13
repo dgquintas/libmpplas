@@ -46,10 +46,6 @@ namespace mpplas{
       static const bool multAssociative;
       static const bool divisionRing;
 
-
-
-
-
       static const Z_px& getMultIdentity() {
         return Z_px::ONE ;
       };

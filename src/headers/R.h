@@ -27,40 +27,39 @@
 namespace mpplas {
 
 /** Clase para la representación de enteros. */
-  class R: public Field<R>, public MPPDataType
-  {
+  class R: public Field<R>, public MPPDataType {
     public:
-   // constructores
-    R() /**< constructor por defecto */;
-    R( const R& ); /**< constructor de copia */
-    R( const SignedDigit ); /**< construccion desde simple precision */
-    R( const Digit ); /**< construccion desde 'token' básico */
-    explicit R( const char* ); /**< construccion desde cadena de caracteres */
-    explicit R( const std::string& str ); /**< construction from a std::string */ 
-    explicit R( const double ); /**< construccion desde double */
-    explicit R( const Z& ); /**< constructor desde Z */
+      // constructores
+      R() /**< constructor por defecto */;
+      R( const R& ); /**< constructor de copia */
+      R( const SignedDigit ); /**< construccion desde simple precision */
+      R( const Digit ); /**< construccion desde 'token' básico */
+      explicit R( const char* ); /**< construccion desde cadena de caracteres */
+      explicit R( const std::string& str ); /**< construction from a std::string */ 
+      explicit R( const double ); /**< construccion desde double */
+      explicit R( const Z& ); /**< constructor desde Z */
 
-     
-    /** Función de conversión de tipo Digit a R (real).
-     *
-     *  @par Complejidad:
-     *       \f$O(1)\f$
-     * 
-     *  @param numSimple Número de precisión simple a convertir a real.
-     *
-     *  @return El real correspondiente a la conversión.
-     */
-//    static R convertir(const Digit numSimple);
-     /** Función de conversión de tipo SignedDigit a R (real).
-     *
-     *  @par Complejidad:
-     *       \f$O(1)\f$
-     * 
-     *  @param numSimple Número de precisión simple con signo a convertir a real.
-     *
-     *  @return El real correspondiente a la conversión.
-     */  
-//    static R convertir(const SignedDigit numSimple);
+
+      /** Función de conversión de tipo Digit a R (real).
+       *
+       *  @par Complejidad:
+       *       \f$O(1)\f$
+       * 
+       *  @param numSimple Número de precisión simple a convertir a real.
+       *
+       *  @return El real correspondiente a la conversión.
+       */
+      //    static R convertir(const Digit numSimple);
+      /** Función de conversión de tipo SignedDigit a R (real).
+       *
+       *  @par Complejidad:
+       *       \f$O(1)\f$
+       * 
+       *  @param numSimple Número de precisión simple con signo a convertir a real.
+       *
+       *  @return El real correspondiente a la conversión.
+       */  
+      //    static R convertir(const SignedDigit numSimple);
       /** Función de conversión de tipo cadena de caracteres a R (real).
        * 
        *  @par Complejidad:
@@ -74,27 +73,27 @@ namespace mpplas {
        *
        *  @return El real correspondiente a la conversión.
        */
-//   static R convertir(const char* cadena);
-     /** Función de conversión de tipo double a R (real).
-     *
-     *  @par Complejidad:
-     *       \f$O(1)\f$
-     * 
-     *  @param numFlotante Número flotante de precisión simple a convertir a real.
-     *
-     *  @return El real correspondiente a la conversión.
-     */
-//   static R convertir(const double numFlotante);
-     /** Función de conversión de Z (entero) a R (real).
-     *
-     *  @par Complejidad:
-     *       \f$O(1)\f$
-     * 
-     *  @param entero Número entero a convertir a real.
-     *
-     *  @return El real correspondiente a la conversión.
-     */
-//   static R convertir(const Z& entero);
+      //   static R convertir(const char* cadena);
+      /** Función de conversión de tipo double a R (real).
+       *
+       *  @par Complejidad:
+       *       \f$O(1)\f$
+       * 
+       *  @param numFlotante Número flotante de precisión simple a convertir a real.
+       *
+       *  @return El real correspondiente a la conversión.
+       */
+      //   static R convertir(const double numFlotante);
+      /** Función de conversión de Z (entero) a R (real).
+       *
+       *  @par Complejidad:
+       *       \f$O(1)\f$
+       * 
+       *  @param entero Número entero a convertir a real.
+       *
+       *  @return El real correspondiente a la conversión.
+       */
+      //   static R convertir(const Z& entero);
 
       /** Operador de asignación desde R.
        *
@@ -105,9 +104,9 @@ namespace mpplas {
        *
        * @return Referencia a *this 
        */
-    R& operator=(const R& origen);
+      R& operator=(const R& origen);
 
-    // OPERADORES ARITMETICOS
+      // OPERADORES ARITMETICOS
       /** Operador de suma acumulada.
        *
        * @pre *this y sumandoDerecha reales válidos.
@@ -120,8 +119,8 @@ namespace mpplas {
        *
        * @return Referencia a *this.
        */
-    R& operator+=(const R& sumandoDerecha);
-       /** Operador de resta acumulada.
+      R& operator+=(const R& sumandoDerecha);
+      /** Operador de resta acumulada.
        *
        * @pre *this y sustraendo reales válidos.
        * @post *this restado el valor del real sustraendo.
@@ -133,8 +132,8 @@ namespace mpplas {
        *
        * @return Referencia a *this.
        */
-   R& operator-=(const R& sustraendo);
-       /** Operador de producto acumulado.
+      R& operator-=(const R& sustraendo);
+      /** Operador de producto acumulado.
        *
        * @pre *this y factorDer reales válidos.
        * @post *this multiplicado por el valor del real factorDer.
@@ -146,13 +145,13 @@ namespace mpplas {
        *
        * @return Referencia a *this.
        */
-   R& operator*=(const R& factorDer);
-       /** Operador de cociente acumulado.
+      R& operator*=(const R& factorDer);
+      /** Operador de cociente acumulado.
        *
        * @pre *this y divisor reales válidos.
        * @post *this cociente de la división de si mismo por el valor del Entero divisor.
        * 
-        *  @par Complejidad:
+       *  @par Complejidad:
        *       \f$O(n \cdot m)\f$
        *       con \f$n\f$ y \f$m\f$ tamaños de dividendo y divisor.      
        *       
@@ -160,20 +159,20 @@ namespace mpplas {
        *
        * @return Referencia a *this.
        */
-   R& operator/=(const R& divisor);
+      R& operator/=(const R& divisor);
 
-    /******************/
+      /******************/
       /** Versión de precisión simple de suma. @sa operator+=(const R&)*/
-    R& operator+=(const double);
+      R& operator+=(const double);
       /** Versión de precisión simple de resta. @sa operator-=(const R&)*/
-    R& operator-=(const double);
+      R& operator-=(const double);
       /** Versión de precisión simple de producto. @sa operator*=(const R&)*/
-    R& operator*=(const double);
+      R& operator*=(const double);
       /** Versión de precisión simple de división. @sa operator/=(const R&)*/
-    R& operator/=(const double);
+      R& operator/=(const double);
 
-    /*************/
-     /** Operador de potenciación acumulada.
+      /*************/
+      /** Operador de potenciación acumulada.
        *
        * @param exp Entero reprensentado el exponente al que elevar.
        *
@@ -193,8 +192,8 @@ namespace mpplas {
        * clase Potencia accesible mediante la clase MethodsFactory.
        * 
        */
-    R& operator^=(const Z& exp); 
- 
+      R& operator^=(const Z& exp); 
+
       /** Operador de potenciación acumulada.
        *
        * @param exp Dato SignedDigit reprensentado el exponente al que elevar.
@@ -208,118 +207,119 @@ namespace mpplas {
        * Errores::ExponenteNegativo Si el entero que
        * representa el exponente exp es negativo.
        */
-    R& operator^=(SignedDigit exp); 
+      R& operator^=(SignedDigit exp); 
 
 
+      R& abs();
 
-    R& cuadrado(void);
+      R& cuadrado(void);
 
       ////////////////////////////////////
       //   OPERADORES DE DESPLAZAMIENTO //
       ////////////////////////////////////
       /** Operador de desplazamiento a la derecha acumulado.
-      *
-      * @param n Exponente de la potencia de 2 entre la que dividir
-      * *this.
-      * @return *this, instancia de la clase actual tras la división.
-      *
-      * Se "desplaza" (*this) un numero @a n de bits hacia la derecha.
-      * Esta analogía no es del todo precisa, al estar trabajando en
-      * reales, no en enteros. En cualquier caso, se trata de una
-      * división entre una potencia de 2.
-      * 
-      * \note
-      * En la representación actual de reales (i.e, \f$ mantisa \times 2^k \f$), esta 
-      * operación es equivalente a restar @a n a \f$ k \f$. <B> NO
-      * DEPENDER DE ESTO</B>: es un detalle particular de la 
-      * representación actual, que no tiene porque cumplirse en
-      * posteriores revisiones.
-      */
-      R& operator>>=(const int n);
-  
+       *
+       * @param n Exponente de la potencia de 2 entre la que dividir
+       * *this.
+       * @return *this, instancia de la clase actual tras la división.
+       *
+       * Se "desplaza" (*this) un numero @a n de bits hacia la derecha.
+       * Esta analogía no es del todo precisa, al estar trabajando en
+       * reales, no en enteros. En cualquier caso, se trata de una
+       * división entre una potencia de 2.
+       * 
+       * \note
+       * En la representación actual de reales (i.e, \f$ mantisa \times 2^k \f$), esta 
+       * operación es equivalente a restar @a n a \f$ k \f$. <B> NO
+       * DEPENDER DE ESTO</B>: es un detalle particular de la 
+       * representación actual, que no tiene porque cumplirse en
+       * posteriores revisiones.
+       */
+      R& operator>>=(const SignedDigit n);
+
       /** Operador de desplazamiento a la izquierda acumulado.
-      *
-      * @param n Exponente de la potencia de 2 por la que multiplicar
-      * *this.
-      * @return *this, instancia de la clase actual tras la
-      * multiplicación.
-      *
-      * Se "desplaza" (*this) un numero @a n de bits hacia la
-      * izquierda.
-      * Esta analogía no es del todo precisa, al estar trabajando en
-      * reales, no en enteros. En cualquier caso, se trata de una
-      * multiplicación por una potencia de 2.
-      * 
-      * \note
-      * En la representación actual de reales (i.e, \f$ mantisa \times 2^k \f$), esta 
-      * operación es equivalente a sumar @a n a \f$ k \f$. <B> NO
-      * DEPENDER DE ESTO</B>: es un detalle particular de la 
-      * representación actual, que no tiene porque cumplirse en
-      * posteriores revisiones.
-      */
-      R& operator<<=(const int n);
+       *
+       * @param n Exponente de la potencia de 2 por la que multiplicar
+       * *this.
+       * @return *this, instancia de la clase actual tras la
+       * multiplicación.
+       *
+       * Se "desplaza" (*this) un numero @a n de bits hacia la
+       * izquierda.
+       * Esta analogía no es del todo precisa, al estar trabajando en
+       * reales, no en enteros. En cualquier caso, se trata de una
+       * multiplicación por una potencia de 2.
+       * 
+       * \note
+       * En la representación actual de reales (i.e, \f$ mantisa \times 2^k \f$), esta 
+       * operación es equivalente a sumar @a n a \f$ k \f$. <B> NO
+       * DEPENDER DE ESTO</B>: es un detalle particular de la 
+       * representación actual, que no tiene porque cumplirse en
+       * posteriores revisiones.
+       */
+      R& operator<<=(const SignedDigit n);
 
 
-    
-    // OPERADORES DE COMPARACION
-    //
+
+      // OPERADORES DE COMPARACION
+      //
       /** Operador "Mayor que".
        *
        * @param der real a comparar con *this. 
        * @return "true" o "false"
        *
        * La comparación se correspondería con el predicado \f$(*this) > der\f$
-      */
-    bool operator>(const R& der) const;
-       /** Operador "Menor que".
+       */
+      bool operator>(const R& der) const;
+      /** Operador "Menor que".
        *
        * @param der real a comparar con *this. 
        * @return "true" o "false"
        *
        * La comparación se correspondería con el predicado \f$(*this) < der\f$
-      */
-   bool operator<(const R& der) const;
-       /** Operador "Igual a".
+       */
+      bool operator<(const R& der) const;
+      /** Operador "Igual a".
        *
        * @param der real a comparar con *this. 
        * @return "true" o "false"
        *
        * La comparación se correspondería con el predicado \f$(*this) = der\f$
-      */
-   bool operator==(const R& der) const;
-       /** Operador "Distinto de".
+       */
+      bool operator==(const R& der) const;
+      /** Operador "Distinto de".
        *
        * @param der real a comparar con *this. 
        * @return "true" o "false"
        *
        * La comparación se correspondería con el predicado \f$(*this) \neq der\f$
-      */
-   bool operator!=(const R& der) const;
-       /** Operador "Mayor o igual que".
+       */
+      bool operator!=(const R& der) const;
+      /** Operador "Mayor o igual que".
        *
        * @param der real a comparar con *this. 
        * @return "true" o "false"
        *
        * La comparación se correspondería con el predicado \f$(*this) \geq der\f$
-      */
-   bool operator>=(const R& der) const;
-       /** Operador "Menor o igual que".
+       */
+      bool operator>=(const R& der) const;
+      /** Operador "Menor o igual que".
        *
        * @param der real a comparar con *this. 
        * @return "true" o "false"
        *
        * La comparación se correspondería con el predicado \f$(*this) \leq der\f$
-      */
-   bool operator<=(const R& der) const;
+       */
+      bool operator<=(const R& der) const;
 
-    
-    ~R();
 
-    //funciones utiles
-    
-    virtual std::string toString() const;
-    virtual std::string toHRString() const;
-    std::string toString(int decimalPlaces) const;
+      ~R();
+
+      //funciones utiles
+
+      virtual std::string toString() const;
+      virtual std::string toHRString() const;
+      std::string toString(int decimalPlaces) const;
 
       /** Hacer cero.
        * 
@@ -336,8 +336,8 @@ namespace mpplas {
        * \note Se fuerza asimismo el signo positivo, aunque pueda carecer de 
        * sentido el poner un signo al cero.
        */
-   void hacerCero(void);
-     /** Hacer uno.
+      void hacerCero(void);
+      /** Hacer uno.
        * 
        * \par Complejidad:
        *      \f$ O(1) \f$
@@ -350,9 +350,9 @@ namespace mpplas {
        *  operacion \f$ x = 1 \f$ para el real \f$x\f$
        *
        */
-    void hacerUno(void);
+      void hacerUno(void);
 
-       /** Comprobar igualdad a cero.
+      /** Comprobar igualdad a cero.
        * 
        * \par Complejidad:
        *      \f$ O(1) \f$
@@ -363,11 +363,11 @@ namespace mpplas {
        *  El objetivo de este método es ser un atajo para la frecuente 
        *  operacion de comprobar si un número es cero.
        */
-    bool esCero(void) const;
-    
-    bool esUno(void) const;
+      bool esCero(void) const;
 
-     /** Número de bits en la mantisa.
+      bool esUno(void) const;
+
+      /** Número de bits en la mantisa.
        *
        * @par Complejidad:
        *      \f$O(1)\f$
@@ -378,9 +378,9 @@ namespace mpplas {
        * bits que ocupa la mantisa del real sobre la que se aplica 
        * el método.
        */ 
-    inline int getBitLength(void) const { return mantisa_.getBitLength(); }
-    
-     /** Cambiar el signo.
+      inline int getBitLength(void) const { return mantisa_.getBitLength(); }
+
+      /** Cambiar el signo.
        * 
        * \par Complejidad:
        *      \f$ O(1) \f$
@@ -392,10 +392,19 @@ namespace mpplas {
        *  operacion \f$ x = -x \f$ para el real \f$x\f$
        *
        */
-    inline void cambiarSigno(void) { mantisa_.cambiarSigno(); }
+      inline void cambiarSigno(void) { mantisa_.cambiarSigno(); }
 
-    //funciones relativas a precision
-     /** Ver precisión actual de salida.
+
+
+      inline bool isPositive(void) const { return this->signo() > 0; }
+      inline bool isNegative(void) const { return this->signo() < 0; }
+
+      inline R& makePositive(void) { mantisa_.hacerPositivo(); return *this; } 
+      inline R& makeNegative(void) { mantisa_.hacerPositivo(); return *this; } 
+
+
+      //funciones relativas a precision
+      /** Ver precisión actual de salida.
        *
        *  Este método estático muestra el valor actual de la precisión de
        *  salida para reales.
@@ -407,10 +416,17 @@ namespace mpplas {
        * reales.
        *
        */
-    inline 
-      static int precisionSalida(void) { return precisionSalida_; }
-    
-     /** Ver precisión interna considerada.
+      inline 
+        static int precisionSalida(void) { 
+          if( precisionSalida_ == 0 ){
+            return (int)std::floor(Constants::LOG_10_2 * R::precision() )-3;
+          }
+          else{
+            return precisionSalida_; 
+          }
+        }
+
+      /** Ver precisión interna considerada.
        *
        *  Este método estático muestra el valor actual de la precisión interna (en bits)
        *  utilizada para representar los reales.
@@ -422,8 +438,8 @@ namespace mpplas {
        * para representar los reales.
        *
        */
-    inline 
-      static int precision(void) { return precision_; }
+      inline 
+        static int precision(void) { return precision_; }
 
       /** Establecer precisión de salida.
        *
@@ -436,11 +452,11 @@ namespace mpplas {
        *  @param nueva La nueva precisión a utilizar.
        *
        */
-    inline 
-      static void precisionSalida(int nueva) 
-      { precisionSalida_ = nueva; return;}
- 
-    /** Establecer precisión interna considerada.
+      inline 
+        static void precisionSalida(int nueva) 
+        { precisionSalida_ = nueva; return;}
+
+      /** Establecer precisión interna considerada.
        *
        *  Este método estático establece el valor actual de la precisión interna (en bits)
        *  utilizada para representar los reales.
@@ -450,82 +466,85 @@ namespace mpplas {
        *  
        *  @param nueva La nueva precisión a utilizar.
        */
-    inline 
-      static void precision(int nueva) 
-      { precision_ = nueva; return; }
+      inline 
+        static void precision(int nueva) 
+        { precision_ = nueva; return; }
 
-    
-    //funciones relacionadas con los R
-    /** Función suelo.
-     *
-     * Realiza el cálculo de la función suelo sobre *this. Esta
-     * función se define como el mayor entero menor que su argumento.
-     *
-     * @par Complejidad:
-      *      \f$O(1)\f$
-      *
-      * @return Entero representando el mayor entero menor que el real *this.
-     */
-    Z floor(void) const;
 
-     /** Función techo.
-     *
-     * Realiza el cálculo de la función techo sobre *this. Esta
-     * función se define como el menor entero mayor que su argumento.
-     *
-     * @par Complejidad:
-      *      \f$O(1)\f$
-      *
-      * @return Entero representando el menor entero mayor que el real *this.
-     */
-   Z ceil(void) const;
+      //funciones relacionadas con los R
+      /** Función suelo.
+       *
+       * Realiza el cálculo de la función suelo sobre *this. Esta
+       * función se define como el mayor entero menor que su argumento.
+       *
+       * @par Complejidad:
+       *      \f$O(1)\f$
+       *
+       * @return Entero representando el mayor entero menor que el real *this.
+       */
+      Z floor(void) const;
 
-    /** Normalización.
-     *
-     * Se normaliza *this en base a la precisión @a nprec.
-     * Esto implica lo siguiente:
-     *
-     * <ul>
-     * <li>  Asegurar la unicidad de la representación del cero:
-     *       \f$ (mantisa = 0) \Longrightarrow (exponente = 0) \f$.
-     * <li>  Ajuste de la longitud de la mantisa a la precisión de
-     *       trabajo o a @a nprec si se especifica.
-     * <li>  Eliminación de las potencias de 2 de la mantisa y su
-     *       traslado al exponente.
-     * </ul>
-     *
-     * @par Complejidad:
-     *      \f$O(n)\f$
-     *
-     * @param nprec La precisión a considerar.
-     */
-    void normalizar(int nprec = R::precision_);
-    
-    //funcciones de informacion
-    
-    /** Valor del exponente.
-     *
-     * Devuelve un dato SignedDigit con el valor del exponente de la
-     * representación del real.
+      /** Función techo.
+       *
+       * Realiza el cálculo de la función techo sobre *this. Esta
+       * función se define como el menor entero mayor que su argumento.
+       *
+       * @par Complejidad:
+       *      \f$O(1)\f$
+       *
+       * @return Entero representando el menor entero mayor que el real *this.
+       */
+      Z ceil(void) const;
+
+      /** Normalización.
+       *
+       * Se normaliza *this en base a la precisión @a nprec.
+       * Esto implica lo siguiente:
+       *
+       * <ul>
+       * <li>  Asegurar la unicidad de la representación del cero:
+       *       \f$ (mantisa = 0) \Longrightarrow (exponente = 0) \f$.
+       * <li>  Ajuste de la longitud de la mantisa a la precisión de
+       *       trabajo o a @a nprec si se especifica.
+       * <li>  Eliminación de las potencias de 2 de la mantisa y su
+       *       traslado al exponente.
+       * </ul>
+       *
+       * @par Complejidad:
+       *      \f$O(n)\f$
+       *
+       * @param nprec La precisión a considerar.
+       */
+      void normalizar(int nprec = R::precision_);
+
+      //funcciones de informacion
+
+      /** Valor del exponente.
+       *
+       * Devuelve un dato SignedDigit con el valor del exponente de la
+       * representación del real.
+       * @par Complejidad:
+       *      \f$O(1)\f$
+       *
+       * @return Valor del exponente de la representación del real.
+       */
+      inline
+        SignedDigit exponente() const { return exponente_; }
+      inline
+        /** Valor de la mantisa.
+         *
+         * Devuelve un entero con el valor de la mantisa de la
+         * representación del real.
          * @par Complejidad:
-       *      \f$O(1)\f$
-   *
-     * @return Valor del exponente de la representación del real.
-     */
-    inline
-      SignedDigit exponente() const { return exponente_; }
-    inline
-     /** Valor de la mantisa.
-     *
-     * Devuelve un entero con el valor de la mantisa de la
-     * representación del real.
-        * @par Complejidad:
-       *      \f$O(1)\f$
-    *
-     * @return Valor de la mantisa de la representación del real.
-     */
-     Z mantisa() const { return mantisa_; }
-    
+         *      \f$O(1)\f$
+         *
+         * @return Valor de la mantisa de la representación del real.
+         */
+        Z mantisa() const { return mantisa_; }
+
+
+      inline double getSPApprox() const { return _spApprox; }
+
       /** Signo del real. 
        * 
        * @par Complejidad:
@@ -535,62 +554,60 @@ namespace mpplas {
        *          si el real es mayor o igual que 0.\n
        *          Un valor menor que 0 (típicamente "-1") si no.
        */
-    inline 
-      int8_t signo(void) const { return mantisa_.signo(); }
-
-    
-    static const R ZERO;
-    static const R ONE;
-
-    /* Ring, Group and Field methods */
-
-    static const bool addCommutative;
-    static const bool groupCyclic;
-
-    static const bool unitaryRing;
-    static const bool multCommutative;
-    static const bool multAssociative;
-    static const bool divisionRing;
+      inline 
+        int8_t signo(void) const { return mantisa_.signo(); }
 
 
-    R getMultInverse() const {
-      R tmp(ONE);
-      tmp /= (*this);
-      return tmp;
-    }
-    static const R& getMultIdentity() {
-      return ONE ;
-    };
-    static const R& getAddIdentity() {
-      return ZERO;
-    };
-    R getAddInverse()  const{
-      R tmp(*this);
-      tmp.cambiarSigno();
-      return tmp;
-    };
-    static const R& getGroupGenerator() {
-      return ONE;
-    } 
-    Z getCharacteristic() const {
+      static const R ZERO;
+      static const R ONE;
+
+      /* Ring, Group and Field methods */
+
+      static const bool addCommutative;
+      static const bool groupCyclic;
+
+      static const bool unitaryRing;
+      static const bool multCommutative;
+      static const bool multAssociative;
+      static const bool divisionRing;
+
+
+      R getMultInverse() const {
+        R tmp(ONE);
+        tmp /= (*this);
+        return tmp;
+      }
+      static const R& getMultIdentity() {
+        return ONE ;
+      };
+      static const R& getAddIdentity() {
+        return ZERO;
+      };
+      R getAddInverse()  const{
+        R tmp(*this);
+        tmp.cambiarSigno();
+        return tmp;
+      };
+      static const R& getGroupGenerator() {
+        return ONE;
+      } 
+      Z getCharacteristic() const {
         return Z::ZERO;
-    }
-
-
-
-
+      }
 
     protected:
+      SignedDigit exponente_;
+      Z mantisa_;
+      static int precision_; /**< Valor por defecto = 300. @sa R::precision() */
+      static int precisionSalida_;/**< Valor por defecto = 20. @sa R::precisionSalida() */
 
-    SignedDigit exponente_;
-    Z mantisa_;
-    static int precision_; /**< Valor por defecto = 300. @sa R::precision() */
-    static int precisionSalida_;/**< Valor por defecto = 20. @sa R::precisionSalida() */
+    private:
+      double _spApprox;
 
-    /** Operador de salida del número */
-    friend std::ostream& operator<<(std::ostream&, R);
-    /** Operador obtencion del número */
-    friend std::istream& operator>>(std::istream&, R&); 
+      /** Operador de salida del número */
+      friend std::ostream& operator<<(std::ostream&, R);
+      /** Operador obtencion del número */
+      friend std::istream& operator>>(std::istream&, R&); 
 
   };
   

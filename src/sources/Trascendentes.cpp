@@ -4,7 +4,8 @@
 
 #include "Trascendentes.h"
 #include "MethodsFactory.h"
-#include <iostream>
+#include "Rx.h"
+#include <cmath>
 
 using namespace std;
 
@@ -186,11 +187,8 @@ namespace mpplas{
     
     R DosPi = (pi->pi());
     DosPi <<= 1;
-//    cout << DosPi << endl;
     Z cociente = (x / DosPi).floor();
-//    cout << cociente << endl;
     R xRed = x - (DosPi * R(cociente));
-//    cout << xRed << endl;
     
     R::precision(precVieja);
     
@@ -254,21 +252,13 @@ namespace mpplas{
     if( prec ){
       precisionVieja = R::precision();
       R::precision( (int)(prec * Constants::LOG_2_10) +1 );
-//      cout << (int)(prec * Constants::LOG_2_10) +1 << endl;
     }
     R unQuinto; unQuinto.hacerUno(); unQuinto /= 5;
-//    cout << unQuinto << endl;
     R un239avo; un239avo.hacerUno(); un239avo /= 239;
-//    cout << un239avo << endl;
  
 
-//    cout << arctan->arcotangente(unQuinto) << endl;
-//    cout << arctan->arcotangente(un239avo) << endl;
-    
     result = (4*arctan->arcotangente(unQuinto)) - arctan->arcotangente(un239avo);
-//    cout << result << endl;
     result <<= 2; // * 4
-//    cout << result << endl;
 
     //FIXME: esta precision deberia mantenerse, o guardarse dentro del R en si. 
     //porque luego, cuando se use el real que contiene a pi (el que se devuelve),
@@ -280,4 +270,36 @@ namespace mpplas{
   }
 
   
+
+  R SqrtNewton::sqrt(const R& A){
+    static const int r = 4;
+    static double precomps[] = { 1, 0.5, 0.375, 0.3125, 0.2734375, 0.24609375 };
+    static const std::vector<mpplas::R> coeffs( precomps, precomps+r);
+
+    static const mpplas::Rx P(coeffs);
+    mpplas::R xn(1/std::sqrt(A.getSPApprox()));
+    mpplas::R xn_1 = xn;
+    xn.cuadrado();
+    xn *= A;
+    xn.cambiarSigno();
+    xn += mpplas::R::ONE;
+
+    while(true){
+      xn = P.evaluate(xn);
+      xn *= xn_1;
+      if( xn_1 == xn ) {
+        break;
+      }
+      xn_1 = xn;
+      //hn = 1-A*(xn.cuadrado());
+      xn.cuadrado();
+      xn *= A;
+      xn.cambiarSigno();
+      xn += mpplas::R::ONE;
+    }
+
+    xn *= A;
+    return xn;
+  }
+
 }

@@ -15,14 +15,14 @@ namespace mpplas{
   class SenFase;
   class ATanTaylor;
   class PiMachin;
+  class SqrtNewton;
 
 
   /** Interfaz para la exponencial ( e^x ) en los reales.
    *
    * Clase base para métodos de exponencial de reales (esto es,
    * \f$ e^x \f$, con \f$ e \f$ la base de los logaritmos naturales) */
-  class Exponencial : public AbstractMethod
-  {
+  class Exponencial : public AbstractMethod {
     public:
       /** Exponenciación (\f$ e^x \f$) en los reales 
        *
@@ -41,8 +41,7 @@ namespace mpplas{
       typedef ExpTaylor DFL;
   };
 
-  class Ln: public AbstractMethod
-  {
+  class Ln: public AbstractMethod {
     public:
       virtual R ln(const R& x) = 0;
 
@@ -51,8 +50,7 @@ namespace mpplas{
       typedef LnTaylor DFL;
   };
 
-  class Seno: public AbstractMethod
-  {
+  class Seno: public AbstractMethod {
     public:
       virtual R seno(const R& x) = 0;
 
@@ -61,8 +59,7 @@ namespace mpplas{
       typedef SenFase DFL;
   };
 
-  class Coseno: public AbstractMethod
-  {
+  class Coseno: public AbstractMethod {
     public:
       virtual R coseno(const R& x) = 0;
 
@@ -71,8 +68,7 @@ namespace mpplas{
       typedef CosTaylor DFL;
   };
  
-  class Tangente: public AbstractMethod
-  {
+  class Tangente: public AbstractMethod {
     public:
       virtual R tangente(const R& x) = 0;
 
@@ -80,8 +76,7 @@ namespace mpplas{
   
   };
 
-  class ArcoTangente: public AbstractMethod
-  {
+  class ArcoTangente: public AbstractMethod {
     public:
       virtual R arcotangente(const R& x) = 0;
 
@@ -89,14 +84,21 @@ namespace mpplas{
       typedef ATanTaylor DFL;
   };
  
-  class Pi: public AbstractMethod
-  {
+  class Pi: public AbstractMethod {
     public:
       virtual R pi(int prec = 0) = 0;
 
       virtual ~Pi(){}
   
       typedef PiMachin DFL;
+  };
+
+  class Sqrt: public AbstractMethod {
+    public:
+      virtual R sqrt(const R& x) = 0;
+      virtual ~Sqrt(){}
+
+      typedef SqrtNewton DFL;
   };
 
 
@@ -107,8 +109,7 @@ namespace mpplas{
    *  This implementation uses the McLaurin series of \f$ e^x \f$,
    *  i.e, \f$ e^x = \sum_{k=0}^{\infty} \frac{x^k}{k!} \f$.
    */
-  class ExpTaylor : public Exponencial
-  {
+  class ExpTaylor : public Exponencial {
     public:
       virtual R exponencial(const R& x);
         
@@ -136,8 +137,7 @@ namespace mpplas{
    *  
    */
 
-  class LnTaylor : public Ln
-  {
+  class LnTaylor : public Ln {
     public: 
       virtual R ln(const R& x);
 
@@ -155,8 +155,7 @@ namespace mpplas{
    * se calcula el seno en base al coseno.
    *
    * */
-  class SenFase : public Seno
-  {
+  class SenFase : public Seno {
     public: 
       virtual R seno(const R& x);
 
@@ -165,17 +164,15 @@ namespace mpplas{
   
 
   /**            */
-  class CosTaylor : public Coseno
-  {
+  class CosTaylor : public Coseno {
     public: 
       virtual R coseno(const R& x);
 
   };
 
-  
+    
    /**            */
-  class ATanTaylor : public ArcoTangente
-  {
+  class ATanTaylor : public ArcoTangente {
     public: 
       virtual R arcotangente(const R& x);
 
@@ -183,8 +180,7 @@ namespace mpplas{
  
   /** Calculation of \f$ \pi \f$ by means of the Machin's formula:
    * \f$ \pi/4 = 4 \arctan(1/5) - \arctan(1/239) \f$ */
-  class PiMachin : public Pi
-  {
+  class PiMachin : public Pi  {
     public:
       /** Calculation of \f$ \pi \f$ to @a prec decimal places. 
        * @param prec Number of decimal places to calculate. If @a prec
@@ -193,6 +189,11 @@ namespace mpplas{
       virtual R pi(const int prec = 0);
   };
 
+
+  class SqrtNewton : public Sqrt {
+    public:
+      virtual R sqrt(const R& x);
+  };
 
 }
 

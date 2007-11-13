@@ -620,24 +620,25 @@ void Polynomial<S>::_eraseLeadingZeros(){
 
 template<typename S>
 std::ostream& operator<<(std::ostream& out, const Polynomial<S>& p){
+  std::ostringstream oss;
   for(int i = p.getDegree(); i > 0; i--){
     if( p[i] != S::getAddIdentity() /* zero */ ){
-      out.setf(std::ios::showpos);
-      out << " " << p[i] << "*x^";
-      out.unsetf(std::ios::showpos);
-      out << i ;
+      oss.setf(std::ios::showpos);
+      oss << " " << p[i] << "*x^";
+      oss.unsetf(std::ios::showpos);
+      oss << i ;
     }
   }
   //the independent coeff
   if( p[0] != S::getAddIdentity() || p.getDegree() == 0 ){
     //if the polynomial only has the constant coeff, it is displayed,
     //even if it's zero
-    out.setf(std::ios::showpos);
-    out << " " << p[0] ;
-    out.unsetf(std::ios::showpos);
+    oss.setf(std::ios::showpos);
+    oss << " " << p[0] ;
+    oss.unsetf(std::ios::showpos);
   }
 
-
+  out << oss.str();
   return out;
 }
 
@@ -690,7 +691,7 @@ std::istream& operator>>(std::istream& in, Polynomial<S>& p) {
   }
 
   p._data.resize(maxExp+1, p._ini);
-  for(int i = 0; i < coeffsAndExps.size(); i++){
+  for(int i = 0; i < (int)coeffsAndExps.size(); i++){
     const std::pair<S, int>& tmpPair(coeffsAndExps[i]);
     p._data[ tmpPair.second ] = tmpPair.first;
   }
@@ -914,8 +915,6 @@ std::istream& operator>>(std::istream& in, Polynomial<S>& p) {
       (*s) = s2;
       (*t) = t2;
 
-      s->makeMonic();
-      t->makeMonic();
       g.makeMonic();
       return g;
     }

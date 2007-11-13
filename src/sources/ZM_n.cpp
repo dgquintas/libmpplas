@@ -181,7 +181,7 @@ namespace mpplas{
   }
 
   Z ZM_n::toZ() const {
-    Z res(_montgomeryProd(*this,1));
+    Z res(_montgomeryProd(*this,(Digit)1));
     return res;
   }
 

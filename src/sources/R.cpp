@@ -321,7 +321,7 @@ namespace mpplas{
     return *this;
   }
 
-  R& R::operator>>=(const SignedDigit n)
+  R& R::operator>>=(const int n)
   {
     if( n > Digit(Constants::CIFRASIGNO_MAX) ){
       throw Errors::OverflowExpReales();
@@ -973,13 +973,13 @@ namespace mpplas{
     return base;
   }
 
-  R operator>>(R real, const SignedDigit n)
+  R operator>>(R real, const int n)
   {
     real >>= n;
     return real;
   }
 
-  R operator<<(R real, const SignedDigit n)
+  R operator<<(R real, const int n)
   {
     real <<= n;
     return real;

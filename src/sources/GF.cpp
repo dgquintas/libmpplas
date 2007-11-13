@@ -14,10 +14,10 @@
 namespace mpplas {
 
 
-  const GF GF::NULL_GF( GF(Z(0),Z_px::ZERO ) );
+  const GF GF::NULL_GF( GF(Z((Digit)0),Z_px::ZERO ) );
 
  GF::GF(const Z& p, const int n, const bool usePrimitiveMod)
-    : _p(p), _n(n), _fx(p),  _order(p ^ n), _primitiveMod(usePrimitiveMod)  {
+    : _p(p), _n(n), _fx(p),  _order(p ^ (Digit)n), _primitiveMod(usePrimitiveMod)  {
       if( usePrimitiveMod ){
         _fx = PolynomialUtils::generatePrimitive<mpplas::Z_px>(n,p);
       }
@@ -27,7 +27,7 @@ namespace mpplas {
   }
 
   GF::GF(const Z& p, const Z_px& fx, const bool checkForIrred )
-    : _p(p),_n( fx.getDegree() ),  _fx(fx),  _order( p ^ fx.getDegree()), _primitiveMod(false){
+    : _p(p),_n( fx.getDegree() ),  _fx(fx),  _order( p ^ (Digit)fx.getDegree()), _primitiveMod(false){
 
       if( fx.getCharacteristic() != p ){
         throw Errors::InvalidArgument("Invalid characteristic for f(x) constructing GF");
@@ -52,7 +52,7 @@ namespace mpplas {
 
 
   GF::GF(const GF& src)
-    : _p(src._p), _n(src._n), _fx(src._fx), _order( src._p ^ src._n), _primitiveMod(src._primitiveMod)
+    : _p(src._p), _n(src._n), _fx(src._fx), _order( src._p ^ (Digit)src._n), _primitiveMod(src._primitiveMod)
   {}
 
   GF& GF::operator=(const GF& src){

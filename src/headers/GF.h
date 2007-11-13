@@ -17,9 +17,10 @@ namespace mpplas{
   class GF : public MPPDataType {
     public:
       GF(const Z& p, const int n = 1, const bool usePrimitiveMod = false);
-      GF(const Z& p, const Z_px& fx);
+      GF(const Z& p, const Z_px& fx, const bool checkForIrred = true);
       GF(const GF& src);
      
+      GF& operator=(const GF& src);
 
       GFx getElement(const Z_px& poly) const;
       GFx getElement(const std::string& poly) const;
@@ -44,12 +45,14 @@ namespace mpplas{
       static const GF NULL_GF;
 
     protected:
-      Z_px _fx;
 
-      const Z _p;
-      const int _n;
+      Z _p;
+      int _n;
+      Z_px _fx;
       
-      const bool _primitiveMod;
+      Z _order;
+
+      bool _primitiveMod;
 
   }; /* class GF */
 
@@ -57,7 +60,7 @@ namespace mpplas{
 
 
   inline Z GF::getOrder() const{
-    return (_p ^ _n);
+    return _order;
   }
   inline const Z_px& GF::getMod() const{
     return _fx;
@@ -75,15 +78,6 @@ namespace mpplas{
   inline bool GF::isModPrimitive() const{
     return _primitiveMod;
   }
-
-
-
-
-
-
-
-
-  ////////////////////////////////////
 
 } /* namespace mpplas */
 

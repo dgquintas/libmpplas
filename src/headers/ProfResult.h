@@ -11,7 +11,7 @@
 
 namespace mpplas{
 
-  typedef long OpsCount;
+  typedef Digit OpsCount;
 
   class ProfResult {
 

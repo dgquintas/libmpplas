@@ -31,9 +31,9 @@ namespace mpplas {
         Matrix(const int nAndm) ;
         Matrix(const int n, const int m);
         Matrix(const Dimensions& dims);
-        Matrix(const Matrix<T, Alloc>& rhs);
         Matrix(const std::string& str);
         Matrix(const std::vector<T, Alloc>& rhs, const Dimensions& dims);
+        Matrix(const Matrix<T, Alloc>& rhs);
 
         Matrix<T, Alloc>& operator=(const Matrix<T, Alloc>& rhs);
 
@@ -96,7 +96,7 @@ namespace mpplas {
          * 
          * @throw Errors::NonInvertibleElement The divisor is not invertible
          */
-        Matrix<T, Alloc>& operator/=(const Matrix<T, Alloc>& rhs);
+        Matrix<T, Alloc>& operator/=(Matrix<T, Alloc> rhs);
         Matrix<T, Alloc>& operator/=(const T&);
         Matrix<T, Alloc>& operator/=(const Digit);
         Matrix<T, Alloc>& operator/=(const SignedDigit);
@@ -125,6 +125,7 @@ namespace mpplas {
         Matrix<T, Alloc>& transpose();
         Matrix<T, Alloc>& diagonalize();
         Matrix<T, Alloc>& invert();
+
         T getDeterminant();
         void setDiagonal(const T& n);
         void setAll(const T& n);
@@ -186,9 +187,14 @@ namespace mpplas {
       return lhs;
     }
 
-
   template<typename T, typename Alloc>
     Matrix<T, Alloc> operator*(const Matrix<T, Alloc>& lhs, const Matrix<T, Alloc>& rhs);
+
+  template<typename T, typename Alloc>
+    Matrix<T, Alloc> operator/(Matrix<T, Alloc> lhs, const Matrix<T, Alloc>& rhs){
+      lhs /= rhs;
+      return lhs;
+    }
 
   namespace MatrixHelpers{
 
@@ -203,7 +209,9 @@ namespace mpplas {
         const int numRowsA, const int numColsA, const int numColsB,
         const int strideC, const int strideA, const int strideB) const;
 
-        
+     
+        virtual ~Strassen(){}
+
       private:
         virtual void _addBlocks(T* res, const T* const A, const T* const B, 
             const int rows, const int cols,

@@ -40,8 +40,7 @@ Matrix<T, Alloc>::Matrix(const std::string& str){
 
   template<typename T, typename Alloc>
   Matrix<T, Alloc>::Matrix(const std::vector<T, Alloc>& rhs, const Dimensions& dims)
-: _data(rhs), _dims(dims)
-{
+: _data(rhs), _dims(dims) {
   int const prod(_dims.getProduct());
   if( prod != _data.size() ){
     //fill with the element's default value or
@@ -297,14 +296,15 @@ template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::operator*=(const T& rhs){
   const int length = this->getSize();
   if( length > 0 ){
-  T* const thisMat = &(this->operator[](0));
+    T* const thisMat = &(this->operator[](0));
 #pragma omp parallel for
-  for(int i=0; i < length; i++){
-    thisMat[i] *= rhs;
-  }
+    for(int i=0; i < length; i++){
+      thisMat[i] *= rhs;
+    }
   }
   return *this;
-} 
+}
+
 template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::operator*=(const Digit rhs){
   const int length = this->getSize();
@@ -321,11 +321,11 @@ template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::operator*=(const SignedDigit rhs){
   const int length = this->getSize();
   if( length > 0 ){
-  T* const thisMat = &(this->operator[](0));
+    T* const thisMat = &(this->operator[](0));
 #pragma omp parallel for
-  for(int i=0; i < length; i++){
-    thisMat[i] *= rhs;
-  }
+    for(int i=0; i < length; i++){
+      thisMat[i] *= rhs;
+    }
   }
   return *this;
 }
@@ -353,20 +353,49 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::byElementProd(const Matrix<T, Alloc>& rhs)
 //////////////////////////////////////////////
 
   template<typename T, typename Alloc>
-Matrix<T, Alloc>& Matrix<T, Alloc>::operator/=(const Matrix<T, Alloc>& rhs){
-  return *this; //TODO
+Matrix<T, Alloc>& Matrix<T, Alloc>::operator/=(Matrix<T, Alloc> rhs){
+  //invert rhs and then multiply it by *this
+  rhs.invert();
+  (*this) *= rhs;
+  return *this;
 }
   template<typename T, typename Alloc>
-Matrix<T, Alloc>& Matrix<T, Alloc>::operator/=(const T&){
-  return *this; //TODO
+Matrix<T, Alloc>& Matrix<T, Alloc>::operator/=(const T& rhs){
+  const int length = this->getSize();
+  if( length > 0 ){
+    T* const thisMat = &(this->operator[](0));
+#pragma omp parallel for
+    for(int i=0; i < length; i++){
+      thisMat[i] *= rhs;
+    }
+  }
+  return *this;
+}
+
+  template<typename T, typename Alloc>
+Matrix<T, Alloc>& Matrix<T, Alloc>::operator/=(const Digit rhs){
+  const int length = this->getSize();
+  if( length > 0 ){
+    T* const thisMat = &(this->operator[](0));
+#pragma omp parallel for
+    for(int i=0; i < length; i++){
+      thisMat[i] *= rhs;
+    }
+  }
+  return *this;
+
 }
   template<typename T, typename Alloc>
-Matrix<T, Alloc>& Matrix<T, Alloc>::operator/=(const Digit){
-  return *this; //TODO
-}
-  template<typename T, typename Alloc>
-Matrix<T, Alloc>& Matrix<T, Alloc>::operator/=(const SignedDigit){
-  return *this; //TODO
+Matrix<T, Alloc>& Matrix<T, Alloc>::operator/=(const SignedDigit rhs){
+  const int length = this->getSize();
+  if( length > 0 ){
+    T* const thisMat = &(this->operator[](0));
+#pragma omp parallel for
+    for(int i=0; i < length; i++){
+      thisMat[i] *= rhs;
+    }
+  }
+  return *this;
 }
   template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::byElementDiv( const Matrix<T, Alloc>& rhs){
@@ -665,10 +694,6 @@ template<typename T, typename Alloc>
   const int rowsPerBlock = 16; //FIXME
   const int colsPerBlock = 16;
 
-  const int aRowBlocks = aRows / rowsPerBlock;
-  const int aColBlocks = aCols / colsPerBlock;
-  const int bColBlocks = bCols / colsPerBlock;
-
   const int aRowsExtra = aRows % rowsPerBlock;
   const int aColsExtra = aCols % colsPerBlock;
   const int bColsExtra = bCols % colsPerBlock;
@@ -730,21 +755,23 @@ std::ostream& operator<<(std::ostream& out, const Matrix<T, Alloc>& m){
   const int _n = m.getDimensions().getRows();
   const int _m = m.getDimensions().getColumns();
   
+  oss.str("");
   //first iteration: in case the matrix is "empty" (dims == 0), 
   //it'd still show "[ ]" on screen
-  out << "[" ;
+  oss << "[" ;
   for(int j=0; j < _m; j++ ){
-    out << std::setw(maxWidth[j]) << std::right << m(0,j);
+    oss << std::setw(maxWidth[j]) << std::right << m(0,j);
   }
-  out << " ]\n" ;
+  oss << " ]\n" ;
 
   for(int i=1; i < _n; i++){
-    out << "[" ;
+    oss << "[" ;
     for(int j=0; j < _m; j++ ){
-      out << std::setw(maxWidth[j]) << std::right << m(i,j);
+      oss << std::setw(maxWidth[j]) << std::right << m(i,j);
     }
-    out << " ]\n" ;
+    oss << " ]\n" ;
   }
+  out << oss.str();
   return out;
 }
 
@@ -839,7 +866,6 @@ namespace MatrixHelpers{
       const int halfRowsA = numRowsA / 2;
       const int halfColsA = numColsA / 2;
       const int halfColsB = numColsB / 2;
-      const int halfRowsB = halfColsA; // it's redundant, but makes things clearer
 
       /* (numColsA = numRowsB) => (halfRowsB = halfColsA) 
        *

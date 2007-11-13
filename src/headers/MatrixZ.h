@@ -21,6 +21,9 @@ namespace mpplas
       MatrixZ(const Matrix<Z>& m);
       MatrixZ(const std::string& str);
 
+
+      MatrixZ& operator=(const MatrixZ& src);
+
   };
 
 

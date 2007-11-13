@@ -21,7 +21,7 @@ namespace mpplas {
     template<typename D, typename B>
       struct must_have_base{
         ~must_have_base(){
-          void(*p)(D*, B*) = constraints;
+          void(*p)(D*, B*) __attribute__ ((__unused__)) = constraints;
         }
         private:
         static void constraints(D* pd, B* pb){

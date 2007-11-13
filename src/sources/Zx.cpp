@@ -36,6 +36,11 @@ namespace mpplas{
   Zx::Zx(const Z& coeff, const int exp)
     : Polynomial<Z>(coeff, exp) {}
 
+  Zx& Zx::operator=(const Zx& src){
+    Polynomial<Z>::operator=(src);
+    return *this;
+  }
+
   Zx Zx::gcd(Zx u, Zx v){
     GCD< Polynomial<Z> >* gcd;
     MethodsFactory::getReference().getFunc(gcd);

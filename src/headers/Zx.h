@@ -18,11 +18,11 @@ namespace mpplas{
       Zx(const std::vector<Z>& coeffs);
       Zx(const Z& coeff, const int exp);
 
+
+      Zx& operator=(const Zx& src);
+
+
       static Zx gcd( Zx u, Zx v );
-
-
-
-
 
 
       static const Zx ZERO;

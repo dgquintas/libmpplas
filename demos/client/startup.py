@@ -33,7 +33,7 @@ def _runGC(grace):
     if isinstance(inst, Variable) and inst.getId() not in usedSlots:
       usedSlots.append(inst.getId())
 
-  RPCServer.getInstance().getServer()._runGC(clientId, usedSlots)
+  RPCServer.getInstance().getServer().__runGC(clientId, usedSlots)
 
 Client.runGC = _runGC
 

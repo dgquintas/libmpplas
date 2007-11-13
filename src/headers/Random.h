@@ -22,8 +22,7 @@ namespace mpplas{
    * Base class for methods implementing (pseudo)random number generators.
    * 
    */
-  class Random : public AbstractMethod
-  {
+  class Random : public AbstractMethod {
     public:
       /** Get a random integer.
        *
@@ -71,8 +70,7 @@ namespace mpplas{
    * RandomnessTest).
    * 
    */
-  class RandomFast : public Random
-  {
+  class RandomFast : public Random {
     public:
       /** Sets the generator's seed.
        *
@@ -101,8 +99,7 @@ namespace mpplas{
    * derive any, past or future, value of the random sequence.
    * 
    */
-  class RandomSecure : public Random
-  {
+  class RandomSecure : public Random {
     public:
       /** Set the quality of the cryptographically secure random
        * numbers. 
@@ -129,8 +126,7 @@ namespace mpplas{
    * Base class for methods implementing tests of randomness.
    *
    */
-  class RandomnessTest : public AbstractMethod
-  {
+  class RandomnessTest : public AbstractMethod  {
     public:
       /** Test if a given (pseudo)random number generator (PRNG) passes the test.
        *
@@ -152,8 +148,7 @@ namespace mpplas{
    * 
    * @note This is the library's default method for RandomFast 
    */
-  class NumThRC4Gen : public RandomFast
-  {
+  class NumThRC4Gen : public RandomFast {
     public:
       NumThRC4Gen();
 
@@ -178,8 +173,7 @@ namespace mpplas{
    * <li>Applied Cryptography, page 369, section 16.1</li>
    * <li>The Art of Computer Programming Vol. 2, page 9, section 3.2.1</li>
    * </ul>  */
-  class CongruentGen : public RandomFast
-  {
+  class CongruentGen : public RandomFast {
     public:
       CongruentGen(void);
 
@@ -210,8 +204,7 @@ namespace mpplas{
    * </ul>
    *
    * @note This is the library's default method for RandomFast  */
-  class BBSGen : public RandomSecure
-  {
+  class BBSGen : public RandomSecure {
     public:
       BBSGen(void);
       
@@ -238,8 +231,7 @@ namespace mpplas{
    *
    * @note This is the library's default method for RandomFast 
    */
-  class FIPS_140_1 : public RandomnessTest
-  {
+  class FIPS_140_1 : public RandomnessTest {
     public:
       virtual bool testRandom(Random& generadorRandom);
       virtual ~FIPS_140_1(){}

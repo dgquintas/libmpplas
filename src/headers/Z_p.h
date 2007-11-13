@@ -48,9 +48,7 @@ namespace mpplas{
         return Z_p::ZERO;
       };
       Z_p getAddInverse() const{
-        Z_p tmp(*this);
-        tmp.cambiarSigno();
-        return tmp;
+        return Z_n::getAddInverse();
       };
       static const Z_p& getGroupGenerator() {
         return Z_p::ONE;

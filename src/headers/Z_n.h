@@ -125,7 +125,10 @@ namespace mpplas{
         return Z_n::ZERO;
       };
       Z_n getAddInverse() const{
-        return Z_n((n_ - (*this),this->getMod()) );
+        Z_n tmp(*this);
+        tmp.cambiarSigno();
+        tmp += n_;
+        return tmp;
       };
       static const Z_n& getGroupGenerator() {
         return Z_n::ONE;

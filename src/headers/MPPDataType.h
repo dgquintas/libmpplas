@@ -24,6 +24,8 @@ namespace mpplas{
        */
       virtual std::string toHRString() const = 0;
 
+
+      virtual ~MPPDataType(){}
   };
 
 }

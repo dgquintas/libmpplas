@@ -235,7 +235,7 @@ namespace mpplas {
        * representación actual, que no tiene porque cumplirse en
        * posteriores revisiones.
        */
-      R& operator>>=(const SignedDigit n);
+      R& operator>>=(const int n);
 
       /** Operador de desplazamiento a la izquierda acumulado.
        *

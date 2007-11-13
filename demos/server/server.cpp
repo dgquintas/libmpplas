@@ -18,12 +18,17 @@
 #include "MiVec.h"
 #include "Z.h"
 #include "Z_n.h"
+#include "ZM_n.h"
 #include "MatrixZ.h"
+#include "MatrixR.h"
+#include "MatrixGFx.h"
 #include "R.h"
 #include "Random.h"
 #include "Primos.h"
+#include "Factor.h"
 #include "GCD.h"
 #include "CRT.h"
+#include "LCM.h"
 #include "Potencia.h"
 #include "MethodsFactory.h"
 #include "SystemInfo.h"
@@ -58,7 +63,7 @@ class RequestClientId: public xmlrpc_c::method {
     
     RequestClientId() {
       this->_signature = "i:";
-      this->_help = "This method returns a valid clientId";
+      this->_help = "Returns a valid clientId";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -80,7 +85,7 @@ class DiscardClientId: public xmlrpc_c::method {
     
     DiscardClientId() {
       this->_signature = "b:i";
-      this->_help = "This method discards the given clientId and all the date associated with it";
+      this->_help = "Discards the given clientId and all the date associated with it";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -107,7 +112,7 @@ class RunGC: public xmlrpc_c::method {
     
     RunGC() {
       this->_signature = "n:iA";
-      this->_help = "This method starts the garbage collection";
+      this->_help = "Starts the garbage collection";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -160,7 +165,7 @@ class GetHRStringMethod : public xmlrpc_c::method {
     
     GetHRStringMethod() {
       this->_signature = "s:is";
-      this->_help = "This method returns a human readable representation of the data";
+      this->_help = "Returns a human readable representation of the data";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -185,7 +190,7 @@ class ZCreate: public xmlrpc_c::method {
     
     ZCreate() {
       this->_signature = "s:is";
-      this->_help = "This method creates a new integer";
+      this->_help = "Creates a new integer";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -207,7 +212,7 @@ class ZAddMethod : public xmlrpc_c::method {
     
     ZAddMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method adds two integers together";
+      this->_help = "Adds two integers together";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -231,7 +236,7 @@ class ZSubMethod : public xmlrpc_c::method {
     
     ZSubMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method substracts two integers";
+      this->_help = "Substracts two integers";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -255,7 +260,7 @@ class ZMulMethod : public xmlrpc_c::method {
     
     ZMulMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method multiplies two integers together";
+      this->_help = "Multiplies two integers together";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -279,7 +284,7 @@ class ZDivMethod : public xmlrpc_c::method {
     
     ZDivMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method divides (integer division) two integers";
+      this->_help = "Divides (integer division) two integers";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -303,7 +308,7 @@ class ZModMethod : public xmlrpc_c::method {
     
     ZModMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method calculates de remainder of the integer division of two integers";
+      this->_help = "Calculates de remainder of the integer division of two integers";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -328,7 +333,7 @@ class ZFactorialMethod : public xmlrpc_c::method {
     
     ZFactorialMethod() {
       this->_signature = "s:is";
-      this->_help = "This method returns the factorial of the given integer"; 
+      this->_help = "Returns the factorial of the given integer"; 
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -350,7 +355,7 @@ class ZPowMethod : public xmlrpc_c::method {
     
     ZPowMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method returns the exponentiation of the first argument (base) by the second (exponent)"; 
+      this->_help = "Returns the exponentiation of the first argument (base) by the second (exponent)"; 
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -377,7 +382,7 @@ class ZBitLength: public xmlrpc_c::method {
     
     ZBitLength() {
       this->_signature = "i:ii";
-      this->_help = "This method returns the bit-length of an integer";
+      this->_help = "Returns the bit-length of an integer";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -395,16 +400,311 @@ class ZBitLength: public xmlrpc_c::method {
 };
 
 
+class ZCompare: public xmlrpc_c::method {
+  public:
+    
+    ZCompare() {
+      this->_signature = "i:iss";
+      this->_help = "Returns an integer constant encoding the relationship between the two integer arguments"
+        "-1 meaning the first arg. is < then the second. 0 meaning they are equal. 1 meaning the first in > than the second;";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        const mpplas::Z op1( *((mpplas::Z*)table.get(clientId, varId1)));
+        const mpplas::Z op2( *((mpplas::Z*)table.get(clientId, varId2)));
+
+        int res;
+        if( op1 < op2 ){
+          res = -1;
+        } 
+        else if( op1 == op2 ){
+          res = 0;
+        }
+        else if( op1 > op2 ){
+          res = 1;
+        }
+
+        *retvalP = xmlrpc_c::value_int(res);
+      }
+};
+
+
+
+/***********************************************
+ *********** MODULAR INTEGERS ******************
+ ***********************************************/
+
+class Z_nCreate: public xmlrpc_c::method {
+  public:
+    
+    Z_nCreate() {
+      this->_signature = "s:is";
+      this->_help = "Creates a new modular integer from the given modulus and initial value";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const std::string varId2(paramList.getString(2));
+
+      paramList.verifyEnd(3);
+
+      const mpplas::Z ini( *((mpplas::Z*)table.get(clientId, varId1)));
+      const mpplas::Z mod( *((mpplas::Z*)table.get(clientId, varId2)));
+
+      mpplas::Z_n* const op( new mpplas::Z_n(ini,mod));
+
+      const std::string varId(table.set(clientId, op, "Z_n"));
+
+      *retvalP = xmlrpc_c::value_string(varId);
+    }
+};
+
+
+class Z_nAddMethod : public xmlrpc_c::method {
+  public:
+    
+    Z_nAddMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Adds two modular integers together";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+          const mpplas::Z_n op1( *((mpplas::Z_n*)table.get(clientId, varId1)));
+          const mpplas::Z_n op2( *((mpplas::Z_n*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::Z_n(op1+op2), "Z_n");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+};
+class Z_nSubMethod : public xmlrpc_c::method {
+  public:
+    
+    Z_nSubMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Substracts two modular integers";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+          const mpplas::Z_n op1( *((mpplas::Z_n*)table.get(clientId, varId1)));
+          const mpplas::Z_n op2( *((mpplas::Z_n*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::Z_n(op1-op2), "Z_n");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+};
+class Z_nMulMethod : public xmlrpc_c::method {
+  public:
+    
+    Z_nMulMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Multiplies two modular integers together";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+          const mpplas::Z_n op1( *((mpplas::Z_n*)table.get(clientId, varId1)));
+          const mpplas::Z_n op2( *((mpplas::Z_n*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::Z_n(op1 * op2), "Z_n");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+};
+class Z_nDivMethod : public xmlrpc_c::method {
+  public:
+    
+    Z_nDivMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Divides (integer division) two modular integers";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+          const mpplas::Z_n op1( *((mpplas::Z_n*)table.get(clientId, varId1)));
+          const mpplas::Z_n op2( *((mpplas::Z_n*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::Z_n(op1/op2), "Z_n");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+};
+
+class Z_nInvMethod : public xmlrpc_c::method {
+  public:
+    
+    Z_nInvMethod() {
+      this->_signature = "s:is";
+      this->_help = "Returns the inverse (if it exists) of the given modular integer";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        paramList.verifyEnd(2);
+
+        try{
+          mpplas::Z_n op1( *((mpplas::Z_n*)table.get(clientId, varId1)));
+          op1.inverse(); 
+          const std::string varId = table.set(clientId, new mpplas::Z_n(op1), "Z_n");
+          *retvalP = xmlrpc_c::value_string( varId );
+        }
+        catch(const std::exception& e){
+          throw(girerr::error(e.what()));
+        }
+      }
+};
+
+
+class Z_nPowMethod : public xmlrpc_c::method {
+  public:
+    
+    Z_nPowMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Returns the exponentiation of the first argument (base) by the second (exponent)"; 
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        const mpplas::Z_n op1( *((mpplas::Z_n*)table.get(clientId, varId1)));
+        const mpplas::Z op2( *((mpplas::Z_n*)table.get(clientId, varId2)));
+
+
+        const std::string varId = table.set(clientId, new mpplas::Z_n(  op1 ^ op2 ), "Z_n");
+        
+        *retvalP = xmlrpc_c::value_string( varId );
+
+      }
+};
+
+
+
 /***********************************************
  **************   REALS  ***********************
  ***********************************************/
+
+class RSetInternalPrecision: public xmlrpc_c::method {
+  public:
+    
+    RSetInternalPrecision() {
+      this->_signature = "i:ii";
+      this->_help = "Changes the internal precision (in bits) used to represent real numbers";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+        const int clientId(paramList.getInt(0));
+        const int prec( paramList.getInt(1) );
+        paramList.verifyEnd(2);
+
+        mpplas::R::precision(prec);
+
+        *retvalP = xmlrpc_c::value_int(prec);
+      }
+};
+
+class RSetOutputPrecision: public xmlrpc_c::method {
+  public:
+    RSetOutputPrecision() {
+      this->_signature = "i:ii";
+      this->_help = "Changes the precision (in digits) with which real numbers "
+        "will be displayed. A value of 0 means to use the maximum posible precision";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+        const int clientId(paramList.getInt(0));
+        const int prec( paramList.getInt(1) );
+        paramList.verifyEnd(2);
+
+        mpplas::R::precisionSalida(prec);
+
+        *retvalP = xmlrpc_c::value_int(prec);
+      }
+};
+
+
+class RGetInternalPrecision: public xmlrpc_c::method {
+  public:
+    
+    RGetInternalPrecision() {
+      this->_signature = "i:i";
+      this->_help = "Returns the internal precision (in bits) used to represent real numbers";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+        const int clientId(paramList.getInt(0));
+        const int prec( paramList.getInt(1) );
+        paramList.verifyEnd(2);
+
+        *retvalP = xmlrpc_c::value_int(mpplas::R::precision());
+      }
+};
+
+class RGetOutputPrecision: public xmlrpc_c::method {
+  public:
+    RGetOutputPrecision() {
+      this->_signature = "i:ii";
+      this->_help = "Returns the precision (in digits) with which real numbers "
+        "will be displayed. A value of 0 means to use the maximum posible precision";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+        const int clientId(paramList.getInt(0));
+        const int prec( paramList.getInt(1) );
+        paramList.verifyEnd(2);
+
+        *retvalP = xmlrpc_c::value_int(mpplas::R::precisionSalida());
+      }
+};
+
+
 
 class RCreate: public xmlrpc_c::method {
   public:
     
     RCreate() {
       this->_signature = "s:is";
-      this->_help = "This method creates a new real";
+      this->_help = "Creates a new real";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -425,7 +725,7 @@ class RAddMethod : public xmlrpc_c::method {
     
     RAddMethod() {
       this->_signature = "s:iii";
-      this->_help = "This method adds two reals together";
+      this->_help = "Adds two reals together";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -451,7 +751,7 @@ class RSubMethod : public xmlrpc_c::method {
     
     RSubMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method substracts two reals";
+      this->_help = "Substracts two reals";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -475,7 +775,7 @@ class RMulMethod : public xmlrpc_c::method {
     
     RMulMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method multiplies two reals together";
+      this->_help = "Multiplies two reals together";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -499,7 +799,7 @@ class RDivMethod : public xmlrpc_c::method {
     
     RDivMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method divides two reals";
+      this->_help = "Divides two reals";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -524,7 +824,7 @@ class RPowMethod : public xmlrpc_c::method {
     
     RPowMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method returns the exponentiation of the first argument (base) by the second (exponent)"; 
+      this->_help = "Returns the exponentiation of the first argument (base) by the second (exponent)"; 
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -556,7 +856,7 @@ class RBitLength: public xmlrpc_c::method {
     
     RBitLength() {
       this->_signature = "i:ii";
-      this->_help = "This method returns the bit-length of an integer";
+      this->_help = "Returns the bit-length of an integer";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -573,6 +873,40 @@ class RBitLength: public xmlrpc_c::method {
       }
 };
 
+class RCompare: public xmlrpc_c::method {
+  public:
+    
+    RCompare() {
+      this->_signature = "i:iss";
+      this->_help = "Returns an integer constant encoding the relationship between the two real arguments"
+        "-1 meaning the first arg. is < then the second. 0 meaning they are equal. 1 meaning the first in > than the second;";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        const mpplas::R op1( *((mpplas::R*)table.get(clientId, varId1)));
+        const mpplas::R op2( *((mpplas::R*)table.get(clientId, varId2)));
+
+        int res;
+        if( op1 < op2 ){
+          res = -1;
+        } 
+        else if( op1 == op2 ){
+          res = 0;
+        }
+        else if( op1 > op2 ){
+          res = 1;
+        }
+
+        *retvalP = xmlrpc_c::value_int(res);
+      }
+};
+
 
 
 /***********************************************
@@ -583,7 +917,7 @@ class ModExpMethod : public xmlrpc_c::method {
     
     ModExpMethod() {
       this->_signature = "s:isss";
-      this->_help = "This method returns the result of the modular exponentiation (arg1 ^ arg2) MOD arg3"; 
+      this->_help = "Returns the result of the modular exponentiation (arg1 ^ arg2) MOD arg3"; 
 
       mpplas::MethodsFactory::getInstance()->getFunc(pmod);
     }
@@ -618,7 +952,7 @@ class ModInverseMethod : public xmlrpc_c::method {
     
     ModInverseMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method returns the result of the modular inverse (arg1 ^ -1) MOD arg2"; 
+      this->_help = "Returns the result of the modular inverse (arg1 ^ -1) MOD arg2"; 
 
       mpplas::MethodsFactory::getInstance()->getFunc(pmod);
     }
@@ -739,7 +1073,7 @@ class GFxAddMethod : public xmlrpc_c::method {
     
     GFxAddMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method adds two elements of a finite field together";
+      this->_help = "Adds two elements of a finite field together";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -770,7 +1104,7 @@ class GFxSubMethod : public xmlrpc_c::method {
     
     GFxSubMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method substracts two elements of a finite field";
+      this->_help = "Substracts two elements of a finite field";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -799,7 +1133,7 @@ class GFxMulMethod : public xmlrpc_c::method {
     
     GFxMulMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method multiplies two elements of a finite field";
+      this->_help = "Multiplies two elements of a finite field";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -828,7 +1162,7 @@ class GFxDivMethod : public xmlrpc_c::method {
     
     GFxDivMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method divides two elements of a finite field";
+      this->_help = "Divides two elements of a finite field";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -880,6 +1214,23 @@ class GFxInvMethod : public xmlrpc_c::method {
       }
 };
 
+class GFxGetPBRString: public xmlrpc_c::method {
+  public:
+    GFxGetPBRString() {
+      this->_signature = "s:is";
+      this->_help = "Returns an string representing the Polynomial Basis Representation of the finite field element";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        paramList.verifyEnd(2);
+
+        const mpplas::GFx op1( *((mpplas::GFx*)table.get(clientId, varId1)));
+
+        *retvalP = xmlrpc_c::value_string( op1.getPBRString() );
+      }
+};
 
 
 
@@ -888,7 +1239,7 @@ class GFGetProperties: public xmlrpc_c::method {
     
     GFGetProperties() {
       this->_signature = "S:is";
-      this->_help = "This method returns the properties for the given finite field";
+      this->_help = "Returns the properties for the given finite field";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -942,7 +1293,7 @@ class GFxGetValue: public xmlrpc_c::method {
 
         const mpplas::GFx* const op( (mpplas::GFx*)table.get(clientId, varId));
 
-        *retvalP = xmlrpc_c::value_string( op->toZ().toString() );
+        *retvalP = xmlrpc_c::value_string( op->getIntegerValue().toString() );
       }
 };
 
@@ -964,7 +1315,7 @@ class GFxSetValue: public xmlrpc_c::method {
         const mpplas::Z zOp( *((mpplas::Z*)table.get(clientId, varId2)));
         
         try{
-          op->fromZ(zOp);
+          op->setIntegerValue(zOp);
         }
         catch(const std::exception& e){
           throw(girerr::error(e.what()));
@@ -984,7 +1335,7 @@ class MZCreate: public xmlrpc_c::method {
     
     MZCreate() {
       this->_signature = "s:is";
-      this->_help = "This method creates a new integer matrix";
+      this->_help = "Creates a new integer matrix";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -1005,7 +1356,7 @@ class MZAddMethod : public xmlrpc_c::method {
     
     MZAddMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method adds two integer matrices together";
+      this->_help = "Adds two integer matrices together";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -1025,12 +1376,38 @@ class MZAddMethod : public xmlrpc_c::method {
       }
 
 };
+class MZSubMethod : public xmlrpc_c::method {
+  public:
+    
+    MZSubMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Adds two integer matrices together";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        const mpplas::MatrixZ op1( *((mpplas::MatrixZ*)table.get(clientId, varId1)));
+        const mpplas::MatrixZ op2( *((mpplas::MatrixZ*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixZ(op1-op2), "MZ");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+
+};
+
 class MZMulMethod : public xmlrpc_c::method {
   public:
     
     MZMulMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method multiplies two integer matrices";
+      this->_help = "Multiplies two integer matrices";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -1050,8 +1427,160 @@ class MZMulMethod : public xmlrpc_c::method {
       }
 
 };
+class MZDivMethod : public xmlrpc_c::method {
+  public:
+    
+    MZDivMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Multiplies two integer matrices";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        const mpplas::MatrixZ op1( *((mpplas::MatrixZ*)table.get(clientId, varId1)));
+        const mpplas::MatrixZ op2( *((mpplas::MatrixZ*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixZ(op1/op2), "MZ");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+
+};
 
 
+
+
+/***********************************************
+ **************** REAL MATRICES ****************
+ ***********************************************/
+class MRCreate: public xmlrpc_c::method {
+  public:
+    
+    MRCreate() {
+      this->_signature = "s:is";
+      this->_help = "Creates a new integer matrix";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        mpplas::MatrixR* const op( new mpplas::MatrixR(paramList.getString(1)));
+
+        paramList.verifyEnd(2);
+
+        const std::string varId(table.set(clientId, op, "MR"));
+
+        *retvalP = xmlrpc_c::value_string(varId);
+      }
+};
+
+class MRAddMethod : public xmlrpc_c::method {
+  public:
+    
+    MRAddMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Adds two integer matrices together";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        const mpplas::MatrixR op1( *((mpplas::MatrixR*)table.get(clientId, varId1)));
+        const mpplas::MatrixR op2( *((mpplas::MatrixR*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixR(op1+op2), "MR");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+
+};
+class MRSubMethod : public xmlrpc_c::method {
+  public:
+    
+    MRSubMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Adds two integer matrices together";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        const mpplas::MatrixR op1( *((mpplas::MatrixR*)table.get(clientId, varId1)));
+        const mpplas::MatrixR op2( *((mpplas::MatrixR*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixR(op1-op2), "MR");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+
+};
+
+class MRMulMethod : public xmlrpc_c::method {
+  public:
+    
+    MRMulMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Multiplies two integer matrices";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        const mpplas::MatrixR op1( *((mpplas::MatrixR*)table.get(clientId, varId1)));
+        const mpplas::MatrixR op2( *((mpplas::MatrixR*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixR(op1*op2), "MR");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+
+};
+class MRDivMethod : public xmlrpc_c::method {
+  public:
+    
+    MRDivMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Multiplies two integer matrices";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        const mpplas::MatrixR op1( *((mpplas::MatrixR*)table.get(clientId, varId1)));
+        const mpplas::MatrixR op2( *((mpplas::MatrixR*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixR(op1/op2), "MR");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+
+};
 
 
 
@@ -1063,7 +1592,7 @@ class RandomZMethod : public xmlrpc_c::method {
     
     RandomZMethod() {
       this->_signature = "s:ii";
-      this->_help = "This method returns a random interger of the specified number of bits"; 
+      this->_help = "Returns a random interger of the specified number of bits"; 
 
       mpplas::MethodsFactory::getInstance()->getFunc(rnd);
     }
@@ -1084,12 +1613,39 @@ class RandomZMethod : public xmlrpc_c::method {
     mpplas::RandomFast* rnd;
 };
 
+class SecureRandomZMethod : public xmlrpc_c::method {
+  public:
+    
+    SecureRandomZMethod() {
+      this->_signature = "s:ii";
+      this->_help = "Returns a truly random interger of the specified number of bits"; 
+
+      mpplas::MethodsFactory::getInstance()->getFunc(rnd);
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const int bits = paramList.getInt(1);
+      paramList.verifyEnd(2);
+
+      mpplas::Z* const op( new mpplas::Z(rnd->getInteger( bits )));
+      const std::string varId = table.set(clientId, op, "Z");
+
+      *retvalP = xmlrpc_c::value_string(varId);
+    }
+
+  private:
+    mpplas::RandomSecure* rnd;
+};
+
+
 class RandomZLessThanMethod : public xmlrpc_c::method {
   public:
     
     RandomZLessThanMethod() {
       this->_signature = "s:is";
-      this->_help = "This method returns a random interger that is less than the given one"; 
+      this->_help = "Returns a random interger that is less than the given one"; 
 
       mpplas::MethodsFactory::getInstance()->getFunc(rnd);
     }
@@ -1119,7 +1675,7 @@ class GenPrimeMethod : public xmlrpc_c::method {
     
     GenPrimeMethod() {
       this->_signature = "s:ii";
-      this->_help = "This method returns a prime of at least the specified number of bits"; 
+      this->_help = "Returns a prime of at least the specified number of bits"; 
 
       mpplas::MethodsFactory::getInstance()->getFunc(primes);
     }
@@ -1145,12 +1701,44 @@ class GenPrimeMethod : public xmlrpc_c::method {
     mpplas::GenPrimos* primes;
 };
 
+class GenStrongPrimeMethod : public xmlrpc_c::method {
+  public:
+    
+    GenStrongPrimeMethod() {
+      this->_signature = "s:ii";
+      this->_help = "Returns a cryptographically prime of at least the specified number of bits"; 
+
+      mpplas::MethodsFactory::getInstance()->getFunc(primes);
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+      const int clientId(paramList.getInt(0));
+      const int bits = paramList.getInt(1);
+      paramList.verifyEnd(2);
+
+      try{
+        mpplas::Z* const op( new mpplas::Z(primes->getPrimeStrong( bits ) ));
+        const std::string varId = table.set(clientId, op, "Z");
+
+        *retvalP = xmlrpc_c::value_string(varId);
+      }
+      catch( const std::exception &e ){
+        throw girerr::error( e.what() );
+      }
+
+    }
+
+  private:
+    mpplas::GenPrimos* primes;
+};
+
+
 class PrimeTestMethod : public xmlrpc_c::method {
   public:
     
     PrimeTestMethod() {
       this->_signature = "b:is";
-      this->_help = "This method returns true if its argument is prime"; 
+      this->_help = "Returns true if its argument is prime"; 
 
       mpplas::MethodsFactory::getInstance()->getFunc(primeTest);
     }
@@ -1171,6 +1759,43 @@ class PrimeTestMethod : public xmlrpc_c::method {
 };
 
 /***********************************************
+ ****************    LCM    ********************
+ ***********************************************/
+class LCMMethod : public xmlrpc_c::method {
+  public:
+
+    LCMMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Returns the least common multiple of both integer arguments"; 
+
+      mpplas::MethodsFactory::getInstance()->getFunc(lcm);
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const std::string varId2(paramList.getString(2));
+      paramList.verifyEnd(3);
+
+      const mpplas::Z op1( *((mpplas::Z*)table.get(clientId, varId1)));
+      const mpplas::Z op2( *((mpplas::Z*)table.get(clientId, varId2)));
+ 
+      try{
+        const std::string varId = table.set(clientId, new mpplas::Z(lcm->lcm(op1,op2)), "Z");
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+      catch(const std::exception& e){
+        throw(girerr::error(e.what()));
+      }
+    }
+
+  private:
+    mpplas::LCM* lcm;
+};
+
+
+/***********************************************
  ****************    GCD    ********************
  ***********************************************/
 class GCDMethod : public xmlrpc_c::method {
@@ -1178,7 +1803,7 @@ class GCDMethod : public xmlrpc_c::method {
 
     GCDMethod() {
       this->_signature = "s:iss";
-      this->_help = "This method returns a the greatest common divisor of both integer arguments"; 
+      this->_help = "Returns a the greatest common divisor of both integer arguments"; 
 
       mpplas::MethodsFactory::getInstance()->getFunc(gcd);
     }
@@ -1206,6 +1831,45 @@ class GCDMethod : public xmlrpc_c::method {
     mpplas::GCD< mpplas::Z >* gcd;
 };
 
+class GCDExtMethod : public xmlrpc_c::method {
+  public:
+
+    GCDExtMethod() {
+      this->_signature = "A:iss";
+      this->_help = "Returns the Bézout coefficients corresponding to the given integer arguments"; 
+
+      mpplas::MethodsFactory::getInstance()->getFunc(gcdext);
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const std::string varId2(paramList.getString(2));
+      paramList.verifyEnd(3);
+
+      const mpplas::Z op1( *((mpplas::Z*)table.get(clientId, varId1)));
+      const mpplas::Z op2( *((mpplas::Z*)table.get(clientId, varId2)));
+ 
+      try{
+        mpplas::Z s,t; 
+        const mpplas::Z d( gcdext->gcdext(op1, op2, &s, &t) );
+        std::vector<xmlrpc_c::value> res;
+        res.push_back(xmlrpc_c::value_string( d.toString() ));
+        res.push_back(xmlrpc_c::value_string( s.toString() ));
+        res.push_back(xmlrpc_c::value_string( t.toString() ));
+        *retvalP  = xmlrpc_c::value_array(res);
+      }
+      catch(const std::exception& e){
+        throw(girerr::error(e.what()));
+      }
+    }
+
+  private:
+    mpplas::GCDExt< mpplas::Z >* gcdext;
+};
+
+
 /***********************************************
  ****************    CRT    ********************
  ***********************************************/
@@ -1214,7 +1878,7 @@ class CRTMethod : public xmlrpc_c::method {
 
     CRTMethod() {
       this->_signature = "s:iAA";
-      this->_help = "This method returns the modular eq. system defined by the two arrays of integers given";
+      this->_help = "Returns the modular eq. system defined by the two arrays of integers given";
 
       mpplas::MethodsFactory::getInstance()->getFunc(crt);
     }
@@ -1251,6 +1915,50 @@ class CRTMethod : public xmlrpc_c::method {
 };
 
 /***********************************************
+ ***********  INT. FACTORIZATION ***************
+ ***********************************************/
+class FactorizationMethod: public xmlrpc_c::method {
+  public:
+
+    FactorizationMethod() {
+      this->_signature = "A:is";
+      this->_help = "Returns an array with the integer factors of the given integer";
+
+      mpplas::MethodsFactory::getInstance()->getFunc(factor);
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId(paramList.getString(1));
+      paramList.verifyEnd(2);
+
+      const mpplas::Z op( *((mpplas::Z*)table.get(clientId, varId)));
+
+      try{
+        const mpplas::MiVec<mpplas::Z> factors( factor->factoriza(op) );
+        std::vector<xmlrpc_c::value> factorsArray;
+
+        std::string varId;
+        for(int i = 0; i < factors.size(); i++){
+          factorsArray.push_back(xmlrpc_c::value_string( factors[i].toString() ));
+        }
+        *retvalP  = xmlrpc_c::value_array(factorsArray);
+      }
+      catch(const std::exception& e){
+        throw(girerr::error(e.what()));
+      }
+
+    }
+
+  private:
+    mpplas::Factoriza* factor;
+};
+
+
+
+
+/***********************************************
  ****************    MISC   ********************
  ***********************************************/
 class SysInfoMethod : public xmlrpc_c::method { 
@@ -1258,7 +1966,7 @@ class SysInfoMethod : public xmlrpc_c::method {
 
     SysInfoMethod() {
       this->_signature = "S:i";
-      this->_help = "This method returns a map with some information about the host system";
+      this->_help = "Returns a map with some information about the host system";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const retvalP) {
@@ -1358,7 +2066,7 @@ class StartProfilingClockMethod: public xmlrpc_c::method {
 
     StartProfilingClockMethod() {
       this->_signature = "n:i";
-      this->_help = "This method marks the starting point in time for profiling clock";
+      this->_help = "Marks the starting point in time for profiling clock";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const retvalP) {
@@ -1375,7 +2083,7 @@ class StopProfilingClockMethod: public xmlrpc_c::method {
 
     StopProfilingClockMethod() {
       this->_signature = "d:i";
-      this->_help = "This method returns the time elapsed since the profiling clock was set to run";
+      this->_help = "Returns the time elapsed since the profiling clock was set to run";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const retvalP) {
@@ -1392,7 +2100,7 @@ class GetProfilingResultsMethod: public xmlrpc_c::method {
 
     GetProfilingResultsMethod() {
       this->_signature = "A:i";
-      this->_help = "This method returns an array containing the profiling counters"
+      this->_help = "Returns an array containing the profiling counters"
         "for each thread.";
     }
 
@@ -1427,7 +2135,7 @@ class ResetProfilingCountersMethod: public xmlrpc_c::method {
 
     ResetProfilingCountersMethod() {
       this->_signature = "n:i";
-      this->_help = "This method resets the profiling counters";
+      this->_help = "Resets the profiling counters";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const retvalP) {
@@ -1452,49 +2160,72 @@ int main(int const, const char ** const) {
     xmlrpc_c::registry myRegistry;
 
 
-    myRegistry.addMethod("_requestClientId", new RequestClientId);
-    myRegistry.addMethod("_discardClientId", new DiscardClientId);
+    myRegistry.addMethod("__requestClientId", new RequestClientId);
+    myRegistry.addMethod("__discardClientId", new DiscardClientId);
 
 
-    myRegistry.addMethod("getData", new GetData);
+    myRegistry.addMethod("_getData", new GetData);
 
-    myRegistry.addMethod("_runGC", new RunGC);
-    myRegistry.addMethod("zCreate", new ZCreate);
-    myRegistry.addMethod("zAdd", new ZAddMethod);
-    myRegistry.addMethod("zSub", new ZSubMethod);
-    myRegistry.addMethod("zMul", new ZMulMethod);
-    myRegistry.addMethod("zDiv", new ZDivMethod);
-    myRegistry.addMethod("zMod", new ZModMethod);
-    myRegistry.addMethod("zPow", new ZPowMethod);
-    myRegistry.addMethod("zBitLength", new ZBitLength);
+    myRegistry.addMethod("__runGC", new RunGC);
 
-    myRegistry.addMethod("rCreate", new RCreate);
-    myRegistry.addMethod("rAdd", new RAddMethod);
-    myRegistry.addMethod("rSub", new RSubMethod);
-    myRegistry.addMethod("rMul", new RMulMethod);
-    myRegistry.addMethod("rDiv", new RDivMethod);
-    myRegistry.addMethod("rPow", new RPowMethod);
-    myRegistry.addMethod("rBitLength", new RBitLength);
+    myRegistry.addMethod("_zCreate", new ZCreate);
+    myRegistry.addMethod("_zAdd", new ZAddMethod);
+    myRegistry.addMethod("_zSub", new ZSubMethod);
+    myRegistry.addMethod("_zMul", new ZMulMethod);
+    myRegistry.addMethod("_zDiv", new ZDivMethod);
+    myRegistry.addMethod("_zMod", new ZModMethod);
+    myRegistry.addMethod("_zPow", new ZPowMethod);
+    myRegistry.addMethod("_zBitLength", new ZBitLength);
+    myRegistry.addMethod("_zCompare", new ZCompare);
 
-    myRegistry.addMethod("zFactorial", new ZFactorialMethod);
+    myRegistry.addMethod("_znCreate", new Z_nCreate);
+    myRegistry.addMethod("_znAdd", new Z_nAddMethod);
+    myRegistry.addMethod("_znSub", new Z_nSubMethod);
+    myRegistry.addMethod("_znMul", new Z_nMulMethod);
+    myRegistry.addMethod("_znDiv", new Z_nDivMethod);
+    myRegistry.addMethod("_znInv", new Z_nInvMethod);
+    myRegistry.addMethod("_znPow", new Z_nPowMethod);
 
-    myRegistry.addMethod("mzCreate", new MZCreate);
-    myRegistry.addMethod("mzAdd", new MZAddMethod);
-    myRegistry.addMethod("mzMul", new MZMulMethod);
 
-    myRegistry.addMethod("getHRString", new GetHRStringMethod);
+    myRegistry.addMethod("_rCreate", new RCreate);
+    myRegistry.addMethod("_rAdd", new RAddMethod);
+    myRegistry.addMethod("_rSub", new RSubMethod);
+    myRegistry.addMethod("_rMul", new RMulMethod);
+    myRegistry.addMethod("_rDiv", new RDivMethod);
+    myRegistry.addMethod("_rPow", new RPowMethod);
+    myRegistry.addMethod("_rBitLength", new RBitLength);
+    myRegistry.addMethod("_rCompare", new RCompare);
+    myRegistry.addMethod("_rInnerPrec", new RSetInternalPrecision);
+    myRegistry.addMethod("_rOutputPrec", new RSetOutputPrecision);
 
-    myRegistry.addMethod("gfCreate", new GFCreate);
-    myRegistry.addMethod("gfGetProperties", new GFGetProperties);
+    myRegistry.addMethod("_zFactorial", new ZFactorialMethod);
 
-    myRegistry.addMethod("gfxCreate", new GFxCreate);
-    myRegistry.addMethod("gfxAdd", new GFxAddMethod);
-    myRegistry.addMethod("gfxSub", new GFxSubMethod);
-    myRegistry.addMethod("gfxMul", new GFxMulMethod);
-    myRegistry.addMethod("gfxDiv", new GFxDivMethod);
-    myRegistry.addMethod("gfxInverse", new GFxInvMethod);
-    myRegistry.addMethod("gfxGetValue", new GFxGetValue);
-    myRegistry.addMethod("gfxSetValue", new GFxSetValue);
+    myRegistry.addMethod("_mzCreate", new MZCreate);
+    myRegistry.addMethod("_mzAdd", new MZAddMethod);
+    myRegistry.addMethod("_mzSub", new MZSubMethod);
+    myRegistry.addMethod("_mzMul", new MZMulMethod);
+    myRegistry.addMethod("_mzDiv", new MZDivMethod);
+
+    myRegistry.addMethod("_mrCreate", new MRCreate);
+    myRegistry.addMethod("_mrAdd", new MRAddMethod);
+    myRegistry.addMethod("_mrSub", new MRSubMethod);
+    myRegistry.addMethod("_mrMul", new MRMulMethod);
+    myRegistry.addMethod("_mrDiv", new MRDivMethod);
+
+    myRegistry.addMethod("_getHRString", new GetHRStringMethod);
+
+    myRegistry.addMethod("_gfCreate", new GFCreate);
+    myRegistry.addMethod("_gfGetProperties", new GFGetProperties);
+    myRegistry.addMethod("_gfxGetPBRString", new GFxGetPBRString);
+
+    myRegistry.addMethod("_gfxCreate", new GFxCreate);
+    myRegistry.addMethod("_gfxAdd", new GFxAddMethod);
+    myRegistry.addMethod("_gfxSub", new GFxSubMethod);
+    myRegistry.addMethod("_gfxMul", new GFxMulMethod);
+    myRegistry.addMethod("_gfxDiv", new GFxDivMethod);
+    myRegistry.addMethod("_gfxInverse", new GFxInvMethod);
+    myRegistry.addMethod("_gfxGetValue", new GFxGetValue);
+    myRegistry.addMethod("_gfxSetValue", new GFxSetValue);
 
 
 
@@ -1502,14 +2233,21 @@ int main(int const, const char ** const) {
     myRegistry.addMethod("modInverse", new ModInverseMethod);
 
     myRegistry.addMethod("getRandomZ", new RandomZMethod);
+    myRegistry.addMethod("getSecureRandomZ", new SecureRandomZMethod);
     myRegistry.addMethod("getRandomZLessThan", new RandomZLessThanMethod);
 
     myRegistry.addMethod("getPrime", new GenPrimeMethod);
+    myRegistry.addMethod("getStrongPrime", new GenStrongPrimeMethod);
     myRegistry.addMethod("isPrime", new PrimeTestMethod);
 
+    myRegistry.addMethod("lcm", new  LCMMethod);
+
     myRegistry.addMethod("gcd", new  GCDMethod);
+    myRegistry.addMethod("gcdext", new  GCDExtMethod);
 
     myRegistry.addMethod("crt", new CRTMethod);
+    
+    myRegistry.addMethod("factorize", new FactorizationMethod);
 
     myRegistry.addMethod("getSystemInfo", new SysInfoMethod);
 

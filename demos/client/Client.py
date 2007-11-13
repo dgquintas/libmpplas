@@ -52,11 +52,22 @@ def toInt(arg):
   res = 0;
   if isinstance(arg, Z):
   # recover the data and cast it to an XMLRPC integer (32 bits) 
-    res = int(getData(arg.getId()))
+    res = int(_getData(arg.getId()))
   else:
     res = int(arg)
 
   return res
+
+def helpFuncs():
+  from pprint import pprint
+  rpcServer = RPCServer.getInstance()
+  methods = listFuncs()
+  for mName in listFuncs():
+    rpcServer.getBatchServer().system.methodHelp(mName)
+  
+  methodsHelp = zip(methods, rpcServer.getBatchServer()())
+  RPCServer.getInstance().resetBatch()
+  pprint(dict(methodsHelp))
 
 
 def initializeClient(configFileName = 'config.cfg'):
@@ -67,10 +78,10 @@ def initializeClient(configFileName = 'config.cfg'):
   createCount = 0
   global_config = Configuration(configFileName)
   rpcServer = RPCServer.getInstance( global_config.RPCServerURL )
-  clientId = rpcServer.getServer()._requestClientId()
+  clientId = rpcServer.getServer().__requestClientId()
   gcThreshold = global_config.GCThreshold
   global filteredMethods
-  filteredMethods = filter(lambda mName: mName[:7] != 'system.' and mName[0] != '_', 
+  filteredMethods = filter(lambda mName: mName[:7] != 'system.' and mName[0:2] != '__', 
                             rpcServer.getInteractiveServer().system.listMethods())
 
   proxyFuncsSrc = """def %(methodName)s(*args):
@@ -117,6 +128,8 @@ def initializeClient(configFileName = 'config.cfg'):
     rpcServer.getBatchServer().system.methodHelp(mName)
   
   methodsHelp = zip(filteredMethods, rpcServer.getBatchServer()())
+  RPCServer.getInstance().resetBatch()
+
   for methodAndHelpPair in methodsHelp:
     exec proxyFuncsSrc % \
     {'methodName': methodAndHelpPair[0], 
@@ -232,7 +245,7 @@ def runInParallel( listOfSnippets, numberOfThreads ):
 ######################################################################################
 
 def listFuncs():
-  return filteredMethods
+  return [ name for name in filteredMethods if name[0] != '_' ]
 
 def checkForUpdates():
   import md5
@@ -273,12 +286,12 @@ class Z(Variable):
     if id:
       Variable.__init__(self, id)
     else:
-      Variable.__init__(self, zCreate(str(zStr)).getId())
+      Variable.__init__(self, _zCreate(str(zStr)).getId())
 
   def __add__(self, anotherZ): 
     if not isinstance(anotherZ,type(self)):
       anotherZ = Z(str(anotherZ))
-    return zAdd(self, anotherZ )
+    return _zAdd(self, anotherZ )
   def __iadd__(self, anotherZ): 
     self.setId( self.__add__(anotherZ).getId() )
     return self
@@ -286,7 +299,7 @@ class Z(Variable):
   def __sub__(self, anotherZ): 
     if not isinstance(anotherZ,type(self)):
       anotherZ = Z(str(anotherZ))
-    return zSub(self, anotherZ)
+    return _zSub(self, anotherZ)
   def __isub__(self, anotherZ): 
     self.setId( self.__sub__(anotherZ).getId() )
     return self
@@ -294,7 +307,7 @@ class Z(Variable):
   def __mul__(self, anotherZ): 
     if not isinstance(anotherZ,type(self)):
       anotherZ = Z(str(anotherZ))
-    return zMul(self, anotherZ)
+    return _zMul(self, anotherZ)
   def __imul__(self, anotherZ): 
     self.setId( self.__mul__(anotherZ).getId() )
     return self
@@ -303,7 +316,7 @@ class Z(Variable):
   def __div__(self, anotherZ): 
     if not isinstance(anotherZ,type(self)):
       anotherZ = Z(str(anotherZ))
-    return zDiv(self, anotherZ)
+    return _zDiv(self, anotherZ)
   def __idiv__(self, anotherZ): 
     self.setId( self.__div__(anotherZ).getId() )
     return self
@@ -312,48 +325,135 @@ class Z(Variable):
   def __mod__(self, anotherZ): 
     if not isinstance(anotherZ,type(self)):
       anotherZ = Z(str(anotherZ))
-    return zMod(self, anotherZ)
+    return _zMod(self, anotherZ)
   def __imod__(self, anotherZ): 
     self.setId( self.__mod__(anotherZ).getId() )
     return self
 
-
   def __lt__(self, anotherZ):
-    return long(self.__str__()) < long(anotherZ.__str__())
+    return (_zCompare(self, anotherZ) < 0 )
   def __le__(self, anotherZ):
-    return long(self.__str__()) <= long(anotherZ.__str__())
+    return (_zCompare(self, anotherZ) <= 0)
   def __eq__(self, anotherZ):
-    return long(self.__str__()) == long(anotherZ.__str__())
+    return (_zCompare(self, anotherZ) == 0)
   def __ne__(self, anotherZ):
-    return long(self.__str__()) != long(anotherZ.__str__())
+    return (_zCompare(self, anotherZ) != 0)
   def __gt__(self, anotherZ):
-    return long(self.__str__()) > long(anotherZ.__str__())
+    return (_zCompare(self, anotherZ) > 0)
   def __ge__(self, anotherZ):
-    return long(self.__str__()) >= long(anotherZ.__str__())
+    return (_zCompare(self, anotherZ) >= 0)
 
-  #FIXME: implementar la exponenciacion modular. Hacerlo aqui o en un tipo de dato Z_n separao?
+
   def __pow__(self, exp, mod=None):
     if not isinstance(exp,type(self)):
       exp = Z(str(exp))
-    return zPow(self, exp)
+    if mod:
+      return modExp(self,exp,mod)
+    else:
+      return _zPow(self, exp)
   def __ipow__(self, exp, mod=None): 
-    self.setId( self.__pow__(exp).getId() )
+    self.setId( self.__pow__(exp,mod).getId() )
 
 
 
   def __len__(self):
-    return zBitLength(self.getId())
+    return _zBitLength(self.getId())
 
   def __repr__(self):
 #    return "%s with id %s" % (type(self),self.getId())
     return self.__str__()
 
   def __str__(self):
-    res = getData(self.getId())
+    res = _getData(self.getId())
     return res
 
 
 #######################################################################
+
+
+class Z_n(Variable):
+  def __init__(self, zIniStr="0", zMod="0", id=None):
+    if id:
+      Variable.__init__(self, id)
+    else:
+      Variable.__init__(self, _znCreate(str(zIniStr), str(zMod)).getId())
+
+  def __add__(self, anotherZ_n): 
+    if not isinstance(anotherZ_n,type(self)):
+      anotherZ_n = Z_n(str(anotherZ_n))
+    return _znAdd(self, anotherZ_n )
+  def __iadd__(self, anotherZ_n): 
+    self.setId( self.__add__(anotherZ_n).getId() )
+    return self
+
+  def __sub__(self, anotherZ_n): 
+    if not isinstance(anotherZ_n,type(self)):
+      anotherZ_n = Z_n(str(anotherZ_n))
+    return _znSub(self, anotherZ_n)
+  def __isub__(self, anotherZ_n): 
+    self.setId( self.__sub__(anotherZ_n).getId() )
+    return self
+
+  def __mul__(self, anotherZ_n): 
+    if not isinstance(anotherZ_n,type(self)):
+      anotherZ_n = Z_n(str(anotherZ_n))
+    return _znMul(self, anotherZ_n)
+  def __imul__(self, anotherZ_n): 
+    self.setId( self.__mul__(anotherZ_n).getId() )
+    return self
+
+
+  def __div__(self, anotherZ_n): 
+    if not isinstance(anotherZ_n,type(self)):
+      anotherZ_n = Z_n(str(anotherZ_n))
+    return _znDiv(self, anotherZ_n)
+  def __idiv__(self, anotherZ_n): 
+    self.setId( self.__div__(anotherZ_n).getId() )
+    return self
+
+
+  def __lt__(self, anotherZ_n):
+    return (_zCompare(self, anotherZ_n) < 0 )
+  def __le__(self, anotherZ_n):
+    return (_zCompare(self, anotherZ_n) <= 0)
+  def __eq__(self, anotherZ_n):
+    return (_zCompare(self, anotherZ_n) == 0)
+  def __ne__(self, anotherZ_n):
+    return (_zCompare(self, anotherZ_n) != 0)
+  def __gt__(self, anotherZ_n):
+    return (_zCompare(self, anotherZ_n) > 0)
+  def __ge__(self, anotherZ_n):
+    return (_zCompare(self, anotherZ_n) >= 0)
+
+
+  def __pow__(self, exp, mod=None):
+    if not isinstance(exp,type(self)):
+      exp = Z_n(str(exp))
+    if mod:
+      return modExp(self,exp,mod)
+    else:
+      return _znPow(self, exp)
+  def __ipow__(self, exp, mod=None): 
+    self.setId( self.__pow__(exp,mod).getId() )
+
+
+
+  def __len__(self):
+    return _zBitLength(self.getId())
+
+  def __repr__(self):
+#    return "%s with id %s" % (type(self),self.getId())
+    return self.__str__()
+
+  def __str__(self):
+    res = _getData(self.getId())
+    return res
+
+
+#######################################################################
+
+
+
 
 class R(Variable):
   def __init__(self, rStr="0", id=None):
@@ -361,12 +461,12 @@ class R(Variable):
       Variable.__init__(self, id)
     else:
       #create the instance on the server 
-      Variable.__init__(self, rCreate(str(rStr)).getId())
+      Variable.__init__(self, _rCreate(str(rStr)).getId())
 
   def __add__(self, anotherR): 
     if not isinstance(anotherR,type(self)):
       anotherR = R(str(anotherR))
-    return rAdd(self, anotherR )
+    return _rAdd(self, anotherR )
   def __iadd__(self, anotherR): 
     self.setId( self.__add__(anotherR).getId() )
     return self
@@ -374,7 +474,7 @@ class R(Variable):
   def __sub__(self, anotherR): 
     if not isinstance(anotherR,type(self)):
       anotherR = R(str(anotherR))
-    rSub(self, anotherR)
+    return _rSub(self, anotherR)
   def __isub__(self, anotherR): 
     self.setId( self.__sub__(anotherR).getId() )
     return self
@@ -382,7 +482,7 @@ class R(Variable):
   def __mul__(self, anotherR): 
     if not isinstance(anotherR,type(self)):
       anotherR = R(str(anotherR))
-    return rMul(self, anotherR)
+    return _rMul(self, anotherR)
   def __imul__(self, anotherR): 
     self.setId( self.__mul__(anotherR).getId() )
     return self
@@ -391,7 +491,7 @@ class R(Variable):
   def __div__(self, anotherR): 
     if not isinstance(anotherR,type(self)):
       anotherR = R(str(anotherR))
-    return rDiv(self, anotherR)
+    return _rDiv(self, anotherR)
   def __idiv__(self, anotherR): 
     self.setId( self.__div__(anotherR).getId() )
     return self
@@ -400,37 +500,43 @@ class R(Variable):
   def __mod__(self, anotherR): 
     if not isinstance(anotherR,type(self)):
       anotherR = R(str(anotherR))
-    return rMod(self, anotherR)
+    return _rMod(self, anotherR)
   def __imod__(self, anotherR): 
     self.setId( self.__mod__(anotherR).getId() )
     return self
  
-#TODO: no se pueden usar operadores de python. hay que recurrir
-#a los operadores de la libreria apropiaos
-#  def __lt__(self, anotherZ):
-#    return long(self.__str__()) < long(anotherZ.__str__())
-#  def __le__(self, anotherZ):
-#    return long(self.__str__()) <= long(anotherZ.__str__())
-#  def __eq__(self, anotherZ):
-#    return long(self.__str__()) == long(anotherZ.__str__())
-#  def __ne__(self, anotherZ):
-#    return long(self.__str__()) != long(anotherZ.__str__())
-#  def __gt__(self, anotherZ):
-#    return long(self.__str__()) > long(anotherZ.__str__())
-#  def __ge__(self, anotherZ):
-#    return long(self.__str__()) >= long(anotherZ.__str__())
-
+  def __lt__(self, anotherR):
+    return (_rCompare(self, anotherR) < 0 )
+  def __le__(self, anotherR):
+    return (_rCompare(self, anotherR) <= 0)
+  def __eq__(self, anotherR):
+    return (_rCompare(self, anotherR) == 0)
+  def __ne__(self, anotherR):
+    return (_rCompare(self, anotherR) != 0)
+  def __gt__(self, anotherR):
+    return (_rCompare(self, anotherR) > 0)
+  def __ge__(self, anotherR):
+    return (_rCompare(self, anotherR) >= 0)
 
   def __len__(self):
-    return rBitLength(self.getId())
+    return _rBitLength(self.getId())
 
   def __repr__(self):
 #    return "%s with id %s" % (type(self),self.getId())
     return self.__str__()
 
   def __str__(self):
-    res = getData(self.getId())
+    res = _getData(self.getId())
     return res
+
+  def setInnerPrecision(cls, newPrec):
+    _rInnerPrec(newPrec)
+  setInnerPrecision = classmethod(setInnerPrecision)
+
+  def setOutputPrecision(cls, newPrec):
+    _rOutputPrec(newPrec)
+  setOutputPrecision = classmethod(setOutputPrecision)
+
 
 
 ###############################################################################
@@ -443,14 +549,20 @@ class GF(Variable):
     else:
       if not isinstance(p,Variable):
         p = Z(str(p))
-      Variable.__init__(self, gfCreate(p,n,usePrimitive).getId())
+      Variable.__init__(self, _gfCreate(p,n,usePrimitive).getId())
 
   def getElement(self, poly="[(0,0)]"):
     if isinstance(poly, str):
-      return gfxCreate(self.getId(), poly)
+      return _gfxCreate(self.getId(), poly)
+    else:
+      elemId = _gfxCreate(self.getId(), "[(0,0)]")
+      if not isinstance(poly,Variable):
+        poly = Z(str(poly))
+      return _gfxSetValue(elemId, poly)
+
 
   def getProperties(self):
-    return gfGetProperties(self)
+    return _gfGetProperties(self)
 
 
 
@@ -460,53 +572,55 @@ class GFx(Variable):
     Variable.__init__(self, id)
 
   def __add__(self, anotherGF): 
-    return gfxAdd(self, anotherGF )
+    return _gfxAdd(self, anotherGF )
   def __iadd__(self, anotherGF): 
     self.setId( self.__add__(anotherGF).getId() )
     return self
 
   def __sub__(self, anotherGF): 
-    return gfxSub(self, anotherGF )
+    return _gfxSub(self, anotherGF )
   def __isub__(self, anotherGF): 
     self.setId( self.__sub__(anotherGF).getId() )
     return self
 
 
   def __mul__(self, anotherGF): 
-    return gfxMul(self, anotherGF )
+    return _gfxMul(self, anotherGF )
   def __imul__(self, anotherGF): 
     self.setId( self.__mul__(anotherGF).getId() )
     return self
 
   def __div__(self, anotherGF): 
-    return gfxDiv(self, anotherGF )
+    return _gfxDiv(self, anotherGF )
   def __idiv__(self, anotherGF): 
     self.setId( self.__div__(anotherGF).getId() )
     return self
 
   def getInverse(self):
-    return gfxInverse(self)
+    return _gfxInverse(self)
 
   def __repr__(self):
 #    return "%s with id %s" % (type(self),self.getId())
-    res = getData(self)
+    res = _getData(self)
     return res
 
   def __str__(self):
-    return getHRString(self)
+    return _getHRString(self)
     return res
   
   def getProperties(self):
-    return gfGetProperties(self)
+    return _gfGetProperties(self)
 
+  def getPBRString(self):
+    return _gfxGetPBRString(self)
 
   def getValue(self):
-    return gfxGetValue(self)
+    return _gfxGetValue(self)
 
   def setValue(self, anInteger):
     if not isinstance(anInteger,Variable):
       anInteger = Z(str(anInteger))
-    return gfxSetValue(self, anInteger)
+    return _gfxSetValue(self, anInteger)
 
 
 
@@ -520,24 +634,39 @@ class MZ(Variable): #matrix Z
       Variable.__init__(self, id)
     else:
       #create the instance on the server 
-      Variable.__init__(self,mzCreate(str(mzStr)).getId())
+      Variable.__init__(self,_mzCreate(str(mzStr)).getId())
 
 
   def __add__(self, anotherMZ): 
     if not isinstance(anotherMZ,type(self)):
       anotherMZ = MZ(repr(anotherMZ))
-    return mzAdd(self, anotherMZ )
+    return _mzAdd(self, anotherMZ )
   def __iadd__(self, anotherMZ): 
     self.setId( self.__add__(anotherMZ).getId() )
     return self
 
+  def __sub__(self, anotherMZ): 
+    if not isinstance(anotherMZ,type(self)):
+      anotherMZ = MZ(repr(anotherMZ))
+    return _mzSub(self, anotherMZ )
+  def __isub__(self, anotherMZ): 
+    self.setId( self.__sub__(anotherMZ).getId() )
+    return self
 
   def __mul__(self, anotherMZ): 
     if not isinstance(anotherMZ,type(self)):
       anotherMZ = MZ(repr(anotherMZ))
-    return mzMul(self, anotherMZ )
+    return _mzMul(self, anotherMZ )
   def __imul__(self, anotherMZ): 
     self.setId( self.__mul__(anotherMZ).getId() )
+    return self
+ 
+  def __div__(self, anotherMZ): 
+    if not isinstance(anotherMZ,type(self)):
+      anotherMZ = MZ(repr(anotherMZ))
+    return _mzDiv(self, anotherMZ )
+  def __idiv__(self, anotherMZ): 
+    self.setId( self.__div__(anotherMZ).getId() )
     return self
 
 
@@ -547,11 +676,88 @@ class MZ(Variable): #matrix Z
 
   def __repr__(self):
     #return "%s with id %s" % (type(self),self.getId())
-    res = getData(self.getId())
+    res = _getData(self.getId())
     return res
 
   def __str__(self):
-    return getHRString(self.getId())
+    return _getHRString(self.getId())
+
+  def __strToPyRep(self, str):
+    res = []
+    str = str.strip()
+    str = str[1:-1].strip() #remove the external [ ]
+    rows = str.split(';')
+    for i in rows:
+      res.append( i.split() )
+
+    return res
+
+  def __PyRepToStr(self, pyRep):
+    strRows = []
+    map( lambda row: strRows.append(" ".join(row)), py)
+    str = " ; ".join(strRows)
+    str = "[ " + str +" ]"
+
+    return str
+
+#########################################################
+
+
+
+class MR(Variable): #matrix Z
+
+  def __init__(self, mrStr="[]", id=None):
+    if id:
+      Variable.__init__(self, id)
+    else:
+      #create the instance on the server 
+      Variable.__init__(self,_mrCreate(str(mrStr)).getId())
+
+
+  def __add__(self, anotherMR): 
+    if not isinstance(anotherMR,type(self)):
+      anotherMR = MR(repr(anotherMR))
+    return _mrAdd(self, anotherMR )
+  def __iadd__(self, anotherMR): 
+    self.setId( self.__add__(anotherMR).getId() )
+    return self
+
+  def __sub__(self, anotherMR): 
+    if not isinstance(anotherMR,type(self)):
+      anotherMR = MR(repr(anotherMR))
+    return _mrSub(self, anotherMR )
+  def __isub__(self, anotherMR): 
+    self.setId( self.__sub__(anotherMR).getId() )
+    return self
+
+  def __mul__(self, anotherMR): 
+    if not isinstance(anotherMR,type(self)):
+      anotherMR = MR(repr(anotherMR))
+    return _mrMul(self, anotherMR )
+  def __imul__(self, anotherMR): 
+    self.setId( self.__mul__(anotherMR).getId() )
+    return self
+ 
+  def __div__(self, anotherMR): 
+    if not isinstance(anotherMR,type(self)):
+      anotherMR = MR(repr(anotherMR))
+    return _mrDiv(self, anotherMR )
+  def __idiv__(self, anotherMR): 
+    self.setId( self.__div__(anotherMR).getId() )
+    return self
+
+
+  def __getitem__(self, row):
+    pyRep = self.__strToPyRep( self.__matrixZStr )
+    return pyRep[row]
+
+  def __repr__(self):
+    #return "%s with id %s" % (type(self),self.getId())
+    res = _getData(self.getId())
+    return res
+
+  def __str__(self):
+    return _getHRString(self.getId())
 
   def __strToPyRep(self, str):
     res = []

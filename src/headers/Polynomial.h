@@ -102,6 +102,7 @@ namespace mpplas{
         Polynomial(const std::string& str, const S& ini = S() );
         Polynomial(const std::vector<S>& coeffs, const S& ini = S() );
         Polynomial(const S& coeff, const int exp, const S& ini = S() );
+        void _eraseLeadingZeros();
 
 
         MiVec<S> _data;
@@ -116,7 +117,6 @@ namespace mpplas{
           friend std::istream& operator>>(std::istream&, Polynomial<U>& ) ;
 
       private:
-        void _eraseLeadingZeros();
         template<typename T>
           void _horner2ndOrder(T* const result, const T& x0) const ;
         void _ufdDivide(const Polynomial<S>& rhs, Polynomial<S>* const q, const bool reduce); 

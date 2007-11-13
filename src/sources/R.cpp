@@ -5,6 +5,8 @@
 #include <stack>
 #include <iomanip>
 #include <sstream>
+#include <limits>
+#include <cmath>
 
 #include "R.h"
 #include "MethodsFactory.h" 
@@ -28,69 +30,44 @@ namespace mpplas{
   const R R::ONE((Digit)1);
   
   R::R() 
-    : exponente_(0)  
-  {
+    : exponente_(0) , _spApprox(0) {
     mantisa_.hacerCero();
   }
 
   R::R( const R& otro)
-    : exponente_(otro.exponente_), mantisa_(otro.mantisa_)
+    : exponente_(otro.exponente_), mantisa_(otro.mantisa_), _spApprox(otro._spApprox)
   {}
 
-//  R R::convertir(const Digit origen)
-//  {
-//    R temp(origen);
-//    return temp;
-//  }
-//  R R::convertir(const SignedDigit origen)
-//  {
-//    R temp(origen);
-//    return temp;
-//  }
-//  R R::convertir(const char* origen)
-//  {
-//    R temp(origen);
-//    return temp;
-//  } 
-//  R R::convertir(const double origen)
-//  {
-//    R temp(origen);
-//    return temp;
-//  } 
-//  R R::convertir(const Z& origen)
-//  {
-//    R temp(origen);
-//    return temp;
-//  } 
-
   R::R(const SignedDigit otro)
-    : exponente_(0), mantisa_(otro)
-  {
+    : exponente_(0), mantisa_(otro), _spApprox(otro) {
     normalizar();
   }
 
   R::R(const Digit otro)
-    : exponente_(0), mantisa_(otro)
-  {
+    : exponente_(0), mantisa_(otro), _spApprox(otro) {
     normalizar();
   }
 
-  R::R(const char* strC)
-  {
-    std::string temp(strC);
+  R::R(const char* strC) {
+    const std::string temp(strC);
     std::istringstream flujoEntrada(temp);
     operator>>(flujoEntrada,*this);
+    std::istringstream flujoEntrada2(temp); //FIXME:this is crap, but i dont know how to
+                                           //successfully reuse a istringstream
+    flujoEntrada2 >> this->_spApprox;
     return;
   }
-  R::R(const std::string& str)
-  {
+  R::R(const std::string& str) {
     std::istringstream flujoEntrada(str);
-    operator>>(flujoEntrada,*this);
+    operator>>(flujoEntrada,*this); 
+    std::istringstream flujoEntrada2(str); //FIXME:this is crap, but i dont know how to
+                                           //successfully reuse a istringstream
+    flujoEntrada2 >> this->_spApprox;
     return;
   }
 
   R::R(double otro)
-  {
+    : _spApprox(otro)  {
     std::stringstream ss;
     ss << std::fixed <<  otro;
     
@@ -99,26 +76,32 @@ namespace mpplas{
   }
 
   R::R( const Z& entero )
-    : exponente_(0), mantisa_(entero)
-  {
-    normalizar();
+    : exponente_(0), mantisa_(entero) {
+
+      if( entero.getBase10Length() > std::numeric_limits<double>::max_exponent10 ){
+        _spApprox = std::numeric_limits<double>::max();
+      }
+      else{
+        std::stringstream ss;
+        ss << entero;
+
+        ss >> _spApprox;
+      }
+
+      normalizar();
   }
 
-  R::~R()
-  {
-    //nada
-  }
+  R::~R() {}
 
-  R& R::operator=(const R& otro)
-  {
+  R& R::operator=(const R& otro) {
     mantisa_ = otro.mantisa_;
     exponente_ = otro.exponente_;
+    _spApprox = otro._spApprox;
 
     return *this;
   }
 
-  R& R::operator+=(const R& otro)
-  {
+  R& R::operator+=(const R& otro) {
     unsigned long difTam = labs(mantisa_.getBitLength() - otro.mantisa_.getBitLength());
 
     //comprobamos si uno es "despreciable" frete al otro en función de
@@ -164,12 +147,12 @@ namespace mpplas{
     mantisa_ += otro.mantisa_;
     normalizar();
 
+    _spApprox += otro._spApprox;
     return *this;
 
   }
 
-  R& R::operator-=(const R& otro)
-  {
+  R& R::operator-=(const R& otro) {
     unsigned long difTam = labs(mantisa_.getBitLength() - otro.mantisa_.getBitLength());
 
     //comprobamos si uno es "despreciable" frete al otro en función de
@@ -217,26 +200,27 @@ namespace mpplas{
     mantisa_ -= otro.mantisa_;
     normalizar();
 
+    _spApprox -= otro._spApprox;
     return *this;
 
   }
 
 
 
-  R& R::operator*=(const R& otro)
-  {
+  R& R::operator*=(const R& otro) {
     mantisa_ *= otro.mantisa_;
     exponente_ += otro.exponente_;
 
     normalizar();
 
+    _spApprox *= otro._spApprox;
     return *this;
   }
 
-  R& R::operator/=(const R& otro)
-  {
-    if( otro.esCero() )
+  R& R::operator/=(const R& otro) {
+    if( otro.esCero() ){
       throw Errors::DivisionPorCero();
+    }
 
     long k = precision_ - mantisa_.getBitLength() + otro.mantisa_.getBitLength() -1;
     k = k < 0 ? 0 : k ;
@@ -248,11 +232,11 @@ namespace mpplas{
 
     normalizar();
 
+    _spApprox /= otro._spApprox;
     return *this;  
   }
 
-  R& R::operator+=(const double corto)
-  {
+  R& R::operator+=(const double corto) {
     R realDouble(corto);
     this->operator+=(realDouble);
 
@@ -305,43 +289,53 @@ namespace mpplas{
 
     normalizar();
 
+    _spApprox = pow(_spApprox, exponente);
     return *this;
   }
 
-  R& R::operator^=(const Z& exp)
-  {
-    if( exp.longitud() > 1 )
+  R& R::operator^=(const Z& exp) {
+    if( exp.longitud() > 1 ){
       throw Errors::TooBig();
+    }
 
-    Digit exponente = exp[0];
+    SignedDigit exponente = exp[0];
 
+    _spApprox = pow(_spApprox, exponente);
     return operator^=(exponente);
 
   }
 
 
-  R& R::cuadrado(void)
-  {
+  R& R::abs(){
+    this->makePositive();
+    return *this;
+  }
+
+  R& R::cuadrado(void) {
     mantisa_.cuadrado();
     exponente_ <<= 1;
 
     normalizar();
 
+    _spApprox *= _spApprox;
     return *this;
   }
 
-  R& R::operator>>=(const int n)
+  R& R::operator>>=(const SignedDigit n)
   {
-    if( n > Digit(Constants::CIFRASIGNO_MAX) )
+    if( n > Digit(Constants::CIFRASIGNO_MAX) ){
       throw Errors::OverflowExpReales();
+    }
 
-    if( exponente_ - (SignedDigit)n > exponente_ )
+    if( exponente_ - n > exponente_ ){
       throw Errors::OverflowExpReales();
+    }
 
     exponente_ -= n;
 
     normalizar();
 
+    _spApprox /= (1<<n);
     return *this;
   }
 
@@ -366,8 +360,7 @@ namespace mpplas{
   }
 
 
-  R& R::operator<<=(const int n)
-  {
+  R& R::operator<<=(const SignedDigit n) {
     if( n > Digit(Constants::CIFRASIGNO_MAX) )
       throw Errors::OverflowExpReales();
 
@@ -378,6 +371,7 @@ namespace mpplas{
 
     normalizar();
 
+    _spApprox *= (1<<n);
     return *this;
   }
 
@@ -499,10 +493,10 @@ namespace mpplas{
 
 
 
-  Z R::floor(void) const
-  {
-    if( exponente_ == 0 )
+  Z R::floor(void) const {
+    if( exponente_ == 0 ){
       return mantisa_;
+    }
 
     if( exponente_ > 0 ){
       Z temp(mantisa_);
@@ -542,8 +536,7 @@ namespace mpplas{
     }
   }
 
-  Z R::ceil(void) const
-  {
+  Z R::ceil(void) const {
     if( exponente_ == 0 )
       return mantisa_;
 
@@ -584,8 +577,7 @@ namespace mpplas{
     }
   }
 
-  void R::normalizar(int nprec)
-  {
+  void R::normalizar(int nprec) {
     if( mantisa_.esCero() ){
       exponente_ = 0; //hacer que la representacion del 0 real sea única.
       return;
@@ -739,8 +731,7 @@ namespace mpplas{
 
 
   std::ostream& 
-    operator<<(std::ostream& out, R numero)
-    {
+    operator<<(std::ostream& out, R numero) {
       //  ____________________________     _____
       // |_kb_|__32b__|__32b__|__32b__|   |_exp_|   
       //                                    ^^^
@@ -760,7 +751,6 @@ namespace mpplas{
       //  con {k} = k - floor(k); esto es, la parte fraccionaria
 
       Z entero;
-      Z enteroAux;
 
       std::ostringstream oss;
 
@@ -781,9 +771,9 @@ namespace mpplas{
         const int limitePrec = (int)floor(R::precision() / Constants::LOG_2_10);
         const int precEntAntigua = Z::precisionSalida();
         Z::precisionSalida(limitePrec);
-        oss << (numero.mantisa_ << (int)numero.exponente_ );
+        oss << (numero.mantisa_ << numero.exponente_ );
         Z::precisionSalida(precEntAntigua);
-  
+
         out << oss.str();
         return out;
       }
@@ -791,16 +781,11 @@ namespace mpplas{
       R numeroRed(numero);
 
       entero = numero.floor();
-      //out << entero ;
       numero -= R(entero);
-
-      //  if( R::precisionSalida() > 0 ){ //FIXME: forzar q siempre lo sea
-
-      //    out << "." ;
 
       int precisionUsada;
       const int limitePrec = 
-        (int)floor((R::precision()-entero.getBitLength()) / Constants::LOG_2_10);
+        (int)floor((R::precision()-entero.getBitLength()) * Constants::LOG_10_2);
       if( (limitePrec < R::precisionSalida()) ){
         precisionUsada = limitePrec;
         // limitePrec < R::precisionSalida. Es decir, la precision
@@ -808,10 +793,11 @@ namespace mpplas{
         // precision interna del número: se producirian digitos no
         // exactos
 
-        oss << "~";
+      //  oss << "~";
       }
-      else
+      else{
         precisionUsada = R::precisionSalida();
+      }
 
       R redondeo;
       redondeo.hacerUno();
@@ -826,21 +812,25 @@ namespace mpplas{
       numero *= (Digit)10;
       entero = numero.floor();  
 
-      if( entero > (Digit)5)
+      if( entero > (Digit)5){
         numeroRed += redondeo;
-      else //entero == 5
-        if( entero == (Digit)5 )
-          if( entero.esImpar() ) 
+      }
+      else{ //entero == 5
+        if( entero == (Digit)5 ){
+          if( entero.esImpar() ) {
             numeroRed += redondeo;
+          }
+        }
+      }
+
 
       entero = numeroRed.floor();
-      //    int precEntAntigua = Z::precisionSalida();
-      //    Z::precisionSalida(limitePrec);
       oss << entero ;
-      //    Z::precisionSalida(precEntAntigua);
       numeroRed -= R(entero);
       oss << "." ;
-      for(int i = 0; i < precisionUsada; i++){
+      int i;
+      for(i = 0; i < precisionUsada % Constants::MAX_EXP10_CIFRA ; i++){
+//      for(i = 0; i < precisionUsada ; i++){
         //FIXME: se puede hacer que, tras haber sacado cant_cifras_frac % max_pot_9_en_long,
         //se saquen los numeros de 10^(max_pot_9_en_long) en idem como con los Z
         numeroRed *= (Digit)10;
@@ -848,7 +838,19 @@ namespace mpplas{
         oss << entero ;
         numeroRed -= R(entero);
       }
-      //	}
+//      static const std::string allZeros(Constants::MAX_EXP10_CIFRA, '0');
+      for(; i < precisionUsada ; i += Constants::MAX_EXP10_CIFRA){
+        numeroRed *= Constants::MAX_BASE10_POWER_DIGIT;
+        entero = numeroRed.floor();
+//        if( entero.esCero() ){
+//          oss << allZeros;
+//        }
+//        else{
+          oss << std::setw(Constants::MAX_EXP10_CIFRA) << std::setfill('0') << entero ;
+//        }
+        numeroRed -= R(entero);
+      }
+
 
       out << oss.str();
       return out;
@@ -902,8 +904,7 @@ namespace mpplas{
 
 
   std::istream& 
-    operator>>(std::istream& in, R& numero) 
-    {
+    operator>>(std::istream& in, R& numero) {
       bool negative = false;
       char c;
       numero.hacerCero();
@@ -938,10 +939,15 @@ namespace mpplas{
       }
 
       numero.normalizar();
+
       return in;
     }
 
 
+  inline R abs(R x){
+    x.abs();
+    return x;
+  }
 
 
 
@@ -967,13 +973,13 @@ namespace mpplas{
     return base;
   }
 
-  R operator>>(R real, const int n)
+  R operator>>(R real, const SignedDigit n)
   {
     real >>= n;
     return real;
   }
 
-  R operator<<(R real, const int n)
+  R operator<<(R real, const SignedDigit n)
   {
     real <<= n;
     return real;

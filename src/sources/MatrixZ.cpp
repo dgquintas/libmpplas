@@ -25,21 +25,10 @@ namespace mpplas
   {}
 
 
-
-
-  ////////////////////////////////////////////////
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  ////////////////////////////////////////////////
-  
-
+  MatrixZ& MatrixZ::operator=(const MatrixZ& src){
+    Matrix<Z>::operator=(src);
+    return *this;
+  }
 
 
 }

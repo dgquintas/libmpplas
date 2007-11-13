@@ -13,6 +13,7 @@ filesStr = """
     Hash.cpp
     LCM.cpp
     MatrixFloat.cpp
+    MatrixGFx.cpp
     MatrixZ.cpp
     MatrixR.cpp
     VectorialCPU.cpp
@@ -24,6 +25,7 @@ filesStr = """
     Random.cpp
     R.cpp
     RedModular.cpp
+    Rx.cpp
     Seedbank.cpp
     SimbolosLegendre.cpp
     SIMDDigit.cpp

@@ -27,7 +27,6 @@ namespace mpplas{
         MiVec& operator=(const MiVec<T, Alloc>& rhs);
         bool operator==(const MiVec<T, Alloc>& rhs) const;
 
-        using std::vector<T, Alloc>::size;
         using std::vector<T, Alloc>::empty;
         using std::vector<T, Alloc>::clear;
         using std::vector<T, Alloc>::push_back;
@@ -52,6 +51,7 @@ namespace mpplas{
 //        using std::vector<T, Alloc>::
 
 
+        inline int size() const { return std::vector<T, Alloc>::size(); }
 #ifndef RELEASE
         /** Operador de acceso.
          *

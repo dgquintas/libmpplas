@@ -712,6 +712,8 @@ namespace mpplas
        * 
        */ 
       int getBitLength(void) const;
+      
+      int getBase10Length(void) const;
  
       //redondeo
       SignedDigit redondear(int exceso) ;
@@ -1571,6 +1573,13 @@ namespace mpplas
    * @sa Z::getBitLength() 
    */
   int getBitLength(const SignedDigit x);
+
+
+
+  int getBase10Length(const Z& x);
+  int getBase10Length(const Digit x);
+  int getBase10Length(const SignedDigit x);
+
 
 
   //OPERADORES DE DESPLAZAMIENTO 

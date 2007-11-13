@@ -1319,8 +1319,12 @@ namespace mpplas{
   int Z::getBitLength(void) const {
     const int componentes = coefPoliB_.size() - 1;
     return (( Constants::BITS_EN_CIFRA * componentes) + VectorialCPU::getBitLength(coefPoliB_[componentes]));
-
   }
+ 
+  int Z::getBase10Length(void) const {
+    return (int)floor(this->getBitLength() * Constants::LOG_10_2);
+  }
+
 
   SignedDigit Z::redondear(int exceso) 
   {
@@ -2476,6 +2480,16 @@ namespace mpplas{
   int getBitLength(const SignedDigit x)
   {
     return VectorialCPU::getBitLength((Digit)labs(x));
+  }
+
+  int getBase10Length(const Z& x){
+    return x.getBase10Length();
+  }
+  int getBase10Length(const Digit x){
+    return (int)floor(Constants::LOG_10_2 * getBitLength(x));
+  }
+  int getBase10Length(const SignedDigit x){
+    return (int)floor(Constants::LOG_10_2 * getBitLength(x));
   }
 
 }

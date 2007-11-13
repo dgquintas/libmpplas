@@ -67,6 +67,7 @@ moduleFiles = Split("""
     ExponentiationTest.cpp
     SystemInfoTest.cpp
     GCDTest.cpp
+    GFTest.cpp
     MPPLASTestSuite.cpp
     TestModule.cpp
     TextRunner.cpp

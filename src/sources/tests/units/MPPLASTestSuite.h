@@ -13,6 +13,7 @@
 #include "RSATest.h"
 #include "RandomTest.h"
 #include "PrimesTest.h"
+#include "GFTest.h"
 #include "MatrixZTest.h"
 #include "MatrixRTest.h"
 #include "VectorZTest.h"
@@ -36,6 +37,7 @@ namespace com_uwyn_qtunit
 		ZxTest _zxTest;
     Z_nTest _z_nTest;
     ZM_nTest _zM_nTest;
+    GFTest _GFTest;
     KernelTest _kernelTest;
     RSATest _rsaTest;
     RandomTest _randomTest;

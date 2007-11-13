@@ -32,5 +32,6 @@ addTestUnit(_functionsTest);
   addTestUnit(_exponentiationTest);
   addTestUnit(_systemInfoTest);
   addTestUnit(_gcdTest);
+  addTestUnit(_GFTest);
 
 }

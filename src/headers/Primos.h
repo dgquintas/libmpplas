@@ -20,8 +20,7 @@ namespace mpplas{
    * Clase base para algoritmos que implementen tests de composición.
    * 
    */
-  class TestPrimoProb : public AbstractMethod
-  {
+  class TestPrimoProb : public AbstractMethod {
     public:
       /** Determinación de primalidad.
        *
@@ -62,8 +61,7 @@ namespace mpplas{
    * para primos de Mersenne (números de la forma \f$2^{p} -1\f$).
    * 
    */
-  class TestPrimoMersenne : public AbstractMethod
-  {
+  class TestPrimoMersenne : public AbstractMethod {
     public:
       /** Determinación de primalidad para primos de Mersenne.
        *
@@ -87,8 +85,7 @@ namespace mpplas{
    * de primos.
    * 
    */
-  class GenPrimos : public AbstractMethod
-  {
+  class GenPrimos : public AbstractMethod {
     public:
 
       GenPrimos();
@@ -143,8 +140,7 @@ namespace mpplas{
    * 
    * @note Es el método que la librería utiliza por omisión.
    */
-  class RabinMiller : public TestPrimoProb
-  {
+  class RabinMiller : public TestPrimoProb {
     public:
       RabinMiller();
       

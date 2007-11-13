@@ -100,7 +100,7 @@ def main():
       #cleanup
       from RPCServer import RPCServer
       rpcServer = RPCServer.getInstance()
-      rpcServer.getServer()._discardClientId(clientId)
+      rpcServer.getServer().__discardClientId(clientId)
 
 if __name__ == '__main__':
     import os

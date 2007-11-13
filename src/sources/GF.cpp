@@ -17,7 +17,7 @@ namespace mpplas {
   const GF GF::NULL_GF( GF(Z(0),Z_px::ZERO ) );
 
  GF::GF(const Z& p, const int n, const bool usePrimitiveMod)
-    : _p(p), _n(n), _fx(p), _primitiveMod(usePrimitiveMod)  {
+    : _p(p), _n(n), _fx(p),  _order(p ^ n), _primitiveMod(usePrimitiveMod)  {
       if( usePrimitiveMod ){
         _fx = PolynomialUtils::generatePrimitive<mpplas::Z_px>(n,p);
       }
@@ -26,12 +26,18 @@ namespace mpplas {
       }
   }
 
-  GF::GF(const Z& p, const Z_px& fx)
-    : _n( fx.getDegree() ), _p(p), _fx(fx), _primitiveMod(false) {
-    if( fx.getCharacteristic() != p ){
-      throw Errors::InvalidArgument("Invalid characteristic for f(x) constructing GF");
+  GF::GF(const Z& p, const Z_px& fx, const bool checkForIrred )
+    : _p(p),_n( fx.getDegree() ),  _fx(fx),  _order( p ^ fx.getDegree()), _primitiveMod(false){
+
+      if( fx.getCharacteristic() != p ){
+        throw Errors::InvalidArgument("Invalid characteristic for f(x) constructing GF");
+      }
+      if( checkForIrred && (!fx.isZero()) ){ //it may be zero when NULL_GF is statically initialized
+        if( ! PolynomialUtils::isIrreducible(fx) ){
+          throw Errors::IrreduciblePolyExpected("while constructing GF");
+        }
+      }
     }
-  }
 
 //  GF::GF(const Z_px& poly, const Z_px& fx)
 //    : Z_px(poly), _n( poly.getDegree() ), _fx(fx), _p( poly.getCharacteristic() ), _primitiveMod(false)
@@ -46,8 +52,17 @@ namespace mpplas {
 
 
   GF::GF(const GF& src)
-    : _fx(src._fx), _p(src._p), _n(src._n), _primitiveMod(src._primitiveMod)
+    : _p(src._p), _n(src._n), _fx(src._fx), _order( src._p ^ src._n), _primitiveMod(src._primitiveMod)
   {}
+
+  GF& GF::operator=(const GF& src){
+    _fx = src._fx;
+    _p = src._p;
+    _n = src._n;
+    _primitiveMod = src._primitiveMod;
+    _order = src._order;
+    return *this;
+  }
 
   GFx GF::getElement(const Z_px& poly) const{
     assert( poly.getCharacteristic() == this->_p );

@@ -15,6 +15,7 @@ namespace mpplas{
   class GFx : public Z_px , public Field< GFx >  {
   
     public:
+      GFx();
       GFx(const GFx& src);
 
       GFx& operator=(const GFx& src);
@@ -34,10 +35,19 @@ namespace mpplas{
 
       GFx& operator^=(const Z& exp);
 
-      Z toZ() const;
-      GFx& fromZ(const Z& src);
+      Z getIntegerValue() const;
+      GFx& setIntegerValue(const Z& src);
+
+      Z_px getPolynomialValue() const;
+      GFx& setPolynomialValue(const Z_px& src);
 
       inline const GF& getGenerator() const;
+
+      static void setShowPBR(const bool printPBR);
+      static bool isShowPBR();
+
+      virtual std::string toHRString() const;
+      std::string getPBRString() const;
 
       /* Ring, Group and Field methods */
       static const GFx ZERO;
@@ -74,8 +84,7 @@ namespace mpplas{
 
     private:
       GF _gfGenerator;
-      Z_px _fx;
-      Z _p;
+      static bool _showPBR;
 
       friend class mpplas::GF;
 
@@ -89,12 +98,8 @@ namespace mpplas{
 
   GFx operator^(GFx lhs, const Z& rhs);
 
-
-
-
-
-
-
+  std::ostream& operator<<(std::ostream& out, const GFx& elem);
+  std::istream& operator>>(std::istream& in, GFx& elem);
 
   inline const GF& GFx::getGenerator() const{
     return this->_gfGenerator;

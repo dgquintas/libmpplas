@@ -45,7 +45,7 @@ namespace mpplas{
         const Z& p( fx.getCharacteristic() );
         const int m = fx.getDegree();
         const T x(1, 1, p);
-        GF gfGen(p, fx);
+        GF gfGen(p, fx, false);
         GFx u(gfGen.getElement(x));
 //        typename T::GF u(x,fx); 
         Exponentiation< GFx > *potMod; 
@@ -104,7 +104,7 @@ namespace mpplas{
 
         const MiVec<Z>& factors( factorize->factoriza( ( p ^ fx.getDegree() )-1 ) );
         const int m( fx.getDegree() );
-        GF gfGen(p,fx);
+        GF gfGen(p,fx,false);
         GFx lx( gfGen.getElement(T(1,1, p)) );
 //        const typename T::GF lx(T(1,1, p), fx);
         GFx ltmp(lx);

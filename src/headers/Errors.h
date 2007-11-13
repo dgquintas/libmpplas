@@ -188,6 +188,14 @@ namespace mpplas{
           _msg += details;
         }
     };
+    class IrreduciblePolyExpected: public InvalidArgument {
+      public:
+        IrreduciblePolyExpected(const std::string details = "")
+        : InvalidArgument("Expected an irreducible polynomial; ") {
+          _msg += details;
+        }
+    };
+
 
 
 

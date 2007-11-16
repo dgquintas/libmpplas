@@ -59,12 +59,19 @@ namespace mpplas {
     if( this->_gfGenerator == GF::NULL_GF ){
       this->_gfGenerator = src._gfGenerator;
     } 
-    else if( this->_gfGenerator != src._gfGenerator ){
-      throw Errors::InconsistentGFGenerator("In GFx::operator=");
-    }
+//    else if( this->_gfGenerator != src._gfGenerator ){
+//      throw Errors::InconsistentGFGenerator("In GFx::operator=");
+//    }
     Z_px::operator=(src);
     return *this;
   }
+
+  GFx& GFx::operator=(const Z& src){
+    assert( this->_gfGenerator != GF::NULL_GF );
+    this->setIntegerValue(src);
+    return *this;
+  }
+
 
   GFx& GFx::operator+=(const GFx& rhs){
     if( this->_gfGenerator == GF::NULL_GF ){

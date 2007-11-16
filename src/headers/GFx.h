@@ -19,6 +19,7 @@ namespace mpplas{
       GFx(const GFx& src);
 
       GFx& operator=(const GFx& src);
+      GFx& operator=(const Z& src);
 
       GFx& fromString(const std::string& str);
 

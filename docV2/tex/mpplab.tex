@@ -1,0 +1,759 @@
+% CAPITULO SOBRE EL SERVIDOR XMLRPC Y EL CLIENTE EN PYTHON
+
+\chapter{MPPLab: (una) ventana a la biblioteca}
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+        }
+        \begin{flushright}
+          \textbf{\textemdash .}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+\begin{center}{\line(1,0){325}}\end{center}
+
+%--------------------------------------------------------%
+
+
+\section{Motivación}
+  Una biblioteca como la que es el eje principal de este trabajo no es
+  algo fácil de apreciar a primera vista. Puede que, y ojala así sea,
+  quien se aventurase en la lectura de su código o concediese el beneficio
+  de la duda tras la lectura de la presente memoria, pudiera hacerse una
+  idea -para bien o para mal- de su valor. Sin embargo, no se pretende poner
+  un peso tal en el lector. Es más bien nuestra responsabilidad e intención el
+  mostrarle al menos parte de su potencial, de una forma tanto atractiva
+  como versátil y útil. Asimismo, sirve para poner en práctica destrezas y
+  técnicas que no son fácilmente aplicables al desarrollo de una
+  biblioteca.
+
+  En términos más concretos, se buscaba el proporcionar una manera de
+  interactuar con los métodos ofrecidos por la biblioteca sin necesidad de
+  bajar al nivel del código. Si bien para una explotación exhaustiva de todos
+  los mecanismos de la misma se hace necesario utilizarla realmente como
+  una biblioteca -esto es, programando-, no es óbice para exponer aquellos
+  que, aunque sólo en parte, muestren qué se ha desarrollado.
+
+  Con este fin, e inspirados en conocidos paquetes para el trabajo en
+  Matemáticas, tales como MatLab o Mathematica, se optó por un interfaz
+  gráfico pero guiado por instrucciones textuales. Es más, las
+  sentencias aceptadas por el cliente que se describe en el punto \ref{cliente}
+  son un superconjunto del popular lenguaje de \textit{scripting}
+  Python\footnote{\url{http://www.python.org}}. ¿Por qué se habla de
+  «cliente»? Porque el diseño adoptado ha sido una arquitectura
+  cliente/servidor como se expone a continuación. Esto aporta una serie de
+  beneficios nada despreciables y brinda una vez más la oportunidad de
+  ampliar el espectro de campos técnicos cubiertos en el presente trabajo.
+
+
+\section{Desarrollo}
+  
+  \subsection{Arquitectura}\label{arquitectura}
+  \begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\textwidth,keepaspectratio]{ClientServerArch} 
+    \caption{Esquema de la arquitectura cliente/servidor}\label{fig:archClienteServidor}
+  \end{figure}
+
+
+  \subsection{El servidor}
+    \subsubsection{Características}
+      \begin{itemize}
+        \item Multihilo (basado en \texttt{pthreads})
+        \item Exporta métodos mediante XML-RPC (basado en la biblioteca \texttt{xmlrpc-c}
+            \footnote{\url{http://xmlrpc-c.sourceforge.net/}}
+        \item Gestión dinámica de datos de los clientes en tiempo de ejecución
+        \item Mecanismos de recogida de basura (\textit{Garbage Collection})
+      \end{itemize}
+
+    \paragraph{Recogida de basura.} Se ha descrito cómo los datos, las instancias,
+    son almacenadas en el servidor. Sin embargo, ¿cuándo se destruyen?
+    Cada vez que se tiene un resultado de un cálculo, incluso temporales
+    como la suma en una expresión del tipo $3*(4+5)$, una nueva
+    instancia del tipo adecuado es creada y almacenada. Además, nada 
+    impide al cliente dejar que el resultado se pierda: no es necesario 
+    asignar siempre un resultado a una variable. 
+    
+    Dándole la vuelta a la cuestión: ¿qué \emph{sí} debe conservarse,al
+    menos hasta la desconexión del cliente? Aquellas instancias
+    asociadas a una variable. Es decir, no debe darse el caso de una
+    variable cuyos datos, los datos a los que apunta, no existan. Dado
+    que la gestión de las variables corre a cuenta del cliente, el
+    servidor recibe tan solo una lista de los identificadores de
+    variables a conservar. El resto de identificadores y sus instancias
+    asociadas serán eliminados y los recursos que utilizasen,
+    liberados. Esto se corresponde con una de las formas más sencillas
+    de recolección de basura, (A COMPLETAR CON LAS REFERENCIAS).
+    Afortunadamente, cubre nuestras necesidades satisfactoriamente. 
+
+    El campo de los recolectores de basura es amplio y complejo, y su
+    bibliografía abundante. Posiblemente los entornos de ejecución más
+    popular que utiliza esta técnica son las diferentes implementaciones 
+    del \textit{Java Runtime Environment}. 
+    En el momento de redactar estas líneas, la inclusión de recolectores
+    de basura está incluida dentro del borrador de la nueva revisión del
+    lenguaje C++,
+    C++0x\footnote{\url{http://www.open-std.org/jtc1/sc22/wg21/}}
+      
+
+  \subsection{\emph{Un} cliente}\label{cliente}
+    El énfasis en el artículo indeterminado «un» en el título no es
+    casual: dada la versatilidad del protocolo XML-RPC, servidor y
+    cliente están completamente desacoplados. Por tanto, la presente
+    implementación es tan solo una de las posibles que podrían
+    utilizarse para «dialogar» con el servidor. De hecho, como apoyo a 
+    estas afirmaciones, se describe en el punto \ref{otroCliente} una
+    pequeña -su objetivo es tan solo ilustrar este punto- implementación
+    de un cliente alternativo realizada en JavaScript.
+
+    \subsubsection{Características}
+      \begin{itemize}
+        \item \textit{Bootstrapping}: inspección de métodos disponibles
+              en el servidor, realizando \emph{el propio cliente} la
+              escritura e interpretación del código necesario para su 
+              utilización
+        \item Fácilmente configurable
+        \item Soporte para \textit{plotting}
+        \item Multiplataforma
+        \item Actualizaciones automáticas
+        \item Multihilo, pudiendo de ser explotado explícitamente por el usuario.
+        \item Basado en el lenguaje Python: ofrece todas las
+        funcionalidades de este lenguaje.
+      \end{itemize}
+
+    Pormenorizando:
+    \paragraph{\textit{Bootstrapping} y autoescritura.}
+    \paragraph{Fácilmente configurable.}
+    \paragraph{\textit{Plotting}.}
+    \paragraph{Actualización automática.}
+    \paragraph{Multihilo.}
+
+
+    El resto de las características, ser multiplataforma y un
+    superconjunto de Python, derivan de la base utilizada: la
+    biblioteca WxPython\footnote{\url{http://www.wxpython.org/}}.
+    %TODO: completar un poco más.
+    Las ventajas de utilizar Python como base son numerosas. Podría 
+    parecer que complicase la utilización del cliente, por
+    tener que lidiar con este lenguaje; por contra, la sencilla e
+    intuitiva sintaxis del mismo minimiza este efecto. De haber
+    implementado lenguaje propio para el cliente, su sintaxis no habría 
+    podido ser mucho más simple, y casi con toda seguridad mucho menos
+    potente. 
+
+
+
+  \subsubsection{Muestra de cliente alternativo}\label{otroCliente}
+    Utilizar el protocolo XML-RPC por parte del servidor a la hora de exportar 
+    servicios resulta en una gran flexibilidad. Tanto es así que con
+    un mínimo de codificación se ha implementado un prototipo (ya que
+    sólo es una muestra de concepto, carece de grandes
+    sofisticaciones) en JavaScript, lo que posibilita el acceso a los
+    métodos del servidor desde cualquier navegador con intérprete de
+    este lenguaje.
+    %TODO
+
+  \subsection{Pequeño manual de utilización}
+      \paragraph{Consideraciones generales}
+      Ciertos aspectos pueden chocar al primera vista, o ser considerados como errores, aunque en ocasiones
+      su uso pueda resultar ventajoso. Sirva de ejemplo, la copia de variables:
+      Tal como se ha expuesto en \ref{arquitectura}, el cliente trabaja con \emph{referencias} a las instancias
+      de los datos almacenados en el servidor. Cuando en el interfaz Python del cliente, se ejecuta una asignación
+      \texttt{var1 = var2}, lo que se asigna a \texttt{var1} en realidad es tal referencia, con lo cual \texttt{var1}
+      y \texttt{var2} harían referencia a la misma variable. Cualquier modificación \textit{in situ} del dato 
+      apuntado sería visible a través tanto de \texttt{var1} como de \texttt{var2}.
+
+      ¿Cómo evitar este comportamiento? Es habitual, y necesario en muchas ocasiones, el querer realizar 
+      copias \emph{independientes} de los datos. El modo de lograrlo es invocando \emph{el constructor} del tipo
+      a copiar. Por ejemplo:
+
+\begin{verbatim}
+>>> var1 = MZ("[1 2; 3 4]")
+>>> print var1
+[  1  2 ]
+[  3  4 ]
+
+>>> var2 = var1
+>>> print var2
+[  1  2 ]
+[  3  4 ]
+
+>>> var1[(1,0)] = Z(321)
+>>> print var1
+[    1  2 ]
+[  321  4 ]
+
+>>> print var2
+[    1  2 ]
+[  321  4 ]
+
+>>> var3 = MZ(var1)
+>>> print var3
+[    1  2 ]
+[  321  4 ]
+
+>>> var1[(1,0)] = Z(456)
+>>> print var1
+[    1  2 ]
+[  456  4 ]
+
+>>> print var3
+[    1  2 ]
+[  321  4 ]
+\end{verbatim}
+
+      En el ejemplo anterior, \texttt{var3} es creada mediante una llamada al constructor \texttt{MZ}, con lo que
+      se crea una \emph{nueva instancia} de una matriz sobre los enteros, inicializada con los valores de \texttt{var1}.
+
+    \subsubsection{Tipos disponibles}
+       \paragraph{Z} Representa un entero de precisión arbitraria. Para crear un tipo de dato de este tipo, basta con 
+       invocar a su constructor de la siguiente manera: 
+\begin{verbatim}
+>>> unEntero = Z('35872687327373')
+\end{verbatim}
+        Las operaciones sobre enteros son las básicas:
+\begin{verbatim}
+>>> otroEntero = getRandomZ(100)
+>>> print unEntero, otroEntero
+35872687327373 621786157705605499575785094237
+>>> unEntero + otroEntero
+621786157705605535448472421610
+>>> unEntero - otroEntero
+-621786157705605463703097766864
+>>> unEntero * otroEntero
+22305140419861824038317960677452898474649401
+>>> unEntero / otroEntero
+0
+>>> unEntero % otroEntero
+35872687327373
+>>> pow(unEntero, otroEntero, Z(11234)) #exponenciación modular
+1357
+\end{verbatim}
+
+       \paragraph{R} Representa un real de precisión arbitraria. Su utilización es muy similar al tipo de dato para 
+       enteros, con la salvedad de poder controlar tanto el número de bits utilizados para manejar su precisión interna
+       como cuantos dígitos en base $10$ son mostrados:
+\begin{verbatim}
+>>> unReal = R('1.78346873235353')
+>>> R.setOutputPrecision(3)
+>>> print unReal
+1.783
+>>> R.setInnerPrecision(2000)
+>>> unReal = R('1.78346873235353')
+>>> R.setOutputPrecision(0) #usar máxima precisión
+>>> print unReal
+1.783468732353530000(...)000
+\end{verbatim}
+       \paragraph{GF} Representa un Cuerpo Finito, a modo de generador de elementos del mismo. 
+       Es posible obtener información acerca del cuerpo mediante el método \texttt{getProperties()}. Los elementos
+       del cuerpo se obtienen mediante el método \texttt{getElement()}.
+       En el siguiente párrafo se incluyen ejemplos, junto con los correspondientes a \texttt{GFx}.
+
+       \paragraph{GFx} Representa un elemento de un Cuerpo Finito.
+       Al igual que en el caso anterior, y por comodidad, se puede obtener información acerca del cuerpo finito
+       al que pertenece el elemento mediante el método \texttt{getProperties()}. Asimismo, otros métodos disponibles
+       en este tipo de dato son: 
+       \begin{description}
+        \item[\texttt{getInverse()}] Devuelve la inversa del elemento sobre el que se aplica el método.
+        \item[\texttt{getPBRString()}] Devuelve una cadena de caracteres representado en polinomio correspondiente
+        al elemento sobre el que se aplica.
+        \item[\texttt{setValue(z)}] Asigna al elemento sobre el que se aplica el método el valor del entero $z$ argumento
+        dentro del cuerpo finito.
+        \end{description}
+
+        El siguiente ejemplo ilustra los puntos recién descritos:
+\begin{verbatim}
+>>> gf = GF(p=2, n=4, usePrimitive=True)
+>>> gf.getProperties()
+{'characteristic': '2', 'modulus': ' +1*x^4 +1*x^3 +1', 
+  'isModulusPrimitive': True, 'order': '16', 'degree': 4}
+>>> e = gf.getElement(123)
+>>> print e
+11
+>>> print e.getPBRString()
+ +1*x^3 +1*x^1 +1
+>>> print e.getInverse()
+10
+>>> print e.getInverse() * e
+1
+>>> e.setValue(65)
+[(1, 0)]
+>>> print e
+1
+>>> print e.getInverse()
+1
+\end{verbatim}
+
+       \paragraph{MZ} Representa una matriz sobre el anillo de los enteros. Existen ciertos aspectos comunes
+       a los tipos matriciales, tales como el acceso a los elementos o a la información sobre las dimensiones.
+       Sin perdida de generalidad, véase el siguiente ejemplo para una matriz sobre los enteros:
+\begin{verbatim}
+>>> mat = MZ("[1231 47323213; -383485 124224]")
+>>> print mat
+[     1231  47323213 ]
+[  -383485    124224 ]
+
+>>> print mat[(0,0)]
+1231
+>>> mat[(0,0)] = Z('0')
+>>> print mat
+[        0  47323213 ]
+[  -383485    124224 ]
+\end{verbatim}
+
+       También es posible crear una matriz especificando sus dimensiones. Será inicializada con ceros:
+\begin{verbatim}
+>>> mat = MZ(n=3,m=5)
+>>> print mat
+[  0  0  0  0  0 ]
+[  0  0  0  0  0 ]
+[  0  0  0  0  0 ]
+
+>>> (n,m) = mat.getDimensions()
+>>> print n,m
+3 5
+>>> for i in range(n):
+...     for j in range(m):
+...         mat[(i,j)] = getRandomZ(30)
+...     
+>>> print mat
+[  1212240068  2403666701  2954393915  3377825059  4222186755 ]
+[  3987194506   831735211  1205127533  1202186320  1521499748 ]
+[  3996584786    46050137  1380962956  3307867696  3238229487 ]
+\end{verbatim}
+
+       \paragraph{MGFx} Representa una matriz sobre el un cuerpo finito dado. La particularidad de este tipo de 
+       matrices radica en que llevan asociado un cuerpo finito. De otro modo, podría darse el caso de que un elemento
+       de la matriz fuese miembro de un cuerpo finito distinto al de los demás, resultando en una estructura carente
+       de todo sentido matemático. Algunos métodos no disponibles para matrices de enteros se encuentran disponibles:
+       \begin{description}
+        \item[\texttt{getInverse()}] Devuelve la matriz inversa de la matriz sobre la que se aplica el método.
+        \item[\texttt{getTranspose()}] Devuelve la transpuesta de la matriz sobre la que la que se aplica el método.
+        \item[\texttt{solveFor(b)}] Espera una vector columna $b$ y devuelve el vector columna $y$ tal que $M \times y = b$, 
+        siendo $M$ la matriz sobre la que se aplica el método.
+        \end{description}
+
+\begin{verbatim}
+>>> gf = GF(p=2, n=5)
+>>> mat = MGFx("[34 56 421; 31 0 -24; 35 1 2]", gf=gf)
+>>> print mat
+[   2  24  5 ]
+[  31   0  8 ]
+[   3   1  2 ]
+
+>>> print mat.getTranspose()
+[   2  31  3 ]
+[  24   0  1 ]
+[   5   8  2 ]
+
+>>> print mat.getInverse()
+[  16  27  26 ]
+[  18  22   4 ]
+[  17  10   2 ]
+
+>>> print mat.getInverse() * mat
+[  1  0  0 ]
+[  0  1  0 ]
+[  0  0  1 ]
+
+>>> b = MGFx("[1; 2;3]",gf=gf)
+>>> y = mat.solveFor(b)
+>>> y
+[ 8 ; 29 ; 3  ]
+>>> mat * y
+[ 1 ; 2 ; 3  ]
+>>> b
+[ 1 ; 2 ; 3  ]
+\end{verbatim}
+
+       \paragraph{MR} Representa una matriz sobre el cuerpo de los reales. Los ejemplos anteriores para matrices
+       sobre enteros son directamente aplicables a matrices sobre reales, con la salvedad, claro esta, de que 
+       allí donde se utilizase un tipo entero, habría de utilizarse un real. Asimismo, los métodos
+
+       Sin embargo, el repertorio se completa con los tres métodos anteriormente descritos para matrices sobre 
+       cuerpos finitos. Su funcionamiento es análogo para matrices sobre reales.
+
+    
+    \subsubsection{Funciones disponibles}\label{funciones} 
+    Mediante la instrucción \texttt{listFuncs()} se obtiene una lista de las funciones específicas exportadas 
+    desde la biblioteca desarrollada. Existen más métodos exportados, pero se encuentran ocultos en la implementación
+    de los diferentes tipos de datos (por ejemplo, la inversión de matrices). El cliente incorpora un sistema de 
+    ayuda contextual dinámica: la documentación correspondiente a cada función es mostrada cuando el nombre de una de ellas
+    es introducido. Asimismo, una lista exhaustiva de las funciones disponibles y su descripción puede obtenerse mediante 
+    la instrucción \texttt{helpFuncs()}.
+
+    \paragraph{Teorema chino de los restos}
+    Esta función, cuyo prototipo es \texttt{crt( listaCongruencias, listaModulos )}\footnote{«CRT» es la abreviatura
+      habitual de este método en la bibliografía en inglés: \textit{Chinese Remainder Theorem}} devuelve un entero
+      congruente con cada entero de \texttt{listaCongruencias} modulo el entero correspondiente a la misma posición de 
+      \texttt{listaModulos}. 
+
+\begin{verbatim}
+>>> crt([Z(2),Z(3),Z(1)],[Z(3),Z(4),Z(5)])
+11
+\end{verbatim}
+
+    En el anterior ejemplo $11$ verifica $ 11 \equiv 2 \pmod{3} $,  $11 \equiv 3 \pmod{4}$   y  $11 \equiv 1 \pmod{5}$.
+
+    \paragraph{Factorización de enteros}
+      La función \texttt{factorize} devuelve una lista con los enteros correspondientes a la factorización del
+      entero pasado como argumento. Si alguno de los factores se repite, aparecerá dos veces en dicha lista:
+
+\begin{verbatim}
+>>> n = getRandomZ(60)
+>>> print n
+7933811805625598031
+>>> factorize(n)
+['3', '4111', '643299424764907']
+\end{verbatim}
+
+    \paragraph{Máximo común divisor}
+    Las funciones \texttt{gcd}\footnote{«GCD» es la abreviatura
+      habitual de este método en la bibliografía en inglés: \textit{Greatest Common Divisor}} 
+      y \texttt{gcdext} se corresponden, respectivamente, con el cálculo de únicamente
+    el máximo común divisor de dos enteros dados y, en añadidura, los coeficientes $s$ y $t$ verificando 
+    $gcd(a,b) = a\cdot s + b \cdot t$. Estos coeficientes son también conocidos como los coeficientes de 
+    Bézout.
+
+\begin{verbatim}
+>>> (a,b) = (getRandomZ(32), getRandomZ(48))
+>>> gcd(a,b)
+1
+>>> gcdext(a,b)
+['1', '172127432233870', '-148890431']
+>>> (d,s,t) = gcdext(a,b)
+>>> a*Z(s) + b*Z(t)
+1
+\end{verbatim}
+
+
+    \paragraph{Números primos}
+    Se describen a continuación los métodos disponibles relacionados con los números primos
+    \begin{description}
+    \item[\texttt{getPrime(n)}] Devuelve un primo de al menos $n$ bits.
+    \item[\texttt{getPrimeBounded(z)}] Devuelve un primo menos o igual que el entero $z$.
+    \item[\texttt{getStrongPrime(n)}] Devuelve un primo criptográficamente seguro de $n$ bits.
+    \item[\texttt{isPrime(z)}] Comprueba si el entero $z$ dado es primo.
+    \end{description}
+
+\begin{verbatim}
+>>> p = getPrime(123)
+>>> print p
+328458830735466518884555062997960854541
+>>> isPrime(p)
+True
+>>> [getPrimeBounded(Z(i)) for i in range(10,50,5)]
+[11, 17, 23, 29, 31, 37, 41, 47]
+>>> getStrongPrime(32)
+229147538131
+>>> isPrime(Z(229147538131))
+True
+\end{verbatim}
+
+
+    \paragraph{Números (pseudo)aleatorios}
+    Se describen a continuación los métodos disponibles relacionados con los números (pseudo)aleatorios
+
+    \begin{description}
+    \item[\texttt{getRandomZ(n)}] Devuelve un entero pseudoaleatorio de aproximadamente $n$ bits. 
+    \item[\texttt{getRandomZLessThan(z)}] Devuelve un entero pseudoaleatorio menor que el entero $z$.
+    \item[\texttt{getSecureRandomZ(n)}] Devuelve un entero aleatorio (basado en entropía real) criptográficamente seguro, 
+    con un numero de bits aproximadamente $n$.
+
+    \end{description}
+
+
+    \paragraph{Mínimo común múltiplo}
+    La funcion \texttt{lcm()}\footnote{«LCM» es la abreviatura
+      habitual de este método en la bibliografía en inglés: \textit{Least Common Multiple}}
+      devuelve el mínimo común múltiplo de sus dos argumentos enteros.
+
+   \paragraph{Miscelanea}
+   \begin{description}
+   \item[\texttt{jacobiSymbol(a,n)}]: Devuelve el símbolo de Jacobi para los dos enteros pasados como argumentos.
+   \item[\texttt{legendreSymbol(a,p)}]': Devuelve el símbolo de Legendre para los dos enteros pasados como argumentos.
+   \item[\texttt{modExp(base, exp, mod)}]: Realiza la exponenciación modular del primer entero por el segundo, reducidos módulo el tercero.
+   \item[\texttt{modInverse(base, exp)}]: Invierte el primer entero pasado como argumento módulo el segundo.
+
+   \end{description}
+\begin{verbatim}
+>>> jacobiSymbol(Z('123'),Z('35'))
+-1
+>>> n = getRandomZ(100); p = getPrime(32)
+>>> print n,p
+1243068081088301991839443832709 1575940489
+>>> legendreSymbol(n,p)
+1
+>>> modExp(Z(123),Z(456), getPrime(32))
+2019702949
+>>> p = getPrime(32)
+>>> modInverse(Z(123), p)
+194977768
+>>> Z(123)*modInverse(Z(123), p) % p
+1
+\begin{verbatim}
+\end{verbatim}
+
+
+
+    \paragraph{Información del sistema servidor}
+    La función \texttt{getSystemInfo} devuelve abundante información referente al sistema sobre
+    el cual se está ejecutando el servidor. Esto es útil por ejemplo para saber cuantos hilos físicos
+    es posible ejecutar, o si el sistema tiene soporte multihilo, de perfilado, etc.
+    La función devuelve un tipo diccionario de Python, por lo que es sencillo consultar el valor de sólo
+    alguno de los datos:
+\begin{verbatim}
+>>> import pprint
+>>> pprint.pprint(getSystemInfo())
+{'BuildDate': 'Nov 15 2007',
+ 'BuildTime': '21:48:56',
+ 'CPUInfo': {'ArchName': 'x86',
+             'CacheL1Size': 32768,
+             'CacheL2Size': 1048576,
+             'CacheL3Size': 0,
+             'DigitBitWidth': 32,
+             'ModelName': 'Intel(R) Pentium(R) M processor 1500MHz',
+             'SIMDCapabilities': ['MMX', 'SSE', 'SSE2']},
+ 'CompilerCmd': 'g++ -o -c -pipe -O0 -ggdb3 -m32 -fPIC -msse2 -DUSESIMD_sse2 
+                -DARCHBITS=32 -DARCH_x86',
+ 'MaxNumberOfThreads': 1,
+ 'OpenMPEnabled': False,
+ 'OptimizationLevel': 0,
+ 'ProfilingEnabled': True,
+ 'ReleaseVersion': False,
+ 'RevisionNumber': 598,
+ 'SIMDKernel': 'sse2'}
+
+>>> getSystemInfo()['MaxNumberOfThreads']
+1
+\end{verbatim}
+
+
+    \subsubsection{Ejecución en paralelo}\label{runInParallel}.
+      Mediante la función \texttt{runInParallel}, es posible ejecutar un número arbitrario de operaciones
+      en el cliente de forma simultánea, con un grado \emph{lógico} de paralelismo también arbitrario.
+      Con «lógico», se quiere resaltar que es posible lanzar simultáneamente tantos hilos del cliente como se
+      desee, pero el grado \emph{físico} de paralelismo siempre vendrá fijado por el número de unidades de ejecución
+      físicas disponibles en el sistema sobre el cual se este ejecutando el servidor. Es posible inspeccionar 
+      las características de este sistema servidor mediante la instrucción \texttt{getSystemInfo()}, como se ha descrito
+      en el punto \ref{funciones}.
+
+      La sintaxis de dicha función admite el uso tanto de una lista de cadenas de caracteres conteniendo las 
+      instrucciones a ejecutar o bien un descriptor de fichero abierto para lectura, del cual se irán obteniendo
+      las instrucciones a ejecutar. Mediante ejemplos se ilustra de forma más clara:
+
+\begin{verbatim}
+>>> resultados =runInParallel(["result= getPrime(123)", 
+    "result = modExp(getRandomZ(123),getRandomZ(213),getRandomZ(212))", 
+    "m = MR('[1.1 2.2; 3.3 4.4]'); result = m*m"], 
+    2)
+>>> resultados
+[74176631947940771198570817318499880729, 
+43467349588208854046417386840063472730388965574114680533023797, 
+  [ 8.47000000000000000000 12.10000000000000000000 ; 
+18.15000000000000000000 26.62000000000000000000  ]]
+>>> for r in resultados:
+...     print r
+...     
+74176631947940771198570817318499880729
+43467349588208854046417386840063472730388965574114680533023797
+[   8.47000000000000000000  12.10000000000000000000 ]
+[  18.15000000000000000000  26.62000000000000000000 ]
+\end{verbatim}
+  
+      En el ejemplo anterior se ilustran varios puntos:
+      \begin{itemize}
+        \item Si se desea devolver algún resultado, éste debe ser asignado a una variable llamada \emph{\texttt{result}}.
+        \item Python ofrece dos tipos de entrecomillado: las comillas simples «'» y las comillas dobles «"». Esto
+        resulta útil por ejemplo cuando, ya dentro de una cadena de caracteres, es necesario utilizar otra, como 
+        al definir el contenido de la matriz. 
+        \item Si en la cadena a ejecutar hay más de una sentencia, éstas se separarán mediante puntos y coma.
+        \item Ademas de la lista conteniendo las instrucciones a ejecutar, el segundo argumento es un entero, que 
+        indica el número de hilos ejecutores a utilizar. Si el número de elementos de la lista es mayor que este
+        número de hilos, los elementos de la lista se irán procesando según vayan quedando libres los hilos ejecutores.
+        El orden de ejecución no es predecible a priori. Sin embargo, los resultados se devuelven en orden.
+      \end{itemize}
+
+
+        Vease a continuación otro ejemplo:
+\begin{verbatim}
+>>> toRun1 = open('thread1.py')
+>>> toRun2 = open('thread2.py')
+>>> res = runInParallel([toRun1, toRun2], 1)
+>>> print res
+[239330591551575086659334062177758785221, [ 8 8 ; 12 5  ]]
+\end{verbatim}
+
+El contenido de los ficheros \texttt{thread1.py} y \texttt{thread2.py} es el siguiente:
+\begin{lstlisting}[captionpos=b,basicstyle=\small,frame=shadowbox,rulesepcolor=\color{black},language=python,caption=\texttt{thread1.py}] 
+result = getPrime(123)
+\end{lstlisting}
+
+\begin{lstlisting}[captionpos=b,basicstyle=\small,frame=shadowbox,rulesepcolor=\color{black},language=python,caption=\texttt{thread2.py}] 
+gf = GF(2,4)
+m = MGFx("[12 34; 67 98]",gf=gf)
+result = m.getInverse()
+\end{lstlisting}
+
+
+    \subsubsection{Mecanismo de perfilado}. 
+    En el cliente se encuentran disponibles los mecanismos de conteo de tiempo e instrucciones de la libraría, siempre que ésta
+    haya sido compilada con soporte de perfilado. Las funciones relacionadas con este mecanismo son:
+    \begin{description}
+       \item{\texttt{resetProf}} Pone a cero los contadores de instrucciones. 
+       Normalmente invocada como instrucción precedente a la primera
+       a considerar en la toma de datos.
+        \item{\texttt{getProfRes}}: Devuelve una lista con los contadores de instrucciones para cada hilo. Nótese
+        que en este contexto, «hilo» se refiere a hilos utilizados por la librería, no ejecuciones simultáneas de 
+        instrucciones por parte del cliente (véase \ref{runInParallel}).
+       \item{\texttt{startProfClock}} Inicia la toma de tiempo.
+       \item{\texttt{stopProfClock}}  Detiene la toma de tiempo y devuelve como resultado el tiempo transcurrido desde el
+       comienzo de dicha toma.
+    \end{description}
+
+    Véase el siguiente ejemplo:
+
+\begin{verbatim}
+>>> resetProf()
+>>> startProfClock()
+>>> RSA.getKeyPair(128)
+  ...
+>>> stopProfClock()
+1.3800000000000008
+>>> getProfRes()
+>>> import pprint
+>>> pprint.pprint( getProfRes() )
+[{'ADD': 564153,
+  'ADDMUL': 392859,
+  'ADDX': 98000,
+  'DIV': 51481,
+  'MNOB': 890,
+  'MUL': 79246,
+  'SHIFTL': 95592,
+  'SHIFTLR': 7922,
+  'SUB': 0,
+  'SUBX': 67766}]
+\end{verbatim}
+
+
+       
+       \subsubsection{Ejemplos}. 
+\paragraph{$\pi$ de Euler} 
+
+Lorem ipsum\newline
+
+\begin{lstlisting}[captionpos=b,basicstyle=\small,frame=shadowbox,rulesepcolor=\color{black},language=python,caption=$\pi$ de Euler] 
+from matplotlib.pylab import *
+from Client import *
+
+def piEuler(last, first=3, initialCount=1):
+  assert(last >= first)
+  numPrimes = initialCount
+  if not (first & 0x1): #even
+    first += 1
+  for i in xrange(first,last,2):
+    if isPrime(Z(i)):
+      numPrimes += 1
+
+  return numPrimes
+
+t1 = arange(100,1001,100)
+piEulerResList = []
+piEulerResList.append( piEuler(t1[0]) )
+for i in xrange(1,len(t1)):
+  piEulerResList.append( 
+      piEuler(first = t1[i-1]+1, 
+        last = t1[i], 
+        initialCount = piEulerResList[-1]) 
+      )
+
+xlabel(r"$n$")
+ylabel(r"$\pi(n)$")
+plot(t1, piEulerResList, 'ro-', label=r"True pi(n)")
+plot(t1, t1/log(t1), 'bx-', label=r"n/log(n) approx.")
+legend()
+\end{lstlisting}
+
+  \begin{center}
+  \begin{figure}[h!]
+    \includegraphics[width=0.85\textwidth,keepaspectratio]{plotExResult} 
+    \caption{Gráfica resultado de la ejecución del ejemplo $\pi$ de Euler}\label{fig:plotExResult}
+  
+  \end{figure}\end{center}
+
+\paragraph{RSA y paralelismo}
+Lorem ipsum\newline
+\begin{lstlisting}[captionpos=b,basicstyle=\small,frame=shadowbox,rulesepcolor=\color{black},language=python,caption=$\pi$ de Euler] 
+from Client import *
+def getKeyPair(keySize):
+  " Returns the pair (public, private) keys"
+  (p,q) = runInParallel(["result=getPrime(%d)" % keySize ]*2,
+      2, 
+      "Generating prime pair (p,q)")
+  n = p*q
+  phi = (p-1)*(q-1)
+  while True:
+    e = getRandomZLessThan(n)
+    if str(gcd(e,phi)) == '1':
+      break
+  d = modInverse(e,phi)
+  return ((e,n) , (d,n))
+
+def cypher(key, msg):
+  e = key[0]
+  n = key[1]
+  return modExp(msg,e,n)
+
+def decypher(key, cyphertext):
+  d = key[0]
+  n = key[1]
+  return modExp(cyphertext,d,n)
+\end{lstlisting}
+
+
+\paragraph{Generadores y $\pi$}
+Lorem ipsum\newline
+\begin{lstlisting}[captionpos=b,basicstyle=\small,frame=shadowbox,rulesepcolor=\color{black},language=python,caption=$\pi$ de Euler] 
+from Client import *
+
+def pi_series():
+  sum = R('0')
+  i = R('1.0')
+  j = R('1')
+  four = R("4")
+  two = R("2")
+  minusOne = R("-1")
+  while(1):
+    sum += j/i
+    yield four*sum
+    i += two; j *= minusOne
+
+def euler_accelerator(g):
+  s0 = g.next() # Sn-1
+  s1 = g.next() # Sn
+  s2 = g.next() # Sn+1
+  two = R("2")
+  while 1:
+    yield s2 - ((s2 - s1)*(s2-s1))/(s0 - two*s1 + s2)
+    s0, s1, s2 = s1, s2, g.next()
+
+def firstn(g, n):
+  for i in range(n):
+    yield g.next()
+    
+\end{lstlisting}
+
+
+
+\section{Evaluación}
+
+
+\section{Conclusiones}
+ 
+  

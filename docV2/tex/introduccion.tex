@@ -46,51 +46,8 @@
 %--------------------------------------------------------%
   
 \section{Motivación}
-%La pregunta que encabeza esta sección podría hacérsela el lector al
-%encontrarse con otra nueva implementación de una librería para el
-%trabajo con Teoría de Números, y es razonable. ¿Cual es el sentido de
-%este Proyecto entonces? Más allá de la mera ``reinvención de la rueda'', 
-%se pretende aportar algo, poner en práctica algunas ideas nuevas y
-%suplir lo que, en la modesta opinión del autor, son deficiencias en los diversos
-%paquetes disponibles. No juega tampoco un papel
-%desdeñable un sentimiento como el expresado en la cita que encabeza el
-%capítulo, de uno de los físicos más importantes del pasado siglo XX.
-%Entonces tras esto, quizás asalte esta otra pregunta:
-
-La pregunta que podría hacerse el lector al encontrarse con otra
-nueva implementación de una librería para el trabajo con Teoría 
-de Números es:
-¿Cuál es el sentido de este Proyecto? Más allá de 
-la mera ``reinvención de la rueda'',
-se pretende aportar algo, poner en práctica algunas 
-ideas nuevas y suplir lo que, en la modesta
-opinión del autor, son deficiencias en los diversos paquetes
-disponibles. No juega tampoco un
-papel desdeñable un sentimiento como el expresado en la cita
-que encabeza el capítulo, de uno
-de los físicos más importantes del pasado siglo XX. Tras esto,
-quizás asalte al lector poco familiarizado con el campo de aplicación
-de este tipo de herramientas otra pregunta y es ¿para qué esta librería? 
-  \subsection{¿Para qué?}
-   Si el lector no está familiarizado con el campo de aplicación de
-   este tipo de librerías/herramientas, señalar su principal campo de
-   aplicación, sin detrimento de cualquier otro más imaginativo:
-   \paragraph{Criptografía de clave pública.} La propia naturaleza de esta
-       familia de métodos criptográficos necesita manejar números con
-       una cantidad elevada de cifras (del orden de cientos o miles de
-       cifras). Se da una visión más en profundidad de este campo en
-       la sección
-       \ref{clavePublica}.
-
-  
 
 \section{Objetivos}
-En este proyecto se ha buscado desarrollar una librería para el
-trabajo en Teoría de Números con la criptografía en mente. 
-Se ha tratado de dotarla de algunas características distintivas,
-así como las herramientas habituales de estos paquetes. 
-
-Las funcionalidades contempladas han sido:
 \begin{itemize}
   \item Números enteros, $\mathbb{Z}$
   \begin{itemize}
@@ -139,61 +96,8 @@ Las funcionalidades contempladas han sido:
 \end{itemize}
 
 
-Según \cite{riesel}\footnote{pág. 332}, los objetivos principales a la hora de
-construir un paquete para cálculo de precisión arbitraria son los
-siguientes:
-\begin{itemize}
-  \item De fácil uso.
-  \item Realización de los cálculos con un desempeño óptimo.
-  \item Introducción y obtención de valores sencilla.
-  \item Requisitos de almacenamiento mínimos.
-  \item Adaptable a diferentes entornos y arquitecturas.
-\end{itemize}
-Ahora bien, como suele ser habitual, no es posible conjugar
-simultáneamente todos estos aspectos. Pero aún así, merece la pena
-tratar de acercarse. Las medidas tomadas en el presente proyecto
-para conseguirlo han sido, en términos generales, las siguientes:
-\paragraph{Orientación a objetos y sobrecarga de operadores.}
-  Mediante la utilización de un lenguaje que ofrezca estos mecanismos
-  se consigue por una parte una mejor organización del código con una
-  mayor ``coherencia jerárquica'' entre los diferentes elementos. La
-  sobrecarga de operadores es fundamental a la hora de prestar
-  servicios de forma prácticamente transparente al usuario, quien por
-  ejemplo podrá seguir sumando del mismo modo tipos básicos del
-  sistema y los nuevos tipos numéricos ofrecidos.
-\paragraph{Buenos algoritmos.}
-  Aunque pudiera parecer de perogrullo, la elección de los
-  algoritmos (dejando ya de lado su implementación) para cada tarea
-  no es una tarea trivial: la variedad de los mismos y sus
-  diferentes ventajas y defectos hacen que se requiera un
-  concienzudo estudio previo a la elección.
-\paragraph{Portabilidad.}
-  Es deseable que el código no se quede relegado a una sola plataforma
-  o sistema. Y más aún si estamos hablando de una librería. Es por
-  esto que se ha tenido cuidado en escribir un código portable de
-  forma directa (sin más que recompilar el código C++), controlando
-  aquellas partes dependientes del sistema reduciéndolas a un mínimo y
-  siempre justificando su carácter no portable. A este respecto, ver
-  la sección \ref{elProcesadorVirtual}.
-
   \subsection{Características a destacar}
-    Anteriormente se citó que una de las razones del desarrollo de
-    esta librería es suplir, en la medida de lo posible, algunos
-    aspectos de otros paquetes con la misma orientación. Así, se puede
-    considerar que el presente Proyecto brinda algunas características
-    a destacar por no haberse encontrado, una u otra, en las demás
-    librerías afines que se han examinado (las citadas en
-    \ref{libreriasSimilares}).
     \begin{itemize}
-      \item El uso de la orientación a objetos es mucho mayor y más
-        adecuado. Esto es debido a que en los casos en los que la
-        librería examinada utilizaba C++, en realidad era una
-        adaptación desde una implementación previa en C, con lo cual
-        en realidad no deja de ser una implementación en C ``con
-        clases''. Ejemplo de esto es que en la librería NTL, la
-        representación interna de los números (algo que a todas luces
-        ha de ser invisible para el usuario) tiene categoría
-        \texttt{public}.
       \item La librería está preparada para soportar hilos\footnote{El
         término inglés y más extendido para esto es ``thread safe''}.
         Esto es muy importante desde el punto de vista de la posible
@@ -208,7 +112,7 @@ para conseguirlo han sido, en términos generales, las siguientes:
         busca el máximo rendimiento, claro está, pero se ha
         considerado interesante la inclusión de esta característica,
         siendo además opcional su activación. Véase \ref{perfilado} para más
-        detalles.
+        detalles. %está en implementacion.tex
       \item Soporte de excepciones para el manejo de errores. Las
         librerías analizadas recurrían a métodos ``clásicos'' como los
         expuestos en \ref{controlDeErrores}. Por contra, y como se
@@ -227,10 +131,6 @@ para conseguirlo han sido, en términos generales, las siguientes:
     \end{itemize}
 
 \section{El sistema de desarrollo}\label{sistemaDeDesarrollo}
-  En la elaboración de este proyecto se han utilizado diversas
-  herramientas y sistemas. Aquí se da un resumen de lo utilizado en
-  parte a modo de curiosidad y en parte como configuraciones en las
-  que se sabe que la librería funciona correctamente.
   \subsection{Sistemas hardware}
   \begin{description}
     \item[Plataforma compatible Intel.] 

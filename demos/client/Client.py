@@ -199,10 +199,13 @@ class ThreadRunner(threading.Thread):
   getResults = classmethod(getResults)
 
 
-def runInParallel( listOfSnippets, numberOfThreads ):
+def runInParallel( listOfSnippets, numberOfThreads, caption=""):
   runInParallel.res = None
+  for i in listOfSnippets:
+    if isinstance(i,file):
+      i.seek(0)
   progress = wx.ProgressDialog("Tasks completion progress",
-                               "",
+                               caption,
                                maximum = len(listOfSnippets),
                                parent=None,
                                style = wx.PD_CAN_ABORT
@@ -226,13 +229,12 @@ def runInParallel( listOfSnippets, numberOfThreads ):
       elem = resQueue.get()
       runInParallel.res[elem[0]] = elem[1]
 
-
   for taskN, snippet in enumerate(listOfSnippets):
     ThreadRunner.queue.put((taskN, snippet))
 
   delayedresult.startWorker(consumer, doRun)
   while (threading.activeCount() > 1) or (not ThreadRunner.queue.empty()):
-    wx.MilliSleep(250)
+    wx.MilliSleep(500)
     i = (len(listOfSnippets) - ThreadRunner.queue.qsize())-(threading.activeCount()-1)
     keepgoing = progress.Update( i )[0]
     if not keepgoing: 
@@ -274,7 +276,15 @@ def performUpdate():
 
   return backupFname
 
+def matrixToPyRep(str):
+  res = []
+  str = str.strip()
+  str = str[1:-1].strip() #remove the external [ ]
+  rows = str.split(';')
+  for i in rows:
+    res.append( i.split() )
 
+  return res
 ######################################################
 #
 #  Client implementation begins here
@@ -629,12 +639,17 @@ class GFx(Variable):
 
 class MZ(Variable): #matrix Z
 
-  def __init__(self, mzStr="[]", id=None):
+  def __init__(self, mzStr="[]", n=0, m=0, id=None):
     if id:
       Variable.__init__(self, id)
+
     else:
-      #create the instance on the server 
-      Variable.__init__(self,_mzCreate(str(mzStr)).getId())
+      if isinstance(mzStr, Variable):
+        Variable.__init__(self,_mzCreate(repr(mzStr)).getId())
+      elif n > 0 and m > 0:
+        Variable.__init__(self,_mzCreateDims(n,m).getId())
+      else:
+        Variable.__init__(self,_mzCreate(str(mzStr)).getId())
 
 
   def __add__(self, anotherMZ): 
@@ -670,9 +685,11 @@ class MZ(Variable): #matrix Z
     return self
 
 
-  def __getitem__(self, row):
-    pyRep = self.__strToPyRep( self.__matrixZStr )
-    return pyRep[row]
+  def __getitem__(self, coords):
+    return _mzGetElement(self,coords[0],coords[1])
+  def __setitem__(self, coords, newVal):
+    return _mzSetElement(self,coords[0],coords[1], newVal)
+
 
   def __repr__(self):
     #return "%s with id %s" % (type(self),self.getId())
@@ -682,36 +699,28 @@ class MZ(Variable): #matrix Z
   def __str__(self):
     return _getHRString(self.getId())
 
-  def __strToPyRep(self, str):
-    res = []
-    str = str.strip()
-    str = str[1:-1].strip() #remove the external [ ]
-    rows = str.split(';')
-    for i in rows:
-      res.append( i.split() )
+  def getDimensions(self):
+    pyRepr = matrixToPyRep(repr(self))
+    return (len(pyRepr), len(pyRepr[0]))
 
-    return res
-
-  def __PyRepToStr(self, pyRep):
-    strRows = []
-    map( lambda row: strRows.append(" ".join(row)), py)
-    str = " ; ".join(strRows)
-    str = "[ " + str +" ]"
-
-    return str
 
 #########################################################
 
 
 
-class MR(Variable): #matrix Z
+class MR(Variable): #matrix R
 
-  def __init__(self, mrStr="[]", id=None):
+  def __init__(self, mrStr="[]", n=0, m=0, id=None):
     if id:
       Variable.__init__(self, id)
     else:
       #create the instance on the server 
-      Variable.__init__(self,_mrCreate(str(mrStr)).getId())
+      if isinstance(mrStr, Variable):
+        Variable.__init__(self,_mrCreate(repr(mrStr)).getId())
+      elif n > 0 and m > 0:
+        Variable.__init__(self,_mrCreateDims(n,m).getId())
+      else:
+        Variable.__init__(self,_mrCreate(str(mrStr)).getId())
 
 
   def __add__(self, anotherMR): 
@@ -747,9 +756,11 @@ class MR(Variable): #matrix Z
     return self
 
 
-  def __getitem__(self, row):
-    pyRep = self.__strToPyRep( self.__matrixZStr )
-    return pyRep[row]
+  def __getitem__(self, coords):
+    return _mrGetElement(self,coords[0],coords[1])
+  def __setitem__(self, coords, newVal):
+    return _mrSetElement(self,coords[0],coords[1], newVal)
+
 
   def __repr__(self):
     #return "%s with id %s" % (type(self),self.getId())
@@ -759,25 +770,98 @@ class MR(Variable): #matrix Z
   def __str__(self):
     return _getHRString(self.getId())
 
-  def __strToPyRep(self, str):
-    res = []
-    str = str.strip()
-    str = str[1:-1].strip() #remove the external [ ]
-    rows = str.split(';')
-    for i in rows:
-      res.append( i.split() )
+  def getTranspose(self):
+    return _mrTranspose(self)
 
+  def getInverse(self):
+    return _mrInv(self)
+
+  def solveFor(self, b):
+    return _mrSolve(self, b)
+
+  def getDimensions(self):
+    pyRepr = matrixToPyRep(repr(self))
+    return (len(pyRepr), len(pyRepr[0]))
+
+
+
+class MGFx(Variable): #matrix GFx
+
+  def __init__(self, mgfxStr="[]", n=0, m=0, gf=None, id=None):
+    if id:
+      Variable.__init__(self, id)
+    else:
+      if isinstance(mgfxStr, Variable):
+        Variable.__init__(self,_mgfxCreate(repr(mgfxStr), gf).getId())
+      elif n > 0 and m > 0:
+        Variable.__init__(self,_mgfxCreateDims(n,m,gf).getId())
+      else:
+        Variable.__init__(self,_mgfxCreate(str(mgfxStr),gf).getId())
+
+  def __add__(self, anotherMR): 
+    if not isinstance(anotherMR,type(self)):
+      anotherMR = MR(repr(anotherMR))
+    return _mgfxAdd(self, anotherMR )
+  def __iadd__(self, anotherMR): 
+    self.setId( self.__add__(anotherMR).getId() )
+    return self
+
+  def __sub__(self, anotherMR): 
+    if not isinstance(anotherMR,type(self)):
+      anotherMR = MR(repr(anotherMR))
+    return _mgfxSub(self, anotherMR )
+  def __isub__(self, anotherMR): 
+    self.setId( self.__sub__(anotherMR).getId() )
+    return self
+
+  def __mul__(self, anotherMR): 
+    if not isinstance(anotherMR,type(self)):
+      anotherMR = MR(repr(anotherMR))
+    return _mgfxMul(self, anotherMR )
+  def __imul__(self, anotherMR): 
+    self.setId( self.__mul__(anotherMR).getId() )
+    return self
+ 
+  def __div__(self, anotherMR): 
+    if not isinstance(anotherMR,type(self)):
+      anotherMR = MR(repr(anotherMR))
+    return _mgfxDiv(self, anotherMR )
+  def __idiv__(self, anotherMR): 
+    self.setId( self.__div__(anotherMR).getId() )
+    return self
+
+
+  def __getitem__(self, coords):
+    return _mgfxGetElement(self,coords[0],coords[1])
+  def __setitem__(self, coords, newVal):
+    return _mgfxSetElement(self,coords[0],coords[1], newVal)
+
+
+  def __repr__(self):
+    #return "%s with id %s" % (type(self),self.getId())
+    res = _getData(self.getId())
     return res
 
-  def __PyRepToStr(self, pyRep):
-    strRows = []
-    map( lambda row: strRows.append(" ".join(row)), py)
-    str = " ; ".join(strRows)
-    str = "[ " + str +" ]"
+  def __str__(self):
+    return _getHRString(self.getId())
 
-    return str
+  def getTranspose(self):
+    return _mgfxTranspose(self)
+
+  def getInverse(self):
+    return _mgfxInv(self)
+
+  def solveFor(self, b):
+    return _mgfxSolve(self, b)
+
+  def getDimensions(self):
+    pyRepr = matrixToPyRep(repr(self))
+    return (len(pyRepr), len(pyRepr[0]))
+
+
 
 #########################################################
+
 
 
 

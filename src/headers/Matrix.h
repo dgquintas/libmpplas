@@ -49,6 +49,7 @@ namespace mpplas {
                                     int m1, int m2) const;
 
 
+        Matrix<T, Alloc>& fromString(const std::string& str);
         
         bool operator==(const Matrix<T, Alloc>& rhs) const;
 
@@ -197,6 +198,24 @@ namespace mpplas {
     }
 
   namespace MatrixHelpers{
+
+
+    template<typename T, typename Alloc>
+      void makeCroutsCombinedMatrix(Matrix<T, Alloc>& m);
+     
+    template<typename T, typename Alloc>
+      Matrix<T,Alloc> solve(Matrix<T, Alloc> m, Matrix<T, Alloc> b);
+
+    template<typename T, typename Alloc>
+      void forwardSubstitution(const Matrix<T, Alloc>& m, Matrix<T, Alloc>& b);
+    template<typename T, typename Alloc>
+      void backwardSubstitution(const Matrix<T, Alloc>& m, Matrix<T, Alloc>& y);
+
+    template<typename T, typename Alloc>
+      Matrix<T, Alloc> invert(Matrix<T, Alloc> m);
+
+
+
 
     template<typename T>
     class Strassen{

@@ -86,11 +86,17 @@ inline const T& Matrix<T, Alloc>::operator()(int i) const{
 
 template<typename T, typename Alloc>
 inline T& Matrix<T, Alloc>::operator()(int i, int j){
+  if( i >= this->getRows() || j >= this->getColumns() ){
+    throw Errors::InvalidRange();
+  }
   const int index( (i* _dims.getColumns() ) + j );
   return _data[ index ];
 }
 template<typename T, typename Alloc>
 inline const T& Matrix<T, Alloc>::operator()(int i, int j) const{
+  if( i >= this->getRows() || j >= this->getColumns() ){
+    throw Errors::InvalidRange();
+  }
   const int index( (i* _dims.getColumns() ) + j );
   return _data[ index ];
 
@@ -126,6 +132,14 @@ Matrix<T, Alloc> Matrix<T, Alloc>::operator()(int n1, int n2,
 
   return res;
 
+}
+
+template<typename T, typename Alloc>
+Matrix<T, Alloc>& Matrix<T, Alloc>::fromString(const std::string& str){
+  std::istringstream inStream(str);
+  operator>>(inStream,*this);
+
+  return *this;
 }
 
 
@@ -857,6 +871,128 @@ std::istream& operator>>(std::istream& in, Matrix<T, Alloc>& m) {
 /////////////////////////
 
 namespace MatrixHelpers{
+
+  //FIXME: la diagnonalizacion y las inversiones estan hecha
+  //UNA MIERDA
+
+  template<typename T, typename Alloc>
+    void makeCroutsCombinedMatrix(Matrix<T, Alloc>& a){
+      if( !a.isSquare() ){
+        throw Errors::SquareMatrixRequired();
+      }
+      T sum;
+      int n = a.getRows();
+      int i,j,k;
+      for(j = 0; j < n; j++){
+        for(i = 0; i < j; i++){
+          sum = a(i,j);
+          for(k = 0; k < i; k++){
+            sum -= a(i,k)*a(k,j);
+          }
+          a(i,j) = sum;
+        }
+        for(i=j; i < n; i++){
+          sum = a(i,j);
+          for(k=0; k < j; k++){
+            sum -= a(i,k)*a(k,j);
+            a(i,j) = sum;
+          }
+        }
+        if( j != n-1){
+          for(i=j+1; i < n; i++){
+            a(i,j) /= a(j,j);
+          }
+        }
+      }
+    }
+
+
+  template<typename T, typename Alloc>
+    Matrix<T, Alloc> invert(Matrix<T, Alloc> m){
+
+      const int n = m.getRows();
+//      Matrix<T, Alloc> b(n,1);
+      Matrix<T, Alloc> b(m); //FIXME
+      Matrix<T, Alloc> inv(n); 
+      for(int j = 0; j < n; j++){
+        for(int i=0; i < n; i++){
+          b(i,0) = T::ZERO;
+        }
+        b(j,0) = T::ONE;
+        Matrix<T, Alloc> col(solve(m,b));
+
+        for(int i=0; i < n; i++){
+          inv(i,j) = col(i,0);
+        }
+      }
+      return inv;
+    }
+
+  template<typename T, typename Alloc>
+    Matrix<T,Alloc> solve(Matrix<T, Alloc> m, Matrix<T, Alloc> b){
+      const int n = m.getRows();
+      MatrixHelpers::makeCroutsCombinedMatrix(m);
+      Matrix<T, Alloc> l(m), r(m);
+
+      for(int i = 0; i < n; i++){
+        for(int j = 0; j < n; j++){
+          l(i,j) = T::ZERO;
+          r(i,j) = T::ZERO;
+        }
+      }
+        
+
+      for(int i = 0; i < n ; i++){
+        for(int j=0; j < i; j++){
+          l(i,j) = m(i,j);
+        }
+        l(i,i) = T::ONE;
+      }
+      for(int i = 0; i < n ; i++){
+        for(int j=i; j < n; j++){
+          r(i,j) = m(i,j);
+        }
+      }
+ 
+      forwardSubstitution(l, b);
+      backwardSubstitution(r, b);
+
+      return b;
+    }
+
+
+
+  template<typename T, typename Alloc>
+      void forwardSubstitution(const Matrix<T, Alloc>& m, Matrix<T, Alloc>& b){
+        const int n = m.getRows();
+        T sum(m(0,0));
+        for(int i = 1; i < n; i++){
+          sum = b(i,0);
+          for(int j = 0; j < i; j++){
+            sum -=  m(i,j)*b(j,0);
+          }
+          b(i,0) = sum;
+        }
+      }
+
+
+  template<typename T, typename Alloc>
+      void backwardSubstitution(const Matrix<T, Alloc>& m, Matrix<T, Alloc>& y){
+        const int n = m.getRows();
+        T sum(m(0,0));
+        y(n-1,0) /= m(n-1,n-1);
+        for(int i = n-2; i >= 0; i--){
+          sum = y(i,0);
+          for(int j = i+1; j < n; j++){
+            sum -=  m(i,j)*y(j,0);
+          }
+          sum /= m(i,i);
+          y(i,0) = sum;
+        }
+      }
+
+
+
 
   template<typename T>
    void Strassen<T>::run(T* C, const T* const A, const T* const B, 

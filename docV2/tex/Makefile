@@ -1,7 +1,7 @@
 PROGRAM = doc.pdf
 
 SHELL = /bin/bash
-LATEX = /usr/bin/latex
+LATEX = /usr/bin/pdflatex
 DVIPDF = /usr/bin/dvipdf
 BIBTEX = /usr/bin/bibtex
 MAKEINDEX = /usr/bin/makeindex

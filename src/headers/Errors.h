@@ -163,6 +163,14 @@ namespace mpplas{
           _msg += tmpStr;
         }
     };
+ 
+    class SquareMatrixRequired: public InvalidArgument  {
+      public:
+        SquareMatrixRequired( const std::string details = "" )
+          : InvalidArgument("Square matrix required; "){
+            _msg += details;
+          }
+    };
 
 
     class InvalidRange : public InvalidArgument {

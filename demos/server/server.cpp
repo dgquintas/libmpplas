@@ -37,6 +37,7 @@
 #include "Errors.h"
 #include "GF.h"
 #include "GFx.h"
+#include "SimbolosLegendre.h"
 
 #include "RuntimeData.h"
 
@@ -223,12 +224,17 @@ class ZAddMethod : public xmlrpc_c::method {
 
         paramList.verifyEnd(3);
 
+        try{
           const mpplas::Z op1( *((mpplas::Z*)table.get(clientId, varId1)));
           const mpplas::Z op2( *((mpplas::Z*)table.get(clientId, varId2)));
 
-        const std::string varId = table.set(clientId, new mpplas::Z(op1+op2), "Z");
+          const std::string varId = table.set(clientId, new mpplas::Z(op1+op2), "Z");
 
-        *retvalP = xmlrpc_c::value_string( varId );
+          *retvalP = xmlrpc_c::value_string( varId );
+        }catch(const std::exception& e){
+          throw(girerr::error(e.what()));
+        }
+
       }
 };
 class ZSubMethod : public xmlrpc_c::method {
@@ -1351,6 +1357,96 @@ class MZCreate: public xmlrpc_c::method {
       }
 };
 
+class MZCreateFromDims: public xmlrpc_c::method {
+  public:
+    
+    MZCreateFromDims() {
+      this->_signature = "s:iii";
+      this->_help = "Creates a new real matrix";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const int rows(paramList.getInt(1));
+        const int cols(paramList.getInt(2));
+
+        paramList.verifyEnd(3);
+
+        mpplas::MatrixZ* const op( new mpplas::MatrixZ(rows, cols));
+
+        const std::string varId(table.set(clientId, op, "MZ"));
+
+        *retvalP = xmlrpc_c::value_string(varId);
+      }
+};
+
+
+class MZSetElementMethod : public xmlrpc_c::method {
+  public:
+    
+    MZSetElementMethod() {
+      this->_signature = "n:isiis";
+      this->_help = "Sets an element of the matrix to the given value";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const int row(paramList.getInt(2));
+      const int col(paramList.getInt(3));
+      const std::string varId2(paramList.getString(4));
+
+      paramList.verifyEnd(5);
+
+      mpplas::MatrixZ* const mat( (mpplas::MatrixZ*)table.get(clientId, varId1));
+      const mpplas::Z elem( *((mpplas::Z*)table.get(clientId, varId2)));
+
+      try {
+        (*mat)(row,col) = elem;
+
+        *retvalP = xmlrpc_c::value_nil();
+
+      } catch( const std::exception &e ){
+        throw girerr::error( e.what() );
+      }
+
+    }
+
+};
+
+class MZGetElementMethod : public xmlrpc_c::method {
+  public:
+    
+    MZGetElementMethod() {
+      this->_signature = "s:isii";
+      this->_help = "Gets an element of the matrix";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const int row(paramList.getInt(2));
+      const int col(paramList.getInt(3));
+
+      paramList.verifyEnd(4);
+
+      const mpplas::MatrixZ* const mat( (mpplas::MatrixZ*)table.get(clientId, varId1));
+
+      try{
+        const std::string varId = table.set(clientId, new mpplas::Z( mat->operator()(row,col) ), "Z");
+        *retvalP = xmlrpc_c::value_string( varId );
+      } catch( const std::exception &e ){
+        throw girerr::error( e.what() );
+      }
+    }
+
+};
+
+
+
 class MZAddMethod : public xmlrpc_c::method {
   public:
     
@@ -1453,6 +1549,30 @@ class MZDivMethod : public xmlrpc_c::method {
 
 };
 
+class MZTransposeMethod : public xmlrpc_c::method {
+  public:
+    
+    MZTransposeMethod() {
+      this->_signature = "s:is";
+      this->_help = "Returns the transpose of the given matrix";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        mpplas::MatrixZ op1( *((mpplas::MatrixZ*)table.get(clientId, varId1)));
+        op1.transpose();
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixZ( op1 ), "MZ");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+
+};
 
 
 
@@ -1464,7 +1584,7 @@ class MRCreate: public xmlrpc_c::method {
     
     MRCreate() {
       this->_signature = "s:is";
-      this->_help = "Creates a new integer matrix";
+      this->_help = "Creates a new real matrix";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -1479,13 +1599,100 @@ class MRCreate: public xmlrpc_c::method {
         *retvalP = xmlrpc_c::value_string(varId);
       }
 };
+class MRCreateFromDims: public xmlrpc_c::method {
+  public:
+    
+    MRCreateFromDims() {
+      this->_signature = "s:iii";
+      this->_help = "Creates a new real matrix";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const int rows(paramList.getInt(1));
+        const int cols(paramList.getInt(2));
+
+        paramList.verifyEnd(3);
+
+        mpplas::MatrixR* const op( new mpplas::MatrixR(rows, cols));
+
+        const std::string varId(table.set(clientId, op, "MR"));
+
+        *retvalP = xmlrpc_c::value_string(varId);
+      }
+};
+
+class MRSetElementMethod : public xmlrpc_c::method {
+  public:
+    
+    MRSetElementMethod() {
+      this->_signature = "n:isiis";
+      this->_help = "Sets an element of the matrix to the given value";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const int row(paramList.getInt(2));
+      const int col(paramList.getInt(3));
+      const std::string varId2(paramList.getString(4));
+
+      paramList.verifyEnd(5);
+
+      mpplas::MatrixR* const mat( (mpplas::MatrixR*)table.get(clientId, varId1));
+      const mpplas::R elem( *((mpplas::R*)table.get(clientId, varId2)));
+
+      try {
+        (*mat)(row,col) = elem;
+
+        *retvalP = xmlrpc_c::value_nil();
+
+      } catch( const std::exception &e ){
+        throw girerr::error( e.what() );
+      }
+
+    }
+
+};
+
+class MRGetElementMethod : public xmlrpc_c::method {
+  public:
+    
+    MRGetElementMethod() {
+      this->_signature = "s:isii";
+      this->_help = "Gets an element of the matrix";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const int row(paramList.getInt(2));
+      const int col(paramList.getInt(3));
+
+      paramList.verifyEnd(4);
+
+      const mpplas::MatrixR* const mat( (mpplas::MatrixR*)table.get(clientId, varId1));
+
+      try{
+        const std::string varId = table.set(clientId, new mpplas::R( mat->operator()(row,col) ), "R");
+        *retvalP = xmlrpc_c::value_string( varId );
+      } catch( const std::exception &e ){
+        throw girerr::error( e.what() );
+      }
+    }
+
+};
+
 
 class MRAddMethod : public xmlrpc_c::method {
   public:
     
     MRAddMethod() {
       this->_signature = "s:iss";
-      this->_help = "Adds two integer matrices together";
+      this->_help = "Adds two real matrices together";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -1510,7 +1717,7 @@ class MRSubMethod : public xmlrpc_c::method {
     
     MRSubMethod() {
       this->_signature = "s:iss";
-      this->_help = "Adds two integer matrices together";
+      this->_help = "Adds two real matrices together";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -1536,7 +1743,7 @@ class MRMulMethod : public xmlrpc_c::method {
     
     MRMulMethod() {
       this->_signature = "s:iss";
-      this->_help = "Multiplies two integer matrices";
+      this->_help = "Multiplies two real matrices";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -1561,7 +1768,7 @@ class MRDivMethod : public xmlrpc_c::method {
     
     MRDivMethod() {
       this->_signature = "s:iss";
-      this->_help = "Multiplies two integer matrices";
+      this->_help = "Multiplies two real matrices";
     }
 
     void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
@@ -1582,6 +1789,385 @@ class MRDivMethod : public xmlrpc_c::method {
 
 };
 
+class MRInvMethod : public xmlrpc_c::method {
+  public:
+    
+    MRInvMethod() {
+      this->_signature = "s:is";
+      this->_help = "Returns the inverse of the given matrix";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        const mpplas::MatrixR op1( *((mpplas::MatrixR*)table.get(clientId, varId1)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixR( mpplas::MatrixHelpers::invert(op1) ), "MR");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+
+};
+class MRSolveMethod : public xmlrpc_c::method {
+  public:
+    
+    MRSolveMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Solves the system specified by an square matrix and a vector";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        const mpplas::MatrixR op1( *((mpplas::MatrixR*)table.get(clientId, varId1)));
+        const mpplas::MatrixR op2( *((mpplas::MatrixR*)table.get(clientId, varId2)));
+
+        try{
+          const std::string varId = table.set(clientId, new mpplas::MatrixR( mpplas::MatrixHelpers::solve(op1,op2) ), "MR");
+
+          *retvalP = xmlrpc_c::value_string( varId );
+        }catch( const std::exception &e ){
+          throw girerr::error( e.what() );
+        }
+
+      }
+
+};
+
+class MRTransposeMethod : public xmlrpc_c::method {
+  public:
+    
+    MRTransposeMethod() {
+      this->_signature = "s:is";
+      this->_help = "Returns the transpose of the given matrix";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        mpplas::MatrixR op1( *((mpplas::MatrixR*)table.get(clientId, varId1)));
+        op1.transpose();
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixR( op1 ), "MR");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+
+};
+
+/***********************************************
+ **************** GFx MATRICES *****************
+ ***********************************************/
+class MGFxCreate: public xmlrpc_c::method {
+  public:
+    
+    MGFxCreate() {
+      this->_signature = "s:iss";
+      this->_help = "Creates a matrix with elements from finite field";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string def(paramList.getString(1));
+        const std::string generatorId(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        const mpplas::GF* const gf( (mpplas::GF*)table.get(clientId, generatorId));
+
+        mpplas::MatrixGFx* const op( new mpplas::MatrixGFx(def, *gf));
+
+        const std::string varId(table.set(clientId, op, "MGFx"));
+
+        *retvalP = xmlrpc_c::value_string(varId);
+      }
+};
+class MGFxCreateFromDims: public xmlrpc_c::method {
+  public:
+    
+    MGFxCreateFromDims() {
+      this->_signature = "s:iiis";
+      this->_help = "Creates a matrix with elements from finite field";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const int rows(paramList.getInt(1));
+        const int cols(paramList.getInt(2));
+        const std::string generatorId(paramList.getString(3));
+
+        paramList.verifyEnd(4);
+
+        const mpplas::GF* const gf( (mpplas::GF*)table.get(clientId, generatorId));
+
+        mpplas::MatrixGFx* const op( new mpplas::MatrixGFx(rows, cols, *gf));
+
+        const std::string varId(table.set(clientId, op, "MGFx"));
+
+        *retvalP = xmlrpc_c::value_string(varId);
+      }
+};
+
+
+class MGFxSetElementMethod : public xmlrpc_c::method {
+  public:
+    
+    MGFxSetElementMethod() {
+      this->_signature = "n:isiis";
+      this->_help = "Sets an element of the matrix to the given value";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const int row(paramList.getInt(2));
+      const int col(paramList.getInt(3));
+      const std::string varId2(paramList.getString(4));
+
+      paramList.verifyEnd(5);
+
+      mpplas::MatrixGFx* const mat( (mpplas::MatrixGFx*)table.get(clientId, varId1));
+      const mpplas::GFx elem( *((mpplas::GFx*)table.get(clientId, varId2)));
+
+      try {
+        (*mat)(row,col) = elem;
+
+        *retvalP = xmlrpc_c::value_nil();
+
+      } catch( const std::exception &e ){
+        throw girerr::error( e.what() );
+      }
+
+    }
+
+};
+
+class MGFxGetElementMethod : public xmlrpc_c::method {
+  public:
+    
+    MGFxGetElementMethod() {
+      this->_signature = "s:isii";
+      this->_help = "Gets an element of the matrix";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const int row(paramList.getInt(2));
+      const int col(paramList.getInt(3));
+
+      paramList.verifyEnd(4);
+
+      const mpplas::MatrixGFx* const mat( (mpplas::MatrixGFx*)table.get(clientId, varId1));
+
+      try{
+        const std::string varId = table.set(clientId, new mpplas::GFx( mat->operator()(row,col) ), "GFx");
+        *retvalP = xmlrpc_c::value_string( varId );
+      } catch( const std::exception &e ){
+        throw girerr::error( e.what() );
+      }
+    }
+
+};
+
+
+class MGFxAddMethod : public xmlrpc_c::method {
+  public:
+    
+    MGFxAddMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Adds two finite fields matrices together";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        const mpplas::MatrixGFx op1( *((mpplas::MatrixGFx*)table.get(clientId, varId1)));
+        const mpplas::MatrixGFx op2( *((mpplas::MatrixGFx*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixGFx(op1+op2), "MGFx");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+
+};
+class MGFxSubMethod : public xmlrpc_c::method {
+  public:
+    
+    MGFxSubMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Adds two finite fields matrices together";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        const mpplas::MatrixGFx op1( *((mpplas::MatrixGFx*)table.get(clientId, varId1)));
+        const mpplas::MatrixGFx op2( *((mpplas::MatrixGFx*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixGFx(op1-op2), "MGFx");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+
+};
+
+class MGFxMulMethod : public xmlrpc_c::method {
+  public:
+    
+    MGFxMulMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Multiplies two finite fields matrices";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        const mpplas::MatrixGFx op1( *((mpplas::MatrixGFx*)table.get(clientId, varId1)));
+        const mpplas::MatrixGFx op2( *((mpplas::MatrixGFx*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixGFx(op1*op2), "MGFx");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+
+};
+class MGFxDivMethod : public xmlrpc_c::method {
+  public:
+    
+    MGFxDivMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Multiplies two finite fields matrices";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        const mpplas::MatrixGFx op1( *((mpplas::MatrixGFx*)table.get(clientId, varId1)));
+        const mpplas::MatrixGFx op2( *((mpplas::MatrixGFx*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixGFx(op1/op2), "MGFx");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+
+};
+
+class MGFxInvMethod : public xmlrpc_c::method {
+  public:
+    
+    MGFxInvMethod() {
+      this->_signature = "s:is";
+      this->_help = "Returns the inverse of the given matrix";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        const mpplas::MatrixGFx op1( *((mpplas::MatrixGFx*)table.get(clientId, varId1)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixGFx( mpplas::MatrixHelpers::invert(op1) ), "MGFx");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+
+};
+class MGFxSolveMethod : public xmlrpc_c::method {
+  public:
+    
+    MGFxSolveMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Solves the system specified by an square matrix and a vector";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+        const std::string varId2(paramList.getString(2));
+
+        paramList.verifyEnd(3);
+
+        const mpplas::MatrixGFx op1( *((mpplas::MatrixGFx*)table.get(clientId, varId1)));
+        const mpplas::MatrixGFx op2( *((mpplas::MatrixGFx*)table.get(clientId, varId2)));
+
+        try{
+          const std::string varId = table.set(clientId, new mpplas::MatrixGFx( mpplas::MatrixHelpers::solve(op1,op2) ), "MGFx");
+
+          *retvalP = xmlrpc_c::value_string( varId );
+        }catch( const std::exception &e ){
+          throw girerr::error( e.what() );
+        }
+
+      }
+
+};
+
+class MGFxTransposeMethod : public xmlrpc_c::method {
+  public:
+    
+    MGFxTransposeMethod() {
+      this->_signature = "s:is";
+      this->_help = "Returns the transpose of the given matrix";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+        const int clientId(paramList.getInt(0));
+        const std::string varId1(paramList.getString(1));
+
+        paramList.verifyEnd(2);
+
+        mpplas::MatrixGFx op1( *((mpplas::MatrixGFx*)table.get(clientId, varId1)));
+        op1.transpose();
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixGFx( op1 ), "MGFx");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+
+};
 
 
 /***********************************************
@@ -1701,6 +2287,39 @@ class GenPrimeMethod : public xmlrpc_c::method {
     mpplas::GenPrimos* primes;
 };
 
+class GenBoundedPrimeMethod : public xmlrpc_c::method {
+  public:
+    
+    GenBoundedPrimeMethod() {
+      this->_signature = "s:is";
+      this->_help = "Returns a prime lesser of equal to the given integer"; 
+
+      mpplas::MethodsFactory::getInstance()->getFunc(primes);
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+      const int clientId(paramList.getInt(0));
+      const std::string varId(paramList.getString(1));
+      paramList.verifyEnd(2);
+
+      const mpplas::Z bound( *((mpplas::Z*)table.get(clientId, varId)));
+
+      try{
+        mpplas::Z* const op( new mpplas::Z(primes->getPrime( bound ) ));
+
+        *retvalP = xmlrpc_c::value_string( table.set(clientId, op, "Z") );
+      }
+      catch( const std::exception &e ){
+        throw girerr::error( e.what() );
+      }
+
+    }
+
+  private:
+    mpplas::GenPrimos* primes;
+};
+
+
 class GenStrongPrimeMethod : public xmlrpc_c::method {
   public:
     
@@ -1794,6 +2413,76 @@ class LCMMethod : public xmlrpc_c::method {
     mpplas::LCM* lcm;
 };
 
+/***********************************************
+ ****************    SYMBOLS *******************
+ ***********************************************/
+class LegendreSymbolMethod : public xmlrpc_c::method {
+  public:
+
+    LegendreSymbolMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Returns the legendre symbol for the integer and the prime given"; 
+
+      mpplas::MethodsFactory::getInstance()->getFunc(legendre);
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const std::string varId2(paramList.getString(2));
+      paramList.verifyEnd(3);
+
+ 
+      try{ 
+        const mpplas::Z a( *((mpplas::Z*)table.get(clientId, varId1)));
+        const mpplas::Z p( *((mpplas::Z*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::Z(legendre->simboloLegendre(a,p)), "Z");
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+      catch(const std::exception& e){
+        throw(girerr::error(e.what()));
+      }
+    }
+
+  private:
+    mpplas::SimboloLegendre* legendre;
+};
+
+class JacobiSymbolMethod : public xmlrpc_c::method {
+  public:
+
+    JacobiSymbolMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Returns the jacobi symbol for the given integers"; 
+
+      mpplas::MethodsFactory::getInstance()->getFunc(jacobi);
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const std::string varId2(paramList.getString(2));
+      paramList.verifyEnd(3);
+
+ 
+      try{ 
+        const mpplas::Z a( *((mpplas::Z*)table.get(clientId, varId1)));
+        const mpplas::Z p( *((mpplas::Z*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::Z(jacobi->simboloJacobi(a,p)), "Z");
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+      catch(const std::exception& e){
+        throw(girerr::error(e.what()));
+      }
+    }
+
+  private:
+    mpplas::SimboloJacobi* jacobi;
+};
 
 /***********************************************
  ****************    GCD    ********************
@@ -2201,16 +2890,39 @@ int main(int const, const char ** const) {
     myRegistry.addMethod("_zFactorial", new ZFactorialMethod);
 
     myRegistry.addMethod("_mzCreate", new MZCreate);
+    myRegistry.addMethod("_mzCreateDims", new MZCreateFromDims);
     myRegistry.addMethod("_mzAdd", new MZAddMethod);
     myRegistry.addMethod("_mzSub", new MZSubMethod);
     myRegistry.addMethod("_mzMul", new MZMulMethod);
     myRegistry.addMethod("_mzDiv", new MZDivMethod);
+    myRegistry.addMethod("_mzSetElement", new MZSetElementMethod);
+    myRegistry.addMethod("_mzGetElement", new MZGetElementMethod);
+    myRegistry.addMethod("_mzTranspose", new MZTransposeMethod);
 
     myRegistry.addMethod("_mrCreate", new MRCreate);
+    myRegistry.addMethod("_mrCreateDims", new MRCreateFromDims);
     myRegistry.addMethod("_mrAdd", new MRAddMethod);
     myRegistry.addMethod("_mrSub", new MRSubMethod);
     myRegistry.addMethod("_mrMul", new MRMulMethod);
-    myRegistry.addMethod("_mrDiv", new MRDivMethod);
+    myRegistry.addMethod("_mrDiv", new MRDivMethod); 
+    myRegistry.addMethod("_mrInv", new MRInvMethod); 
+    myRegistry.addMethod("_mrSolve", new MRSolveMethod); 
+    myRegistry.addMethod("_mrSetElement", new MRSetElementMethod);
+    myRegistry.addMethod("_mrGetElement", new MRGetElementMethod);
+    myRegistry.addMethod("_mrTranspose", new MRTransposeMethod);
+
+    myRegistry.addMethod("_mgfxCreate", new MGFxCreate);
+    myRegistry.addMethod("_mgfxCreateDims", new MGFxCreateFromDims);
+    myRegistry.addMethod("_mgfxAdd", new MGFxAddMethod);
+    myRegistry.addMethod("_mgfxSub", new MGFxSubMethod);
+    myRegistry.addMethod("_mgfxMul", new MGFxMulMethod);
+    myRegistry.addMethod("_mgfxDiv", new MGFxDivMethod); 
+    myRegistry.addMethod("_mgfxInv", new MGFxInvMethod); 
+    myRegistry.addMethod("_mgfxSolve", new MGFxSolveMethod); 
+    myRegistry.addMethod("_mgfxSetElement", new MGFxSetElementMethod);
+    myRegistry.addMethod("_mgfxGetElement", new MGFxGetElementMethod);
+    myRegistry.addMethod("_mgfxTranspose", new MGFxTransposeMethod);
+
 
     myRegistry.addMethod("_getHRString", new GetHRStringMethod);
 
@@ -2237,10 +2949,14 @@ int main(int const, const char ** const) {
     myRegistry.addMethod("getRandomZLessThan", new RandomZLessThanMethod);
 
     myRegistry.addMethod("getPrime", new GenPrimeMethod);
+    myRegistry.addMethod("getPrimeBounded", new GenBoundedPrimeMethod);
     myRegistry.addMethod("getStrongPrime", new GenStrongPrimeMethod);
     myRegistry.addMethod("isPrime", new PrimeTestMethod);
 
     myRegistry.addMethod("lcm", new  LCMMethod);
+
+    myRegistry.addMethod("legendreSymbol", new  LegendreSymbolMethod);
+    myRegistry.addMethod("jacobiSymbol", new  JacobiSymbolMethod);
 
     myRegistry.addMethod("gcd", new  GCDMethod);
     myRegistry.addMethod("gcdext", new  GCDExtMethod);

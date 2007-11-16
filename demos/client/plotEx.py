@@ -4,13 +4,12 @@ from Client import *
 def piEuler(last, first=3, initialCount=1):
   assert(last >= first)
   numPrimes = initialCount
-  beginBatch()
   if not (first & 0x1): #even
     first += 1
   for i in xrange(first,last,2):
-    isPrime(i)
-  res = runBatch()
-  numPrimes += res.count(True)
+    if isPrime(Z(i)):
+      numPrimes += 1
+
   return numPrimes
 
 t1 = arange(100,1001,100)

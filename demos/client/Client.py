@@ -698,10 +698,23 @@ class MZ(Variable): #matrix Z
 
   def __str__(self):
     return _getHRString(self.getId())
+ 
+  def getTranspose(self):
+    return _mzTranspose(self)
 
   def getDimensions(self):
     pyRepr = matrixToPyRep(repr(self))
     return (len(pyRepr), len(pyRepr[0]))
+
+  def getSubMatrix(self, rows=(0,), cols=(0,)):
+    rows = list(rows)
+    cols = list(cols)
+    matDims = self.getDimensions()
+    if len(rows) == 1:
+      rows.append( matDims[0]-1 )
+    if len(cols) == 1:
+      cols.append( matDims[1]-1 )
+    return _mzSlice(self, rows[0], rows[1], cols[0], cols[1])
 
 
 #########################################################
@@ -782,6 +795,16 @@ class MR(Variable): #matrix R
   def getDimensions(self):
     pyRepr = matrixToPyRep(repr(self))
     return (len(pyRepr), len(pyRepr[0]))
+ 
+  def getSubMatrix(self, rows=(0,), cols=(0,)):
+    rows = list(rows)
+    cols = list(cols)
+    matDims = self.getDimensions()
+    if len(rows) == 1:
+      rows.append( matDims[0]-1 )
+    if len(cols) == 1:
+      cols.append( matDims[1]-1 )
+    return _mgfxSlice(self, rows[0], rows[1], cols[0], cols[1])
 
 
 
@@ -857,6 +880,16 @@ class MGFx(Variable): #matrix GFx
   def getDimensions(self):
     pyRepr = matrixToPyRep(repr(self))
     return (len(pyRepr), len(pyRepr[0]))
+ 
+  def getSubMatrix(self, rows=(0,), cols=(0,)):
+    rows = list(rows)
+    cols = list(cols)
+    matDims = self.getDimensions()
+    if len(rows) == 1:
+      rows.append( matDims[0]-1 )
+    if len(cols) == 1:
+      cols.append( matDims[1]-1 )
+    return _mgfxSlice(self, rows[0], rows[1], cols[0], cols[1])
 
 
 

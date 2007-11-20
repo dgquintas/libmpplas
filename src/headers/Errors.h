@@ -18,8 +18,7 @@ namespace mpplas{
     // Tipos báicos
     /** Clase base de todas las excepciones (errores) que comprende
      * la librería. */
-    class Exception: public std::exception 
-    {
+    class Exception: public std::exception {
       public:
         virtual const char* what(void) const throw() {
           return _msg.c_str();
@@ -35,8 +34,7 @@ namespace mpplas{
      * For instance, division by zero, non-invertible element, etc.
      * 
      * */
-    class InvalidArgument: public Exception
-    {
+    class InvalidArgument: public Exception {
       public:
         InvalidArgument( std::string msg = "<empty>" ){
           _msg += "Invalid Argument error: ";

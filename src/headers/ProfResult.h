@@ -11,7 +11,7 @@
 
 namespace mpplas{
 
-  typedef Digit OpsCount;
+  typedef SignedDigit OpsCount;
 
   class ProfResult {
 

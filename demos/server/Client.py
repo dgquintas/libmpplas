@@ -4,9 +4,29 @@
 # $Id$
 #
 
+
 from RPCServer import RPCServer
 from Configuration import Configuration
 from xmlrpclib import Fault,MultiCall
+import threading
+import thread
+import Queue
+import wx
+import wx.lib.delayedresult as delayedresult
+
+global filteredMethods
+global global_config
+global clientId
+global createCount
+
+class Variable(object):
+  def __init__(self, varId):
+    self.__varId = varId;
+  def getId(self):
+    return self.__varId;
+  def setId(self, newId):
+    self.__varId = newId;
+    
 
 def __elemsToStr(ls):
   newl = []
@@ -14,8 +34,7 @@ def __elemsToStr(ls):
     newl.append(str(elem))
   return newl
 
-global filteredMethods
-global global_config
+
 
 def beginBatch():
   RPCServer.getInstance().setBatch(True)
@@ -29,41 +48,69 @@ def runBatch(reset = True):
 def endBatch():
   RPCServer.getInstance().setBatch(False)
 
+def toInt(arg):
+  res = 0;
+  if isinstance(arg, Z):
+  # recover the data and cast it to an XMLRPC integer (32 bits) 
+    res = int(getData(arg.getId()))
+  else:
+    res = int(arg)
+
+  return res
+
+
 def initializeClient(configFileName = 'config.cfg'):
   global global_config
+  global clientId
+  global createCount
+  global gcThreshold
+  createCount = 0
   global_config = Configuration(configFileName)
   rpcServer = RPCServer.getInstance( global_config.RPCServerURL )
-
+  clientId = rpcServer.getServer()._requestClientId()
+  gcThreshold = global_config.GCThreshold
   global filteredMethods
   filteredMethods = filter(lambda mName: mName[:7] != 'system.' and mName[0] != '_', 
                             rpcServer.getInteractiveServer().system.listMethods())
 
   proxyFuncsSrc = """def %(methodName)s(*args):
     \"\"\"%(methodHelp)s\"\"\"
-    methodName = '%(methodName)s'[:2]
-    newArgs = []
+    global createCount
+    global gcThreshold 
+    mName = '%(methodName)s'
+    newArgs = [clientId]
     rpcServer = RPCServer.getInstance()
+
+
     for arg in args:
       if type(arg) in ( type(()), type([]) ):
         newArgs.append( __elemsToStr(arg) )
+      elif isinstance(arg, Variable):
+        newArgs.append(arg.getId())
       else:
-        newArgs.append(str(arg))
+        newArgs.append(arg)
     try:
       result = rpcServer.getServer().%(methodName)s(*newArgs)
-    except Fault, e:
-      raise "Exception from the server: " + e.faultString   
     except:
       raise
-    
-    if type(result) == type(""):
-      if methodName[0] == 'z':
-        result = Z(result)
-      elif methodName[0] == 'r':
-        result = R(result)
-      elif methodName[:2] == 'mz':
-        result = MZ(result)
-    # else, do not chage its type   
-    
+
+
+    #result's first chars before the "-" indicate the type of the result
+    #UNLESS the result is an string repr of the number, in which case
+    #it is not processed
+    if isinstance(result, str):
+      tpe = result.split("-",1)[0]
+      if tpe.isalpha():
+        strToEval = "%%s(id='%%s')" %% (tpe, result)
+        result = eval(strToEval)
+
+    if mName.endswith("Create"):
+      createCount += 1
+      if createCount > gcThreshold:
+        runGC(result.getId())
+        createCount = 0
+
+
     return result
 """
   for mName in filteredMethods:
@@ -77,6 +124,112 @@ def initializeClient(configFileName = 'config.cfg'):
     } in globals()
 
   return globals()
+
+
+
+###################################################################
+
+class ThreadRunner(threading.Thread):
+  queue = Queue.Queue()
+  stopThreads = False
+  stopLock = threading.Lock()
+
+  def __init__(self):
+    threading.Thread.__init__(self)
+    ThreadRunner.results = Queue.Queue()
+
+  def stop(cls, status = True):
+    cls.stopLock.acquire()
+    cls.stopThreads = status
+    cls.stopLock.release()
+  stop = classmethod(stop)
+
+  def isStopped(cls):
+    cls.stopLock.acquire()
+    status = cls.stopThreads
+    cls.stopLock.release()
+    return status
+  isStopped = classmethod(isStopped)
+
+
+  def run(self):
+    while True and ( not ThreadRunner.isStopped() ):
+      try:
+        taskWithIndex = ThreadRunner.queue.get_nowait()
+        self.id, task = taskWithIndex
+      except Queue.Empty:
+        break
+      try:
+        exec task in globals(), locals()
+        self.appendResult(locals()['result'])
+      except Exception, e:
+        self.appendResult("ERROR: " + str(e))
+      ThreadRunner.queue.task_done()
+    
+    if ThreadRunner.isStopped():
+      #discard the rest of the tasks
+      ThreadRunner.stop(False)
+      while True:
+        try:
+          ThreadRunner.queue.get_nowait()
+          ThreadRunner.queue.task_done()
+        except (ValueError, Queue.Empty):
+          break
+ 
+
+
+  def appendResult(self, result):
+    ThreadRunner.results.put( (self.id, result) )
+
+  def getResults(cls):
+    return cls.results
+  getResults = classmethod(getResults)
+
+
+def runInParallel( listOfSnippets, numberOfThreads ):
+  runInParallel.res = None
+  progress = wx.ProgressDialog("Tasks completion progress",
+                               "",
+                               maximum = len(listOfSnippets),
+                               parent=None,
+                               style = wx.PD_CAN_ABORT
+                                | wx.PD_APP_MODAL
+                                | wx.PD_ELAPSED_TIME
+                                | wx.PD_REMAINING_TIME
+                                | wx.PD_SMOOTH
+                                )
+
+  def doRun():
+    for i in xrange( min(numberOfThreads, len(listOfSnippets)) ):
+      t = ThreadRunner()
+      t.start()
+    ThreadRunner.queue.join()
+    return ThreadRunner.getResults()
+
+  def consumer(delayedResult):
+    resQueue = delayedResult.get()
+    runInParallel.res = [None]*resQueue.qsize()
+    while not resQueue.empty():
+      elem = resQueue.get()
+      runInParallel.res[elem[0]] = elem[1]
+
+
+  for taskN, snippet in enumerate(listOfSnippets):
+    ThreadRunner.queue.put((taskN, snippet))
+
+  delayedresult.startWorker(consumer, doRun)
+  while (threading.activeCount() > 1) or (not ThreadRunner.queue.empty()):
+    wx.MilliSleep(250)
+    i = (len(listOfSnippets) - ThreadRunner.queue.qsize())-(threading.activeCount()-1)
+    keepgoing = progress.Update( i )[0]
+    if not keepgoing: 
+      ThreadRunner.stop()
+      break
+  progress.Destroy()
+
+  return runInParallel.res
+
+######################################################################################
 
 def listFuncs():
   return filteredMethods
@@ -108,9 +261,6 @@ def performUpdate():
 
   return backupFname
 
-def hasBeenUpdated(self):
-  return self.hasBeenUpdated
-
 
 ######################################################
 #
@@ -118,145 +268,238 @@ def hasBeenUpdated(self):
 #
 ######################################################
 
-class Z(object):
-
-  def __init__(self, zStr=""):
-    self.__integerStr = str(zStr)
+class Z(Variable):
+  def __init__(self, zStr="0", id=None):
+    if id:
+      Variable.__init__(self, id)
+    else:
+      Variable.__init__(self, zCreate(str(zStr)).getId())
 
   def __add__(self, anotherZ): 
+    if not isinstance(anotherZ,type(self)):
+      anotherZ = Z(str(anotherZ))
     return zAdd(self, anotherZ )
   def __iadd__(self, anotherZ): 
-    self.__integerStr = str(zAdd(self, anotherZ))
+    self.setId( self.__add__(anotherZ).getId() )
     return self
 
   def __sub__(self, anotherZ): 
-    return zSub(self, anotherZ )
+    if not isinstance(anotherZ,type(self)):
+      anotherZ = Z(str(anotherZ))
+    return zSub(self, anotherZ)
   def __isub__(self, anotherZ): 
-    self.__integerStr = str(zSub(self, anotherZ))
+    self.setId( self.__sub__(anotherZ).getId() )
     return self
 
   def __mul__(self, anotherZ): 
-    return zMul(self, anotherZ )
+    if not isinstance(anotherZ,type(self)):
+      anotherZ = Z(str(anotherZ))
+    return zMul(self, anotherZ)
   def __imul__(self, anotherZ): 
-    self.__integerStr = str(zMul(self, anotherZ))
+    self.setId( self.__mul__(anotherZ).getId() )
     return self
+
 
   def __div__(self, anotherZ): 
-    return zDiv(self, anotherZ )
+    if not isinstance(anotherZ,type(self)):
+      anotherZ = Z(str(anotherZ))
+    return zDiv(self, anotherZ)
   def __idiv__(self, anotherZ): 
-    self.__integerStr = str(zDiv(self, anotherZ))
+    self.setId( self.__div__(anotherZ).getId() )
     return self
 
+
   def __mod__(self, anotherZ): 
-    return zMod(self, anotherZ )
-  def __mod__(self, anotherZ): 
-    self.__integerStr = str(zMod(self, anotherZ))
+    if not isinstance(anotherZ,type(self)):
+      anotherZ = Z(str(anotherZ))
+    return zMod(self, anotherZ)
+  def __imod__(self, anotherZ): 
+    self.setId( self.__mod__(anotherZ).getId() )
     return self
- 
+
 
   def __lt__(self, anotherZ):
-    return long(str(self)) < long(str(anotherZ))
+    return long(self.__str__()) < long(anotherZ.__str__())
   def __le__(self, anotherZ):
-    return long(str(self)) <= long(str(anotherZ))
+    return long(self.__str__()) <= long(anotherZ.__str__())
   def __eq__(self, anotherZ):
-    return long(str(self)) == long(str(anotherZ))
+    return long(self.__str__()) == long(anotherZ.__str__())
   def __ne__(self, anotherZ):
-    return long(str(self)) != long(str(anotherZ))
+    return long(self.__str__()) != long(anotherZ.__str__())
   def __gt__(self, anotherZ):
-    return long(str(self)) > long(str(anotherZ))
+    return long(self.__str__()) > long(anotherZ.__str__())
   def __ge__(self, anotherZ):
-    return long(str(self)) >= long(str(anotherZ))
+    return long(self.__str__()) >= long(anotherZ.__str__())
 
 
   def __len__(self):
-    return len(self.__integerStr);
-
-  def __getitem__(self, key):
-    return self.__integerStr[key]
+    return zBitLength(self.getId())
 
   def __repr__(self):
-    return 'Z("' + self.__integerStr + '")'
+#    return "%s with id %s" % (type(self),self.getId())
+    return self.__str__()
 
   def __str__(self):
-    return self.__integerStr
+    res = getData(self.getId())
+    return res
 
 
 #######################################################################
 
-class R(object):
-
-  def __init__(self, rStr=""):
-    self.__realStr = str(rStr)
+class R(Variable):
+  def __init__(self, rStr="0", id=None):
+    if id:
+      Variable.__init__(self, id)
+    else:
+      #create the instance on the server 
+      Variable.__init__(self, rCreate(str(rStr)).getId())
 
   def __add__(self, anotherR): 
+    if not isinstance(anotherR,type(self)):
+      anotherR = R(str(anotherR))
     return rAdd(self, anotherR )
   def __iadd__(self, anotherR): 
-    self.__realStr = str(rAdd(self, anotherR))
+    self.setId( self.__add__(anotherR).getId() )
     return self
 
   def __sub__(self, anotherR): 
-    return rSub(self, anotherR )
+    if not isinstance(anotherR,type(self)):
+      anotherR = R(str(anotherR))
+    rSub(self, anotherR)
   def __isub__(self, anotherR): 
-    self.__realStr = str(rSub(self, anotherR))
+    self.setId( self.__sub__(anotherR).getId() )
     return self
 
   def __mul__(self, anotherR): 
-    return rMul(self, anotherR )
+    if not isinstance(anotherR,type(self)):
+      anotherR = R(str(anotherR))
+    return rMul(self, anotherR)
   def __imul__(self, anotherR): 
-    self.__realStr = str(rMul(self, anotherR))
+    self.setId( self.__mul__(anotherR).getId() )
     return self
+
 
   def __div__(self, anotherR): 
-    return rDiv(self, anotherR )
+    if not isinstance(anotherR,type(self)):
+      anotherR = R(str(anotherR))
+    return rDiv(self, anotherR)
   def __idiv__(self, anotherR): 
-    self.__realStr = str(rDiv(self, anotherR))
+    self.setId( self.__div__(anotherR).getId() )
     return self
 
 
-  def __lt__(self, anotherR):
-    return long(str(self)) < long(str(anotherR))
-  def __le__(self, anotherR):
-    return long(str(self)) <= long(str(anotherR))
-  def __eq__(self, anotherR):
-    return long(str(self)) == long(str(anotherR))
-  def __ne__(self, anotherR):
-    return long(str(self)) != long(str(anotherR))
-  def __gt__(self, anotherR):
-    return long(str(self)) > long(str(anotherR))
-  def __ge__(self, anotherR):
-    return long(str(self)) >= long(str(anotherR))
+  def __mod__(self, anotherR): 
+    if not isinstance(anotherR,type(self)):
+      anotherR = R(str(anotherR))
+    return rMod(self, anotherR)
+  def __imod__(self, anotherR): 
+    self.setId( self.__mod__(anotherR).getId() )
+    return self
+ 
+#TODO: no se pueden usar operadores de python. hay que recurrir
+#a los operadores de la libreria apropiaos
+#  def __lt__(self, anotherZ):
+#    return long(self.__str__()) < long(anotherZ.__str__())
+#  def __le__(self, anotherZ):
+#    return long(self.__str__()) <= long(anotherZ.__str__())
+#  def __eq__(self, anotherZ):
+#    return long(self.__str__()) == long(anotherZ.__str__())
+#  def __ne__(self, anotherZ):
+#    return long(self.__str__()) != long(anotherZ.__str__())
+#  def __gt__(self, anotherZ):
+#    return long(self.__str__()) > long(anotherZ.__str__())
+#  def __ge__(self, anotherZ):
+#    return long(self.__str__()) >= long(anotherZ.__str__())
 
 
   def __len__(self):
-    return len(self.__realStr);
-
-  def __getitem__(self, key):
-    return self.__realStr[key]
+    return rBitLength(self.getId())
 
   def __repr__(self):
-    return 'R("' + self.__realStr + '")'
+#    return "%s with id %s" % (type(self),self.getId())
+    return self.__str__()
 
   def __str__(self):
-    return self.__realStr
+    res = getData(self.getId())
+    return res
 
 
 ###############################################################################
 
-class MZ(object): #matrix Z
 
-  def __init__(self, mzStr=""):
-    self.__matrixZStr = str(mzStr)
+class GF(Variable):
+  def __init__(self, poly="[(0,0)]", p=2, n=1, usePrimitive=False, id=None):
+    if id:
+      Variable.__init__(self, id)
+    else:
+      if not isinstance(p,Variable):
+        p = Z(str(p))
+      Variable.__init__(self, gfCreate(poly,p,n,usePrimitive).getId())
+
+  def __add__(self, anotherGF): 
+    return gfAdd(self, anotherGF )
+  def __iadd__(self, anotherGF): 
+    self.setId( self.__add__(anotherGF).getId() )
+    return self
+
+  def __mul__(self, anotherGF): 
+    return gfMul(self, anotherGF )
+  def __imul__(self, anotherGF): 
+    self.setId( self.__mul__(anotherGF).getId() )
+    return self
+
+
+  def __repr__(self):
+#    return "%s with id %s" % (type(self),self.getId())
+    res = getData(self)
+    return res
+
+  def __str__(self):
+    return getHRString(self)
+    return res
+
+
+  def getProperties(self):
+    return gfGetProperties(self)
+
+  def getValue(self):
+    return gfGetValue(self)
+
+  def setValue(self, anInteger):
+    if not isinstance(anInteger,Variable):
+      anInteger = Z(str(anInteger))
+    return gfSetValue(self, anInteger)
+
+
+
+
+###############################################################################
+
+class MZ(Variable): #matrix Z
+
+  def __init__(self, mzStr="[]", id=None):
+    if id:
+      Variable.__init__(self, id)
+    else:
+      #create the instance on the server 
+      Variable.__init__(self,mzCreate(str(mzStr)).getId())
+
 
   def __add__(self, anotherMZ): 
-    return mzAdd(self.__matrixZStr, anotherMZ.__matrixZStr )
+    if not isinstance(anotherMZ,type(self)):
+      anotherMZ = MZ(repr(anotherMZ))
+    return mzAdd(self, anotherMZ )
   def __iadd__(self, anotherMZ): 
-    self.__matrixZStr = str( mzAdd( self.__matrixZStr, anotherMZ.__matrixZStr ) )
+    self.setId( self.__add__(anotherMZ).getId() )
     return self
- 
+
+
   def __mul__(self, anotherMZ): 
-    return mzMul(self.__matrixZStr, anotherMZ.__matrixZStr )
+    if not isinstance(anotherMZ,type(self)):
+      anotherMZ = MZ(repr(anotherMZ))
+    return mzMul(self, anotherMZ )
   def __imul__(self, anotherMZ): 
-    self.__matrixZStr = str( mzMul( self.__matrixZStr, anotherMZ.__matrixZStr ) )
+    self.setId( self.__mul__(anotherMZ).getId() )
     return self
 
 
@@ -265,10 +508,12 @@ class MZ(object): #matrix Z
     return pyRep[row]
 
   def __repr__(self):
-    return 'MZ("' + self.__matrixZStr + '")'
+    #return "%s with id %s" % (type(self),self.getId())
+    res = getData(self.getId())
+    return res
 
   def __str__(self):
-    return RPCServer.getInstance().getInteractiveServer()._mzPPrint(self.__matrixZStr)
+    return getHRString(self.getId())
 
   def __strToPyRep(self, str):
     res = []
@@ -287,6 +532,9 @@ class MZ(object): #matrix Z
     str = "[ " + str +" ]"
 
     return str
+
+#########################################################
+
 
 
 import sys

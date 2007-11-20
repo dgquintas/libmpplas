@@ -114,8 +114,16 @@ Matrix<T, Alloc> Matrix<T, Alloc>::operator()(int n1, int n2,
   }
 
 
-  if( (n1 > n2) || (m1 > m2) ){
-    assert(false); //FIXME: raise exception instead
+  if( (n1 > n2) ){
+    std::ostringstream oss;
+    oss << "Invalid interval for submatrix operator (rows)";
+    throw Errors::InvalidRange(oss.str());
+  }
+
+  if( (m1 > m2) ){
+    std::ostringstream oss;
+    oss << "Invalid interval for submatrix operator (columns)";
+    throw Errors::InvalidRange(oss.str());
   }
 
   const int stride = this->getColumns();

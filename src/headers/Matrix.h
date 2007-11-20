@@ -37,6 +37,21 @@ namespace mpplas {
 
         Matrix<T, Alloc>& operator=(const Matrix<T, Alloc>& rhs);
 
+        /** Linear access operator.
+         *
+         * Returns a reference to the \f$i^{th}\f$ element 
+         * of the matrix, taken as a linear succesion of elements
+         * when considered in a row-major order.
+         * For instance, in a matrix such as
+         *
+         * [ 1 2 ]
+         * [ 3 4 ]
+         * 
+         * an index of \f$3\f$ would return \f$4\f$.
+         *
+         * @param i the (linear) index of the element to return
+         *
+         * @return the \f$i^{th}\f$ element taken linearly in a row-major order. */
         inline T& operator[](int i);
         inline const T& operator[](int i) const;
 
@@ -45,10 +60,32 @@ namespace mpplas {
         inline T& operator()(int i, int j);
         inline const T& operator()(int i, int j) const;
   
+        /** Slicing operator.
+         *
+         * Returns a \f$(n2-n1+1 \times m2-m1+1)\f$ matrix with
+         * elements taken from the matrix on which the method is 
+         * applied on. Note that both the initial and final row/column 
+         * (ie, the \f$n_i,m_i\f$) \em{are} included.
+         *
+         * @param n1 first row to include
+         * @param n2 last row to include
+         * @param m1 first column to include
+         * @param m2 last column to include
+         *
+         * @return a matrix formed as described above  */
         Matrix<T, Alloc> operator()(int n1, int n2, 
                                     int m1, int m2) const;
 
 
+        /** Sets the contents of the matrix from a textual definition.
+         *
+         * The matrix on which the method is applied is modified in place,
+         * with the data gathered from @a str.
+         *
+         * @param str an string containing a textual representation of
+         * a matrix
+         *
+         * @return a reference to *this, after it has been modified. */
         Matrix<T, Alloc>& fromString(const std::string& str);
         
         bool operator==(const Matrix<T, Alloc>& rhs) const;

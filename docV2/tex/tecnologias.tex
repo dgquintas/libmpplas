@@ -59,6 +59,50 @@
   datos de carácter \emph{constante} y \emph{estático}. En código esto se traduce en valores declarados como \texttt{const static}, 
   o bien constantes --que no dejan de ser asimismo un caso particular de estos.
 
+ \subsection{Consideraciones generales}
+ %TODO: poner aqui la referencia a imperfectc++ donde ponia el por que de utilizar el destructor como sitio desde el cual
+ % se lanzan las comprobaciones
+  Un proceso de compilación se interrumpe si y sólo si el compilador se ve forzado a generar código para una expresión inválida. 
+  Existen circustancias en las cuales, incluso si la expresión a compilar es inválida, el proceso de compilación no se interrumpirá
+  porque el proceso de compilado no se ve forzado en ese momento a generar instrucciones para tal sentencia inválida. Por ejemplo:
+
+    
+  %TODO: traducir
+  \subsection{Trait classes}\label{traits}
+  What is a traits class?
+
+  Quoting 17.1.18 in the C++ standard, a traits class is:
+
+    "a class that encapsulates a set of types and functions necessary for template classes and template functions to manipulate objects of types for which they are instantiated."
+
+    The idea is that traits classes are templates used to carry extra information
+    -- especially information that templates can use -- about the classes on which
+    the traits template is instantiated. The nice thing is that the traits class
+    T<C> tacks on said extra information to class C without requiring any change at
+    all to C. Despite all the talk about "tacking on," traits are quite useful --
+    not "tacky" at all.
+
+
+    Pero ¿no realiza acaso esta comprobación el compilador sin necesidad de pasos adicionales? Sólo parcialmente.
+    \cite{%TODO
+    } lo expone de la siguiente forma: 
+  \begin{quote}
+    It's obvious that if C just writes code that tries to invoke T::Clone()
+    without parameters, then such code will fail to compile if there isn't a
+    T::Clone() that can be called without parameters. But that's not enough to
+    answer this question: Just trying to call T::Clone() without parameters would
+    also succeed in calling a Clone() that has defaulted parameters and/or does
+    not return a T*. The goal here is to specifically enforce that T provide a
+    function that looks exactly like this: T* T::Clone().
+  \end{quote}
+
+  \subsubsection{Aplicaciones}
+  El poder garantizar la existencia de ciertos métodos --incluido el tipo de su valor retornado-- para un 
+  tipo $T$ parámetro de una plantilla tiene una aplicación inmediata en los mecanismos de categorización
+  algebraica descritos en la sección \ref{categorizacionAlgebraica}: si un tipo aspira a poder considerarse
+  como, por ejemplo, un grupo, habrá de contar entre otros con un método para el cálculo de la inversa de la 
+  suma, que retorne exactamente un elemento también del grupo (composición interna).
+
   
   \subsection{Asertos estáticos}
   El concepto de \emph{aserto} como «comprobación de la certeza de algo» en el mundo de la programación
@@ -116,13 +160,52 @@
 
   Véase \cite{imperfectc++}\footnote{sección 1.4.8, pág. 25} para un enfoque de este método en más en profundidad.
 
-    \subsubsection{Aplicaciones}
-    %TODO
+  \subsubsection{Aplicaciones}
+  Sus usos principales son los mismos que se le darían al clásico \texttt{assert} en tiempo de compilación: comprobación
+  de casos que nunca deberían llegar a darse. Por ejemplo, en álgebra abstracta se requiere que el anillo que conforma
+  un cuerpo cumpla una serie de propiedades: ser un anillo de división y ser conmutativo para el producto. \emph{Nunca} debería
+  tenerse un cuerpo incumpliendo estas propiedades. De intentar declarar un objeto tal, el compilador debería evitarlo. Pues bien:
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=STATIC\_ASSERT, label=lst:staticassert]
+~Field() {
+(...)
+  STATIC_ASSERT( T::divisionRing );
+  STATIC_ASSERT( T::multCommutative );
+(...)
+}
+\end{lstlisting}
+El anterior código nos lo garantiza. 
 
-  \subsection{Pruebas de paternidad}
+Una aplicación alternativa es el forzar la evaluación de funciones estáticas, que normalmente contendrán otro tipo de comprobaciones en tiempo de compilación. 
+Por ejemplo:
+
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=STATIC\_ASSERT, label=lst:staticassert]
+  ~Group() {
+    STATIC_ASSERT( ValidateRequirements() );
+  }
+(...)
+private:
+  static bool ValidateRequirements() {
+    T (T::*getAddInverse)() const  = &(T::getAddInverse) ;
+    const T& (*getAddIdentity)()  = &(T::getAddIdentity) ;
+    const T& (*getGroupGenerator)()  = &(T::getGroupGenerator) ;
+    return true;
+  }
+\end{lstlisting}
+
+En este ejemplo --también de lo anteriormente expuesto en la sección \ref{traits}-- se requiere que \emph{el compilador}, 
+   evalue las tres asignaciones del método estático \texttt{ValidateRequirements()}. Para esto, se invoca este método 
+   dentro del aserto estático, ya que por la propia naturaleza de éste, evaluará su contenido. Si \texttt{ValidateRequirements}
+   es superado con éxito, el \texttt{return true} que concluye \texttt{ValidateRequirements} evitará que se incumpla
+   la evaluación del aserto estático.
+    
+
+  \subsection{Vínculos de familia}
   El siguiente método para asegurarse que una clase dada hereda de otra se expone en 
   \cite{imperfectc++}\footnote{sección 1.2.1, pág. 5}. Su utilidad, una vez más, deriva del hecho de ser
-  una comprobación \emph{en tiempo de compilación}
+  una comprobación \emph{en tiempo de compilación}. Su equivalente en tiempo de \emph{ejecución} sería 
+  la comprobación de que \texttt{dynamic\_cast<*Base>(instanciaDeriv)} no devuelve un valor nulo. Aun así,
+  esta variante require una \emph{instancia} del tipo derivado, y en cualquier caso, su dominio de aplicación es 
+  totalmente diferente: compilación vs. ejecución.
 
 
   Ver un ejemplo de la utilización de este patrón ayudará a explicar el funcionamiento del mismo. Considérese
@@ -134,27 +217,44 @@ Constraints::must_have_base<S, MPPDataType > dummy2; (*@\label{algparent:MPPData
   \end{lstlisting}
   Este trozo de código se corresponde a la clase \texttt{Polynomial<S>} (véanse las secciones \ref{tipos:polinomios} 
   y \ref{impl:polinomios} para una descripción de este tipo de dato y una pormenorización de sus detalles de 
-  implementacion, respectivamente). En la línea \ref{algparent:Ring} se comprueba que el tipo de plantilla S 
-  --que recordemos se corresponde al tipo de los coeficientes del polinomio-- 
-  \ref{algparent:MPPDataType} 
+  implementacion, respectivamente). En sendas líneas se comprueba que el tipo de plantilla $S$ 
+  --que recordemos se corresponde al tipo de los coeficientes del polinomio-- «es un» anillo y un tipo de dato
+  «de la biblioteca». \footnote{que el tipo $S$ verifique las propiedades algebraicas de un anillo por el mero hecho de 
+  heredar de la clase \texttt{Ring} lo aseguran los mecanismos de categorización algebraica expuestos en la
+ sección \ref{categorizacionAlgebraica} --los cuales, recuérdese, se valen precisamente de mecanismos de comprobación
+  en tiempo de compilación}.
 
-  El código implementando el patrón de comprobación de paternidad se muestra en el listado \ref{lst:musthavebase}.
+  Por tanto, \texttt{must\_have\_base<TipoHijo, TipoBaseEsperado>} compilará sin problemas si efectivamente \texttt{TipoHijo} 
+  hereda de \texttt{TipoBaseEsperado}. Esta relación de herencia no tiene que ser necesariamente padre-hijo: se aprecia
+  en el siguiente listado de código que implementa este patrón:
+
   \begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left, caption=Verificación de paternidad en tiempo de compilación, label=lst:musthavebase]
 template<typename D, typename B>
 struct must_have_base{
   ~must_have_base(){
-    void(*p)(D*, B*) __attribute__ ((__unused__)) = constraints;
+    void(*p)(D*, B*) = constraints;
   }
   private:
   static void constraints(D* pd, B* pb){
-    pb = pd;
+    pb = pd;  (*@\label{algmusthavebase:quiz}@*)
   }
 }; 
   \end{lstlisting}
 
+  En la línea \ref{algmusthavebase:quiz} se encuentra el meollo del método. Si es posible realizar una conversión desde un puntero del tipo derivado --\texttt{pd}--
+  a un puntero del tipo base --\texttt{pb}-- sin ningún tipo de \textit{cast}, \texttt{pd} resultará cumplir el «ser un» elemento del tipo base. Es por esto que incluso
+  si la relacion tipo derivado-tipo base no es de herencia directa, también funcionaría, al poder realizarse dicha asignación.%TODO: buscar ref en el standar de por que todo esto.
 
-    \subsubsection{Aplicaciones}
-    %TODO
+  
+  \subsubsection{Aplicaciones}
+  Su campo de aplicación fundamental son las clases parametrizadas en las cuales se desea comprobar que sus parámetros de tipo cumplen ciertas
+  propiedades «familiares», tal como se ha visto para el caso del tipo de los coeficientes en polinomios. Otra de las aplicaciones dadas a
+  este mecanismo en la biblioteca ha sido en la implementación del nuevo repositorio de funciones (véase sección \ref{nuevoRepdeFuncs}), para
+  garantizar que tan todo método considerado por el mismo hereda de \texttt{AbstractMethod}. Esto ahorra sorpresas desagradables en tiempo
+  de ejecución si se trata de insertar u obtener una instancia de un objeto arbitrario: si se tratase de hacer esto, gracias a este mecanismo, 
+  siquiera se superaría la etapa de compilación.
+
+    
 
 \section{Programación orientada a aspectos (AOP)}
 

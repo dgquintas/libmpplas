@@ -48,7 +48,7 @@
   - system info
     - cpu info
     - compilation config
-  - preprocesador en python
+  - preprocesador en python => necesario por uso de aop
   - el cliente en python
   - el mecanismo de perfilado basado en aop
 
@@ -58,10 +58,23 @@
 en la particularización de estructuras genericas
 
 
-\section{El nuevo repositorio de funciones}
+\section{El nuevo repositorio de funciones}\ref{nuevoRepdeFuncs}
 
-\section{Una nueva cpu}
-- cpu vectorial
+\section{La CPU SIMD}
+Descrita en la sección \ref{basico:cpusimd}, esta CPU virtual consigue trabajar
+no sólo con sus operandos de forma intrínsecamente paralela sino también con
+tres tipos diferentes de datos. Todo ello con una interfaz común que aisla 
+al usuario programador de los entresijos de su funcionamiento. Sin embargo no se
+consigue este comportamiento por arte de mágia.
+
+\subsection{El tipo \texttt{SIMDDigit}}
+\subsection{El problema del alineamiento}
+\subsection{Mismo fin, diferentes medios}
+no solo el soporte de tres tipos, sino tambien la forma subyacente de procesarlos
+en función de las tecnologias disponibles.
+
+
+
 
 
 \section{La utilidad de fingir}
@@ -76,7 +89,7 @@ en la particularización de estructuras genericas
 \section{Implementación de tipos}
   \subsection{El tipo \emph{\texttt{MPPDataType}}\index{tipos!MPPDataType} }
 
-  \subsection{Categorización algebraica}
+  \subsection{Categorización algebraica}\label{categorizacionAlgebraica}
   En la figura \ref{fig:categoriasAlgebraicas} se muestra la jerarquía de clases que
   modelan las categorías algebraicas consideradas, junto con sus métodos (estáticos) asociados.  
   \begin{figure}[h]
@@ -99,9 +112,9 @@ en la particularización de estructuras genericas
 }
 (...)
 static bool ValidateRequirements() {
-  T (T::*getAddInverse)() const __attribute__ ((__unused__))  = &(T::getAddInverse) ;
-  const T& (*getAddIdentity)() __attribute__ ((__unused__))  = &(T::getAddIdentity) ;
-  const T& (*getGroupGenerator)() __attribute__ ((__unused__)) = &(T::getGroupGenerator) ;
+  T (T::*getAddInverse)() const = &(T::getAddInverse) ;
+  const T& (*getAddIdentity)() = &(T::getAddIdentity) ;
+  const T& (*getGroupGenerator)() = &(T::getGroupGenerator) ;
 
   return true;
 }
@@ -123,6 +136,12 @@ static bool ValidateRequirements() {
     totalmente genericos
   \subsubsection{Verificando el carácter de $S$}
     tiene que ser como ser como minimo anillo conmutativo con unidad. Verificaciones estaticas
+
+ El requerir que $S$ sea un tipo de la biblioteca responde simplemente a que en la posterior
+  implementación de los métodos, se depende de las características comunes de los tipos de la biblioteca.
+
+
+
   \subsubsection{Operaciones dependientes de $S$}
     p ej, div en udf o  no, idem pa gcd  
 

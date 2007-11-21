@@ -55,24 +55,128 @@
 \section{Desarrollo}
   
   \subsection{Arquitectura}\label{arquitectura}
+  La especificación de una arquitectura depende siempre de los requisitos del sistema 
+  a modelar. En el caso que nos ocupa, los requisitos pueden resumirse en:
+  \begin{itemize}
+    \item Posibilidad de ejecución de múltiples clientes de forma simultánea.
+    \item Independencia entre clientes: cada cliente debe poder considerar ser el único
+    utilizando el servidor (exceptuando cuestiones de rendimiento y/o perfilado).
+  \end{itemize}
+
+  En la figura \ref{fig:archClienteServidor} se representa el esquema adoptado.
+
   \begin{figure}[h]
     \centering
     \includegraphics[width=0.95\textwidth,keepaspectratio]{ClientServerArch} 
     \caption{Esquema de la arquitectura cliente/servidor}\label{fig:archClienteServidor}
   \end{figure}
 
+  Como puede verse en dicha figura, se ha optado por utilizar el protocolo
+  XML-RPC (\cite{xmlrpcspec}), por tratarse de un protocolo perfectamente
+  indicado para la tarea a desempeñar: existen implementaciones del mismo en 
+  prácticamente todos los lenguajes de programación mayoritarios, es sencillo aunque
+  también potente, y muy versatil. Incluso, dado que descansa sobre el protocolo 
+  HTTP, es posible el cifrado y/o compresión de los datos que maneja. 
+
+  La capa que implementa los servicios XML-RPC se comunica directamente con los métodos
+  de la biblioteca desarrollada, y ambas recurren a un almacén de datos en tiempo de ejecución
+  para el intercambio de información (véase sección \ref{par:runtimeData}).
+
 
   \subsection{El servidor}
-    \subsubsection{Características}
+    Abarca la implementación de una capa cuya función es esperar a recibir peticiones
+    XML-RPC de métodos exportados al cliente para posteriormente adaptarlas a las llamadas
+    correspondientes a métodos de la biblioteca MPPLAS. Gestiona también todas las instancias
+    de los datos creados en cada uno de los clientes. Estos puntos se desarrollan en mayor
+    profundidad en las siguientes secciones.
+
+    \paragraph{Características}
       \begin{itemize}
-        \item Multihilo (basado en \texttt{pthreads})
         \item Exporta métodos mediante XML-RPC (basado en la biblioteca \texttt{xmlrpc-c}
             \footnote{\url{http://xmlrpc-c.sourceforge.net/}}
+        \item Multihilo (basado en \texttt{pthreads})
         \item Gestión dinámica de datos de los clientes en tiempo de ejecución
         \item Mecanismos de recogida de basura (\textit{Garbage Collection})
       \end{itemize}
 
-    \paragraph{Recogida de basura.} Se ha descrito cómo los datos, las instancias,
+
+      \subsubsection{Utilización de XML-RPC}
+        Por las razones expuestas anteriormente (véase \ref{arquitectura}), el servidor 
+        pone a disposición de los clientes una serie de métodos mediante el protocolo 
+        XML-RPC. Otra ventaja adicional del uso de esta tecnología son las capacidades de
+        \emph{introspección} que ofrece\footnote{esto será de suma relevancia para la implementación
+        del cliente, véase la sección \ref{boostrapping}}. Es decir, el propio servidor
+        es capaz de dar información sobre qué métodos ofrece. El hecho de que el protocolo
+        HTTP, sobre el que XML-RPC descansa, esté orientado a transacciones (véase \cite{stallings},
+          pp. 676 y siguientes, para una descripción de este protocolo), siendo estas \emph{independientes}
+        y no guardando ninguna información de estado en ellas, posibilita una gestión de errores más sencilla.
+        Por ejemplo, si la comunicación entre cliente y servidor se ve interrumpida temporalmente, no es
+        necesario reestablecer ninguna conexión posteriormente, ya que cada una de las operaciones a
+        nivel cliente-servidor es independiente de las demás.
+
+      \subsubsection{Multihilo}
+        Si se pretende soportar que varios clientes puedan operar de forma concurrente e 
+        independiente, es necesario soportar de alguna forma la ejecución multihilo. 
+        El protocolo XML-RPC descansa sobre el conocido HTTP, con lo que un servidor 
+        XML-RPC no es más que un servidor HTTP ampliado: toda la gestión del tráfico 
+        subyacente se realiza mediante este segundo protocolo. La ventaja que esto aporta
+        es la existencia de numerosas soluciones para la implementación de un servidor
+        HTTP, entre ellas las soluciones multihilo. Para este trabajo se ha utilizado
+        el servidor HTTP incluido con la biblioteca \texttt{xmlrpc-c}, el cual incorpora
+        soporte multihilo basado en la biblioteca \textit{pthreads}.
+
+        Por tanto, y sin necesidad de implementar nada por nuestra parte, nuestro servidor
+        manejará peticiones XML-RPC desde los clientes de forma simultánea e independiente.
+
+  \subsubsection{Gestión dinámica de datos de los clientes en tiempo de ejecución.}\ref{par:runtimeData}
+    En el transcurso de una sesión de utilización del ciente, indudablemente se crearán
+    instancias de los diferentes tipos de datos disponibles. Instancias que se corresponden,
+    en el fondo, con datos de la biblioteca. Es necesario por tanto disponer de un mecanismo
+    de almacenaje y recuperación eficaz y eficiente que permita trabajar comodamente con
+    los datos que el usuario vaya creando. Asimismo, habrá de cumplir también otros 
+    requisitos impuestos por el cliente y la biblioteca, como son el ser \textit{thread-safe}
+    y gestionar multiplies clientes de forma simultánea.
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.95\textwidth,keepaspectratio]{runtimeData} 
+      \caption{Esquema de la arquitectura cliente/servidor}\label{fig:runtimeData}
+    \end{figure}
+
+    El mecanismo implementado se representa en la figura \ref{fig:runtimeData}. En ésta
+    se representa a \textit{grosso modo} el modo de funcionamiento de este almacén 
+    de datos dinámicos: a cada cliente conectado al servidor se le asigna un identificador
+    de cliente (\texttt{clientId}) único. Mediante este identificador, se posibilita a 
+    los clientes a insertar y recuperar sus datos. El almacen de datos asigna un identificador
+    de variable (\texttt{varId}) único (por cliente) tras cada inserción de un nuevo dato. 
+    Es mediante este identicador de variable que el cliente puede posteriormente recuperar 
+    el dato de forma unívoca.
+
+    Todas las operaciones están, como se indicaba anteriormente, preparadas para soportar 
+    la ejecución sobre múltiples hilos. Para esto, se utilizan rutinas de la biblioteca \textit{pthreads},
+    ya que es este sistema mediante el que el servidor soporta la ejecución concurrente de varias
+    peticiones. Por ejemplo:
+
+\lstset{escapeinside={(*@}{@*)}}
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,
+  caption=Ejemplo de protección de sección crítica con pthreads]
+  template<typename T>
+  varId_t RuntimeData<T>::set(const clientId_t clientId, 
+      const T& instance, 
+      const std::string typeStr){
+    pthread_mutex_lock( &_mutex ); (*@\label{alg:acquire}@*)
+    const varId_t varId( _getAvailableVarId(clientId, typeStr) );
+    _dataTable[clientId][varId] = instance;
+    pthread_mutex_unlock( &_mutex ); (*@\label{alg:release}@*)
+    return varId;
+  }
+\end{lstlisting}
+
+  En la línea \ref{alg:acquire}, se asegura la sección crítica con un  \textit{lock} de \textit{pthreads}, que se libera
+  al final de la misma, en la línea \ref{alg:release}.
+
+
+    \subsubsection{Recogida de basura.} Se ha descrito cómo los datos, las instancias,
     son almacenadas en el servidor. Sin embargo, ¿cuándo se destruyen?
     Cada vez que se tiene un resultado de un cálculo, incluso temporales
     como la suma en una expresión del tipo $3*(4+5)$, una nueva
@@ -112,7 +216,7 @@
     pequeña -su objetivo es tan solo ilustrar este punto- implementación
     de un cliente alternativo realizada en JavaScript.
 
-    \subsubsection{Características}
+    \paragraph{Características}
       \begin{itemize}
         \item \textit{Bootstrapping}: inspección de métodos disponibles
               en el servidor, realizando \emph{el propio cliente} la
@@ -127,12 +231,22 @@
         funcionalidades de este lenguaje.
       \end{itemize}
 
-    Pormenorizando:
-    \paragraph{\textit{Bootstrapping} y autoescritura.}
-    \paragraph{Fácilmente configurable.}
-    \paragraph{\textit{Plotting}.}
-    \paragraph{Actualización automática.}
-    \paragraph{Multihilo.}
+    \subsubsection{\textit{Bootstrapping} y autoescritura.}\label{boostrapping}
+      Una de las características más destacables de este cliente es su habilidad para
+      «escribirse a sí mismo». Esto es posible debido fundamentalmente a dos razones:
+      la capacidad de Python de interpretar código en tiempo de ejecución y los mecanismos
+      de introspección que el servidor XML-RPC ofrece.
+
+      ¿A qué nos estamos refiriendo cuando hablamos de «autoescritura»? A la capacidad
+      de incorporar en el cliente métodos ofrecidos por el servidor de forma automática en tiempo
+      de ejecución, y por tanto sin necesidad de modificar el cliente. 
+
+      %TODO
+
+    \subsubsection{Fácilmente configurable.}
+    \subsubsection{\textit{Plotting}.}
+    \subsubsection{Actualización automática.}
+    \subsubsection{Multihilo.}
 
 
     El resto de las características, ser multiplataforma y un
@@ -291,7 +405,8 @@
 \end{verbatim}
 
        \paragraph{MZ} Representa una matriz sobre el anillo de los enteros. Existen ciertos aspectos comunes
-       a los tipos matriciales, tales como el acceso a los elementos o a la información sobre las dimensiones.
+       a los tipos matriciales, tales como el acceso a los elementos, la información sobre las dimensiones 
+       y la transposición.
        Sin perdida de generalidad, véase el siguiente ejemplo para una matriz sobre los enteros:
 \begin{verbatim}
 >>> mat = MZ("[1231 47323213; -383485 124224]")
@@ -305,7 +420,58 @@
 >>> print mat
 [        0  47323213 ]
 [  -383485    124224 ]
+>>> m = MZ("[ 1 2 3 ; 4 5 6 ; 7 8 9]")
+>>> print m.getTranspose()
+[  1  4  7 ]
+[  2  5  8 ]
+[  3  6  9 ]
+
+>>> print m.getSubMatrix(rows=(2,), cols=(1,2))
+[  8  9 ]
+
+>>> print m.getSubMatrix(rows=(1,), cols=(1,2))
+[  5  6 ]
+[  8  9 ]
+
+>>> print m.getSubMatrix(rows=(2,2), cols=(1,2))
+[  8  9 ]
+
+>>> print m.getSubMatrix(rows=(0,1), cols=(0,2))
+[  1  2  3 ]
+[  4  5  6 ]
+
+>>> print m.getSubMatrix(cols=(0,2))
+[  1  2  3 ]
+[  4  5  6 ]
+[  7  8  9 ]
+
+>>> print m.getSubMatrix(cols=(0,1))
+[  1  2 ]
+[  4  5 ]
+[  7  8 ]
+
+>>> print m.getSubMatrix(cols=(0,0))
+[  1 ]
+[  4 ]
+[  7 ]
+
+>>> print m.getSubMatrix(cols=(2,1))
+Traceback (most recent call last):
+(...)
+    raise Fault(**self._stack[0])
+Fault: <Fault 0: 'Invalid Argument error: Invalid range; Invalid interval for submatrix operator (columns)'>
+>>> 
+
 \end{verbatim}
+
+ La operación de acceso a una submatriz opera de la siguiente manera:
+  \begin{description}
+    \item[\texttt{getSubMatrix(rows=(i,f), cols=(i,f))}] Devuelve la submatriz formada por 
+    las filas/columnas especificadas por $i$ (de inicio) y $f$ (de fin). Ambas filas/columnas
+    del interval son \emph{incluidas}. Si se omite el elemento $f$, como se aprecia en los ejemplos,
+    se considerarán a $f$ como la última fila/columna. 
+  \end{description}
+
 
        También es posible crear una matriz especificando sus dimensiones. Será inicializada con ceros:
 \begin{verbatim}
@@ -497,7 +663,6 @@ True
 194977768
 >>> Z(123)*modInverse(Z(123), p) % p
 1
-\begin{verbatim}
 \end{verbatim}
 
 
@@ -610,7 +775,7 @@ result = m.getInverse()
        Normalmente invocada como instrucción precedente a la primera
        a considerar en la toma de datos.
         \item{\texttt{getProfRes}}: Devuelve una lista con los contadores de instrucciones para cada hilo. Nótese
-        que en este contexto, «hilo» se refiere a hilos utilizados por la librería, no ejecuciones simultáneas de 
+        que en este contexto, «hilo» se refiere a hilos utilizados por la biblioteca, no ejecuciones simultáneas de 
         instrucciones por parte del cliente (véase \ref{runInParallel}).
        \item{\texttt{startProfClock}} Inicia la toma de tiempo.
        \item{\texttt{stopProfClock}}  Detiene la toma de tiempo y devuelve como resultado el tiempo transcurrido desde el

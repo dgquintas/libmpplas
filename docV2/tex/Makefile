@@ -8,11 +8,9 @@ MAKEINDEX = /usr/bin/makeindex
 FLAGSLATEX =  
 FLAGSDVIPDF =
 
-${PROGRAM}: doc.dvi
-	$(DVIPDF) $(FLAGSDVIPDF) doc.dvi
 
 
-doc.dvi: doc.tex
+doc.pdf: doc.tex
 	$(LATEX) $(FLAGSLATEX) doc.tex
 	$(BIBTEX) doc.aux
 	$(MAKEINDEX) doc.idx

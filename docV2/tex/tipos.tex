@@ -1,0 +1,293 @@
+% TIPOS SOPORTADOS POR LA BIBLIOTECA
+\chapter{Tipos soportados}
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+        Se debe hacer todo tan sencillo como sea posible, pero no más sencillo.
+        }
+        \begin{flushright}
+          \textbf{\textemdash Albert Einstein}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+\bigskip
+
+\begin{center}{\line(1,0){325}}\end{center}
+
+%--------------------------------------------------------%
+
+%MPPDataType 
+%  
+%Enteros, Z
+%Reales, R
+%Enteros modulares, Z\_n
+%Enteros modulares con modulo primo, Z\_p
+
+\section{Enteros modulares en el dominio de Montgomery}
+Nombrados como $\mathbb{Z}M\_n$, son un tipo de entero modular, siendo
+su módulo reductor $n$. Su particularidad estriba en que ninguna de sus
+operaciones requiere el uso de la división, excepto en el caso de potencias
+de la base de trabajo, operación que se realiza mediante desplazamientos.
+  
+Hasta donde se tiene constancia, se trata de un tipo de dato original
+de esta biblioteca: no se tiene conocimiento de su implementación en otras bibliotecas
+similares. 
+
+\subsection{Preliminares}
+Una conocida forma de exponenciación modular se basa en el método de
+multiplicacion/reducción de Montgomery (\cite{montgomeryOrig}). 
+El metodo de reducción/multiplicación se encontraba ya incorporado en
+la antigua versión de la biblioteca (véase \cite{miproyecto}, sección 5.5.3),
+utilizándose precisamente para la exponenciación modular. 
+
+A lo largo de esta sección se utilizará la nomenclatura introducida en \cite{miproyecto},
+sección 5.2, para los siguientes conceptos: $B$ representa la base con la que la máquina trabaja
+internamente de forma óptima, en la que se representan los tipos de datos básicos \texttt{Digit}.
+El número de bits de esta base se denominará $BED$: bits en \texttt{Digit}. La implementación actual
+soporta valores de $BED$ de $32$ y $64$.
+
+Es mediante la precomputación de dos valores, 
+$R_n = 2^{i\cdot BED}$ con $i \in \mathbb{Z}, i \geq 1$ y $-n^{-1} \pmod{BED}$, 
+que es posible prescindir de la operación de división. 
+Dichos valores dependen únicamente del módulo $n$, por lo que si se realizan muchas
+operaciones con el mismo módulo, el coste computacional de su cálculo se ve compensado
+por la ausencia de divisiones. 
+
+Anteriormente no se ha especificado ningún valor para la $i$ que conforma
+$R_n = 2^{i \cdot BED}$. Según \cite{handbook}\footnote{pág. 600}, es suficiente con que se verifique 
+$R > n$. Ahora bien, considérese la longitud del módulo $n$ en la base de trabajo $B$ definida con anterioridad
+como $k$. Es posible concluir entonces 
+\begin{equation}
+R_n = 2^{k \cdot BED} = B^{k} \Rightarrow i = k \label{eq:defRMont}
+\end{equation}
+Esto simplifica e incrementa el rendimiento de las operaciones,
+tal como se indica en de nuevo en \cite{handbook}\footnote{Fact 14.30 (ii), pág. 601}. Sin embargo, la limitación que esto
+impone es la imposibilidad de utilizar un módulo $n$ par. De todas maneras, en los escenarios de aplicación más comunes
+$n$ es primo.
+
+Un concepto fundamental en esta discusión es el de \emph{dominio de Montgomery}.
+\begin{definicion}[Dominio de Montgomery]
+Se considera que $a \in \mathbb{Z}$ pertenece al \emph{dominio de Montgomery} para
+un módulo $n$ si $a < n$ y $R_n | a$, esto es, si $a$ es múltiplo de $R_n$.
+\end{definicion}
+Las operaciones habituales de suma, resta, producto, división (como combinación de inversión más producto) 
+en este dominio están bien definidas, como se expone en la sección \ref{opsZM}.
+
+
+\subsection{Operaciones}
+Las operaciones sobre $\mathbb{Z}M_n$ se dividen en dos grupos:
+las orientadas al trabajo dentro del propio dominio, denominadas "específicas", 
+y las que se corresponden con las operaciones habituales sobre $\mathbb{Z}$, 
+denominadas "habituales", presentadas de cara al usuario programador.
+
+Los detalles de implementación pueden encontrarse en el capítulo dedicado
+al efecto, en la sección \ref{implZM_n}.
+
+\subsubsection{Específicas}
+\begin{definicion}[Multiplicación de Montgomery]\label{def:multMont}
+Sea $R_n$ tal como se define en \eqref{eq:defRMont}, $x,y \in \mathbb{Z}$. 
+Se define la función \texttt{MultMon} como
+\[
+  \mathtt{MultMon}(x,y,n) = x \cdot y \cdot R^{-1} \pmod{n}
+\]
+\end{definicion}
+
+
+\begin{definicion}[Inversa de Montgomery (\cite{kaliski})]
+\[
+  \mathtt{InvMon}(a,n) = a^{-1} \cdot R \pmod{n}
+\]
+\end{definicion}
+
+
+Koç y Savas ( \cite{montInvRev} ) ampliaron el
+concepto, en especial con una "nueva inversa de montgomery":
+\begin{definicion}[Inversa de Montgomery (\cite{montInvRev})]\label{nuevaMontInv}
+Sea $R_n$ tal como se define en \eqref{eq:defRMont}, $a \in \mathbb{Z}$. 
+\[
+  \mathtt{NuevaInvMon}(a \cdot R,n) = a^{-1} \cdot R \pmod{n}
+\]
+\end{definicion}
+Es decir,este último método obtiene la inversa de un número dado en el
+dominio de Montgomery, manteniendose tambien el resultado en dicho dominio.
+
+\subsubsection{Habituales}\label{opsZM}
+A continuación se definen las operaciones básicas sobre este tipo 
+de enteros modulares en el dominio de Montgomery, así como la conversión
+hacia y desde $\mathbb{Z}$ o $\mathbb{Z}_n$.
+
+En lo sucesivo se asume que los operandos comparten el mismo módulo
+$n$.
+
+  \paragraph{Suma y resta} 
+  Sean $x,y \in \mathbb{Z}_n$,
+  $0 \le xR, yR < n  \Rightarrow  xR + yR = (x+y)R \leq 2n-2$
+  con lo que si la suma es mayor que $n$, bastará con restar $n$ a ésta , a lo sumo una vez
+
+  Para la resta, el razonamiento es análogo, salvo que en este caso, el módulo habrá de
+  sumarse si $(x-y)R < 0$, aunque a lo sumo tan solo dos veces.
+
+ \paragraph{Producto} 
+  Utilizando la múltiplicación de Montgomery (véase la definición \ref{def:multMont}),
+  se obtiene el producto de dos elementos del dominio de Montgomery, resultando 
+  en su producto también en éste, de la siguiente manera:
+  $\mathtt{MultMon}( xR, yR ) = xR \cdot yR \cdot R^{-1} = xyR^2 \cdot R^{-1} = xyR$
+
+  \paragraph{Cálculo de la inversa}
+  Aplicar $\mathtt{NuevaInvMon}$ directamente (véase la definición \ref{nuevaMontInv}).
+  \paragraph{División}
+    La división se realiza mediante las operaciones de inversión y producto: 
+    $ (aR / bR ) = \mathtt{MultMon}( aR, b^{-1}R ) = aR \cdot b^{-1}R \cdot R^{-1} = ab^{-1}R $
+ 
+ \paragraph{Conversión desde $\mathbb{Z}$ a $\mathbb{Z}M_n$}
+  Si el entero a convertir verifica $a \geq n$, se realizá previamente una reducción módulo $n$.
+  Dado $0 \leq a < n$ , $\mathtt{MultMon}( a, R^2, n ) = a R^2 R^{-1} \pmod{n}  = a \cdot R \pmod{n}$
+
+  \paragraph{Conversión desde $\mathbb{Z}M_n$ a $\mathbb{Z}$}
+   Dado $0 \leq aR < n$ , $\mathtt{MultMon}( aR, 1, n ) = a R \cdot 1 \cdot R^{-1} \pmod{n} = a \pmod{n}$
+   Nótese que el entero $a$ resultante se devuelve reducido módulo $n$, con lo que encajaría también 
+   dentro de $\mathbb{Z}_n$ sin necesidad de una nueva reducción modular.
+
+
+\subsection{Aplicaciones}
+El utilizar este tipo hace que trabajar en $\mathbb{Z}_n$ sea mucho más rapido.
+Como se ha mencionado anteriormente, no se realizan divisiones --la operación básica computacionalmente
+más costosa. Asimismo, el cálculo del elemento inverso a uno dado
+no require del uso del algoritmo extendido de Euclides 
+(véase \cite{miproyecto}\footnote{sección 5.5.2, pág. 64}),
+también computacionalmente costoso. 
+
+Ahora bien, la creación y conversion desde/hacia los enteros habituales es costosa. 
+Resulta conveniente mantenerse en el dominio de Montgomery durante el mayor número de
+operaciones posibles. Determinados algoritmos se prestan a esto: aquellos en los que
+el módulo de trabajo es común a un cierto número de operaciones, donde se utilicen
+frecuentemente exponenciaciones y inversiones. Dos ejemplos de algoritmos tales son
+el mecanismo de firma digital DSA (\cite{schneier}\footnote{sección 20.1, pág. 483}) 
+y el mecanismo de firma y cifrado ElGamal (\cite{schneier}\footnote{sección 19.6, pág. 476}).
+
+En la sección \label{ejZM_n} se recoge una comparativa de la implementación de estos métodos 
+mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
+
+
+
+%
+%Polinomios
+%  Sobre Z
+%  Sobre R
+%  Sobre Z\_p 
+%
+%Cuerpos de Galois
+%  Elementos de cuerpos de Galois
+%
+%Matrices
+%  Sobre Z
+%  Sobre R
+%  Sobre GFx
+%
+%Vectores
+
+\section{Consideraciones generales}
+ - tipos "contenedores" (matrices, polis, etc), aseguran la coherencia
+ matematica mediante comprobaciones estataticas en tiempo de compilacion
+ del caracter algebraico de sus parametros, que seran sus elementos/coeficientes/whatever.
+
+
+\section{Polinomios}\index{tipos!Polinomios}\label{tipos:polinomios}
+  En \cite{knuth}\footnote{pág. 418} se define polinomio como:
+
+  \begin{definicion}[\index{Polinomio}Polinomio]
+    Un \emph{polinomio sobre $S$} es una expresión de la forma
+    \begin{equation}
+    u(x) = u_n x^n + \cdots + u_1 x + u_0 \label{poly}
+    \end{equation}
+    donde los \emph{coeficientes} $u_n,\ldots,u_1,u_0$ son elementos de algún
+    sistema algebraico $S$, y la \emph{variable} $x$ puede ser considerada como 
+    un símbolo formal con un valor indeterminado.
+
+    Nótese que se considera al polinomio $0x^{n+m}+\cdots+0x^{n+1} + u_nx^n + \cdots + u_1x+u_0$ 
+    equivalente a \eqref{poly}.
+
+    Se define el \emph{grado} del polinomio \eqref{poly} como $n$, y su \emph{coeficiente director}
+    como $u_n (\neq 0)$.
+
+    Se denomina \emph{polinomio mónico} al polinomio cuyo coeficiente director es igual a $1$.
+
+    Se denomina \emph{polinomio nulo} al polinomio cuyos coeficientes son todos igual a $0$.
+  \end{definicion}
+
+  \begin{observacion}[Caracter del sistema algebraico $S$]\label{obs:caracterS}
+    Se asume que el sistema algebraico $S$ es un \emph{anillo conmutativo con identidad}.
+    Esto es, $S$ admite operaciones de suma, resta y multiplicación, con las propiedades
+    habituales. Nótese que \emph{no} se asume nada respecto a la división como operación
+    inversa a la multiplicación. 
+  \end{observacion}
+
+
+  \begin{observacion}[Grado y coeficiente director en polinomios nulos]
+    En el caso del polinomio nulo $u(x) = 0$, se define su \emph{grado} como $-\infty$; y su coeficiente
+    director como $0$.
+  \end{observacion}
+
+
+
+
+
+  \subsection{Operaciones básicas sobre polinomios en $S$}
+  \paragraph{Suma y resta} La suma (resp. resta) en polinomios sobre un sistema $S$ se define como la suma (resp. resta) 
+    sobre $S$ de coeficientes de potencias iguales de $x$ (asumiendo sin pérdida de generalidad que $n > m$): 
+      \begin{eqnarray}
+      (u_nx^n + \cdots + u_1x + u_0) + (v_mx^m + \cdots + v_1x+v_0)  ={}  \nonumber\\
+        {} = u_nx^n + \cdots + (u_m+v_m)x^m + \cdots + (u_1+v_1)x + u_0+v_0 
+      \end{eqnarray}
+
+  \paragraph{Producto} El producto se define de la siguiente manera:
+      \begin{equation}
+      (u_nx^n + \cdots + u_1x + u_0)(v_mx^m + \cdots + v_1x+v_0) = w_{n+m}x^{n+m} + \cdots + w_0
+      \end{equation}
+      tal que 
+      \begin{equation}
+      w_k = u_0v_k + u_1v_{k-1} + \cdots + u_{k-1}v_1 + u_kv_0
+      \end{equation}
+      considerándose $u_i$ o $v_j$ iguales a $0$ cuando $i > j$ o $j > s$.
+      Es decir, de la misma forma que para $\mathbb{Z}$ pero sin acarreos, ya que no existe relación
+      entre coeficientes vecinos. Esto conlleva que las optimizaciones
+      realizadas sobre la multiplicación de enteros, tales como el método de Karatsuba (véase %TODO%
+          ) y su paralelización, son directamente aplicables también a este caso.
+
+
+  \paragraph{División}
+
+
+
+ \subsection{Máximo común divisor}\label{gcdPoly}
+
+   \subsubsection{Con $S$ un cuerpo}
+
+
+   \subsubsection{Con $S$ un dominio de factorización única}
+      El caso más común en el que $S$ cumple el requisito de ser un anillo conmutativo con identidad
+      es en el caso de polinomios sobre $\mathbb{Z}$. De hecho, el sistema de los números enteros 
+      verifica también el ser un \emph{dominio de factorización única}, esto es, %TODO
+      Un aspecto muy importante de los polinomios con coeficientes en $\mathbb{Z}$ es el siguiente:
+    \begin{lema}[Polinomios sobre dominios de factorización única]
+    %TODO
+    \end{lema}
+
+      Esto conduce a justificar la existencia y sentido de la habitual operación
+      de cálculo del máximo común divisor sobre polinomios con coeficientes en un dominio de factorización
+      única. El hecho de que  La especial operación de división de estos
+      polinomios necesaria para implementar este método se expone en \ref{divUFD}.
+
+    \paragraph{Pseudo-división de polinomios con $S$ un dominio de factorización única}
+
+
+  \subsection{Evaluación\index{polinomios!evaluación}}
+
+
+  

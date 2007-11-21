@@ -1,0 +1,168 @@
+% TECNOLOGÍAS UTILIZADAS
+\chapter{Tecnologías utilizadas}
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+          I've come up with a set of rules that describe our reactions to technologies:\\
+            1. Anything that is in the world when you're born is normal and ordinary and is 
+            just a natural part of the way the world works.\\
+            2. Anything that's invented between when you're fifteen and thirty-five is new 
+            and exciting and revolutionary and you can probably get a career in it.\\
+            3. Anything invented after you're thirty-five is against the natural order of things.
+        }
+        \begin{flushright}
+          \textbf{\textemdash Douglas Adams, The Salmon of Doubt}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+\bigskip
+
+
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+          Any sufficiently advanced technology is indistinguishable from magic.
+        }
+        \begin{flushright}
+          \textbf{\textemdash Arthur C. Clarke, "Profiles of The Future" }
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+\bigskip
+
+\begin{center}{\line(1,0){325}}\end{center}
+
+%--------------------------------------------------------%
+
+\section{Comprobaciones en tiempo de compilación}
+%XXX: completar con una intro
+  Siempre es mejor prevenir que curar, como reza el refranero. Por tanto, mejor que simplemente detectar el error
+  cuando el programa ya se encuentra en ejecución --que no es poco, pero no deja de ser una «mala cura»--, la detección
+  de condiciones que no deberían darse es más efectiva cuanto antes se realice. La detección en \emph{tiempo de compilación}
+  es el ideal, ya que estas comprobaciones no acarrearían un incremento en tiempo de ejecución\footnote{el tiempo de compilado
+  sí es posible --incluso probable-- que aumente. Sin embargo, la compilación es un proceso puntual, frente a un número de ejecuciones
+  arbitrario} y se detectarían incluso antes de que el propio programa tomase cuerpo.
+
+  Por otra parte, no es posible comprobar más que aquellas condiciones evaluables en tiempo de compilación. En otras palabras,
+  datos de carácter \emph{constante} y \emph{estático}. En código esto se traduce en valores declarados como \texttt{const static}, 
+  o bien constantes --que no dejan de ser asimismo un caso particular de estos.
+
+  
+  \subsection{Asertos estáticos}
+  El concepto de \emph{aserto} como «comprobación de la certeza de algo» en el mundo de la programación
+  se asocia habitualmente a comprobaciones \emph{en tiempo de ejecución}. Así, por ejemplo, en C/C++ existe el mecanismo
+  estándard \texttt{assert(ex)}, que interrumpirá la \emph{ejecución} de un programa si su argumento \texttt{ex} se evalua como falso.
+  Aunque pudiera parecer que las restricciones anteriormente descritas para las comprobaciones en tiempo de compilación
+  en general convierten en algo inútil el aserto estático, se expondrán en el punto \ref{aplicacionesStaticAssert} 
+  escenarios en los cuales sí resulta útil.
+
+  Previamente, se mostrará cómo se consigue este comportamiento, 
+  que no forma parte de C++ de forma directa. Considérese la macro mostrada en el listado \ref{lst::staticassert}.
+
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=STATIC\_ASSERT, label=lst:staticassert]
+#define STATIC_ASSERT(ex) \
+  do { typedef int ai[(ex) ? 1 : -1]; } while(0) 
+\end{lstlisting}
+
+  Al contrario que en el caso del estándard \texttt{assert(arg)}, no interesa devolver un valor booleano: si la expresión
+  a comprobar es falsa, el proceso de compilación debe detenerse con un error. Si no lo es, continuar sin más. Idealmente,
+  tampoco se generará codigo adicional debido a estos asertos estáticos.
+  \texttt{STATIC\_ASSERT(ex)} se traduce mediante el preprocesador en una seria de sentencias un tanto particular:
+  \begin{enumerate}
+    \item Un bucle do-while que no itera ( \texttt{while(0)} nunca se evaluará como cierto ).\label{enum:while0}
+    \item Una declaración de un alias de tipo mediante \texttt{typedef}. \label{enum:typedef}
+    \item Dentro del punto anterior, una declaración de un vector estático de un tamaño $1$ o $-1$ dependiendo
+    de si \texttt{ex} resulta cierto o falso \emph{a ojos de C++}. \label{enum:elQuizStaticAssert}
+  \end{enumerate}
+  
+  Previamente al anásis de esta construcción: cuando se pone énfasis en el valor de verdad \emph{a los ojos de C++},
+  se quiere recordar al lector que, heredado del mundo de C, en C++ se evalua como cierto todo valor distinto
+  de $0$\footnote{C++ contribuyó con el tipo \texttt{bool} y sus dos valores \texttt{true} y \texttt{false} a clarificar este ámbito,
+  pero siguen siendo válidos los viejos hábitos (y en este caso, necesarios)}.
+
+  ¿Cumple con los requisitos anteriormente expuestos el código anterior? Considerando su requisito fundamental, 
+  que interrumpa la compilación en función de \texttt{ex}. Esto se consigue aprovechando la definición de 
+  vector estático por parte del estándard ANSI C (\cite{c}\footnote{sección A8.6.2, pág. 239}):
+  \begin{quote}
+  Si la expresión-constante está presente, debe ser de tipo entero, y con valor mayor que $0$.
+  \end{quote}
+  Por «expresión-constante» se refiere en ese contexto al tamaño que se asigna al vector estático en su 
+  declaración. Así pues, por lo expuesto en el punto \ref{enum:elQuizStaticAssert}. de la enumeración precedente,
+  si \texttt{ex} se evalua como falso, se estaría declarando \texttt{ai} con tamaño $-1$\footnote{¿y por qué si la
+  referencia del lenguaje cita $0$ como valor ya invalido, se utiliza $-1$? Debido a que, tal como indica \cite{imperfectc++},
+  por alguna razón algunos compiladores, entre ellos GCC y el compilador de Intel, sí consideran válido un vector estático de tamaño
+  cero. Esto incumple claramente el estándard ANSI C, pero afotunadamente siquiera estos compiladores admiten un tamaño negativo
+  como dimensión de dicho vector}, algo que incumple la semántica de C, y por tanto, también de C++. Este incumplimiento resulta
+  en una interrupción de la compilación.
+
+  La razón de ser de los puntos \ref{enum:while0}., y \ref{enum:typedef}. es la de no generar código pero a la vez
+  ser expresiones que són evaluadas por el compilador. Lo primero se consigue a raíz de que en realidad no existe código
+  «ejecutable», ninguna sentencia con efecto sobre el entorno. Cualquier compilador que realice optimización de código (esto 
+  es, todos) omitirá incluir ninguna instrucción correspondiente a esta porción de código. Pero no antes de haberla evaluado:
+  a raíz de que el bucle, al ser do-while, fuerza la entrada en su cuerpo al menos una vez. En este cuerpo, el \texttt{typedef}
+  ha de evaluar el nuevo alias declarado: el vector estático en cuya dimensión reside el meollo de la cuestión.
+
+  Véase \cite{imperfectc++}\footnote{sección 1.4.8, pág. 25} para un enfoque de este método en más en profundidad.
+
+    \subsubsection{Aplicaciones}
+    %TODO
+
+  \subsection{Pruebas de paternidad}
+  El siguiente método para asegurarse que una clase dada hereda de otra se expone en 
+  \cite{imperfectc++}\footnote{sección 1.2.1, pág. 5}. Su utilidad, una vez más, deriva del hecho de ser
+  una comprobación \emph{en tiempo de compilación}
+
+
+  Ver un ejemplo de la utilización de este patrón ayudará a explicar el funcionamiento del mismo. Considérese
+  el listado \ref{lst:musthavebaseEj}. 
+  \lstset{escapeinside={(*@}{@*)}}
+  \begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left, caption=Ejemplo de uso del patrón de verificación de paternidad, label=lst:musthavebaseEj]
+Constraints::must_have_base<S, Ring<S> > dummy1; (*@\label{algparent:Ring}@*)
+Constraints::must_have_base<S, MPPDataType > dummy2; (*@\label{algparent:MPPDataType}@*)
+  \end{lstlisting}
+  Este trozo de código se corresponde a la clase \texttt{Polynomial<S>} (véanse las secciones \ref{tipos:polinomios} 
+  y \ref{impl:polinomios} para una descripción de este tipo de dato y una pormenorización de sus detalles de 
+  implementacion, respectivamente). En la línea \ref{algparent:Ring} se comprueba que el tipo de plantilla S 
+  --que recordemos se corresponde al tipo de los coeficientes del polinomio-- 
+  \ref{algparent:MPPDataType} 
+
+  El código implementando el patrón de comprobación de paternidad se muestra en el listado \ref{lst:musthavebase}.
+  \begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left, caption=Verificación de paternidad en tiempo de compilación, label=lst:musthavebase]
+template<typename D, typename B>
+struct must_have_base{
+  ~must_have_base(){
+    void(*p)(D*, B*) __attribute__ ((__unused__)) = constraints;
+  }
+  private:
+  static void constraints(D* pd, B* pb){
+    pb = pd;
+  }
+}; 
+  \end{lstlisting}
+
+
+    \subsubsection{Aplicaciones}
+    %TODO
+
+\section{Programación orientada a aspectos (AOP)}
+
+\section{Mix-ins}
+
+\section{Mock objects}
+
+\section{Test units}
+ 
+
+

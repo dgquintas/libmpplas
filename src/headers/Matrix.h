@@ -21,6 +21,7 @@
 #include "AlgebraUtils.h"
 #include "Constants.h"
 #include "MiVec.h"
+#include "omp_mock.h"
 
 namespace mpplas {
 
@@ -238,7 +239,7 @@ namespace mpplas {
 
 
     template<typename T, typename Alloc>
-      void makeCroutsCombinedMatrix(Matrix<T, Alloc>& m);
+      void makeDoolittleCombinedMatrix(Matrix<T, Alloc>& m);
      
     template<typename T, typename Alloc>
       Matrix<T,Alloc> solve(Matrix<T, Alloc> m, Matrix<T, Alloc> b);

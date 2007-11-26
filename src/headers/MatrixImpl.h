@@ -490,8 +490,9 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::diagonalize(){
   template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::invert(){
     const int n = this->getRows();
+    MatrixHelpers::makeDoolittleCombinedMatrix(*this);
+
     const Matrix<T, Alloc> orig(*this); 
-    
 #pragma omp parallel for
     for(int j = 0; j < n; j++){
       MatrixHelpers::solveForInv(orig,*this,j);
@@ -961,7 +962,6 @@ namespace MatrixHelpers{
   template<typename T, typename Alloc>
     void solveForInv(Matrix<T, Alloc> m, Matrix<T, Alloc>& inv, const int currCol){
       const int n = m.getRows();
-      MatrixHelpers::makeDoolittleCombinedMatrix(m);
 
       T sum(m(0,0));
       for(int i = 0; i < n; i++){

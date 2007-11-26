@@ -44,11 +44,12 @@ int main(){
 //  std::cout << MatrixHelpers::solve(mat,b) << std::endl;
 
 //  cout <<  prof.getResults() << endl;
-  prof.reset();
+//  prof.reset();
   prof.startClock();
+  //std::cout << mat * MatrixR(mat).invert() << std::endl;
   mat.invert();
-  cout <<  prof.getResults() << endl;
-  cout <<  prof.getResults().getTotalOps() << endl;
+//  cout <<  prof.getResults() << endl;
+//  cout <<  prof.getResults().getTotalOps() << endl;
   cout <<  prof.stopClock()  << endl;
   //
   //

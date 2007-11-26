@@ -882,6 +882,26 @@ namespace MatrixHelpers{
 
   //FIXME: la diagnonalizacion y las inversiones estan hecha
   //UNA MIERDA
+ 
+  template<typename T, typename Alloc>
+    void makeDoolittleCombinedMatrix(Matrix<T, Alloc>& a){
+      if( !a.isSquare() ){
+        throw Errors::SquareMatrixRequired();
+      }
+      const int size = a.getColumns();
+      for(int k=0; k<size-1; k++) {
+#pragma omp parallel for
+        for (int i=k+1; i<size; i++) {
+          a(i,k) /= a(k,k);
+
+          for (int j=k+1; j<size; j++){ 
+            a(i,j) -= a(i,k)*a(k,j);
+          }
+        }
+      }
+    }
+
+
 
   template<typename T, typename Alloc>
     void makeCroutsCombinedMatrix(Matrix<T, Alloc>& a){
@@ -889,7 +909,7 @@ namespace MatrixHelpers{
         throw Errors::SquareMatrixRequired();
       }
       T sum;
-      int n = a.getRows();
+      const int n = a.getColumns();
       int i,j,k;
       for(j = 0; j < n; j++){
         for(i = 0; i < j; i++){
@@ -899,29 +919,33 @@ namespace MatrixHelpers{
           }
           a(i,j) = sum;
         }
+      
         for(i=j; i < n; i++){
           sum = a(i,j);
           for(k=0; k < j; k++){
             sum -= a(i,k)*a(k,j);
-            a(i,j) = sum;
           }
+          a(i,j) = sum;
         }
         if( j != n-1){
           for(i=j+1; i < n; i++){
             a(i,j) /= a(j,j);
           }
         }
+
       }
     }
 
 
   template<typename T, typename Alloc>
     Matrix<T, Alloc> invert(Matrix<T, Alloc> m){
-
       const int n = m.getRows();
 //      Matrix<T, Alloc> b(n,1);
-      Matrix<T, Alloc> b(m); //FIXME
       Matrix<T, Alloc> inv(n); 
+      //TODO: esto es paralelizable. hace falta eso si replicar b... tantos b's como hilos
+      
+        Matrix<T, Alloc> b(m); //FIXME
+#pragma omp parallel for private(b)
       for(int j = 0; j < n; j++){
         for(int i=0; i < n; i++){
           b(i,0) = T::ZERO;
@@ -939,7 +963,7 @@ namespace MatrixHelpers{
   template<typename T, typename Alloc>
     Matrix<T,Alloc> solve(Matrix<T, Alloc> m, Matrix<T, Alloc> b){
       const int n = m.getRows();
-      MatrixHelpers::makeCroutsCombinedMatrix(m);
+      MatrixHelpers::makeDoolittleCombinedMatrix(m);
       Matrix<T, Alloc> l(m), r(m);
 
       for(int i = 0; i < n; i++){

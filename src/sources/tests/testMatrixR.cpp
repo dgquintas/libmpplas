@@ -20,7 +20,7 @@ int main(){
   RandomFast* rnd;
   MethodsFactory::getReference().getFunc(rnd);
   rnd->setSeed(Z::ZERO);
-  MatrixR mat(30,30);
+  MatrixR mat(100,100);
 
   for(int i=0; i < mat.getRows(); i++){
     for(int j =0 ; j < mat.getColumns(); j ++){
@@ -28,7 +28,6 @@ int main(){
       mat(i,j) /= R(rnd->getInteger(23));
     }
   }
-  std::cout << "LOL" << std::endl;
 //  MatrixR b("[4.5; 6.7; 8.9; 7.8]");
 //  MatrixR mat3( "[1324.1 21 3.35236; 4.111 5.222 0.6; -75345.3253232522342 82325232235626234.1 9.122]");
 //  MatrixR foo;
@@ -47,8 +46,9 @@ int main(){
 //  cout <<  prof.getResults() << endl;
   prof.reset();
   prof.startClock();
-  MatrixHelpers::invert(mat);
+  mat.invert();
   cout <<  prof.getResults() << endl;
+  cout <<  prof.getResults().getTotalOps() << endl;
   cout <<  prof.stopClock()  << endl;
   //
   //

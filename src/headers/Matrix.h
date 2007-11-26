@@ -244,6 +244,10 @@ namespace mpplas {
       Matrix<T,Alloc> solve(Matrix<T, Alloc> m, Matrix<T, Alloc> b);
 
     template<typename T, typename Alloc>
+      void solveForInv(Matrix<T, Alloc> m, Matrix<T, Alloc>& inv, const int currCol);
+
+
+    template<typename T, typename Alloc>
       void forwardSubstitution(const Matrix<T, Alloc>& m, Matrix<T, Alloc>& b);
     template<typename T, typename Alloc>
       void backwardSubstitution(const Matrix<T, Alloc>& m, Matrix<T, Alloc>& y);

@@ -485,10 +485,21 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::transpose(){
 Matrix<T, Alloc>& Matrix<T, Alloc>::diagonalize(){
   return *this; //TODO
 }
+
+
   template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::invert(){
-  return *this; //TODO
+    const int n = this->getRows();
+    const Matrix<T, Alloc> orig(*this); 
+    
+#pragma omp parallel for
+    for(int j = 0; j < n; j++){
+      MatrixHelpers::solveForInv(orig,*this,j);
+    }
+    return *this; 
 }
+
+
   template<typename T, typename Alloc>
 T Matrix<T, Alloc>::getDeterminant(){
   return T(); //TODO
@@ -880,9 +891,6 @@ std::istream& operator>>(std::istream& in, Matrix<T, Alloc>& m) {
 
 namespace MatrixHelpers{
 
-  //FIXME: la diagnonalizacion y las inversiones estan hecha
-  //UNA MIERDA
- 
   template<typename T, typename Alloc>
     void makeDoolittleCombinedMatrix(Matrix<T, Alloc>& a){
       if( !a.isSquare() ){
@@ -890,7 +898,7 @@ namespace MatrixHelpers{
       }
       const int size = a.getColumns();
       for(int k=0; k<size-1; k++) {
-#pragma omp parallel for
+#pragma omp parallel for schedule(static,1)
         for (int i=k+1; i<size; i++) {
           a(i,k) /= a(k,k);
 
@@ -903,123 +911,108 @@ namespace MatrixHelpers{
 
 
 
-  template<typename T, typename Alloc>
-    void makeCroutsCombinedMatrix(Matrix<T, Alloc>& a){
-      if( !a.isSquare() ){
-        throw Errors::SquareMatrixRequired();
-      }
-      T sum;
-      const int n = a.getColumns();
-      int i,j,k;
-      for(j = 0; j < n; j++){
-        for(i = 0; i < j; i++){
-          sum = a(i,j);
-          for(k = 0; k < i; k++){
-            sum -= a(i,k)*a(k,j);
-          }
-          a(i,j) = sum;
-        }
-      
-        for(i=j; i < n; i++){
-          sum = a(i,j);
-          for(k=0; k < j; k++){
-            sum -= a(i,k)*a(k,j);
-          }
-          a(i,j) = sum;
-        }
-        if( j != n-1){
-          for(i=j+1; i < n; i++){
-            a(i,j) /= a(j,j);
-          }
-        }
+//  template<typename T, typename Alloc>
+//    void makeCroutsCombinedMatrix(Matrix<T, Alloc>& a){
+//      if( !a.isSquare() ){
+//        throw Errors::SquareMatrixRequired();
+//      }
+//      T sum;
+//      const int n = a.getColumns();
+//      int i,j,k;
+//      for(j = 0; j < n; j++){
+//        for(i = 0; i < j; i++){
+//          sum = a(i,j);
+//          for(k = 0; k < i; k++){
+//            sum -= a(i,k)*a(k,j);
+//          }
+//          a(i,j) = sum;
+//        }
+//      
+//        for(i=j; i < n; i++){
+//          sum = a(i,j);
+//          for(k=0; k < j; k++){
+//            sum -= a(i,k)*a(k,j);
+//          }
+//          a(i,j) = sum;
+//        }
+//        if( j != n-1){
+//          for(i=j+1; i < n; i++){
+//            a(i,j) /= a(j,j);
+//          }
+//        }
+//
+//      }
+//    }
 
-      }
-    }
 
 
-  template<typename T, typename Alloc>
-    Matrix<T, Alloc> invert(Matrix<T, Alloc> m){
-      const int n = m.getRows();
-//      Matrix<T, Alloc> b(n,1);
-      Matrix<T, Alloc> inv(n); 
-      //TODO: esto es paralelizable. hace falta eso si replicar b... tantos b's como hilos
-      
-        Matrix<T, Alloc> b(m); //FIXME
-#pragma omp parallel for private(b)
-      for(int j = 0; j < n; j++){
-        for(int i=0; i < n; i++){
-          b(i,0) = T::ZERO;
-        }
-        b(j,0) = T::ONE;
-        Matrix<T, Alloc> col(solve(m,b));
-
-        for(int i=0; i < n; i++){
-          inv(i,j) = col(i,0);
-        }
-      }
-      return inv;
-    }
 
   template<typename T, typename Alloc>
     Matrix<T,Alloc> solve(Matrix<T, Alloc> m, Matrix<T, Alloc> b){
       const int n = m.getRows();
       MatrixHelpers::makeDoolittleCombinedMatrix(m);
-      Matrix<T, Alloc> l(m), r(m);
-
-      for(int i = 0; i < n; i++){
-        for(int j = 0; j < n; j++){
-          l(i,j) = T::ZERO;
-          r(i,j) = T::ZERO;
-        }
-      }
-        
-
-      for(int i = 0; i < n ; i++){
-        for(int j=0; j < i; j++){
-          l(i,j) = m(i,j);
-        }
-        l(i,i) = T::ONE;
-      }
-      for(int i = 0; i < n ; i++){
-        for(int j=i; j < n; j++){
-          r(i,j) = m(i,j);
-        }
-      }
  
-      forwardSubstitution(l, b);
-      backwardSubstitution(r, b);
+      forwardSubstitution(m, b);
+      backwardSubstitution(m, b);
 
       return b;
     }
 
+  template<typename T, typename Alloc>
+    void solveForInv(Matrix<T, Alloc> m, Matrix<T, Alloc>& inv, const int currCol){
+      const int n = m.getRows();
+      MatrixHelpers::makeDoolittleCombinedMatrix(m);
+
+      T sum(m(0,0));
+      for(int i = 0; i < n; i++){
+        sum = i == currCol ? T::ONE : T::ZERO;
+        for(int j = 0; j < i; j++){
+          sum -= m(i,j)*inv(j,currCol);
+        }
+        inv(i,currCol) = sum;
+      }
+      inv(n-1,currCol) /= m(n-1,n-1);
+      for(int i = n-2; i >= 0; i--){
+        sum = inv(i,currCol);
+        for(int j = i+1; j < n; j++){
+          sum -=  m(i,j) * inv(j,currCol);
+        }
+        sum /= m(i,i);
+        inv(i,currCol) = sum;
+      }
+
+      return ;
+    }
+
+
 
 
   template<typename T, typename Alloc>
-      void forwardSubstitution(const Matrix<T, Alloc>& m, Matrix<T, Alloc>& b){
-        const int n = m.getRows();
-        T sum(m(0,0));
+      void forwardSubstitution(const Matrix<T, Alloc>& l, Matrix<T, Alloc>& b){
+        const int n = l.getRows();
+        T sum(l(0,0));
         for(int i = 1; i < n; i++){
-          sum = b(i,0);
+          sum = b(i);
           for(int j = 0; j < i; j++){
-            sum -=  m(i,j)*b(j,0);
+            sum -=  l(i,j)*b(j);
           }
-          b(i,0) = sum;
+          b(i) = sum;
         }
       }
 
 
   template<typename T, typename Alloc>
-      void backwardSubstitution(const Matrix<T, Alloc>& m, Matrix<T, Alloc>& y){
-        const int n = m.getRows();
-        T sum(m(0,0));
-        y(n-1,0) /= m(n-1,n-1);
+      void backwardSubstitution(const Matrix<T, Alloc>& u, Matrix<T, Alloc>& y){
+        const int n = u.getRows();
+        T sum(u(0,0));
+        y(n-1) /= u(n-1,n-1);
         for(int i = n-2; i >= 0; i--){
-          sum = y(i,0);
+          sum = y(i);
           for(int j = i+1; j < n; j++){
-            sum -=  m(i,j)*y(j,0);
+            sum -=  u(i,j)*y(j);
           }
-          sum /= m(i,i);
-          y(i,0) = sum;
+          sum /= u(i,i);
+          y(i) = sum;
         }
       }
 

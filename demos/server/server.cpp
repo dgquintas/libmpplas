@@ -352,6 +352,66 @@ class MatrixSlicingMethod : public xmlrpc_c::method {
 };
 
 
+class MatrixGetDimensionsMethod : public xmlrpc_c::method {
+  public:
+
+    MatrixGetDimensionsMethod() {
+      this->_signature = "A:is";
+      this->_help = "Gets the dimensions of the given matrix";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+
+      paramList.verifyEnd(2);
+
+      mpplas::MPPDataType* const mat( table.get(clientId, varId1) );
+
+      mpplas::MatrixZ* matrixZ; 
+      mpplas::MatrixR* matrixR; 
+      mpplas::MatrixGFx* matrixGFx; 
+
+      try {
+        matrixZ = dynamic_cast<mpplas::MatrixZ*>(mat);
+        if( matrixZ ){
+          std::vector<xmlrpc_c::value> res;
+          res.push_back( xmlrpc_c::value_int(matrixZ->getRows()));
+          res.push_back( xmlrpc_c::value_int(matrixZ->getColumns()));
+          *retvalP = xmlrpc_c::value_array( res );
+          return;
+        }
+        matrixR = dynamic_cast<mpplas::MatrixR*>(mat);
+        if( matrixR ){
+          std::vector<xmlrpc_c::value> res;
+          res.push_back( xmlrpc_c::value_int(matrixR->getRows()));
+          res.push_back( xmlrpc_c::value_int(matrixR->getColumns()));
+
+          *retvalP = xmlrpc_c::value_array( res );
+
+          return;
+        }
+        matrixGFx = dynamic_cast<mpplas::MatrixGFx*>(mat);
+        if( matrixGFx ){ 
+          std::vector<xmlrpc_c::value> res;
+          res.push_back( xmlrpc_c::value_int(matrixGFx->getRows()));
+          res.push_back( xmlrpc_c::value_int(matrixGFx->getColumns()));
+
+          *retvalP = xmlrpc_c::value_array( res );
+
+          return;
+        }
+
+      } catch( const std::exception &e ){
+        throw girerr::error( e.what() );
+      }
+
+    }
+
+};
+
+
 
 
 
@@ -3389,6 +3449,7 @@ int main(int const, const char ** const) {
     myRegistry.addMethod("_mzGetElement", new MatrixGetElementMethod);
     myRegistry.addMethod("_mzTranspose", new MZTransposeMethod);
     myRegistry.addMethod("_mzSlice", new MatrixSlicingMethod);
+    myRegistry.addMethod("_mzDims", new MatrixGetDimensionsMethod);
 
     myRegistry.addMethod("_mrCreate", new MRCreate);
     myRegistry.addMethod("_mrCreateDims", new MRCreateFromDims);
@@ -3402,6 +3463,7 @@ int main(int const, const char ** const) {
     myRegistry.addMethod("_mrGetElement", new MatrixGetElementMethod);
     myRegistry.addMethod("_mrTranspose", new MRTransposeMethod);
     myRegistry.addMethod("_mrSlice", new MatrixSlicingMethod);
+    myRegistry.addMethod("_mrDims", new MatrixGetDimensionsMethod);
 
     myRegistry.addMethod("_mgfxCreate", new MGFxCreate);
     myRegistry.addMethod("_mgfxCreateDims", new MGFxCreateFromDims);
@@ -3415,6 +3477,7 @@ int main(int const, const char ** const) {
     myRegistry.addMethod("_mgfxGetElement", new MatrixGetElementMethod);
     myRegistry.addMethod("_mgfxTranspose", new MGFxTransposeMethod);
     myRegistry.addMethod("_mgfxSlice", new MatrixSlicingMethod);
+    myRegistry.addMethod("_mgfxDims", new MatrixGetDimensionsMethod);
 
 
     myRegistry.addMethod("_getHRString", new GetHRStringMethod);

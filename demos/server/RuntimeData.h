@@ -11,8 +11,7 @@
 #include <pthread.h>
 
 
-class NoSuchVariable : public std::invalid_argument
-{
+class NoSuchVariable : public std::invalid_argument {
   public:
     explicit NoSuchVariable(const std::string& what_arg)
       : std::invalid_argument(what_arg)

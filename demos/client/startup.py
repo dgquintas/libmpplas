@@ -37,6 +37,10 @@ def _runGC(grace):
 
 Client.runGC = _runGC
 
+def runFile(fileName):
+  f = open(fileName, 'r')
+  exec f in globals() 
+
 import matplotlib
 matplotlib.interactive(True)
 matplotlib.use('WXAgg') 

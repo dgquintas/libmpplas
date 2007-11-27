@@ -43,7 +43,17 @@ def runBatch(reset = True):
   res = RPCServer.getInstance().getBatchServer()()
   if reset:
     RPCServer.getInstance().resetBatch()
-  return [x for x in res]
+    endBatch()
+  resultsList = []
+  for r in res:
+    if isinstance(r, str):
+      tpe = r.split("-",1)[0]
+      resInstance = eval( "%s(id='%s')" % (tpe, r) )
+      resultsList.append(resInstance)
+    else:
+      resultsList.append(r)
+
+  return resultsList
 
 def endBatch():
   RPCServer.getInstance().setBatch(False)
@@ -703,8 +713,7 @@ class MZ(Variable): #matrix Z
     return _mzTranspose(self)
 
   def getDimensions(self):
-    pyRepr = matrixToPyRep(repr(self))
-    return (len(pyRepr), len(pyRepr[0]))
+    return _mzDims(self)
 
   def getSubMatrix(self, rows=(0,), cols=(0,)):
     rows = list(rows)
@@ -793,8 +802,7 @@ class MR(Variable): #matrix R
     return _mrSolve(self, b)
 
   def getDimensions(self):
-    pyRepr = matrixToPyRep(repr(self))
-    return (len(pyRepr), len(pyRepr[0]))
+    return _mrDims(self)
  
   def getSubMatrix(self, rows=(0,), cols=(0,)):
     rows = list(rows)
@@ -878,8 +886,7 @@ class MGFx(Variable): #matrix GFx
     return _mgfxSolve(self, b)
 
   def getDimensions(self):
-    pyRepr = matrixToPyRep(repr(self))
-    return (len(pyRepr), len(pyRepr[0]))
+    return _mgfxDims(self)
  
   def getSubMatrix(self, rows=(0,), cols=(0,)):
     rows = list(rows)

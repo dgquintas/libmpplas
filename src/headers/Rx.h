@@ -6,11 +6,12 @@
 #define __RX_H
 
 #include "Polynomial.h"
+#include "Field.h"
 #include "R.h"
 #include "Z.h"
 
 namespace mpplas{
-  class Rx : public Polynomial<R> {
+  class Rx : public Polynomial<R>, Field< Rx > {
     public:
       Rx();
       Rx(const Rx& src);

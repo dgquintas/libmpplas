@@ -44,7 +44,7 @@ namespace mpplas{
 
         const Z& p( fx.getCharacteristic() );
         const int m = fx.getDegree();
-        const T x(1, 1, p);
+        const T x((Digit)1, (Digit)1, p);
         GF gfGen(p, fx, false, false);
         GFx u(gfGen.getElement(x));
         Exponentiation< GFx > *potMod; 
@@ -101,12 +101,12 @@ namespace mpplas{
         MethodsFactory::getReference().getFunc(potMod);
         MethodsFactory::getReference().getFunc(factorize);
 
-        const MiVec<Z>& factors( factorize->factoriza( ( p ^ fx.getDegree() )-1 ) );
+        const MiVec<Z>& factors( factorize->factoriza( ( p ^ (Digit)fx.getDegree() )-(Digit)1 ) );
         const int m( fx.getDegree() );
         GF gfGen(p,fx,false, false);
-        GFx lx( gfGen.getElement(T(1,1, p)) );
+        GFx lx( gfGen.getElement(T((Digit)1,(Digit)1, p)) );
         GFx ltmp(lx);
-        const Z pM_1( ((p ^ m) -1) );
+        const Z pM_1( ((p ^ (Digit)m) - (Digit)1) );
         for(int i = 0 ; i < factors.size(); i++){
           potMod->exponentiation(&ltmp, pM_1 / factors.at(i)); //FIXME: factors[i] no chuta con icc
           if( ltmp.isOne() ){

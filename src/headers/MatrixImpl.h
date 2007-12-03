@@ -487,6 +487,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::invert(){
     MatrixHelpers::makeDoolittleCombinedMatrix(*this);
 
     const Matrix<T, Alloc> orig(*this); 
+#pragma omp parallel for schedule(static,1)
     for(int j = 0; j < n; j++){
       MatrixHelpers::solveForInv(orig,*this,j);
     }
@@ -499,19 +500,46 @@ T Matrix<T, Alloc>::getDeterminant() const {
   if( !this->isSquare() ){
     throw Errors::SquareMatrixRequired();
   }
+  if( this->getRows() == 1 ){
+    return _data[0];
+  }
 
   const bool isTaField(dynamic_cast<const Field<T>* >(&_data[0]));
 
   if(isTaField){
     std::cout << "doolittle" << std::endl;
     Matrix<T, Alloc> m(*this);
-    MatrixHelpers::makeDoolittleCombinedMatrix(m);
+    int sign;
+    const Matrix<T,Alloc> p(MatrixHelpers::makeDoolittleCombinedMatrix(m, &sign));
+  
+      std::cout << p.toString() << std::endl;
+
+    const int nr = this->getRows();
+      Matrix<T,Alloc> l(nr, nr);
+      Matrix<T,Alloc> u(nr, nr);
+      l.setDiagonal(T::ONE);
+      for(int i = 0; i < nr; i++){
+        for(int j = 0; j < i; j++){
+          l(i,j) = m(i,j);
+        }
+      }
+      for(int i = 0; i < nr; i++){
+        for(int j = i; j < nr; j++){
+          u(i,j) = m(i,j);
+        }
+      }
+
+      std::cout << l.toString() << std::endl;
+      std::cout << u.toString() << std::endl;
+      std::cout << p*l*u << std::endl;
+
+
 
     T determinant( m[0] );
-    const int nr = this->getRows();
     for( int i = 1; i < nr; i++){
       determinant *= m(i,i);
     }
+    determinant *= (SignedDigit)sign;
     return determinant;
   }
   else{
@@ -763,8 +791,7 @@ template<typename T, typename Alloc>
 //      aRows, aCols, bCols,
 //      bCols, aCols, bCols);
 
-
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static,1)
   for (int aRow = 0; aRow < aRows; aRow += aRowsPerBlock) {
     const bool aRowsOF = ((aRow + aRowsPerBlock) > aRows);
     for (int bCol = 0; bCol < bCols; bCol += bColsPerBlock) {
@@ -1044,15 +1071,41 @@ namespace MatrixHelpers{
 
   }
 
+  template<typename T, typename Alloc>
+    int _pivot2(Matrix<T,Alloc>& m, const int j){
+      for(int k = j+1; k < m.getRows(); k++){
+        if( m(k,j) != T::ZERO){
+          for( int l = 0; l < m.getColumns(); l++){
+            std::swap(m(j,l), m(k,l));
+          }
+          return k;
+        } 
+      }
 
+      return 0;
+
+    }
 
   template<typename T, typename Alloc>
-    void makeDoolittleCombinedMatrix(Matrix<T, Alloc>& a){
+    Matrix<T,Alloc> makeDoolittleCombinedMatrix(Matrix<T, Alloc>& a, int* const sign ){
       if( !a.isSquare() ){
         throw Errors::SquareMatrixRequired();
       }
+      std::vector<int> p(a.getRows());
+      for(int i = 0 ; i < p.size(); i++) {
+        p[i] = i;
+      }
       const int size = a.getColumns();
+      int sgn = 1;
       for(int k=0; k<size-1; k++) {
+        if( a(k,k) == T::ZERO ){
+          const int rowPivot(_pivot2(a,k));
+          if( rowPivot == 0 ){
+            assert(false); //FIXME: raise singular matrix exceptioin
+          }
+          std::swap(p[k],p[rowPivot]);
+          sgn *= -1;
+        }
 #pragma omp parallel for schedule(static,1)
         for (int i=k+1; i<size; i++) {
           a(i,k) /= a(k,k);
@@ -1062,7 +1115,26 @@ namespace MatrixHelpers{
           }
         }
       }
+
+      if( sign ){
+        *sign = sgn;
+      }
+      return _getPermutationsMatrix<T,Alloc>(p);
     }
+ 
+  template<typename T, typename Alloc>
+   Matrix<T, Alloc> _getPermutationsMatrix(const std::vector<int>& p){
+     const int n = p.size();
+     Matrix<T, Alloc> pId(n,n);
+
+     for(int i = 0; i < n; i++){
+        pId(i,p[i]) = T::ONE;
+     }
+
+     return pId;
+   }
+
+
 
 
 

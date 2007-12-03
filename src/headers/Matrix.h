@@ -259,8 +259,11 @@ namespace mpplas {
     }
 
     template<typename T, typename Alloc>
-      void makeDoolittleCombinedMatrix(Matrix<T, Alloc>& m);
-     
+      Matrix<T, Alloc> makeDoolittleCombinedMatrix(Matrix<T, Alloc>& m, int* const sign = NULL);
+ 
+    template<typename T, typename Alloc>
+        Matrix<T, Alloc> _getPermutationsMatrix(const std::vector<int>& p);
+
     template<typename T, typename Alloc>
       Matrix<T,Alloc> solve(Matrix<T, Alloc> m, Matrix<T, Alloc> b);
 
@@ -272,11 +275,6 @@ namespace mpplas {
       void forwardSubstitution(const Matrix<T, Alloc>& m, Matrix<T, Alloc>& b);
     template<typename T, typename Alloc>
       void backwardSubstitution(const Matrix<T, Alloc>& m, Matrix<T, Alloc>& y);
-
-    template<typename T, typename Alloc>
-      Matrix<T, Alloc> invert(Matrix<T, Alloc> m);
-
-
 
 
     template<typename T>

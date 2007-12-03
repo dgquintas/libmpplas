@@ -20,8 +20,12 @@
 #include "Errors.h"
 #include "AlgebraUtils.h"
 #include "Constants.h"
+#include "Constraints.h"
 #include "MiVec.h"
 #include "omp_mock.h"
+#include "DigitUtils.h"
+#include "SystemInfo.h"
+#include "Field.h"
 
 namespace mpplas {
 
@@ -162,10 +166,9 @@ namespace mpplas {
 
 
         Matrix<T, Alloc>& transpose();
-        Matrix<T, Alloc>& diagonalize();
         Matrix<T, Alloc>& invert();
 
-        T getDeterminant();
+        T getDeterminant() const ;
         void setDiagonal(const T& n);
         void setAll(const T& n);
         void setToZero();
@@ -185,6 +188,9 @@ namespace mpplas {
 
         virtual std::string toString() const;
         virtual std::string toHRString() const;
+
+
+        virtual ~Matrix(){ }
 
 
       protected:
@@ -237,6 +243,20 @@ namespace mpplas {
 
   namespace MatrixHelpers{
 
+    namespace DodgsonCondensation {
+      template<typename T, typename Alloc>
+        T getDodgsonDeterminant(Matrix<T, Alloc> m);
+
+      template<typename T>
+        void _get2x2Determinants(T* const res, const T* const orig, const int n, const int stride);
+
+      template<typename T, typename Alloc>
+        bool _pivot(Matrix<T,Alloc>& m, const int lim);
+
+
+      template<typename T, typename Alloc>
+        void _elementWiseInnerDiv(Matrix<T,Alloc>& lhs, const Matrix<T,Alloc>& rhs);
+    }
 
     template<typename T, typename Alloc>
       void makeDoolittleCombinedMatrix(Matrix<T, Alloc>& m);
@@ -260,20 +280,23 @@ namespace mpplas {
 
 
     template<typename T>
-    class Strassen{
+    class Winograd{
       public:
+        Winograd(){}
+
         void run(T* C, const T* const A, const T* const B, 
             const int numRowsA, const int numColsA, const int numColsB,
-            const int strideC, const int strideA, const int strideB) const;
+            const int strideC, const int strideA, const int strideB,bool reset=false) const;
 
         virtual void baseMult(T* C, const T* const A, const T* const B,
         const int numRowsA, const int numColsA, const int numColsB,
-        const int strideC, const int strideA, const int strideB) const;
+        const int strideC, const int strideA, const int strideB, const bool reset=false) const;
 
      
-        virtual ~Strassen(){}
+        virtual ~Winograd(){}
 
       private:
+
         virtual void _addBlocks(T* res, const T* const A, const T* const B, 
             const int rows, const int cols,
             const int strideRes, const int strideA, const int strideB) const;
@@ -286,13 +309,47 @@ namespace mpplas {
             const int numRowsA, const int numColsA, const int numColsB,
             const int strideRes, const int strideA, const int strideB) const;
 
-
-        
-        void _generateQs(T* Q, const T* const A, const T* const B, 
-            const int halfRowsA, const int halfColsA, const int halfColsB,
-            const int strideA, const int strideB) const;
+        virtual void _accumBlocks(T* res, const T* const A, 
+            const int rows, const int cols,
+            const int strideRes, const int strideA, const bool reset ) const;
 
     };
+
+
+//    template<typename T>
+//    class Strassen{
+//      public:
+//        void run(T* C, const T* const A, const T* const B, 
+//            const int numRowsA, const int numColsA, const int numColsB,
+//            const int strideC, const int strideA, const int strideB) const;
+//
+//        virtual void baseMult(T* C, const T* const A, const T* const B,
+//        const int numRowsA, const int numColsA, const int numColsB,
+//        const int strideC, const int strideA, const int strideB) const;
+//
+//     
+//        virtual ~Strassen(){}
+//
+//      private:
+//        virtual void _addBlocks(T* res, const T* const A, const T* const B, 
+//            const int rows, const int cols,
+//            const int strideRes, const int strideA, const int strideB) const;
+//
+//        virtual void _subBlocks(T* res,const T* const A, const T* const B,
+//            const int rows, const int cols,
+//            const int strideRes, const int strideA, const int strideB) const;
+//
+//        virtual void _multBlocks(T* res,const T* const A, const T* const B,
+//            const int numRowsA, const int numColsA, const int numColsB,
+//            const int strideRes, const int strideA, const int strideB) const;
+//
+//
+//        
+//        void _generateQs(T* Q, const T* const A, const T* const B, 
+//            const int halfRowsA, const int halfColsA, const int halfColsB,
+//            const int strideA, const int strideB) const;
+//
+//    };
     
   } /* namespace MatrixHelpers */
     

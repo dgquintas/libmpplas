@@ -16,7 +16,7 @@ int main(int argc, char** argv){
 
 
   Profiling& prof( Profiling::getReference() );
-//  R::precisionSalida(3);
+  R::precisionSalida(3);
 
   RandomFast* rnd;
   MethodsFactory::getReference().getFunc(rnd);
@@ -36,7 +36,7 @@ int main(int argc, char** argv){
   for(int i=0; i < m1.getRows(); i++){
     for(int j =0 ; j < m1.getColumns(); j ++){
       m1(i,j) = rnd->getInteger(3); 
-      mr(i,j)=R(rnd->getInteger(3));
+      mr(i,j)=R(m1(i,j));
    }
  }
  for(int i=0; i < m2.getRows(); i++){
@@ -64,21 +64,24 @@ int main(int argc, char** argv){
 
 //  cout <<  prof.getResults() << endl;
   prof.startClock();
+  //std::cout << mat * MatrixR(mat).invert() << std::endl;
   //std::cout << mat * MatrixZ(mat).invert() << std::endl;
 //  mat.invert();
-  cout << m1.toString() << " * " << m2.toString() << endl;
-  MatrixZ m3(m1*m2);
-  cout << m3.toString() << endl;
-  cout << m3 << endl;
+//  cout << m1.toString() << " * " << m2.toString() << endl;
+//  MatrixZ m3(m1*m2);
+//  cout << m3.toString() << endl;
+//  cout << m3 << endl;
 //  cout << m3 * MatrixZ(m3).invert() << endl;
 //  m3.fromString("[5 6 1 2 3; 6 4 1 9 1; 3 1 2 3 4; 8 9 2 1 1 ; 3 5 6 7 9]");
-  cout << m1 << endl;
-  cout << m1.toString() << endl;
+//  cout << m1 << endl;
+//  cout << m1.toString() << endl;
 //  cout << MatrixHelpers::DodgsonCondensation::getDodgsonDeterminant(m3) << endl;
 //  MatrixHelpers::DodgsonCondensation::_pivot(m3, m3.getRows());
 //  cout << m3 << endl;
 //  cout << m3.toString() << endl;
+  cout << m1.toString() << endl;
   cout << m1.getDeterminant() << endl;
+  cout << mr << endl;
   cout << mr.toString() << endl;
   cout << mr.getDeterminant() << endl;
 //  cout <<  prof.getResults().getTotalOps() << endl;

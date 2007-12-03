@@ -10,6 +10,9 @@
 #include <cassert>
 
 inline int brand(int a, int b){
+  if( a==b ){
+    return a;
+  }
   static bool firstTime(true);
   if( firstTime ) {
     srand( time(NULL) );

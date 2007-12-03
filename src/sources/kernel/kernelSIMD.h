@@ -102,6 +102,9 @@ namespace mpplas{
 
       typedef typename SIMDtoBasicTypes<T>::BasicType BasicType;
 
+      static SIMDDigit<T> ZERO;
+      static SIMDDigit<T> ONE;
+
       inline SIMDDigit& operator+=(const SIMDDigit<T>& rhs);
       inline SIMDDigit& operator-=(const SIMDDigit<T>& rhs);
       inline SIMDDigit& operator*=(const SIMDDigit<T>& rhs);
@@ -109,15 +112,20 @@ namespace mpplas{
 
       inline SIMDDigit& operator=(const SIMDDigit<T>& rhs);
 
-        inline SIMDDigit& pack(const BasicType* const src);
-        inline BasicType* unpack(BasicType* const out) const;
-        inline BasicType sum() const;
+      inline SIMDDigit& pack(const BasicType* const src);
+      inline BasicType* unpack(BasicType* const out) const;
+      inline BasicType sum() const;
 
 
       inline short getSize() const;
 
       T data;
     };
+
+  template<typename T>
+  SIMDDigit<T> SIMDDigit<T>::ZERO = SIMDDigit<T>();
+  template<typename T>
+  SIMDDigit<T> SIMDDigit<T>::ONE = SIMDDigit<T>();
 
   namespace SIMDCPU {
 

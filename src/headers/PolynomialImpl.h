@@ -534,7 +534,7 @@ std::string Polynomial<S>::toString() const {
   oss << "[";
   for(int i = this->_data.size()-1; i >= 0; i--){
     if( this->_data[i] != S::getAddIdentity() ){
-      oss << "(" << this->_data[i] << ", " << i << ")";
+      oss << "(" << this->_data[i] << "," << i << ")";
     }
   }
   oss << "]";

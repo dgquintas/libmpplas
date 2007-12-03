@@ -1,4 +1,7 @@
 #include <cassert>
+#include <sstream>
+#include <iterator>
+
 
 #include "Utils.h"
 #include "Constants.h"
@@ -18,6 +21,11 @@ namespace mpplas{
 
     ///////////////////////////////////////////////
 
+    std::vector<std::string> split(const std::string& str) {
+      std::istringstream is(str);
+      return std::vector<std::string> (std::istream_iterator<std::string>(is),
+          std::istream_iterator<std::string>());
+    }
 
   
   } // namespace Utils

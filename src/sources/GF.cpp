@@ -3,6 +3,8 @@
  */
 
 
+#include <vector>
+#include <cstdlib>
 
 #include "GF.h"
 #include "Potencia.h"
@@ -10,6 +12,7 @@
 #include "PolynomialUtils.h"
 #include "Errors.h"
 #include "GFx.h"
+#include "Utils.h"
 
 namespace mpplas {
 
@@ -26,17 +29,25 @@ namespace mpplas {
       }
   }
 
-  GF::GF(const Z& p, const Z_px& fx, const bool checkForIrred )
+  GF::GF(const Z& p, const Z_px& fx, const bool checkForIrred, const bool checkForPrim )
     : _p(p),_n( fx.getDegree() ),  _fx(fx),  _order( p ^ (Digit)fx.getDegree()), _primitiveMod(false){
 
       if( fx.getCharacteristic() != p ){
         throw Errors::InvalidArgument("Invalid characteristic for f(x) constructing GF");
       }
-      if( checkForIrred && (!fx.isZero()) ){ //it may be zero when NULL_GF is statically initialized
+      
+      //it may be zero when NULL_GF is statically initialized
+      if( checkForIrred && (!fx.isZero()) ){ 
         if( ! PolynomialUtils::isIrreducible(fx) ){
           throw Errors::IrreduciblePolyExpected("while constructing GF");
         }
       }
+
+      if( checkForPrim && (!fx.isZero()) ){
+        _primitiveMod =PolynomialUtils::isPrimitive(fx) ;
+      }
+
+
     }
 
 //  GF::GF(const Z_px& poly, const Z_px& fx)
@@ -100,5 +111,37 @@ namespace mpplas {
   bool GF::operator!=(const GF& rhs){
     return !(this->operator==(rhs));
   }
+
+  void GF::fromString(const std::string& str){
+    const std::vector<std::string> parts( Utils::split(str) );
+
+    if( (parts.size() != 4)  ||  (parts[0] != "GF") ){
+      throw Errors::InvalidArgument("Invalid string for GF::fromString: " + str);
+    }
+
+    const Z p(parts[1] );
+
+    this->operator=( GF(p, Z_px(parts[3], p), false) );
+
+    return;
+  }
+
+  std::string GF::toString() const{
+    std::ostringstream oss;
+    oss << "GF " << _p.toString() << " " << _n << " " << _fx.toString();
+    return oss.str();
+  }
+
+  std::string GF::toHRString() const{
+    std::ostringstream oss;
+    oss << "GF( " << _p.toHRString() << "^" << _n << " = " << this->getOrder() << ", Polynomial Mod =" << _fx.toHRString();
+    if( _primitiveMod ){
+      oss << " (primitive) ";
+    }
+    oss << ")";
+    return oss.str();
+
+  }
+
 
 }

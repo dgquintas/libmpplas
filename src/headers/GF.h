@@ -17,7 +17,7 @@ namespace mpplas{
   class GF : public MPPDataType {
     public:
       GF(const Z& p, const int n = 1, const bool usePrimitiveMod = false);
-      GF(const Z& p, const Z_px& fx, const bool checkForIrred = true);
+      GF(const Z& p, const Z_px& fx, const bool checkForIrred = true, const bool checkForPrim = true);
       GF(const GF& src);
      
       GF& operator=(const GF& src);
@@ -37,10 +37,10 @@ namespace mpplas{
       inline Z getCharacteristic() const;
       inline bool isModPrimitive() const;
 
-      //TODO
-      virtual std::string toString() const { return "";};
-      //TODO
-      virtual std::string toHRString() const{ return "";};
+      virtual std::string toString() const;
+      virtual std::string toHRString() const;
+
+      void fromString(const std::string& str);
 
       static const GF NULL_GF;
 

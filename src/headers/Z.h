@@ -1033,6 +1033,8 @@ namespace mpplas
       //      CONVERSION METHODS     //
       /////////////////////////////////
 
+      Z& fromString(const std::string& str);
+
       virtual std::string toString() const;
       virtual std::string toHRString() const;
 

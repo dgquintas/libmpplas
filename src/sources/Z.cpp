@@ -1564,6 +1564,14 @@ namespace mpplas{
   }
 
 
+Z& Z::fromString(const std::string& str){
+
+    std::istringstream inStream(str);
+    operator>>(inStream,*this);
+
+    return *this;
+}
+
 
 
   std::string Z::toString(void) const {

@@ -13,6 +13,28 @@
 
 namespace mpplas{
 
+
+  MiVec< std::pair<Z, int> > Factoriza::factorsWithExps( const Z& num ){
+
+    MiVec<Z> factors( this->factoriza(num) );
+
+    std::sort(factors.begin(), factors.end());
+
+    std::vector< std::pair<Z, int> > factorsWithE;
+
+    for(int i = 0 ; i < factors.size(); ){
+      const Z& current(factors[i]);
+      int count = 1;
+      while( (++i < factors.size()) && (factors[i] == current) ){
+        count++;
+      }
+      factorsWithE.push_back( std::pair<Z, int>(current, count) );
+    }
+
+    return factorsWithE;
+  }
+
+
   MiVec<Z> CadenaAlgFactor::factoriza(const Z& n)
   {
     MethodsFactory* const funcs = MethodsFactory::getInstance();

@@ -18,8 +18,7 @@ namespace mpplas{
    *  factores primos.
    *
    */
-  class Factoriza : public AbstractMethod
-  {
+  class Factoriza : public AbstractMethod {
     public:
       /** Determinación de los factores primos de un entero.
        *
@@ -34,6 +33,8 @@ namespace mpplas{
        * @return Estructura conteniendo los factores primos de @a num. 
        * */
       virtual MiVec<Z> factoriza(const Z& num) = 0;
+
+      virtual MiVec< std::pair<Z, int> > factorsWithExps( const Z& num );
     
       virtual ~Factoriza(){}
 

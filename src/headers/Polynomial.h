@@ -89,7 +89,7 @@ namespace mpplas{
         virtual std::string toString() const;
         virtual std::string toHRString() const;
 
-        ~Polynomial(){
+        virtual ~Polynomial(){
           //only conditions are that S must be a commutative ring 
           //with identity: Knuth 4.6 (p. 418). ie, a unique factorization domain (UFD)
           Constraints::must_have_base<S, Ring<S> > dummy1 __attribute__ ((__unused__));

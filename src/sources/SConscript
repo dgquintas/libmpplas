@@ -12,7 +12,6 @@ filesStr = """
     GCD.cpp
     Hash.cpp
     LCM.cpp
-    MatrixFloat.cpp
     MatrixGFx.cpp
     MatrixZ.cpp
     MatrixR.cpp

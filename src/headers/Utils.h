@@ -5,6 +5,7 @@
 #ifndef __UTILS_H
 #define __UTILS_H
 
+#include <vector>
 #include <string>
 
 #include "BasicTypedefs.h"
@@ -14,7 +15,9 @@ namespace mpplas{
 
   namespace Utils{
 
-    /** Returns a copy of the string @a str with leading and trailing
+    /** Removes leading and trailing whitespaces.
+     *
+     * Returns a copy of the string @a str with leading and trailing
      * whitespace removed.
      *
      * @param str The string to strip
@@ -23,6 +26,18 @@ namespace mpplas{
      * @return The stripped version of @a str.
      */
     std::string strip(const std::string& str, const std::string SEPSET = " \t");
+
+
+    /** Splits an string by whitespaces.
+     *
+     * Returns a vector containing the substrings defined 
+     * by the whitespaces in @a str.
+     *
+     * @param str the string to split.
+     *
+     * @return a vector containing the substrings defined 
+     * by the whitespaces in @a str. */
+    std::vector<std::string> split(const std::string& str);
 
 
     /** Computes the power of a Digit at compile time. 

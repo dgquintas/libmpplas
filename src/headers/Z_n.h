@@ -102,9 +102,6 @@ namespace mpplas{
       inline const Z& getMod() const { return n_; }
 
 
-//      virtual std::string toString() const;
-
-     
     /* Ring and Group methods */
       static const Z_n ZERO;
       static const Z_n ONE;

@@ -50,6 +50,13 @@ namespace mpplas{
       virtual std::string toHRString() const;
       std::string getPBRString() const;
 
+      virtual inline GFx& makeZero(){ Z_px::makeZero(); return *this;} 
+      virtual inline GFx& makeOne() { Z_px::makeOne();  return *this;}
+
+      virtual bool isZero() const { return Z_px::isZero(); }
+      virtual bool isOne() const {  return Z_px::isOne(); }
+      virtual inline GFx& invertSign(){ Z_px::changeSign(); return *this; }
+
       /* Ring, Group and Field methods */
       static const GFx ZERO;
       static const GFx ONE;

@@ -184,7 +184,7 @@ void ZTest::testExponentiation(){
 };
 
 void ZTest::testSquare(){
-  Z res = (cuadrado(z1)) ;
+  Z res = (square(z1)) ;
    
   string tmp;
   tmp += z1.toString();
@@ -281,7 +281,7 @@ void ZTest::testPowerOfTwo(){
   //const int power = brand(100,300);
   const int power = 32;
   z1.powerOfTwo(power);
-  z2.hacerUno(); z2 <<= power;
+  z2.makeOne(); z2 <<= power;
 
   qassertEquals( z1.toString(), z2.toString() );
 }

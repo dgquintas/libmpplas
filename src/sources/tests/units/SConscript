@@ -59,6 +59,7 @@ moduleFiles = Split("""
     RandomTest.cpp
     PrimesTest.cpp
     MatrixZTest.cpp
+    MatrixRTest.cpp
     VectorZTest.cpp
     VectorRTest.cpp
     MethodsFactoryTest.cpp

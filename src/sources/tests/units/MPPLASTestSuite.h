@@ -42,7 +42,7 @@ namespace com_uwyn_qtunit
     RSATest _rsaTest;
     RandomTest _randomTest;
     MatrixZTest _matrixZTest;
-//    MatrixRTest _matrixRTest;
+    MatrixRTest _matrixRTest;
     VectorZTest _vectorZTest;
     VectorRTest _vectorRTest;
     MethodsFactoryTest _functionsTest;

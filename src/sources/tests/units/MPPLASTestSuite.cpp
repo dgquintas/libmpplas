@@ -20,7 +20,7 @@ MPPLASTestSuite::MPPLASTestSuite() {
 	addTestUnit(_z_nTest);
 	addTestUnit(_zM_nTest);
   addTestUnit(_matrixZTest);
-//  addTestUnit(_matrixRTest);
+  addTestUnit(_matrixRTest);
   addTestUnit(_vectorZTest);
   addTestUnit(_vectorRTest);
 addTestUnit(_functionsTest);

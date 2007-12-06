@@ -7,6 +7,11 @@
 
 #include "qtunit/TestCase.h"
 #include "MatrixR.h"
+#include "MethodsFactory.h"
+#include "Random.h"
+
+
+#include <pari/pari.h>
 
 using namespace mpplas;
 
@@ -22,14 +27,14 @@ namespace com_uwyn_qtunit{
 
     protected:
       /* The actual tests */
-      void testTranspose();
-      void testOperatorAsign();
-      void testCopyConstructor();
-      void testToString();
-      void testSetDiagonal();
+      void testInverse();
+      void testSolve();
 
     private:
-      MatrixR mat;
+      MatrixR _A;
+      MatrixR _b;
+      RandomFast* rnd;
+      MethodsFactory& funcs;
   };
 }
 

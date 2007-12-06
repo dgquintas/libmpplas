@@ -162,9 +162,9 @@ void ZxTest::testEvaluation(){
   const Z res( polA.evaluate(x0) );
   
   GEN x0Pari = gp_read_str( (char*)x0.toString().c_str() );
-  GEN resPari = poleval(polPariA, x0Pari);
+  GEN risEveni = poleval(polPariA, x0Pari);
 
-  qassertEquals( res.toString(), std::string( GENtostr(resPari) ) );
+  qassertEquals( res.toString(), std::string( GENtostr(risEveni) ) );
 }
 
 

@@ -69,7 +69,7 @@ void ExponentiationTest::testExpLeftRight(){
 }
 void ExponentiationTest::testExpMontgomery(){
   Z _mod(rnd->getInteger( brand(1000,2000) ));
-  if( _mod.esPar() ){
+  if( _mod.isEven() ){
     _mod++;
   }
   GEN m = gp_read_str(const_cast<char*>(_mod.toString().c_str()));
@@ -96,7 +96,7 @@ void ExponentiationTest::testExpBarrett(){
   pariRes = Fp_pow(x,Y,m);
 
   base_n = _base;
-  _expZ.cambiarSigno();
+  _expZ.invertSign();
   potFunc.exponentiation(&base_n,_expZ);
   pariStr = GENtostr( pariRes );
   qassertEquals( base_n.toString() ,pariStr );
@@ -108,7 +108,7 @@ void ExponentiationTest::testTwoThreadedModularExp(){
   Z _mod(rnd->getInteger( brand(1000,2000) )); 
   GCD<Z>::DFL gcd;
 
-  while( _mod.esPar() || !gcd.gcd(_base, _mod).esUno() ){
+  while( _mod.isEven() || !gcd.gcd(_base, _mod).isOne() ){
     _mod = rnd->getInteger( brand(1000,2000) ); 
   }
   GEN m = gp_read_str(const_cast<char*>(_mod.toString().c_str()));

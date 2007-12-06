@@ -64,7 +64,7 @@ void ReductionTest::testMontgomeryReduction(){
   Z primeMod(_primeGen->getPrime(brand(100,200)));
   _integer = _rnd->getInteger(brand(100,190)); //musn't be 2x the mod size
   int n = primeMod.longitud();
-  Z R; R.hacerCero();
+  Z R; R.makeZero();
   R.potenciaBase(n);
 
 
@@ -93,7 +93,7 @@ void ReductionTest::testBarrettPrecomp(){
   Z mod(_rnd->getInteger(brand(300,2000)));
   _integer = _rnd->getInteger(brand(2000, 4000));
 
-  Z b2k; b2k.hacerUno();
+  Z b2k; b2k.makeOne();
   b2k.potenciaBase( 2*mod.longitud() );
   
   GEN x, m;

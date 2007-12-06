@@ -40,7 +40,7 @@ ZM_nTest::ZM_nTest()
 void ZM_nTest::setUp(){
   integer = rnd->getInteger(brand(2000,5000));
   modulus = rnd->getInteger(brand(500,1000));
-  if( modulus.esPar() ){
+  if( modulus.isEven() ){
     modulus++;
   }
   modularInteger = new ZM_n(rnd->getInteger(brand(1000,2000)), modulus);
@@ -184,9 +184,9 @@ void ZM_nTest::testSquare(){
 void ZM_nTest::testInverse(){
 
   GCD<Z>::DFL gcd;
-  while( !gcd.gcd( modularInteger->toZ(), modularInteger->getMod() ).esUno() ){
+  while( !gcd.gcd( modularInteger->toZ(), modularInteger->getMod() ).isOne() ){
     modulus = rnd->getInteger(brand(500,1000));
-    if( modulus.esPar() ){
+    if( modulus.isEven() ){
       modulus++;
     }
     modularInteger = new ZM_n(rnd->getInteger(brand(1000,2000)), modulus);

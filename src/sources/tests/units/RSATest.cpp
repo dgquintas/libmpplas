@@ -61,7 +61,7 @@ void RSATest::testRSA(){
   Exponentiation<Z_n>* potMod; funcs->getFunc(potMod);
   do{
     e = genRandom->getIntegerBounded(n);
-  } while( !(gcd->gcd(e,phi).esUno()) );
+  } while( !(gcd->gcd(e,phi).isOne()) );
 
   //y la clave de desencriptacion la inversa de "e" modulo "phi"
   d = potMod->inverse(e,phi);

@@ -2,61 +2,70 @@
  * $Id$
  */
 
+
 #include "MatrixRTest.h"
-#include <iostream>
+#include "aux.h"
 
-
-using namespace std;
 using namespace mpplas;
 using namespace com_uwyn_qtunit;
 
 
 MatrixRTest::MatrixRTest()
+  : funcs( MethodsFactory::getReference() )
 {
-  addTest(MatrixRTest, testTranspose);
-  addTest(MatrixRTest, testOperatorAsign);
-  addTest(MatrixRTest, testCopyConstructor);
-  addTest(MatrixRTest, testToString);
-  addTest(MatrixRTest, testSetDiagonal);
+
+  funcs.getFunc(rnd) ;
+
+  addTest(MatrixRTest, testInverse);
+  addTest(MatrixRTest, testSolve);
 
 }
 
 void MatrixRTest::setUp(){
-  mat = MatrixR("[1.347643 2 0.3; 43523.21 5.84765 6.12352352; 7.1 8.2 9.3]");
   
+  const int n = brand(10,20);
+  const int m = n;
+
+  const int elemsSize = brand(50, 100);
+
+  _A = MatrixR( n,m );
+  _b = MatrixR( n,1);
+
+  for( int i = 0; i < _A.getSize(); i++ ){
+    _A(i) = R(rnd->getInteger(elemsSize));
+    _A(i) /= R(rnd->getInteger(elemsSize/brand(2,5)));
+  }
+
+  for( int i = 0; i < n; i++ ){
+    _b(i) = R(rnd->getInteger((elemsSize)));
+    _b(i) /= R(rnd->getInteger(elemsSize/brand(2,5)));
+  }
 }
+
 void MatrixRTest::tearDown(){
 //empty. new is not used
 }
 
-void MatrixRTest::testTranspose(){
-  MatrixR matT("[1.347643 43523.21 7.1; 2 5.84765 8.2; 0.3 6.12352352 9.3]");
-  mat.transpose();
-  qassertTrue(mat == matT);
-}
-void MatrixRTest::testOperatorAsign(){
-  MatrixR mat2;
-  mat2 = mat;
-  qassertTrue( mat2 == mat );
+void MatrixRTest::testInverse(){
+  const MatrixR id( _A * MatrixR(_A).invert());
+  const R thr("0.00000000001");
+  for(int i = 0; i < id.getRows(); i++){
+    qassertTrue( mpplas::abs(R::ONE - id(i,i)) < thr );
+  }
 
 }
-void MatrixRTest::testCopyConstructor(){
-  MatrixR mat2(mat);
-  qassertTrue( mat2 == mat );
-}
 
+void MatrixRTest::testSolve(){
 
-void MatrixRTest::testToString(){
-  MatrixR n( mat.toString() );
-  qassertTrue(mat == n);
-}
+  const MatrixR y(MatrixHelpers::solve(_A,_b));
+  std::cout << _b << std::endl;
+  _A *= y;
+  std::cout << _A << std::endl;
 
-
-void MatrixRTest::testSetDiagonal(){
-  MatrixR id(3,3);
-  id.setDiagonal(R(1.2345));
-  
-  MatrixR realId("[1.2345 0 0; 0 1.2345 0; 0 0 1.2345]");
-  qassertTrue(id == realId);
+  for(int i=0; i < y.getSize(); i++){
+    qassertEquals( _b(i).toString(),_A(i).toString() );
+  }
 
 }
+
+

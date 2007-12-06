@@ -16,7 +16,7 @@ int main(int argc, char** argv){
 
 
   Profiling& prof( Profiling::getReference() );
-  R::precisionSalida(3);
+  R::precisionSalida(6);
 
   RandomFast* rnd;
   MethodsFactory::getReference().getFunc(rnd);
@@ -32,12 +32,14 @@ int main(int argc, char** argv){
   MatrixZ m1(SIZEAR, SIZEAC);
   MatrixZ m2(SIZEBR, SIZEBC);
   MatrixR mr(SIZEAR, SIZEAC);
+  MatrixR br(SIZEAR, 1);
 
   for(int i=0; i < m1.getRows(); i++){
     for(int j =0 ; j < m1.getColumns(); j ++){
       m1(i,j) = rnd->getInteger(3); 
-      mr(i,j)=R(m1(i,j));
+      mr(i,j)=R(m1(i,j))/R("3.14");
    }
+    br(i,0) = R(rnd->getInteger(3));
  }
  for(int i=0; i < m2.getRows(); i++){
     for(int j =0 ; j < m2.getColumns(); j ++){
@@ -48,7 +50,8 @@ int main(int argc, char** argv){
 
 
 //  MatrixZ b("[4.5; 6.7; 8.9; 7.8]");
-//  MatrixZ mat3( "[1324.1 21 3.35236; 4.111 5.222 0.6; -75345.3253232522342 82325232235626234.1 9.122]");
+  //MatrixZ mat( "[1 2 3; 0 7 5; 0 4 10]");
+  MatrixZ mat( "[0 2 3; 0 5 6; 0 8 9]");
 //  MatrixZ foo;
 //
 //  cout << (mat * mat3) << endl;
@@ -66,7 +69,7 @@ int main(int argc, char** argv){
   prof.startClock();
   //std::cout << mat * MatrixR(mat).invert() << std::endl;
   //std::cout << mat * MatrixZ(mat).invert() << std::endl;
-//  mat.invert();
+//  std::cout << mat.invert() << std::endl;
 //  cout << m1.toString() << " * " << m2.toString() << endl;
 //  MatrixZ m3(m1*m2);
 //  cout << m3.toString() << endl;
@@ -75,15 +78,25 @@ int main(int argc, char** argv){
 //  m3.fromString("[5 6 1 2 3; 6 4 1 9 1; 3 1 2 3 4; 8 9 2 1 1 ; 3 5 6 7 9]");
 //  cout << m1 << endl;
 //  cout << m1.toString() << endl;
-//  cout << MatrixHelpers::DodgsonCondensation::getDodgsonDeterminant(m3) << endl;
-//  MatrixHelpers::DodgsonCondensation::_pivot(m3, m3.getRows());
+//  cout << mr.toString() << endl;
+  std::cout << m1.getDeterminant() << std::endl;
 //  cout << m3 << endl;
 //  cout << m3.toString() << endl;
-  cout << m1.toString() << endl;
-  cout << m1.getDeterminant() << endl;
-  cout << mr << endl;
-  cout << mr.toString() << endl;
-  cout << mr.getDeterminant() << endl;
+//  cout << mr.toString() << endl;
+//  cout << br.toString() << endl;
+//  cout << mr.solveFor( br) << endl;
+//  cout << mr* MatrixR(mr).invert() << endl;
+//  const MatrixR l(MatrixHelpers::_getL(mr));
+//  const MatrixR u(MatrixHelpers::_getU(mr));
+//
+//  cout << l*u << endl;
+
+
+
+//  cout << m1.getDeterminant() << endl;
+//  cout << mr << endl;
+//  cout << mr.toString() << endl;
+//  cout << mr.getDeterminant() << endl;
 //  cout <<  prof.getResults().getTotalOps() << endl;
   cout <<  prof.stopClock()  << endl;
   //

@@ -1091,7 +1091,6 @@ namespace MatrixHelpers{
         int sign = 1;
         const T* p;
         T* m_jk;
-        const T* m_ji;
         const T* m_i1i1;
 
         for (int i = 0; i < n-1; i++) {
@@ -1109,24 +1108,21 @@ namespace MatrixHelpers{
             sign *= -1;
             p = &(m(i,i));
           }
-#pragma omp parallel private(m_ji)
-          {
-      
-            for (int j = i + 1; j < n; j++){
-              m_ji = &m(j,i);
 
-#pragma omp for nowait firstprivate(i) private(m_jk)
-              for (int k = i + 1; k < n; k++) {
-                m_jk = &( m(j,k) );
-                m_jk->operator*=(*p);
-                m_jk->operator-=(*m_ji * m(i,k));
-                if (i){
-                  m_jk->operator/=( *m_i1i1 );
-                }
-              } 
-            }
+#pragma omp parallel 
+          for (int j = i + 1; j < n; j++){
+            const T& m_ji(m(j,i));
 
-          } /* implicit parallel barrier */
+#pragma omp for private(m_jk) schedule(static)
+            for (int k = i + 1; k < n; k++) {
+              m_jk = &( m(j,k) );
+              m_jk->operator*=(*p);
+              m_jk->operator-=(m_ji * m(i,k));
+              if (i){
+                m_jk->operator/=( *m_i1i1);
+              }
+            } /* for barrier */ 
+          } /* parallel barrier */
         }
 
         if( sign < 0 ){

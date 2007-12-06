@@ -98,7 +98,7 @@ namespace mpplas{
           }
     };
 
-    /** Elemento no invertible en un grupo finito */
+    /** Elemento no invertible */
     class NonInvertibleElement : public InvalidArgument  {
       public:
         NonInvertibleElement(const std::string details = "")

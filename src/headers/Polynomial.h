@@ -35,9 +35,22 @@ namespace mpplas{
     class Polynomial : public MPPDataType {
 
       public: 
+        /** Constructor for polynomials over S
+         *
+         * If @a ini is provided, the constant coefficient of the polynomial
+         * is initialized with its value. Otherwise, S::getAddIdentity() is used.
+         *
+         * @param ini the value with which to initialize the polynomial's constant coefficient.
+         * */
         Polynomial(const S& ini = S::getAddIdentity() );
+
+        /** Copy constructor for polynomials */
         Polynomial(const Polynomial<S>& src );
+
+        /** Assignment operator */
         Polynomial<S>& operator=(const Polynomial<S>& src);
+
+
         Polynomial<S>& fromString(const std::string& str);
 
         inline S& operator[](int i);
@@ -99,15 +112,39 @@ namespace mpplas{
 
 
       protected:
+
+        /** Constructor from textual representation. 
+         *
+         */
         Polynomial(const std::string& str, const S& ini = S() );
+
+        /** Constructor from coefficient enumeration.
+         *
+         */
         Polynomial(const std::vector<S>& coeffs, const S& ini = S() );
+
+        /** Constructor from a single coefficient.
+         *
+         */
         Polynomial(const S& coeff, const int exp, const S& ini = S() );
+
+        /** Erase leading zeros.
+         *
+         * Makes the representation of a polynomial unique
+         * by removing all the zero coefficients "in front" (ie, with a greater
+         * exponent) of the non-zero coefficient with the greatest exponent.  */
         void _eraseLeadingZeros();
 
 
+        /** Vector storing the coefficients from S */
         MiVec<S> _data;
+
         bool _isSaField;
 
+        /** Value in S used as initialization value 
+         * for the coefficients. 
+         *
+         * It is usually (and by default) S::getAddIdentitiy() */
         S _ini;
 
         template<typename U> 

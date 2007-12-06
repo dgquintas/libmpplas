@@ -375,12 +375,28 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::byElementProd(const Matrix<T, Alloc>& rhs)
 //////////////////////////////////////////////
 
   template<typename T, typename Alloc>
-Matrix<T, Alloc>& Matrix<T, Alloc>::operator/=(Matrix<T, Alloc> rhs){
-  //invert rhs and then multiply it by *this
-  rhs.invert();
-  (*this) *= rhs;
-  return *this;
-}
+  Matrix<T, Alloc>& Matrix<T, Alloc>::operator/=(Matrix<T, Alloc> rhs){
+    //invert rhs and then multiply it by *this
+    rhs.invert();
+    (*this) *= rhs;
+    return *this;
+  }
+
+
+//template<typename T, typename Alloc>
+//  std::vector< const MPPDataType& > Matrix<T, Alloc>::getLUPDecomposition() const{
+//    std::vector<const MPPDataType& > lup;
+//    
+//    Matrix<T,Alloc> m(*this);
+//    const std::vector<int> p(MatrixHelpers::LUDoolittle::makeDoolittleCombinedMatrix(m));
+//    lup.push_back(MatrixHelpers::LUDoolittle::_getL(m));
+//    lup.push_back(MatrixHelpers::LUDoolittle::_getU(m));
+//    lup.push_back(MatrixHelpers::LUDoolittle::_getPermutationsMatrix<T,Alloc>(p));
+//
+//    return lup;
+//  
+//  }
+
   template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::operator/=(const T& rhs){
   const int length = this->getSize();
@@ -484,16 +500,25 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::transpose(){
   template<typename T, typename Alloc>
 Matrix<T, Alloc>& Matrix<T, Alloc>::invert(){
     const int n = this->getRows();
-    MatrixHelpers::makeDoolittleCombinedMatrix(*this);
+    const std::vector<int> p(MatrixHelpers::LUDoolittle::makeDoolittleCombinedMatrix(*this));
 
     const Matrix<T, Alloc> orig(*this); 
 #pragma omp parallel for schedule(static,1)
     for(int j = 0; j < n; j++){
-      MatrixHelpers::solveForInv(orig,*this,j);
+      MatrixHelpers::solveForInv(orig,*this,j,p[j]);
     }
+
     return *this; 
 }
 
+
+
+template<typename T, typename Alloc>
+Matrix<T, Alloc> Matrix<T, Alloc>::solveFor(const Matrix<T, Alloc>& b) const{
+
+  return MatrixHelpers::solve(*this, b);
+
+}
 
   template<typename T, typename Alloc>
 T Matrix<T, Alloc>::getDeterminant() const {
@@ -507,44 +532,21 @@ T Matrix<T, Alloc>::getDeterminant() const {
   const bool isTaField(dynamic_cast<const Field<T>* >(&_data[0]));
 
   if(isTaField){
-    std::cout << "doolittle" << std::endl;
     Matrix<T, Alloc> m(*this);
     int sign;
-    const Matrix<T,Alloc> p(MatrixHelpers::makeDoolittleCombinedMatrix(m, &sign));
+    MatrixHelpers::LUDoolittle::makeDoolittleCombinedMatrix(m, &sign);
   
-      std::cout << p.toString() << std::endl;
-
-    const int nr = this->getRows();
-      Matrix<T,Alloc> l(nr, nr);
-      Matrix<T,Alloc> u(nr, nr);
-      l.setDiagonal(T::ONE);
-      for(int i = 0; i < nr; i++){
-        for(int j = 0; j < i; j++){
-          l(i,j) = m(i,j);
-        }
-      }
-      for(int i = 0; i < nr; i++){
-        for(int j = i; j < nr; j++){
-          u(i,j) = m(i,j);
-        }
-      }
-
-      std::cout << l.toString() << std::endl;
-      std::cout << u.toString() << std::endl;
-      std::cout << p*l*u << std::endl;
-
-
-
     T determinant( m[0] );
-    for( int i = 1; i < nr; i++){
+    for( int i = 1; i < m.getRows(); i++){
       determinant *= m(i,i);
     }
-    determinant *= (SignedDigit)sign;
+    if( sign < 0 ){
+      return determinant = determinant.getAddInverse();
+    }
     return determinant;
   }
   else{
-    std::cout << "dodgson" << std::endl;
-    return MatrixHelpers::DodgsonCondensation::getDodgsonDeterminant(*this);
+    return MatrixHelpers::GaussBareiss::getGaussBareissDeterminant(*this);
   }
 
 }
@@ -572,7 +574,9 @@ void Matrix<T, Alloc>::setAll(const T& n){
 
 template<typename T, typename Alloc>
 void Matrix<T, Alloc>::setToZero(){
-  this->setAll( T::ZERO );
+  T& z(_data[0]);
+  z.makeZero();
+  this->setAll(z);
   return;
 }
 
@@ -768,6 +772,19 @@ template<typename T, typename Alloc>
 
   Matrix<T, Alloc> res( aRows, bCols );
 
+  //  MatrixHelpers::Strassen<T> strassen;
+  MatrixHelpers::Winograd<T> strassen;
+
+  if( aRows == 1 || aCols == 1 || bCols == 1 ){
+    strassen.baseMult(&res[0],&lhs[0],&rhs[0],
+        aRows, aCols, bCols,
+        bCols, aCols, bCols);
+
+    return res;
+  }
+
+
+
 //  const int rowsPerBlock = 1 << (getBitLength(aRows)-1); //FIXME
   int aRowsPerBlock = aRows/2 ; 
   if( aRowsPerBlock & 0x1 ) aRowsPerBlock++;
@@ -781,8 +798,6 @@ template<typename T, typename Alloc>
   const int aColsExtra = aCols % aColsPerBlock;
   const int bColsExtra = bCols % bColsPerBlock;
 
-//  MatrixHelpers::Strassen<T> strassen;
-  MatrixHelpers::Winograd<T> strassen;
  
 //  T* C( &(res( 0, 0 )) );
 //  const T* const A( &(lhs(0, 0)) );
@@ -980,8 +995,6 @@ namespace MatrixHelpers{
           const T* origP( &orig[0] );
           for( int k = 1; k < mCols; k++){
             res = &(m[0]) ;
-            _pivot(m, mCols-k);
-
 
             if( SystemInfo::getMaxNumberOfThreads() > 1 ){
               orig = m;
@@ -997,13 +1010,13 @@ namespace MatrixHelpers{
               _get2x2Determinants(res+shift, origP+shift, mCols-k, mCols);
             }
 
+
             if( k > 1 ){
               _elementWiseInnerDiv(m,*inner[ k & 0x1]);
             }
             if( innerBound > 1 ){
               innerBound--;
               inner[ k & 0x1 ] = new Matrix<T,Alloc>(m(1,innerBound,1,innerBound));
-
             }
           }
           delete inner[0];
@@ -1027,14 +1040,14 @@ namespace MatrixHelpers{
       bool _pivot(Matrix<T,Alloc>& m, const int lim){
         for(int i=1; i < lim-1; i++){
           for(int j = 1 ; j < lim-1 ; j++){
-            if( m(i,j) == T::ZERO ){
+            if( m(i,j).isZero() ){
 
 
               //////////////////////////
               int k;
               for( k = 0; k < lim; k++){
                 if( k == i ) continue;
-                if( m(k,j) != T::ZERO){
+                if( !m(k,j).isZero()){
                   for( int l = 0; l < lim; l++){
                     m(i,l) += m(k,l);
                   }
@@ -1071,114 +1084,187 @@ namespace MatrixHelpers{
 
   }
 
-  template<typename T, typename Alloc>
-    int _pivot2(Matrix<T,Alloc>& m, const int j){
-      for(int k = j+1; k < m.getRows(); k++){
-        if( m(k,j) != T::ZERO){
-          for( int l = 0; l < m.getColumns(); l++){
-            std::swap(m(j,l), m(k,l));
+  namespace GaussBareiss{
+    template<typename T, typename Alloc>
+      T getGaussBareissDeterminant(Matrix<T, Alloc> m){
+        const int n = m.getRows();
+        int sign = 1;
+        const T* p;
+        T* m_jk;
+        const T* m_ji;
+        const T* m_i1i1;
+
+        for (int i = 0; i < n-1; i++) {
+          p = &(m(i,i));
+          if( i ){
+            m_i1i1 = &(m(i-1,i-1));
           }
-          return k;
-        } 
-      }
-
-      return 0;
-
-    }
-
-  template<typename T, typename Alloc>
-    Matrix<T,Alloc> makeDoolittleCombinedMatrix(Matrix<T, Alloc>& a, int* const sign ){
-      if( !a.isSquare() ){
-        throw Errors::SquareMatrixRequired();
-      }
-      std::vector<int> p(a.getRows());
-      for(int i = 0 ; i < p.size(); i++) {
-        p[i] = i;
-      }
-      const int size = a.getColumns();
-      int sgn = 1;
-      for(int k=0; k<size-1; k++) {
-        if( a(k,k) == T::ZERO ){
-          const int rowPivot(_pivot2(a,k));
-          if( rowPivot == 0 ){
-            assert(false); //FIXME: raise singular matrix exceptioin
+          if( p->isZero() ){
+            if( !_pivot(m,i) ){
+              sign = 1;
+              m(n-1,n-1).makeZero();
+              break;
+            }
+            // m(i,i) != zero here
+            sign *= -1;
+            p = &(m(i,i));
           }
-          std::swap(p[k],p[rowPivot]);
-          sgn *= -1;
+#pragma omp parallel private(m_ji)
+          {
+      
+            for (int j = i + 1; j < n; j++){
+              m_ji = &m(j,i);
+
+#pragma omp for nowait firstprivate(i) private(m_jk)
+              for (int k = i + 1; k < n; k++) {
+                m_jk = &( m(j,k) );
+                m_jk->operator*=(*p);
+                m_jk->operator-=(*m_ji * m(i,k));
+                if (i){
+                  m_jk->operator/=( *m_i1i1 );
+                }
+              } 
+            }
+
+          } /* implicit parallel barrier */
         }
+
+        if( sign < 0 ){
+          m(n-1,n-1).invertSign();
+        }
+        return m(n-1,n-1);
+      }
+
+    template<typename T, typename Alloc>
+      bool _pivot(Matrix<T,Alloc>& m, const int k){
+        for(int i=k+1; i < m.getRows(); i++){
+          if( ! m(i,k).isZero() ){
+            for( int j = k; j < m.getColumns(); j++){
+              std::swap( m(i,j), m(k,j) );
+            }
+            return true;
+          }
+        }
+        return false;
+      }
+
+
+  }
+
+  namespace LUDoolittle{
+
+    template<typename T, typename Alloc>
+      std::vector<int> makeDoolittleCombinedMatrix(Matrix<T, Alloc>& a, int* const sign){
+        if( !a.isSquare() ){
+          throw Errors::SquareMatrixRequired();
+        }
+        std::vector<int> p(a.getRows());
+        for(int i = 0 ; i < p.size(); i++) {
+          p[i] = i;
+        }
+        const int rows = a.getRows();
+        const int cols = a.getColumns();
+        int sgn = 1;
+        for(int k=0; k<rows-1; k++) {
+          if( a(k,k).isZero() ){
+            const int rowPivot(_pivot(a,k));
+            if( rowPivot == 0 ){
+              throw Errors::NonInvertibleElement();
+            }
+            std::swap(p[k],p[rowPivot]);
+            sgn *= -1;
+          }
 #pragma omp parallel for schedule(static,1)
-        for (int i=k+1; i<size; i++) {
-          a(i,k) /= a(k,k);
+          for (int i=k+1; i<rows; i++) {
+            a(i,k) /= a(k,k);
 
-          for (int j=k+1; j<size; j++){ 
-            a(i,j) -= a(i,k)*a(k,j);
+            for (int j=k+1; j<cols; j++){ 
+              a(i,j) -= a(i,k)*a(k,j);
+            }
           }
         }
+
+        if( sign ){
+          *sign = sgn;
+        }
+        //return _getPermutationsMatrix<T,Alloc>(p);
+        return p;
       }
 
-      if( sign ){
-        *sign = sgn;
+    template<typename T, typename Alloc>
+      int _pivot(Matrix<T,Alloc>& m, const int j){
+        for(int k = j+1; k < m.getRows(); k++){
+          if( !m(k,j).isZero()){
+            for( int l = 0; l < m.getColumns(); l++){
+              std::swap(m(j,l), m(k,l));
+            }
+            return k;
+          } 
+        }
+
+        return 0;
+
       }
-      return _getPermutationsMatrix<T,Alloc>(p);
-    }
- 
-  template<typename T, typename Alloc>
-   Matrix<T, Alloc> _getPermutationsMatrix(const std::vector<int>& p){
-     const int n = p.size();
-     Matrix<T, Alloc> pId(n,n);
-
-     for(int i = 0; i < n; i++){
-        pId(i,p[i]) = T::ONE;
-     }
-
-     return pId;
-   }
 
 
+    template<typename T, typename Alloc>
+      Matrix<T, Alloc> _getPermutationsMatrix(const std::vector<int>& p){
+        const int n = p.size();
+        Matrix<T, Alloc> pId(n,n);
+
+        for(int i = 0; i < n; i++){
+          pId(i,p[i]).makeOne();
+        }
+
+        return pId;
+      }
+
+    template<typename T, typename Alloc>
+      Matrix<T, Alloc> _getL(const Matrix<T,Alloc>& combined){
+        Matrix<T,Alloc> l(combined.getDimensions());
+        l(0,0).makeOne();
+        l.setDiagonal(l(0,0));
+        for(int i=1; i < l.getRows(); i++){
+          for(int j=0; j < i; j++){
+            l(i,j) = combined(i,j);
+          }
+        }
+        return l;
+      }
 
 
+    template<typename T, typename Alloc>
+      Matrix<T, Alloc> _getU(const Matrix<T,Alloc>& combined){
+        Matrix<T,Alloc> u(combined.getDimensions());
+        for(int i=0; i < u.getRows(); i++){
+          for(int j=i; j < u.getColumns(); j++){
+            u(i,j) = combined(i,j);
+          }
+        }
+        return u;
 
-//  template<typename T, typename Alloc>
-//    void makeCroutsCombinedMatrix(Matrix<T, Alloc>& a){
-//      if( !a.isSquare() ){
-//        throw Errors::SquareMatrixRequired();
-//      }
-//      T sum;
-//      const int n = a.getColumns();
-//      int i,j,k;
-//      for(j = 0; j < n; j++){
-//        for(i = 0; i < j; i++){
-//          sum = a(i,j);
-//          for(k = 0; k < i; k++){
-//            sum -= a(i,k)*a(k,j);
-//          }
-//          a(i,j) = sum;
-//        }
-//      
-//        for(i=j; i < n; i++){
-//          sum = a(i,j);
-//          for(k=0; k < j; k++){
-//            sum -= a(i,k)*a(k,j);
-//          }
-//          a(i,j) = sum;
-//        }
-//        if( j != n-1){
-//          for(i=j+1; i < n; i++){
-//            a(i,j) /= a(j,j);
-//          }
-//        }
-//
-//      }
-//    }
+      }
 
-
+  }
 
 
   template<typename T, typename Alloc>
     Matrix<T,Alloc> solve(Matrix<T, Alloc> m, Matrix<T, Alloc> b){
       const int n = m.getRows();
-      MatrixHelpers::makeDoolittleCombinedMatrix(m);
- 
+      std::vector<int> p(MatrixHelpers::LUDoolittle::makeDoolittleCombinedMatrix(m));
+      for(int i = 0; i < p.size(); i++){
+          if( i != p[i] ){
+            std::swap(b[i], b[p[i]]);
+
+            //once the swap has been done, the reverse operation 
+            //has to be "disabled". For example, if p = {2, 1, 0}
+            //it first swaps row 0 with row 2. But when it reaches
+            //p[2] = 0, it should NOT swap row 2 with row 0. Therefore,
+            //we set p[2] = 2 to avoid getting into the if.
+            p[p[i]] = p[i];
+          }
+      }
+
       forwardSubstitution(m, b);
       backwardSubstitution(m, b);
 
@@ -1186,17 +1272,23 @@ namespace MatrixHelpers{
     }
 
   template<typename T, typename Alloc>
-    void solveForInv(Matrix<T, Alloc> m, Matrix<T, Alloc>& inv, const int currCol){
+    void solveForInv(Matrix<T, Alloc> m, Matrix<T, Alloc>& inv, const int currCol, const int perm){
       const int n = m.getRows();
 
       T sum(m(0,0));
       for(int i = 0; i < n; i++){
-        sum = i == currCol ? T::ONE : T::ZERO;
+        if(i == perm){
+          sum.makeOne();
+        }
+        else{
+          sum.makeZero();
+        } 
         for(int j = 0; j < i; j++){
           sum -= m(i,j)*inv(j,currCol);
         }
         inv(i,currCol) = sum;
       }
+      try{
       inv(n-1,currCol) /= m(n-1,n-1);
       for(int i = n-2; i >= 0; i--){
         sum = inv(i,currCol);
@@ -1206,7 +1298,10 @@ namespace MatrixHelpers{
         sum /= m(i,i);
         inv(i,currCol) = sum;
       }
-
+      }
+      catch( const Errors::DivisionPorCero& e){
+        throw Errors::NonInvertibleElement();
+      }
       return ;
     }
 
@@ -1511,8 +1606,9 @@ namespace MatrixHelpers{
         T tmp, tmp2;
         for (int aRow = 0; aRow < numRowsA; aRow++) {
           for (int bCol = 0; bCol < numColsB; bCol++) {
-            tmp2 = T::ZERO;
-            for (int aCol = 0; aCol < numColsA; aCol++) {
+            tmp2 = A[aRow * strideA ];
+            tmp2 *= B[ bCol];
+            for (int aCol = 1; aCol < numColsA; aCol++) {
                tmp = A[ aRow * strideA + aCol];
                tmp *= B[aCol * strideB + bCol];
                tmp2 += tmp;
@@ -1526,8 +1622,9 @@ namespace MatrixHelpers{
         T tmp, tmp2;
         for (int aRow = 0; aRow < numRowsA; aRow++) {
           for (int bCol = 0; bCol < numColsB; bCol++) {
-            tmp2 = T::ZERO;
-            for (int aCol = 0; aCol < numColsA; aCol++) {
+            tmp2 = A[aRow * strideA ];
+            tmp2 *= B[ bCol];
+            for (int aCol = 1; aCol < numColsA; aCol++) {
                tmp = A[ aRow * strideA + aCol];
                tmp *= B[aCol * strideB + bCol];
                tmp2 += tmp;

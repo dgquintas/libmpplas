@@ -168,6 +168,20 @@ namespace mpplas {
         Matrix<T, Alloc>& transpose();
         Matrix<T, Alloc>& invert();
 
+//        /** LU decomposition.
+//         *
+//         * Performs a LU decomposition over the current matrix.
+//         *
+//         * @note The elements of the matrix (ie, the type T) must
+//         * be a Field.
+//         *
+//         * @returns a vector containing the L and U matrices of
+//         * a LU decomposition, as well as the permutation matrix 
+//         * used. These matrices are stored in this order in the vector. */
+//        std::vector< Matrix<T, Alloc> > getLUPDecomposition() const;
+
+        Matrix<T, Alloc> solveFor(const Matrix<T, Alloc>& b) const;
+
         T getDeterminant() const ;
         void setDiagonal(const T& n);
         void setAll(const T& n);
@@ -258,17 +272,41 @@ namespace mpplas {
         void _elementWiseInnerDiv(Matrix<T,Alloc>& lhs, const Matrix<T,Alloc>& rhs);
     }
 
-    template<typename T, typename Alloc>
-      Matrix<T, Alloc> makeDoolittleCombinedMatrix(Matrix<T, Alloc>& m, int* const sign = NULL);
+    namespace GaussBareiss{
+      template<typename T, typename Alloc>
+        T getGaussBareissDeterminant(Matrix<T, Alloc> m);
  
-    template<typename T, typename Alloc>
+      template<typename T, typename Alloc>
+        bool _pivot(Matrix<T,Alloc>& m, const int k);
+
+    }
+
+    namespace LUDoolittle{
+
+      template<typename T, typename Alloc>
+        std::vector<int> makeDoolittleCombinedMatrix(Matrix<T, Alloc>& m, int* const sign = NULL);
+      
+      
+      template<typename T, typename Alloc>
+        int _pivot(Matrix<T,Alloc>& m, const int j);
+
+
+      template<typename T, typename Alloc>
         Matrix<T, Alloc> _getPermutationsMatrix(const std::vector<int>& p);
+      template<typename T, typename Alloc>
+        Matrix<T, Alloc> _getL(const Matrix<T,Alloc>& combined);
+      template<typename T, typename Alloc>
+        Matrix<T, Alloc> _getU(const Matrix<T,Alloc>& combined);
+
+
+    }
+
 
     template<typename T, typename Alloc>
       Matrix<T,Alloc> solve(Matrix<T, Alloc> m, Matrix<T, Alloc> b);
 
     template<typename T, typename Alloc>
-      void solveForInv(Matrix<T, Alloc> m, Matrix<T, Alloc>& inv, const int currCol);
+      void solveForInv(Matrix<T, Alloc> m, Matrix<T, Alloc>& inv, const int currCol, const int perm);
 
 
     template<typename T, typename Alloc>
@@ -313,42 +351,6 @@ namespace mpplas {
 
     };
 
-
-//    template<typename T>
-//    class Strassen{
-//      public:
-//        void run(T* C, const T* const A, const T* const B, 
-//            const int numRowsA, const int numColsA, const int numColsB,
-//            const int strideC, const int strideA, const int strideB) const;
-//
-//        virtual void baseMult(T* C, const T* const A, const T* const B,
-//        const int numRowsA, const int numColsA, const int numColsB,
-//        const int strideC, const int strideA, const int strideB) const;
-//
-//     
-//        virtual ~Strassen(){}
-//
-//      private:
-//        virtual void _addBlocks(T* res, const T* const A, const T* const B, 
-//            const int rows, const int cols,
-//            const int strideRes, const int strideA, const int strideB) const;
-//
-//        virtual void _subBlocks(T* res,const T* const A, const T* const B,
-//            const int rows, const int cols,
-//            const int strideRes, const int strideA, const int strideB) const;
-//
-//        virtual void _multBlocks(T* res,const T* const A, const T* const B,
-//            const int numRowsA, const int numColsA, const int numColsB,
-//            const int strideRes, const int strideA, const int strideB) const;
-//
-//
-//        
-//        void _generateQs(T* Q, const T* const A, const T* const B, 
-//            const int halfRowsA, const int halfColsA, const int halfColsB,
-//            const int strideA, const int strideB) const;
-//
-//    };
-    
   } /* namespace MatrixHelpers */
     
     #include "MatrixImpl.h"

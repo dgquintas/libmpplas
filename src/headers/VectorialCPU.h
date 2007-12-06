@@ -20,7 +20,7 @@ namespace mpplas{
   namespace VectorialCPU  {
    
     //funcion de redondeo
-    long redondear(const mpplas::MiVec<Digit>& a, int exceso, const int8_t signo);
+    SignedDigit round(const mpplas::MiVec<Digit>& a, int exceso, const int8_t signo);
 
     /** Gets the bit length of a Digit.
      *

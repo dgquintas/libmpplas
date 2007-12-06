@@ -20,7 +20,7 @@ namespace mpplas{
   
   Z SJacobiViaKronecker::simboloJacobi(Z a, Z b)
   {
-    if( b.esPar() )
+    if( b.isEven() )
       throw Errors::ParEnSimboloJacobi();
    
     MethodsFactory *funcs = MethodsFactory::getInstance();
@@ -45,20 +45,20 @@ namespace mpplas{
 
   Z SKroneckerCohen::simboloKronecker(Z a, Z b)
   {
-    Z uno; uno.hacerUno();
-    Z cero; cero.hacerCero();
-    Z menosUno; menosUno.hacerUno(); menosUno.hacerNegativo();
+    Z uno; uno.makeOne();
+    Z cero; cero.makeZero();
+    Z menosUno; menosUno.makeOne(); menosUno.hacerNegativo();
     int v;
     SignedDigit k;
     Z r;
     
-    if( b.esCero() )
-      if( (a.abs()).esUno() )
+    if( b.isZero() )
+      if( (a.abs()).isOne() )
         return uno;
       else // |a| != 1
         return cero;
 
-    if( (a.esPar()) && (b.esPar()) )
+    if( (a.isEven()) && (b.isEven()) )
       return cero;
     
     v = b.numDoses();
@@ -75,7 +75,7 @@ namespace mpplas{
         k = -k;
     }
 
-    while( !(a.esCero()) ){
+    while( !(a.isZero()) ){
       v = a.numDoses();
       a >>= v;
       if( v & 0x1 ) 
@@ -98,7 +98,7 @@ namespace mpplas{
       b = r;
     }
     // a es cero
-    if ( b.esUno() )
+    if ( b.isOne() )
       return Z(k);
     else // b > 1 , ya que b en este punto es impar y > 0 (cohen p. 29)
       return cero;

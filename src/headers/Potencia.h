@@ -333,7 +333,7 @@ namespace mpplas{
     // k should verify 0 <= k < p^m-1 ; m = deg(fx)
     Polynomial<S> g(*base);
     base->makeOne();
-    if( k.esCero() ){
+    if( k.isZero() ){
       return;
     }
     if( k.isNegative() ){

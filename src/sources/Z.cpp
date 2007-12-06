@@ -214,7 +214,7 @@ namespace mpplas{
     else{
       //the only case in which with different signs we still
       //can have == numbers is if both are 0
-     return this->esCero() && der.esCero();
+     return this->isZero() && der.isZero();
     }
   }
 
@@ -470,7 +470,7 @@ namespace mpplas{
   Z& Z::operator/=(const Z& divisor)
   {
 
-    if( divisor.esCero() )
+    if( divisor.isZero() )
       throw Errors::DivisionPorCero();
 
     if( (signo_ > 0) ){
@@ -503,7 +503,7 @@ namespace mpplas{
 
   Z& Z::operator%=(const Z& divisor)
   {
-    if( divisor.esCero() )
+    if( divisor.isZero() )
       throw Errors::DivisionPorCero();
 
     if( divisor.signo_ > 0){ // divisor.signo_ > 0
@@ -513,7 +513,7 @@ namespace mpplas{
       }
       else{ //signo_ < 0
         coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, divisor.coefPoliB_)).second;
-        if( !(this->esCero()) )
+        if( !(this->isZero()) )
           this->operator+=(divisor); // ajuste por dividendo negativo
         signo_ = 1;
         //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
@@ -528,7 +528,7 @@ namespace mpplas{
     else{ // divisor.signo_ < 0
       if( signo_ > 0){
         coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, divisor.coefPoliB_)).second;
-        if( !(this->esCero()) )
+        if( !(this->isZero()) )
           this->operator+=(divisor); //ajuste por ser divisor negativo
         //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
         //ser�a una unidad menor que la parte entera, ya que ser�a
@@ -619,20 +619,20 @@ namespace mpplas{
 
 
 
-  Z& Z::cuadrado(void)
+  Z& Z::square(void)
   {
 
-    signo_ = 1; //el cuadrado siempre va a tener este efecto
+    signo_ = 1; //el square siempre va a tener este efecto
     coefPoliB_ = VectorialCPU::cuadMP(coefPoliB_); 
     return *this;
   }
 
-  Z& Z::cuadradoModular(const Z& mod)
+  Z& Z::modularSquare(const Z& mod)
   {
 
     (*this) %= mod;
 
-    signo_ = 1; //el cuadrado siempre va a tener este efecto
+    signo_ = 1; //el square siempre va a tener este efecto
     coefPoliB_ = VectorialCPU::cuadMP(coefPoliB_); 
 
     (*this) %= mod;
@@ -648,7 +648,7 @@ namespace mpplas{
     Digit n = coefPoliB_[0];
     Digit m;
     Digit mTemp = 1;
-    this->hacerUno();
+    this->makeOne();
 
     unsigned long doses = 0;
 
@@ -681,7 +681,7 @@ namespace mpplas{
   Z& Z::iSquareRoot(void)
   {
     //cohen p 38
-    if( (this->esUno()) || (this->esCero()) ){
+    if( (this->isOne()) || (this->isZero()) ){
       return *this; //la parte entera de la raiz cuadrada de 1 es 1 y la de 0 es 0
     }
 
@@ -693,7 +693,7 @@ namespace mpplas{
     //It suffices that the initial point be > than the
     //integer sqrt. 
     const int e( (this->getBitLength() /2) + 1 );
-    this->hacerUno(); 
+    this->makeOne(); 
     (*this) <<= e;
 
     Z y((*this) + (n/(*this))); 
@@ -712,7 +712,7 @@ namespace mpplas{
     if( root ){
       //se pone inicialmente el valor que tomara el entero "root" de
       //darse el caso de no ser *this un cuadrado perfecto
-      root->hacerUno(); root->hacerNegativo(); 
+      root->makeOne(); root->hacerNegativo(); 
     }
 
     // Cohen pag. 40
@@ -735,7 +735,7 @@ namespace mpplas{
 
     Z sqRoot(*this);
     sqRoot.iSquareRoot();
-    if( mpplas::cuadrado(sqRoot) != (*this) ){
+    if( mpplas::square(sqRoot) != (*this) ){
       return false;
     }
     else{
@@ -951,7 +951,7 @@ namespace mpplas{
     //    }
     //    else{ //signo_ < 0
     //      coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, divisor)).second;
-    //      if( !(this->esCero()) )
+    //      if( !(this->isZero()) )
     //        this->operator+=(divisor); // ajuste por dividendo negativo
     //      signo_ = 1;
     //      //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
@@ -966,7 +966,7 @@ namespace mpplas{
     //  else{ // divisor_ < 0
     //    if( signo_ > 0){
     //       coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, divisor)).second;
-    //      if( !(this->esCero()) )
+    //      if( !(this->isZero()) )
     //        this->operator-=(divisor); //ajuste por ser divisor negativo
     //      //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
     //      //ser�a una unidad menor que la parte entera, ya que ser�a
@@ -1122,7 +1122,7 @@ namespace mpplas{
     //  }
     //  else{ //signo_ < 0
     //    coefPoliB_ = (VectorialCPU::divMP(coefPoliB_, cortoDigit)).second;
-    //    if( !(this->esCero()) )
+    //    if( !(this->isZero()) )
     //      this->operator+=(cortoDigit); // ajuste por dividendo negativo
     //    signo_ = 1;
     //    //El "floor" de la def del modulo(m,n) = m - (floor(m,n) * n)
@@ -1163,7 +1163,7 @@ namespace mpplas{
 
   Z& Z::operator^=(const Digit e) {
     if( e == 2 ){
-      this->cuadrado();
+      this->square();
     }
     else{
       MethodsFactory& funcs = MethodsFactory::getReference();
@@ -1212,8 +1212,8 @@ namespace mpplas{
 
 
   Z& Z::operator++(void) {
-    if( esCero() ){
-      hacerUno();
+    if( isZero() ){
+      makeOne();
       return *this;
     }
 
@@ -1238,8 +1238,8 @@ namespace mpplas{
   }
 
   Z& Z::operator++(int) {
-    if( esCero() ){
-      hacerUno();
+    if( isZero() ){
+      makeOne();
       return *this;
     }
 
@@ -1267,8 +1267,8 @@ namespace mpplas{
 
   Z& Z::operator--(void)
   {
-    if( esCero() ){
-      hacerUno();
+    if( isZero() ){
+      makeOne();
       signo_ = -1;
       return *this;
     }
@@ -1293,8 +1293,8 @@ namespace mpplas{
   }
 
   Z& Z::operator--(int){
-    if( esCero() ){
-      hacerUno();
+    if( isZero() ){
+      makeOne();
       signo_ = -1;
       return *this;
     }
@@ -1326,13 +1326,11 @@ namespace mpplas{
   }
 
 
-  SignedDigit Z::redondear(int exceso) 
-  {
-
-    return VectorialCPU::redondear(coefPoliB_, exceso, signo_);
+  SignedDigit Z::round(int exceso) {
+    return VectorialCPU::round(coefPoliB_, exceso, signo_);
   }
 
-  Z& Z::hacerCero(void)
+  Z& Z::makeZero(void)
   {
     coefPoliB_.clear();
     coefPoliB_.push_back(0);
@@ -1341,7 +1339,7 @@ namespace mpplas{
     return *this;
   }
 
-  Z& Z::hacerUno(void)
+  Z& Z::makeOne(void)
   {
     coefPoliB_.clear();
     coefPoliB_.push_back(1);
@@ -1350,7 +1348,7 @@ namespace mpplas{
     return *this;
   }
 
-  bool Z::esCero(void) const
+  bool Z::isZero(void) const
   {
     if( coefPoliB_.size() > 1 ){
       return false;
@@ -1363,7 +1361,7 @@ namespace mpplas{
     return true;
   }
 
-  bool Z::esUno(void) const
+  bool Z::isOne(void) const
   {
     if( coefPoliB_.size() > 1 )
       return false;
@@ -1390,14 +1388,14 @@ namespace mpplas{
 
   int Z::numDoses(void) const
   {
-    if ( this->esImpar() ){
+    if ( this->isOdd() ){
       return 0;
     }
 
     Z temp(*this);
     int doses = 0;
 
-    while( temp.esPar() ){
+    while( temp.isEven() ){
       if( !(temp.coefPoliB_[0] & 0x3) ){ //dos ultimos bits 0 ( ...00 )
         doses += 2;
         temp >>= 2;
@@ -1425,7 +1423,7 @@ namespace mpplas{
   }
 
 
-  bool Z::esPotenciaPrima(Z* primo)
+  bool Z::isPrimePower(Z* primo)
   {
     //cohen p 42
     Z p,q;
@@ -1433,7 +1431,7 @@ namespace mpplas{
     TestPrimoProb* primTest; 
     MethodsFactory::getReference().getFunc(primTest);
     
-    if( this->esPar() ){
+    if( this->isEven() ){
       p = Z((Digit)2);
     }
     else{
@@ -1445,8 +1443,8 @@ namespace mpplas{
         }
         else{
           const Z d(Z::gcd((a^q)-a,q));
-          if( d.esUno() || (d == q) ){
-            primo->hacerCero();
+          if( d.isOne() || (d == q) ){
+            primo->makeZero();
             return false;
           }
           else{
@@ -1459,13 +1457,13 @@ namespace mpplas{
     Z n(*this);
     do{
       divMod(n,p,&n,&r);
-    } while( (r.esCero()) && (!n.esUno()) );
-    if(n.esUno()){
+    } while( (r.isZero()) && (!n.isOne()) );
+    if(n.isOne()){
       (*primo) = p;
       return true;
     }
     else{
-      primo->hacerCero();
+      primo->makeZero();
       return false;
     }
   }
@@ -1500,7 +1498,7 @@ namespace mpplas{
       coefPoliB_.erase(coefPoliB_.begin(), coefPoliB_.begin()+n);
     }
     else{
-      hacerCero();
+      makeZero();
     }
     return *this;
   }
@@ -1534,8 +1532,8 @@ namespace mpplas{
 //    coefPoliB_.clear();
 //    coefPoliB_.resize(n+1,0); 
 //    coefPoliB_[n] = 1;
-    if( this->esCero() ){
-      this->hacerUno();
+    if( this->isZero() ){
+      this->makeOne();
     };
     coefPoliB_.insert(coefPoliB_.begin(), n, (Digit)0);
     
@@ -1611,7 +1609,7 @@ Z& Z::fromString(const std::string& str){
       std::ostringstream oss;
 
       //we assume 0 has always + sign
-      if( (num.signo_ < 0) && (!num.esCero()) ){
+      if( (num.signo_ < 0) && (!num.isZero()) ){
         oss << "-";
         num.hacerPositivo();
       }
@@ -1643,12 +1641,12 @@ Z& Z::fromString(const std::string& str){
         int digitos10 = (int)ceil(num.getBitLength() * Constants::LOG_10_2);
         int digitos10Mostrados = 0;
 
-        if(num.esCero()){
+        if(num.isZero()){
           oss << "0";
         }
         else{
           const Digit ten(10);
-          while( !num.esCero() ){
+          while( !num.isZero() ){
             resto = (num % ten)[0]; 
             num /= ten; 
             pila.push(resto);
@@ -1712,7 +1710,7 @@ Z& Z::fromString(const std::string& str){
     char c;
     Digit n = 0;
     int numDigits = 0;
-    res.hacerCero();
+    res.makeZero();
 
     while( in.get(c) ) {
       if( std::isdigit(c) ) {
@@ -1763,7 +1761,7 @@ Z& Z::fromString(const std::string& str){
       _parseNumber(in, numero);
 
       if( negative ){
-        numero.cambiarSigno();
+        numero.invertSign();
       }
 
       return in;
@@ -1794,7 +1792,7 @@ Z& Z::fromString(const std::string& str){
 
   Z operator/(Z izq, const Z& der)
   {
-    if( der.esCero() )
+    if( der.isZero() )
       throw Errors::DivisionPorCero();
 
     izq /= der;
@@ -1804,7 +1802,7 @@ Z& Z::fromString(const std::string& str){
 
   Z operator%(Z izq, const Z& der)
   {
-    if( der.esCero() )
+    if( der.isZero() )
       throw Errors::DivisionPorCero();
 
     izq %= der;
@@ -1855,7 +1853,7 @@ Z& Z::fromString(const std::string& str){
   Z operator-(const SignedDigit corto, Z largo)
   {
     largo -= corto;
-    largo.cambiarSigno();
+    largo.invertSign();
     return largo;
   }
 
@@ -1867,14 +1865,14 @@ Z& Z::fromString(const std::string& str){
 
   Z operator/(const SignedDigit corto, const Z& largo)
   {
-    if( largo.esCero() )
+    if( largo.isZero() )
       throw Errors::DivisionPorCero();
 
     return ( Z(corto) / largo );
 
     //  if( largo > corto) {
     //    Z cero;
-    //    cero.hacerCero();
+    //    cero.makeZero();
     //    return cero;
     //  }
     //  else 
@@ -1889,14 +1887,14 @@ Z& Z::fromString(const std::string& str){
     //  }
     //  else{ //iguales
     //    Z uno;
-    //    uno.hacerUno();
+    //    uno.makeOne();
     //    return uno;
     //  }
   }
 
   Z operator%(const SignedDigit corto, const Z& largo)
   {
-    if( largo.esCero() )
+    if( largo.isZero() )
       throw Errors::DivisionPorCero();
 
     return( (Z(corto) % largo ) );
@@ -1977,7 +1975,7 @@ Z& Z::fromString(const std::string& str){
   Z operator-(const Digit corto, Z largo)
   {
     largo -= corto;
-    largo.cambiarSigno();
+    largo.invertSign();
     return largo;
   }
 
@@ -1989,12 +1987,12 @@ Z& Z::fromString(const std::string& str){
 
   Z operator/(const Digit corto, const Z& largo)
   {
-    if( largo.esCero() )
+    if( largo.isZero() )
       throw Errors::DivisionPorCero();
 
     if( largo > corto) {
       Z cero;
-      cero.hacerCero();
+      cero.makeZero();
       return cero;
     }
     else 
@@ -2003,14 +2001,14 @@ Z& Z::fromString(const std::string& str){
       }
       else{ //iguales
         Z uno;
-        uno.hacerUno();
+        uno.makeOne();
         return uno;
       }
   }
 
   Z operator%(const Digit corto, const Z& largo)
   {
-    if( largo.esCero() )
+    if( largo.isZero() )
       throw Errors::DivisionPorCero();
 
     if( largo > corto ){
@@ -2022,7 +2020,7 @@ Z& Z::fromString(const std::string& str){
       }
       else{ //iguales
         Z cero;
-        cero.hacerCero();
+        cero.makeZero();
         return cero;
       }
   }
@@ -2200,7 +2198,7 @@ Z& Z::fromString(const std::string& str){
   /* operator - unario */
   Z operator-(Z entero)
   {
-    entero.cambiarSigno();
+    entero.invertSign();
     return entero;
   }
 
@@ -2237,7 +2235,7 @@ Z& Z::fromString(const std::string& str){
     throw (Errors::DivisionPorCero)
     {
 
-      if( divisor.esCero() )
+      if( divisor.isZero() )
         throw Errors::DivisionPorCero();
 
       //por precaucion, no sea que se hayan pasado cosas ya trajinadas
@@ -2430,14 +2428,14 @@ Z& Z::fromString(const std::string& str){
     }
 
 
-  Z cuadrado(Z x)
+  Z square(Z x)
   {
-    x.cuadrado();
+    x.square();
     return x;
   }
-  Z cuadradoModular(Z x, const Z& mod)
+  Z modularSquare(Z x, const Z& mod)
   {
-    x.cuadradoModular(mod);
+    x.modularSquare(mod);
     return x;
   }
   Z factorial(Z x)

@@ -14,9 +14,9 @@ namespace mpplas{
   R ExpTaylor::exponencial(const R& x)
   {
     R result, resultAntes;
-    result.hacerUno();
+    result.makeOne();
     R acum;
-    acum.hacerUno();
+    acum.makeOne();
 
 
     if( x.exponente() == 0 ){
@@ -43,9 +43,9 @@ namespace mpplas{
   R ExpTaylor::e(void)
   {
     R result, resultAntes;
-    result.hacerUno();
+    result.makeOne();
     R acum;
-    acum.hacerUno();
+    acum.makeOne();
     
     for(Digit i=1; ; i++ ){
       acum /= i;
@@ -61,12 +61,12 @@ namespace mpplas{
 
   R LnTaylor::ln(const R& x)
   {
-    if( x.esCero() )
+    if( x.isZero() )
       throw Errors::LogaritmoDeCero();
 
     //FIXME: añadir soporte pa cuando x < 0 --> numeros complejos
 
-    R result; result.hacerCero();
+    R result; result.makeZero();
     R dos;
     dos = R((Digit)2);
 
@@ -140,9 +140,9 @@ namespace mpplas{
 
   R LnTaylor::ln2(void)
   {
-    R xMenosUno; xMenosUno.hacerUno();
+    R xMenosUno; xMenosUno.makeOne();
     R acum; 
-    R result; result.hacerCero();
+    R result; result.makeZero();
     R resultAntes;
 
     R xMasUno = R((Digit)3);
@@ -192,9 +192,9 @@ namespace mpplas{
     
     R::precision(precVieja);
     
-    R acum; acum.hacerUno();
-    R result,resultAntes; result.hacerUno();
-    R signo; signo.hacerUno(); signo.cambiarSigno();
+    R acum; acum.makeOne();
+    R result,resultAntes; result.makeOne();
+    R signo; signo.makeOne(); signo.invertSign();
     R xCuad = xRed^2;
     
     for(Digit i=1; ; i+=2 ){
@@ -204,7 +204,7 @@ namespace mpplas{
       result += (acum * signo);
       if( result == resultAntes )
         break;
-      signo.cambiarSigno();
+      signo.invertSign();
     }
 
     return result;
@@ -218,7 +218,7 @@ namespace mpplas{
     //FIXME comprobar el valor absoluto de x
     if( x < R((Digit)1) ){
       acum = x;
-      R signo; signo.hacerUno(); signo.cambiarSigno();
+      R signo; signo.makeOne(); signo.invertSign();
       R xCuad = x^2;
       result = x;
 
@@ -228,7 +228,7 @@ namespace mpplas{
         result += ((acum/i) * signo);
         if( result == resultAntes )
           break;
-        signo.cambiarSigno();
+        signo.invertSign();
       }
       return result;
     }
@@ -253,8 +253,8 @@ namespace mpplas{
       precisionVieja = R::precision();
       R::precision( (int)(prec * Constants::LOG_2_10) +1 );
     }
-    R unQuinto; unQuinto.hacerUno(); unQuinto /= 5;
-    R un239avo; un239avo.hacerUno(); un239avo /= 239;
+    R unQuinto; unQuinto.makeOne(); unQuinto /= 5;
+    R un239avo; un239avo.makeOne(); un239avo /= 239;
  
 
     result = (4*arctan->arcotangente(unQuinto)) - arctan->arcotangente(un239avo);
@@ -279,9 +279,9 @@ namespace mpplas{
     static const mpplas::Rx P(coeffs);
     mpplas::R xn(1/std::sqrt(A.getSPApprox()));
     mpplas::R xn_1 = xn;
-    xn.cuadrado();
+    xn.square();
     xn *= A;
-    xn.cambiarSigno();
+    xn.invertSign();
     xn += mpplas::R::ONE;
 
     while(true){
@@ -291,10 +291,10 @@ namespace mpplas{
         break;
       }
       xn_1 = xn;
-      //hn = 1-A*(xn.cuadrado());
-      xn.cuadrado();
+      //hn = 1-A*(xn.square());
+      xn.square();
       xn *= A;
-      xn.cambiarSigno();
+      xn.invertSign();
       xn += mpplas::R::ONE;
     }
 

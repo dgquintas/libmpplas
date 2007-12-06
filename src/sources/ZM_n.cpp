@@ -173,10 +173,11 @@ namespace mpplas{
   }
 
   ZM_n& ZM_n::square(){
-    this->cuadrado();
+//    this->square();
+//
+//    _montgomeryRed( *this );
 
-    _montgomeryRed( *this );
-
+    *this = _montgomeryProd(*this, *this);
     return *this;
   }
 
@@ -239,7 +240,7 @@ namespace mpplas{
   void ZM_n::_precomputations() {
     MethodsFactory* const funcs(MethodsFactory::getInstance());
     
-    _mPrime.hacerUno();
+    _mPrime.makeOne();
     _mPrime.potenciaBase(1);
     Exponentiation<Z_n>* potMod; 
     funcs->getFunc(potMod);
@@ -282,7 +283,7 @@ namespace mpplas{
 
     const int n = lhs.getMod().longitud() ; 
     ZM_n A; 
-    A.hacerCero(); 
+    A.makeZero(); 
     A._clone(lhs);
 
 
@@ -332,16 +333,16 @@ namespace mpplas{
   void ZM_n::_almostMontgomeryInverse(const ZM_n& a, Z& r, Digit& k) {
     Z u(a.getMod());
     Z v(a);
-    r.hacerCero();
+    r.makeZero();
     Z s((Digit)1);
 
     k = 0;
     while( v > (Digit)0 ){
-      if( u.esPar() ){
+      if( u.isEven() ){
         u >>= 1; // u = u / 2
         s <<= 1; // s = s * 2
       } 
-      else if( v.esPar() ){
+      else if( v.isEven() ){
         v >>= 1;
         r <<= 1;
       }

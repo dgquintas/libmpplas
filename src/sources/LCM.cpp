@@ -16,7 +16,7 @@ namespace mpplas{
 
   Z LCM::lcm(Z u, Digit v)
   {
-    if( (v == 0) || (u.esCero()) )
+    if( (v == 0) || (u.isZero()) )
       return Z::ZERO;
 
     //propiedad del gcd/lcm recogida en knuth p. 317 (10)
@@ -26,7 +26,7 @@ namespace mpplas{
   }
   Z LCM::lcm(Z u, SignedDigit v)
   {
-    if( (v == 0) || (u.esCero()) ){
+    if( (v == 0) || (u.isZero()) ){
       return Z::ZERO;
     }
     // |uv| = gcd(u,v)·lcm(u,v)
@@ -40,7 +40,7 @@ namespace mpplas{
 
   Z LCMViaGCD::lcm(Z u, Z v)
   {
-    if( (v.esCero()) || (u.esCero()) )
+    if( (v.isZero()) || (u.isZero()) )
       return Z::ZERO;
 
     // |uv| = gcd(u,v)·lcm(u,v)

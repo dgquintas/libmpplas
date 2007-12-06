@@ -53,10 +53,10 @@ namespace mpplas{
         }
         else{
           z = Z(Constants::TABLA_PRIMOS_2000[i]);
-          if( z.esCero() ) {
+          if( z.isZero() ) {
             // ya que eso quiere decir que son el mismo número( p | z,
             // con z primo => p = z ), y al ser z un primo, p será también primo.
-            testigo->hacerCero();
+            testigo->makeZero();
             return true;
           }
           (*testigo) = z;
@@ -64,10 +64,10 @@ namespace mpplas{
         
         z ^= m;
         
-        if( (!z.esUno()) && ( z != pMenosUno) ){
+        if( (!z.isOne()) && ( z != pMenosUno) ){
           for(int j = 0; (j < b) && (z != pMenosUno) ; j++ ){
-            z.cuadrado();  // recordar que z es Zp
-            if( z.esUno() ){ //ya que no cambiará aun en los cuadrados sucesivos...
+            z.square();  // recordar que z es Zp
+            if( z.isOne() ){ //ya que no cambiará aun en los cuadrados sucesivos...
               return false;
             }
           }
@@ -78,12 +78,12 @@ namespace mpplas{
       }
       // si resulta que "es primo", no tiene sentido hablar de
       // testigos, asi que se le da el imposible valor de cero a éste.
-      testigo->hacerCero();
+      testigo->makeZero();
       return true;
     } /* if testigo */
     else{ //no hay que devolver testigo
 
-      if( p.esPar() || p.esUno() ) {
+      if( p.isEven() || p.isOne() ) {
         return false;
       }
 
@@ -91,8 +91,8 @@ namespace mpplas{
       if( p <= (Digit)4000000 ){ // 2000^2
         cota = iSquareRoot(p[0]);
         for(int i = 0; Constants::TABLA_PRIMOS_2000[i] <= cota; i++){
-//          if ( (!Z::gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
-          if ( (!gcd->_gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
+//          if ( (!Z::gcd(p, Constants::TABLA_PRIMOS_2000[i]).isOne()) ){ //si el gcd no es uno... 
+          if ( (!gcd->_gcd(p, Constants::TABLA_PRIMOS_2000[i]).isOne()) ){ //si el gcd no es uno... 
             return false;
           }
         }
@@ -103,8 +103,8 @@ namespace mpplas{
         cota = 303;
       }
       for(int i = 0; i < cota; i++){
-//        if ( (!Z::gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno... 
-        if ( (!gcd->_gcd(p, Constants::TABLA_PRIMOS_2000[i]).esUno()) ){ //si el gcd no es uno...
+//        if ( (!Z::gcd(p, Constants::TABLA_PRIMOS_2000[i]).isOne()) ){ //si el gcd no es uno... 
+        if ( (!gcd->_gcd(p, Constants::TABLA_PRIMOS_2000[i]).isOne()) ){ //si el gcd no es uno...
         return false;
         }
       }
@@ -162,10 +162,10 @@ namespace mpplas{
 
         z ^= m;
 
-        if( (!z.esUno()) && ( z != pMenosUno) ){
+        if( (!z.isOne()) && ( z != pMenosUno) ){
           for(int j = 0; (j < b) && (z != pMenosUno) ; j++ ){
-            z.cuadrado();
-            if( z.esUno() ){ //ya que no cambiará aun en los cuadrados sucesivos...
+            z.square();
+            if( z.isOne() ){ //ya que no cambiará aun en los cuadrados sucesivos...
               return false;
             }
           }
@@ -208,11 +208,11 @@ namespace mpplas{
     Z s((Digit)4);
     
     for(SignedDigit i = 3; i <= p; i++){
-      s.cuadrado(); 
+      s.square(); 
       s -= (Digit)2;
       redmodmers->redModularALaMersenne(&s,p,1);
     }
-    if( s.esCero() )
+    if( s.isZero() )
       return true;
     else
       return false;
@@ -265,7 +265,7 @@ namespace mpplas{
       return Z((Digit)3);
     }
     
-    if( from.esPar() ){
+    if( from.isEven() ){
       from++;
     }
     else{

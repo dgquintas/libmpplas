@@ -43,10 +43,10 @@ namespace mpplas{
     if( v.isNegative() ){
       v.hacerPositivo();
     }
-    if( u.esCero() ){
+    if( u.isZero() ){
       return v;
     }
-    if( v.esCero() ){
+    if( v.isZero() ){
       return u;
     }
 
@@ -179,7 +179,7 @@ namespace mpplas{
     }
 
     int g(0);
-    while( x.esPar() && y.esPar() ){
+    while( x.isEven() && y.isEven() ){
       x >>= 1; // x = x/2;
       y >>= 1; // y = y/2;
       g++; 
@@ -188,11 +188,11 @@ namespace mpplas{
     Z u(x);
     Z v(y);
 
-    A.hacerUno(); B.hacerCero(); C->hacerCero(); D->hacerUno();
-    while( !u.esCero() ){
-      while( u.esPar() ){
+    A.makeOne(); B.makeZero(); C->makeZero(); D->makeOne();
+    while( !u.isZero() ){
+      while( u.isEven() ){
         u >>= 1;
-        if( A.esPar() && B.esPar() ){
+        if( A.isEven() && B.isEven() ){
           A >>= 1;
           B >>= 1;
         }
@@ -201,9 +201,9 @@ namespace mpplas{
           B -= x; B >>= 1; // B = (B-x)/2;
         }
       }
-      while( v.esPar() ){
+      while( v.isEven() ){
         v >>= 1;
-        if( C->esPar() && D->esPar() ){
+        if( C->isEven() && D->isEven() ){
           (*C) >>= 1;
           (*D) >>= 1;
         }
@@ -228,10 +228,10 @@ namespace mpplas{
     //para que todo funcione correctamente con negativos y se 
     //verifique la ecuacion gcd(x,y) = xC + yD
     if( xNegativo ) {
-      C->cambiarSigno();
+      C->invertSign();
     }
     if( yNegativo ) {
-      D->cambiarSigno();
+      D->invertSign();
     }
 
     return ( v <<= g );

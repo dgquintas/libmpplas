@@ -78,10 +78,10 @@ namespace mpplas{
   //    x1 = Z::convertir((Digit)2);
   // 
   //    k = 1; l = 1; c= 0;
-  //    P.hacerUno();
+  //    P.makeOne();
   //
   //p2:
-  //    x.cuadrado(); x++;
+  //    x.square(); x++;
   //    P *= (x1-x) % (*n);
   //    c++;
   //    if ( c == 20 ){
@@ -105,7 +105,7 @@ namespace mpplas{
   //      k = l;
   //      l = 2*l;
   //      for(size_t i = 0; i < k; i++){
-  //        x.cuadrado(); x++;
+  //        x.square(); x++;
   //        reduccion->redBarrett(&x, *n, mu);
   //      }
   //      y = x; 
@@ -115,7 +115,7 @@ namespace mpplas{
   //  
   //p4:
   //    do{
-  //      y.cuadrado(); y++;
+  //      y.square(); y++;
   //      reduccion->redBarrett(&y, *n, mu);
   //      g = gcd->gcd(x1-y, *n);
   //    } while( g == (Digit)1);
@@ -144,7 +144,7 @@ namespace mpplas{
 //    }
 //    A = C;
 //    B = r;
-//    C = (r.cuadrado() - D) / ( C << 2 ); // C = (r^2 - D)/(4C)
+//    C = (r.square() - D) / ( C << 2 ); // C = (r^2 - D)/(4C)
 //
 //    return;
 //  }
@@ -155,17 +155,17 @@ namespace mpplas{
 //    c = abs(C);
 //
 //    if (B < (Digit)0){
-//      B.cambiarSigno();
-//      A.cambiarSigno();
-//      C.cambiarSigno();
+//      B.invertSign();
+//      A.invertSign();
+//      C.invertSign();
 //    }
 //    
 //    while ( (B <= abs(d - (abs(A) << 1))) || (B > d) ) {
 //      // pag 257 cohen, def 5.6.2  (negada por el while)
 //      if (B < (Digit)0){
-//        B.cambiarSigno();
-//        A.cambiarSigno();
-//        C.cambiarSigno();
+//        B.invertSign();
+//        A.invertSign();
+//        C.invertSign();
 //      }
 //      reduccionRho(A,B,C,D,d);
 //    }
@@ -195,7 +195,7 @@ namespace mpplas{
 //    bool factorCuadrado=false;
 //    MiVec<Z>::iterator it; //para guardar la posicion a partir de la cual se iran añadiendo
 //                           //factores para el caso en el que se
-//                           //detecta un cuadrado perfecto y luego hay
+//                           //detecta un square perfecto y luego hay
 //                           //que duplicar los primos de la factorización
 //                           //de éste
 //      
@@ -230,9 +230,9 @@ namespace mpplas{
 //        d = raizCuadrada(D);
 //        b = d; b[0] &= (Constants::CIFRA_MAX-1); // b = 2*floor(d/2) 
 //      }
-//      a.hacerUno();
+//      a.makeOne();
 //      // b ya esta
-//      c = b; c.cuadrado(); c -= D; c >>= 2; // c = (b^2 - D)/4
+//      c = b; c.square(); c -= D; c >>= 2; // c = (b^2 - D)/4
 //      Q.clear();
 //      L = raizCuadrada(d);
 //      size_t i = 0;
@@ -259,7 +259,7 @@ namespace mpplas{
 //          a = raiz;
 //          if(Q.find(a) != Q.end()){  // encontrado; a \in Q
 //            //6
-//            if( A.esUno() )
+//            if( A.isOne() )
 //              //se han recorrido los i elementos del ciclo principal sin
 //              //encontrar una forma cuadratica no trivial.
 //              return false;
@@ -271,10 +271,10 @@ namespace mpplas{
 //                           //para 987161
 //          }
 //          else break; // no encontrado; => 8
-//        } // A no es cuadrado
+//        } // A no es square
 //        else{
 //          //6
-//          if( A.esUno() )
+//          if( A.isOne() )
 //            //se han recorrido los i elementos del ciclo principal sin
 //            //encontrar una forma cuadratica no trivial.
 //            return false;
@@ -298,7 +298,7 @@ namespace mpplas{
 //        // s^2 es factor 
 //        factores->push_back(s);
 //        factores->push_back(s);
-//        (*n) /= cuadrado(s);
+//        (*n) /= square(s);
 //      }
 //      else{
 //        // a = a
@@ -310,7 +310,7 @@ namespace mpplas{
 //          Z b1(b);
 //          A = a; B = b; C = c;
 //          reduccionRho(a,b,c,D,d);
-//          if( a.esUno() ){
+//          if( a.isOne() ){
 //            a = A; b = B; c = C;
 //            break;
 //          }
@@ -318,11 +318,11 @@ namespace mpplas{
 //            break;
 //        }
 //        
-//        if( a.esUno() ) // no se ha conseguido factorizar
+//        if( a.isOne() ) // no se ha conseguido factorizar
 //          return false;
 //        a.abs();
-//        if( a.esImpar() ){
-//          if( a.esUno() || ( a == (*n) ) )
+//        if( a.isOdd() ){
+//          if( a.isOne() || ( a == (*n) ) )
 //            return false; //divisor TRIVIAL
 ////          std::cout << "." << std::endl;
 //          factores->push_back(a);
@@ -330,7 +330,7 @@ namespace mpplas{
 //        }
 //        else{ // a es par
 //          a >>= 1;
-//          if( a.esUno() || ( a == (*n) ) )
+//          if( a.isOne() || ( a == (*n) ) )
 //            return false; //divisor TRIVIAL
 ////          std::cout << "." << std::endl;
 //          factores->push_back(a);
@@ -370,14 +370,14 @@ namespace mpplas{
     }
     int iteraciones = 0;
     while(++iteraciones <= Constants::COTA_FACTORIZACION_RHO){
-      a.cuadrado();
+      a.square();
       a++;
       reduccion->redBarrett(&a,*n,mu);
 
-      b.cuadrado();
+      b.square();
       b++;
       reduccion->redBarrett(&b,*n,mu);
-      b.cuadrado();
+      b.square();
       b++;
       reduccion->redBarrett(&b,*n,mu);
 
@@ -416,12 +416,12 @@ namespace mpplas{
   //    size_t r,k,m;
   //    r=1; m = 1;
   //    x0 = Z::convertir((Digit)2); y = x0;
-  //    q.hacerUno();
+  //    q.makeOne();
   //
   //    do{
   //      x = y;
   //      for(size_t i = 0; i < r; i++){
-  //        y.cuadrado(); 
+  //        y.square(); 
   //        y++;
   //        reduccion->redBarrett( &y, *n, mu );
   //      }
@@ -432,7 +432,7 @@ namespace mpplas{
   //        assert( cota <= 10 );
   //        assert( cota > 0);
   //        for(size_t j = 0; j < cota; j++){
-  //          y.cuadrado(); y++;
+  //          y.square(); y++;
   //          reduccion->redBarrett( &y, *n, mu );
   //          q *= ((x-y).abs());
   //          reduccion->redBarrett( &q, *n, mu );
@@ -445,7 +445,7 @@ namespace mpplas{
   //
   //    if( G == (*n) ){
   //      do{ 
-  //        ys.cuadrado();
+  //        ys.square();
   //        ys++;
   //        reduccion->redBarrett( &ys, *n, mu );
   //        G = gcd->gcd((x-ys).abs(),*n);
@@ -471,8 +471,8 @@ namespace mpplas{
   //    x = Z::convertir((Digit)5); 
   //    Z xPrima;
   //    xPrima = Z::convertir((Digit)2); 
-  //    Z k; k.hacerUno();
-  //    Z l; l.hacerUno();
+  //    Z k; k.makeOne();
+  //    Z l; l.makeOne();
   //    RedBarrett* reduccion = funcs.getBarrettReduction();
   //    GCD* gcd = funcs.getGCD();
   //    Z mu = reduccion->precomputaciones(n);
@@ -513,12 +513,12 @@ namespace mpplas{
   //        }
   //        else{ // g == 1
   //          k--;
-  //          if( k.esCero() ){
+  //          if( k.isZero() ){
   //            xPrima = x;
   //            l <<= 1;
   //            k = l;
   //          }
-  //          x.cuadrado();
+  //          x.square();
   //          x++;
   //          reduccion->redBarrett(&x,n,mu);
   ////          x %= n;
@@ -539,7 +539,7 @@ namespace mpplas{
 
     //pag. 364 Knuth
     
-    if( n->esUno() ){
+    if( n->isOne() ){
       factores->push_back( Z((Digit)1) );
       return true;
     }
@@ -557,10 +557,10 @@ namespace mpplas{
     int i = 1; //empezar en el 3, no en el 2 (ya se han quitado)
     while( i < Constants::COTA_FACTORIZACION_TRIAL ){
       divMod( *n, Constants::TABLA_PRIMOS_2000[i], &q, &r );
-      if( r.esCero() ){
+      if( r.isZero() ){
         factores->push_back(Z(Constants::TABLA_PRIMOS_2000[i]));
         (*n) = q;
-        if( n->esUno() ) return true;
+        if( n->isOne() ) return true;
       }
       else{ // r != 0
         if( q <= Constants::TABLA_PRIMOS_2000[i] ){

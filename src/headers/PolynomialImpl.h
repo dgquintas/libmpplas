@@ -8,34 +8,34 @@
 
 
   template<typename S>
-  Polynomial<S>::Polynomial(const S& ini)
-: _data(1,ini), _ini(ini) {
-  _isSaField = bool(dynamic_cast<mpplas::Field<S>*>(&(_data[0])));
-}
+Polynomial<S>::Polynomial(const S& ini)
+  : _data(1,ini), _ini(ini) {
+    _isSaField = bool(dynamic_cast<mpplas::Field<S>*>(&(_data[0])));
+  }
 
   template<typename S>
-  Polynomial<S>::Polynomial(const Polynomial<S>& src )
+Polynomial<S>::Polynomial(const Polynomial<S>& src )
   : _data(src._data), _isSaField(src._isSaField), _ini(src._ini){}
 
   template<typename S>
   Polynomial<S>::Polynomial(const std::string& str, const S& ini):
     _ini(ini) {
 
-    std::istringstream inStream(str);
-    operator>>(inStream,*this);
+      std::istringstream inStream(str);
+      operator>>(inStream,*this);
 
-    if( this->_data.empty() ){
-      this->_data.push_back(ini);
+      if( this->_data.empty() ){
+        this->_data.push_back(ini);
+      }
+
+      _isSaField = bool(dynamic_cast<mpplas::Field<S>*>(&(_data[0])));
+      return;
+
     }
-
-    _isSaField = bool(dynamic_cast<mpplas::Field<S>*>(&(_data[0])));
-    return;
-
-  }
 
 
   template<typename S>
-  Polynomial<S>::Polynomial(const std::vector<S>& coeffs, const S& ini)
+Polynomial<S>::Polynomial(const std::vector<S>& coeffs, const S& ini)
   : _data(coeffs), _ini(ini) { 
     if( this->_data.empty() ){
       this->_data.push_back(ini);
@@ -73,14 +73,14 @@ Polynomial<S>& Polynomial<S>::operator=(const Polynomial<S>& src){
 template<typename S>
 Polynomial<S>& Polynomial<S>::fromString(const std::string& str){
 
-    std::istringstream inStream(str);
-    operator>>(inStream,*this);
+  std::istringstream inStream(str);
+  operator>>(inStream,*this);
 
-    if( this->_data.empty() ){
-      this->_data.push_back(this->_ini);
-    }
+  if( this->_data.empty() ){
+    this->_data.push_back(this->_ini);
+  }
 
-    return *this;
+  return *this;
 }
 
 
@@ -102,21 +102,21 @@ inline bool Polynomial<S>::isMonic() const {
 }
 
 template<typename S>
-  Polynomial<S>& Polynomial<S>::makeMonic(){
+Polynomial<S>& Polynomial<S>::makeMonic(){
 
-    Constraints::must_have_base<S, Field<S> > dummy __attribute__ ((__unused__));
+  Constraints::must_have_base<S, Field<S> > dummy __attribute__ ((__unused__));
 
-    const S& leadingCoeff(this->getLeadingCoefficient());
-    if( !(this->isMonic()) ){
-      for( int i = 0 ; i < this->_data.size() ; i++){
-        if( ! this->_data[i].esCero() ){
-          this->_data[i] /= leadingCoeff;
-        }
+  const S& leadingCoeff(this->getLeadingCoefficient());
+  if( !(this->isMonic()) ){
+    for( int i = 0 ; i < this->_data.size() ; i++){
+      if( ! this->_data[i].isZero() ){
+        this->_data[i] /= leadingCoeff;
       }
     }
-      
-    return *this;
   }
+
+  return *this;
+}
 
 template<typename S>
 inline const S& Polynomial<S>::getIni() const {
@@ -222,13 +222,13 @@ Polynomial<S>& Polynomial<S>::operator+=(const Polynomial<S>& rhs){
     this->_data.insert( this->_data.end(), rhsIt, rhs._data.end() );
   }
 #pragma omp parallel for
-    for(int i=0; i < limitDeg; i++){
-      _data[i] += rhs._data[i];
-    }
-
-    _eraseLeadingZeros();
-    return *this;
+  for(int i=0; i < limitDeg; i++){
+    _data[i] += rhs._data[i];
   }
+
+  _eraseLeadingZeros();
+  return *this;
+}
 
 
 template<typename S>
@@ -257,7 +257,7 @@ Polynomial<S>& Polynomial<S>::operator-=(const Polynomial<S>& rhs){
     for( ; rhsIt != rhs._data.end(); rhsIt++, thisIt++){
       (*thisIt) = (*rhsIt).getAddInverse();
     }
-//    std::transform( rhsIt, rhs._data.end(), thisIt, std::negate<S>());
+    //    std::transform( rhsIt, rhs._data.end(), thisIt, std::negate<S>());
   }
 #pragma omp parallel for
   for(int i=0; i < limitDeg; i++){
@@ -280,7 +280,7 @@ Polynomial<S>& Polynomial<S>::operator*=(const Polynomial<S>& rhs){
   const int l(rhs._data.size());
   this->_data.clear();
   this->_data.resize( k+l-1, this->_ini );
-  
+
   //TODO: optimize: karatsuba
   for(int i = 0; i < k; i++){
     for( int j = 0; j < l; j++) {
@@ -342,7 +342,7 @@ template<typename S>
 void Polynomial<S>::_fieldDivide(const Polynomial<S>& rhs, Polynomial<S>* const q, const bool reduce) {
   const int m = this->getDegree();
   const int n = rhs.getDegree();
- 
+
   if( m < n ){ 
     if( q != NULL ){
       q->_data.clear();
@@ -408,7 +408,7 @@ void Polynomial<S>::_ufdDivide(const Polynomial<S>& rhs, Polynomial<S>* const q,
     }
     return;
   }
-  
+
   Polynomial<S>& u(*this);
   if( q != NULL ){
     q->_data.clear();
@@ -456,7 +456,7 @@ Polynomial<S>& Polynomial<S>::operator/=(const Polynomial<S>& rhs){
 
 template<typename S>
 Polynomial<S>& Polynomial<S>::operator/=(const S& s){
-  
+
   const int dataSize( this->_data.size() );
 #pragma omp parallel for
   for(int i = 0; i < dataSize; i++){
@@ -538,7 +538,7 @@ std::string Polynomial<S>::toString() const {
     }
   }
   oss << "]";
-  
+
   return oss.str();
 }
 
@@ -573,31 +573,31 @@ void Polynomial<S>::_horner2ndOrder(T* const result, const T& x0) const {
   T res1(_ini), res2(_ini);
 
 #pragma omp parallel sections 
-{
+  {
 #pragma omp section
-{
-  //even coefficients
-  int idx = 2*(int)floor(n/2.0);
-  res1 = this->_data[idx];
-  while( idx >= 2 ){
-    res1 *= x0Sqr;
-    idx -= 2;
-    res1 += this->_data[idx];
-  } 
-}
+    {
+      //even coefficients
+      int idx = 2*(int)floor(n/2.0);
+      res1 = this->_data[idx];
+      while( idx >= 2 ){
+        res1 *= x0Sqr;
+        idx -= 2;
+        res1 += this->_data[idx];
+      } 
+    }
 #pragma omp section
-{
-  //odd coefficients
-  int idx = 2*(int)ceil(n/2.0)-1;
-  res2 = this->_data[idx];
-  while( idx >= 3 ){
-    res2 *= x0Sqr;
-    idx -= 2;
-    res2 += this->_data[idx];
+    {
+      //odd coefficients
+      int idx = 2*(int)ceil(n/2.0)-1;
+      res2 = this->_data[idx];
+      while( idx >= 3 ){
+        res2 *= x0Sqr;
+        idx -= 2;
+        res2 += this->_data[idx];
+      }
+      res2 *= x0;
+    }
   }
-  res2 *= x0;
-}
-}
 
   (*result) = res1;
   (*result) += res2;
@@ -616,7 +616,7 @@ void Polynomial<S>::_eraseLeadingZeros(){
   return;
 }
 
-      
+
 
 template<typename S>
 std::ostream& operator<<(std::ostream& out, const Polynomial<S>& p){
@@ -701,244 +701,244 @@ std::istream& operator>>(std::istream& in, Polynomial<S>& p) {
 }
 
 
-  template<typename S>
-    Polynomial<S> operator-(Polynomial<S> m){
-      m.changeSign();
-      return m;
-    }
+template<typename S>
+Polynomial<S> operator-(Polynomial<S> m){
+  m.changeSign();
+  return m;
+}
 
-     
 
-  template<typename S>
-    Polynomial<S> operator+(Polynomial<S> lhs, const Polynomial<S>& rhs){
-      lhs += rhs;
-      return lhs;
-    }
-  template<typename S>
-    Polynomial<S> operator-(Polynomial<S> lhs, const Polynomial<S>& rhs){
-      lhs -= rhs;
-      return lhs;
-    }
-  template<typename S>
-    Polynomial<S> operator*(Polynomial<S> lhs, const Polynomial<S>& rhs){
-      lhs *= rhs;
-      return lhs;
-    }
-  template<typename S>
-    Polynomial<S> operator/(Polynomial<S> lhs, const Polynomial<S>& rhs){
-      lhs /= rhs;
-      return lhs;
-    }
-  template<typename S>
-    Polynomial<S> operator%(Polynomial<S> lhs, const Polynomial<S>& rhs){
-      lhs %= rhs;
-      return lhs;
-    }
 
-  template<typename S>
-    Polynomial<S> operator+(Polynomial<S> lhs, const S& rhs){
-      lhs += rhs;
-      return lhs;
-    }
-  template<typename S>
-    Polynomial<S> operator-(Polynomial<S> lhs, const S& rhs){
-      lhs -= rhs;
-      return lhs;
-    }
-  template<typename S>
-    Polynomial<S> operator*(Polynomial<S> lhs, const S& rhs){
-      lhs *= rhs;
-      return lhs;
-    }
-  template<typename S>
-    Polynomial<S> operator/(Polynomial<S> lhs, const S& rhs){
-      lhs /= rhs;
-      return lhs;
-    }
-  template<typename S>
-    Polynomial<S> operator%(Polynomial<S> lhs, const S& rhs){
-      lhs %= rhs;
-      return lhs;
-    }
+template<typename S>
+Polynomial<S> operator+(Polynomial<S> lhs, const Polynomial<S>& rhs){
+  lhs += rhs;
+  return lhs;
+}
+template<typename S>
+Polynomial<S> operator-(Polynomial<S> lhs, const Polynomial<S>& rhs){
+  lhs -= rhs;
+  return lhs;
+}
+template<typename S>
+Polynomial<S> operator*(Polynomial<S> lhs, const Polynomial<S>& rhs){
+  lhs *= rhs;
+  return lhs;
+}
+template<typename S>
+Polynomial<S> operator/(Polynomial<S> lhs, const Polynomial<S>& rhs){
+  lhs /= rhs;
+  return lhs;
+}
+template<typename S>
+Polynomial<S> operator%(Polynomial<S> lhs, const Polynomial<S>& rhs){
+  lhs %= rhs;
+  return lhs;
+}
 
-  template<typename S>
-    Polynomial<S> operator+(const S& lhs, Polynomial<S> rhs){
-      rhs += lhs;
-      return rhs;
-    }
-  template<typename S>
-    Polynomial<S> operator-(const S& lhs, Polynomial<S> rhs){
-      rhs = -rhs;
-      rhs += lhs;
-      return rhs;
-    }
-  template<typename S>
-    Polynomial<S> operator*(const S& lhs, Polynomial<S> rhs){
-      rhs *= lhs;
-      return rhs;
-    }
-  template<typename S>
-    Polynomial<S> operator/(const S& lhs, Polynomial<S> rhs){
-      const Polynomial<S> tmp( lhs, 0, rhs._ini);
-      rhs /= tmp;
-      return rhs;
-    }
-  template<typename S>
-    Polynomial<S> operator%(const S& lhs, Polynomial<S> rhs){
-      const Polynomial<S> tmp( lhs, 0, rhs._ini);
-      rhs %= tmp;
-      return rhs;
-    }
+template<typename S>
+Polynomial<S> operator+(Polynomial<S> lhs, const S& rhs){
+  lhs += rhs;
+  return lhs;
+}
+template<typename S>
+Polynomial<S> operator-(Polynomial<S> lhs, const S& rhs){
+  lhs -= rhs;
+  return lhs;
+}
+template<typename S>
+Polynomial<S> operator*(Polynomial<S> lhs, const S& rhs){
+  lhs *= rhs;
+  return lhs;
+}
+template<typename S>
+Polynomial<S> operator/(Polynomial<S> lhs, const S& rhs){
+  lhs /= rhs;
+  return lhs;
+}
+template<typename S>
+Polynomial<S> operator%(Polynomial<S> lhs, const S& rhs){
+  lhs %= rhs;
+  return lhs;
+}
+
+template<typename S>
+Polynomial<S> operator+(const S& lhs, Polynomial<S> rhs){
+  rhs += lhs;
+  return rhs;
+}
+template<typename S>
+Polynomial<S> operator-(const S& lhs, Polynomial<S> rhs){
+  rhs = -rhs;
+  rhs += lhs;
+  return rhs;
+}
+template<typename S>
+Polynomial<S> operator*(const S& lhs, Polynomial<S> rhs){
+  rhs *= lhs;
+  return rhs;
+}
+template<typename S>
+Polynomial<S> operator/(const S& lhs, Polynomial<S> rhs){
+  const Polynomial<S> tmp( lhs, 0, rhs._ini);
+  rhs /= tmp;
+  return rhs;
+}
+template<typename S>
+Polynomial<S> operator%(const S& lhs, Polynomial<S> rhs){
+  const Polynomial<S> tmp( lhs, 0, rhs._ini);
+  rhs %= tmp;
+  return rhs;
+}
 
 
 //XXX: The reason why these methods are here instead of in GCD.cpp/h is because
 //this file itself uses GCD.h, thus creating a circulan dependency. Why this 
 //doesn't usually happen is because the "executable" code is in a .cpp file.
 //this can't be done in this case because of the use of templates
-  template<typename S>
-    Polynomial<S> GCDPolyKnuth<S>::gcd(Polynomial<S> u, Polynomial<S> v){
-      GCD<Z>* gcd;
-      MethodsFactory::getReference().getFunc(gcd);
+template<typename S>
+Polynomial<S> GCDPolyKnuth<S>::gcd(Polynomial<S> u, Polynomial<S> v){
+  GCD<Z>* gcd;
+  MethodsFactory::getReference().getFunc(gcd);
 
-      if( u.getDegree() < v.getDegree() ){
-        std::swap(u,v);
+  if( u.getDegree() < v.getDegree() ){
+    std::swap(u,v);
+  }
+  const S d( gcd->gcd( u.getContent(), v.getContent() ) );
+
+  u.makePrimitive();
+  v.makePrimitive();
+
+  while (true) {
+    Polynomial<S> r(u);
+    r %= v;
+    if ( r.getDegree() == 0){
+      if( !r.isZero() ){
+        // contant polynomial
+        v.makeOne();
       }
-      const S d( gcd->gcd( u.getContent(), v.getContent() ) );
-
-      u.makePrimitive();
-      v.makePrimitive();
-      
-      while (true) {
-        Polynomial<S> r(u);
-        r %= v;
-        if ( r.getDegree() == 0){
-          if( !r.isZero() ){
-            // contant polynomial
-            v.makeOne();
-          }
-          break;
-        }
-        else{ //iterate, euclidean step
-          u = v;
-          r.makePrimitive();
-          v = r;
-        }
-      }
-
-      v *= d;
-      return v;
-
-
+      break;
+    }
+    else{ //iterate, euclidean step
+      u = v;
+      r.makePrimitive();
+      v = r;
+    }
   }
 
-  template<typename S>
-    Polynomial<S> GCDPolyCollins<S>::gcd(Polynomial<S> u, Polynomial<S> v){
-    GCD<Z>* gcd;
-    MethodsFactory::getReference().getFunc(gcd);
-    
-    if( u.getDegree() < v.getDegree() ){
-      std::swap(u,v);
-    }
-    const S d( gcd->gcd( u.getContent(), v.getContent() ) );
+  v *= d;
+  return v;
 
-    u.makePrimitive();
-    v.makePrimitive();
 
-    S g(S::getMultIdentity());
-    S h(S::getMultIdentity());
+}
 
-    while (true) { // C2
-      int const delta( u.getDegree() - v.getDegree() );
-      Polynomial<S> r( u % v );
-      if ( r.getDegree() == 0){
-        if( !r.isZero() ){
-          // contant polynomial
-          v.makeOne();
-        }
-        break;
+template<typename S>
+Polynomial<S> GCDPolyCollins<S>::gcd(Polynomial<S> u, Polynomial<S> v){
+  GCD<Z>* gcd;
+  MethodsFactory::getReference().getFunc(gcd);
+
+  if( u.getDegree() < v.getDegree() ){
+    std::swap(u,v);
+  }
+  const S d( gcd->gcd( u.getContent(), v.getContent() ) );
+
+  u.makePrimitive();
+  v.makePrimitive();
+
+  S g(S::getMultIdentity());
+  S h(S::getMultIdentity());
+
+  while (true) { // C2
+    int const delta( u.getDegree() - v.getDegree() );
+    Polynomial<S> r( u % v );
+    if ( r.getDegree() == 0){
+      if( !r.isZero() ){
+        // contant polynomial
+        v.makeOne();
       }
-      else{ //adjust remainder. C3
-        u = v;
-        r /= (g*(h ^ (Digit)delta));
-        v = r;
-        g = u.getLeadingCoefficient();
-        if( delta == 0 ){
-          h *= (g ^ ((Digit)delta));
-        }
-        else if( delta == 1) {
-          h = (g ^ ((Digit)delta));
-        }
-        else{ // delta > 1
-          h = (g ^ ((Digit)delta)) / ( h ^ (Digit)(delta-1) ) ;
-        }
+      break;
+    }
+    else{ //adjust remainder. C3
+      u = v;
+      r /= (g*(h ^ (Digit)delta));
+      v = r;
+      g = u.getLeadingCoefficient();
+      if( delta == 0 ){
+        h *= (g ^ ((Digit)delta));
+      }
+      else if( delta == 1) {
+        h = (g ^ ((Digit)delta));
+      }
+      else{ // delta > 1
+        h = (g ^ ((Digit)delta)) / ( h ^ (Digit)(delta-1) ) ;
       }
     }
+  }
 
-    v.makePrimitive();
-    v *= d;
+  v.makePrimitive();
+  v *= d;
+  return v;
+}
+
+template<typename S>
+Polynomial<S> GCDExtPoly<S>::gcdext(Polynomial<S> g, Polynomial<S> h, Polynomial<S>* const s, Polynomial<S>* const t){
+
+  Constraints::must_have_base<S, Field<S> > dummy __attribute__ ((__unused__));
+
+  assert( s && t);
+  if( h.isZero() ){
+    s->makeOne();
+    t->makeZero();
+    return g;
+  }
+  Polynomial<S> s1(g.getIni());
+  Polynomial<S> s2(g.getIni());
+  Polynomial<S> t1(g.getIni());
+  Polynomial<S> t2(g.getIni());
+  s2.makeOne();
+  s1.makeZero();
+  t2.makeZero();
+  t1.makeOne();
+
+  Polynomial<S> q(g.getIni()),r(g.getIni());
+  while( !h.isZero() ){
+    Polynomial<S>::divAndMod(g,h, &q, &r);
+    (*s) = s2 - q*s1;
+    (*t) = t2 - q*t1;
+    g = h;
+    h = r;
+    s2 = s1;
+    s1 = (*s);
+    t2 = t1;
+    t1 = (*t);
+  }
+
+  (*s) = s2;
+  (*t) = t2;
+
+  g.makeMonic();
+  return g;
+}
+
+template<typename S>
+Polynomial<S> GCDEuclid4Fields<S>::gcd(Polynomial<S> u, Polynomial<S> v){
+
+  Constraints::must_have_base<S, Field<S> > dummy __attribute__ ((__unused__));
+  if( u.isOne() ){
+    return u;
+  }
+  if( v.isOne() ){
     return v;
   }
 
-  template<typename S>
-    Polynomial<S> GCDExtPoly<S>::gcdext(Polynomial<S> g, Polynomial<S> h, Polynomial<S>* const s, Polynomial<S>* const t){
- 
-      Constraints::must_have_base<S, Field<S> > dummy __attribute__ ((__unused__));
-
-      assert( s && t);
-      if( h.isZero() ){
-        s->makeOne();
-        t->makeZero();
-        return g;
-      }
-      Polynomial<S> s1(g.getIni());
-      Polynomial<S> s2(g.getIni());
-      Polynomial<S> t1(g.getIni());
-      Polynomial<S> t2(g.getIni());
-      s2.makeOne();
-      s1.makeZero();
-      t2.makeZero();
-      t1.makeOne();
-
-      Polynomial<S> q(g.getIni()),r(g.getIni());
-      while( !h.isZero() ){
-        Polynomial<S>::divAndMod(g,h, &q, &r);
-        (*s) = s2 - q*s1;
-        (*t) = t2 - q*t1;
-        g = h;
-        h = r;
-        s2 = s1;
-        s1 = (*s);
-        t2 = t1;
-        t1 = (*t);
-      }
-
-      (*s) = s2;
-      (*t) = t2;
-
-      g.makeMonic();
-      return g;
-    }
-
-  template<typename S>
-    Polynomial<S> GCDEuclid4Fields<S>::gcd(Polynomial<S> u, Polynomial<S> v){
-      
-      Constraints::must_have_base<S, Field<S> > dummy __attribute__ ((__unused__));
-      if( u.isOne() ){
-        return u;
-      }
-      if( v.isOne() ){
-        return v;
-      }
-
-      Polynomial<S> r;
-      while( !v.isZero() ){
-        r = u % v;
-        u = v;
-        v = r;
-      }
-      u.makeMonic();
-      return u;
-    }
+  Polynomial<S> r;
+  while( !v.isZero() ){
+    r = u % v;
+    u = v;
+    v = r;
+  }
+  u.makeMonic();
+  return u;
+}
 
 
 

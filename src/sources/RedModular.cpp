@@ -30,7 +30,7 @@ namespace mpplas{
     Z mu;
     // realizar la computacion de mu_
     const int k = modulo.longitud();
-    mu.hacerUno(); 
+    mu.makeOne(); 
     mu.potenciaBase( 2*k );
     mu /= modulo;
 
@@ -45,7 +45,7 @@ namespace mpplas{
     bool modNegativo = false;
     if( mod.isNegative() ){
       modNegativo = true;
-      mod.cambiarSigno();
+      mod.invertSign();
     }
 
     const int k = mod.longitud();
@@ -102,7 +102,7 @@ namespace mpplas{
     assert( num );
 
     // modulus has to odd 
-    if( mod.esPar() ){  
+    if( mod.isEven() ){  
       throw Errors::ModuloParEnMontgomery();
     }
     
@@ -142,7 +142,7 @@ namespace mpplas{
     Z qSiguiente;
     Z rSiguiente;
     
-    Z m; m.hacerUno();
+    Z m; m.makeOne();
     m <<= t;
     m -= c; 
     

@@ -280,7 +280,7 @@ namespace mpplas{
     RandomFast* rnd; funcs->getFunc(rnd);
  
     Z p,q;
-    Z menosUno; menosUno.hacerUno(); menosUno.hacerNegativo();
+    Z menosUno; menosUno.makeOne(); menosUno.hacerNegativo();
     
 //    do{
 //      p = gprimos->getPrime(_quality);
@@ -304,13 +304,13 @@ namespace mpplas{
       _Xi = rnd->getIntegerBounded(_n);
     }while( Z::gcd(_Xi, _n) != (Digit)1);
 
-    _Xi.cuadradoModular(_n); 
+    _Xi.modularSquare(_n); 
     
     return;
   }
     
   Z BBSGen::getInteger(int num){
-    Z resultado; resultado.hacerCero();
+    Z resultado; resultado.makeZero();
     //según pagina 418 de Schneier, si "n" es la longitud de "Xi", los
     //Log_2{n} bits menos significativos de Xi pueden ser usados.
     //Es claro que el número de bits necesario para representar un
@@ -326,13 +326,13 @@ namespace mpplas{
     Digit longConsiderada = std::max(getBitLength((Digit)n)-1,1);
     Digit mascara = (1UL << longConsiderada)-1;
     while(num > 0){
-      _Xi.cuadradoModular(_n); 
+      _Xi.modularSquare(_n); 
       if(num < (2*longConsiderada) ){
         resultado[0] |= (_Xi[0] & mascara);
         resultado <<= num;
         
         mascara = (1UL << num)-1;
-        _Xi.cuadradoModular(_n); 
+        _Xi.modularSquare(_n); 
         resultado[0] |= (_Xi[0] & mascara);
         break;
       }

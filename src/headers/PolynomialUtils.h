@@ -69,7 +69,7 @@ namespace mpplas{
         do{
           do {
             fx[0] = rnd->getIntegerBounded(p);
-          } while(fx[0].esCero());
+          } while(fx[0].isZero());
 
           for( int i = 1; i < m; i++){
             fx[i] = rnd->getIntegerBounded(p);

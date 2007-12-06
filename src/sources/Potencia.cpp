@@ -35,7 +35,7 @@ namespace mpplas{
  
   void Exponentiation<Z_n>::invert(Z* const base, const Z& mod) const{
     Z temp;
-    if( !(Z::gcd(*base, mod, base, &temp)).esUno() ){
+    if( !(Z::gcd(*base, mod, base, &temp)).isOne() ){
       throw Errors::NonInvertibleElement();
     }
 
@@ -71,12 +71,12 @@ namespace mpplas{
     const Digit e( exp[0] );
 
     if(e == 0){
-      base->hacerUno();
+      base->makeOne();
       return;
     }
 
     if(e == 2){
-      base->cuadrado();
+      base->square();
       return;
     }
 
@@ -96,7 +96,7 @@ namespace mpplas{
 
     //calculos previos
     Z g2(*base);
-    g2.cuadrado();
+    g2.square();
     Digit guarda = ( 1 << (k-1) ) - 1; // 2^{k-1} - 1
     std::vector<Z> ges(guarda+1); 
 
@@ -111,13 +111,13 @@ namespace mpplas{
 
 
 
-    //  Z A; A.hacerUno();
-    base->hacerUno();  
+    //  Z A; A.makeOne();
+    base->makeOne();  
 
     int i = getBitLength(e) - 1; // -1 por considerar el 0
     while(i >= 0){
       if( (e & (0x1 << i )) == 0 ){ // ¿ i-esimo bit == 0?
-        base->cuadrado();
+        base->square();
         i--;
       }
       else{ // i-esimo bit 1
@@ -125,7 +125,7 @@ namespace mpplas{
         int indice=0;
         Digit mask;
         int l;
-        int cuadrados;
+        int squares;
         for( l = i+1-k; l <= i; l++){
           if( l < 0) {
             l = 0;
@@ -139,11 +139,11 @@ namespace mpplas{
           }
         }
 
-        cuadrados = (i - l + 1);
-        if( !base->esUno() ){
-          while(cuadrados){
-            base->cuadrado();  
-            cuadrados--;
+        squares = (i - l + 1);
+        if( !base->isOne() ){
+          while(squares){
+            base->square();  
+            squares--;
           }
         }
         indice--; indice >>= 1;
@@ -170,12 +170,12 @@ namespace mpplas{
 
     const int t = 1+(int)floor(log2(e));
     const Z orig(*base);
-    base->hacerUno();
+    base->makeOne();
     Digit mask( ((Digit)1) << (t+1));
 
     for(int i= t; i >= 0; i--){
       mask >>= 1; // mask = 1 << i
-      base->cuadrado();
+      base->square();
       if( e & mask ){
         (*base) *= orig;
       }
@@ -189,7 +189,7 @@ namespace mpplas{
       throw Errors::PunteroNulo();
     }
 
-    if( base->getMod().esPar() ){ //modulo par => No puede aplicarse Montgomery
+    if( base->getMod().isEven() ){ //modulo par => No puede aplicarse Montgomery
       throw Errors::ModuloParEnMontgomery();
     }
 
@@ -224,12 +224,12 @@ namespace mpplas{
       invert(base, mod);
     }
     const Z orig(*base);
-    base->hacerUno();
+    base->makeOne();
 
     Utils::BitChecker bc(exp);
 
     while( bc.hasPrevious() ){
-      base->cuadrado();
+      base->square();
       redbarrett->redBarrett(base, mod, mu);
 
       if( bc.checkPrevious() ){
@@ -257,12 +257,12 @@ namespace mpplas{
     const Digit e( exp[0] );
 
     if(e == 0){
-      base->hacerUno();
+      base->makeOne();
       return;
     }
 
     if(e == 2){
-      base->cuadrado();
+      base->square();
       return;
     }
 
@@ -279,7 +279,7 @@ namespace mpplas{
 
     //calculos previos
     R g2(*base);
-    g2.cuadrado();
+    g2.square();
     Digit guarda = ( 1 << (k-1) ) - 1; // 2^{k-1} - 1
     mpplas::MiVec<R> ges(guarda+1); 
 
@@ -294,12 +294,12 @@ namespace mpplas{
 
 
 
-    //  Z A; A.hacerUno();
-    base->hacerUno();  
+    //  Z A; A.makeOne();
+    base->makeOne();  
     int i = getBitLength(e) - 1; // -1 por considerar el 0
     while(i >= 0){
       if( (e & (0x1 << i )) == 0 ){ // ¿ i-esimo bit == 0?
-        base->cuadrado();
+        base->square();
         i--;
         base->normalizar();
       }
@@ -308,7 +308,7 @@ namespace mpplas{
         int indice=0;
         Digit mask;
         int l;
-        int cuadrados;
+        int squares;
         for( l = i+1-k; l <= i; l++){
           if( l < 0) 
             l = 0;
@@ -321,11 +321,11 @@ namespace mpplas{
           }
         }
 
-        cuadrados = (i - l + 1);
-        if( !base->esUno() ){
-          while(cuadrados){
-            base->cuadrado();  
-            cuadrados--;
+        squares = (i - l + 1);
+        if( !base->isOne() ){
+          while(squares){
+            base->square();  
+            squares--;
           }
         }
         indice--; indice >>= 1;
@@ -343,8 +343,8 @@ namespace mpplas{
     std::vector<int> diffsX;
     std::vector<int> diffsY;
 
-    if( exp.esCero() ){
-      base->hacerUno();
+    if( exp.isZero() ){
+      base->makeOne();
       return;
     }
 
@@ -487,7 +487,7 @@ namespace mpplas{
     // k should verify 0 <= k < p^m-1 ; m = deg(fx)
     GFx g(*base);
     base->makeOne();
-    if( k.esCero() ){
+    if( k.isZero() ){
       return;
     }
     if( k.isNegative() ){

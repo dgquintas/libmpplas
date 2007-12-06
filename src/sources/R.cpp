@@ -31,7 +31,7 @@ namespace mpplas{
   
   R::R() 
     : exponente_(0) , _spApprox(0) {
-    mantisa_.hacerCero();
+    mantisa_.makeZero();
   }
 
   R::R( const R& otro)
@@ -183,7 +183,7 @@ namespace mpplas{
         // En este caso, esto supone que "this" pasa a ser "otro" con
         // cambio de signo.
         this->operator=(otro);
-        mantisa_.cambiarSigno();
+        mantisa_.invertSign();
         return *this;
       }
       else{
@@ -218,7 +218,7 @@ namespace mpplas{
   }
 
   R& R::operator/=(const R& otro) {
-    if( otro.esCero() ){
+    if( otro.isZero() ){
       throw Errors::DivisionPorCero();
     }
 
@@ -311,8 +311,8 @@ namespace mpplas{
     return *this;
   }
 
-  R& R::cuadrado(void) {
-    mantisa_.cuadrado();
+  R& R::square(void) {
+    mantisa_.square();
     exponente_ <<= 1;
 
     normalizar();
@@ -461,31 +461,31 @@ namespace mpplas{
   }
 
 
-  void R::hacerCero(void)
+  R& R::makeZero(void)
   {
     exponente_ = 0;
-    mantisa_.hacerCero();
-    return;
+    mantisa_.makeZero();
+    return *this;
   }
 
-  void R::hacerUno(void)
+  R& R::makeOne(void)
   {
     exponente_ = 0;
-    mantisa_.hacerUno();
-    return;
+    mantisa_.makeOne();
+    return *this;
   }
 
-  bool R::esCero(void) const
+  bool R::isZero(void) const
   {
-    if( mantisa_.esCero() && exponente_ == 0 )
+    if( mantisa_.isZero() && exponente_ == 0 )
       return true;
     else
       return false;
   }
 
-  bool R::esUno(void) const
+  bool R::isOne(void) const
   {
-    if( mantisa_.esUno() && exponente_ == 0 )
+    if( mantisa_.isOne() && exponente_ == 0 )
       return true;
     else
       return false;
@@ -509,7 +509,7 @@ namespace mpplas{
       if( mantisa_.getBitLength() <= (unsigned long)labs(exponente_) ){ //FIXME
         //"no hay nada" por delante del . 
         Z cero;
-        cero.hacerCero();    
+        cero.makeZero();    
         return cero;
       }
       else{
@@ -522,15 +522,15 @@ namespace mpplas{
     if( mantisa_.getBitLength() <= (unsigned long)labs(exponente_)){ //FIXME
       //"no hay nada" por delante del . 
       Z menosUno;
-      menosUno.hacerUno();
-      menosUno.cambiarSigno();
+      menosUno.makeOne();
+      menosUno.invertSign();
       return menosUno;
     }
     else{
       Z temp(mantisa_);
       temp >>= labs(exponente_);
       Z uno; 
-      uno.hacerUno();
+      uno.makeOne();
       temp -= uno;
       return Z(temp);
     }
@@ -551,14 +551,14 @@ namespace mpplas{
       if( mantisa_.getBitLength() <= (unsigned long)labs(exponente_) ){ //FIXME
         //"no hay nada" por delante del . 
         Z uno;
-        uno.hacerUno();
+        uno.makeOne();
         return uno;
       }
       else{ 
         Z temp(mantisa_);
         temp >>= labs(exponente_);
         Z uno; 
-        uno.hacerUno();
+        uno.makeOne();
         temp += uno;
         return temp;
       }
@@ -567,7 +567,7 @@ namespace mpplas{
     if( mantisa_.getBitLength() <= (unsigned long)labs(exponente_)){
       //"no hay nada" por delante del . 
       Z cero;
-      cero.hacerCero();
+      cero.makeZero();
       return cero;
     }
     else{
@@ -578,7 +578,7 @@ namespace mpplas{
   }
 
   void R::normalizar(int nprec) {
-    if( mantisa_.esCero() ){
+    if( mantisa_.isZero() ){
       exponente_ = 0; //hacer que la representacion del 0 real sea única.
       return;
     }
@@ -592,7 +592,7 @@ namespace mpplas{
     // prec. de salida salieran mal.
 
     if( exceso > 0 ){
-      SignedDigit correccion = mantisa_.redondear(exceso);
+      SignedDigit correccion = mantisa_.round(exceso);
       mantisa_ >>= exceso;
       mantisa_ += correccion;
       exponente_ += exceso;
@@ -628,7 +628,7 @@ namespace mpplas{
 
   R operator/(R izq, const R& der)
   {
-    if( der.esCero() )
+    if( der.isZero() )
       throw Errors::DivisionPorCero();
 
     izq /= der;
@@ -643,7 +643,7 @@ namespace mpplas{
   R operator-(const double corto, R largo)
   {
     largo -= corto;
-    largo.cambiarSigno();
+    largo.invertSign();
     return largo;
   }
   R operator*(const double corto, R largo)
@@ -654,12 +654,12 @@ namespace mpplas{
 
   R operator/(const double corto, const R& largo)
   {
-    if( largo.esCero() )
+    if( largo.isZero() )
       throw Errors::DivisionPorCero();
 
     if( largo > R(corto)) { //FIXME
       R cero;
-      cero.hacerCero();
+      cero.makeZero();
       return cero;
     }
     else 
@@ -669,14 +669,14 @@ namespace mpplas{
       }
       else{ //iguales
         R uno;
-        uno.hacerUno();
+        uno.makeOne();
         return uno;
       }
   }
 
   //R mpplas::operator%(const double corto, const R& largo)
   //{
-  //  if( largo.esCero() )
+  //  if( largo.isZero() )
   //    throw Errors::DivisionPorCero();
   //
   //  if( largo > corto ){
@@ -689,7 +689,7 @@ namespace mpplas{
   //  }
   //  else{ //iguales
   //    R cero;
-  //    cero.hacerCero();
+  //    cero.makeZero();
   //    return cero;
   //  }
   //}
@@ -755,9 +755,9 @@ namespace mpplas{
       std::ostringstream oss;
 
       //we assume 0 has always + sign
-      if( (numero.signo() < 0) && (!numero.esCero()) ){
+      if( (numero.signo() < 0) && (!numero.isZero()) ){
         oss << "-";
-        numero.cambiarSigno();
+        numero.invertSign();
       }
       else{
         const std::ios_base::fmtflags ff(out.flags());
@@ -800,7 +800,7 @@ namespace mpplas{
       }
 
       R redondeo;
-      redondeo.hacerUno();
+      redondeo.makeOne();
 
       for(int i = 0; i < precisionUsada; i++){
         numero *= (Digit)10;  
@@ -817,7 +817,7 @@ namespace mpplas{
       }
       else{ //entero == 5
         if( entero == (Digit)5 ){
-          if( entero.esImpar() ) {
+          if( entero.isOdd() ) {
             numeroRed += redondeo;
           }
         }
@@ -842,7 +842,7 @@ namespace mpplas{
       for(; i < precisionUsada ; i += Constants::MAX_EXP10_CIFRA){
         numeroRed *= Constants::MAX_BASE10_POWER_DIGIT;
         entero = numeroRed.floor();
-//        if( entero.esCero() ){
+//        if( entero.isZero() ){
 //          oss << allZeros;
 //        }
 //        else{
@@ -862,7 +862,7 @@ namespace mpplas{
     char c;
     Digit n = 0;
     int numDigits = 0;
-    res.hacerCero();
+    res.makeZero();
 
     while( in.get(c) ) {
       if( std::isdigit(c) ) {
@@ -907,7 +907,7 @@ namespace mpplas{
     operator>>(std::istream& in, R& numero) {
       bool negative = false;
       char c;
-      numero.hacerCero();
+      numero.makeZero();
 
       in >> c;
 
@@ -935,7 +935,7 @@ namespace mpplas{
       numero += R(integer);
 
       if( negative ){
-        numero.cambiarSigno();
+        numero.invertSign();
       }
 
       numero.normalizar();
@@ -944,21 +944,12 @@ namespace mpplas{
     }
 
 
-  inline R abs(R x){
-    x.abs();
-    return x;
-  }
-
-
-
-  R operator-(R real)
-  {
-    real.cambiarSigno();
+  R operator-(R real) {
+    real.invertSign();
     return real;
   }
 
-  R operator^(R base, const Z& exp)
-  {
+  R operator^(R base, const Z& exp) {
     if( exp.longitud() > 1 ){
       throw Errors::TooBig();
     }
@@ -984,4 +975,5 @@ namespace mpplas{
     real <<= n;
     return real;
   }
-  }
+
+}

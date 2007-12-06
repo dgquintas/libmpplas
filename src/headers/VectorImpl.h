@@ -142,7 +142,7 @@ T Vector<T>::dot( const Vector<T>& rhs) {
   }
 
   T sum;
-  sum.hacerCero();
+  sum.makeZero();
   for(int i=0; i < length; i++){
     sum += thisVec[i];
   }

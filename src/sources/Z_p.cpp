@@ -23,7 +23,7 @@ namespace mpplas{
 
   Z_p::Z_p(const Z& mod, const bool checkPrimality )throw(Errors::PrimeRequired)
     : Z_n(mod) {
-      if ( (!mod.esCero()) && checkPrimality) {
+      if ( (!mod.isZero()) && checkPrimality) {
         TestPrimoProb* primeTest;
         MethodsFactory::getReference().getFunc(primeTest);
 
@@ -64,6 +64,20 @@ namespace mpplas{
   }
   Z_p& Z_p::operator=(const Z_n& integer) {
     Z_n::operator=(integer);
+  }
+
+
+  Z_p& Z_p::makeZero(){
+    Z::makeZero();
+    return *this;
+  }
+  Z_p& Z_p::makeOne(){
+    Z::makeOne();
+    return *this;
+  }
+  Z_p& Z_p::invertSign(){
+    Z_n::invertSign();
+    return *this;
   }
 
 }

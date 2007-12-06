@@ -20,7 +20,7 @@ namespace mpplas{
     Z x, u;
 
     for(int i = 1; i < t; i++){
-      (C[i]).hacerUno();
+      (C[i]).makeOne();
       for(int j = 0; j < i; j++){
         u = potModular->inverse(m[j], m[i]);
         C[i] *= u;
@@ -36,7 +36,7 @@ namespace mpplas{
       u = ((y[i] - x) * C[i]) % m[i]; //aqui ya no procede usar Barrett ya 
                                       //que cada iteracion cambia el
                                       //mod reductor
-      temp.hacerUno();
+      temp.makeOne();
       for(int j = 0; j < i ; j++)
         temp *= m[j];
 

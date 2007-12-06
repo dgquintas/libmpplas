@@ -87,7 +87,7 @@ namespace mpplas{
     }
 
 
-  long VectorialCPU::redondear(const mpplas::MiVec<Digit>& numero, int exceso, const int8_t signo)
+  SignedDigit VectorialCPU::round(const mpplas::MiVec<Digit>& numero, int exceso, const int8_t signo)
   {
     const int indice = exceso - 1;
 

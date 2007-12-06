@@ -34,6 +34,13 @@ namespace mpplas{
 
       typedef mpplas::GF GF;
 
+      virtual inline Z_px& makeZero(){ Polynomial<Z_p>::makeZero(); return *this;} 
+      virtual inline Z_px& makeOne() { Polynomial<Z_p>::makeOne();  return *this;}
+
+      virtual bool isZero() const { return Polynomial<Z_p>::isZero(); }
+      virtual bool isOne() const {  return Polynomial<Z_p>::isOne(); }
+      virtual inline Z_px& invertSign(){ Polynomial<Z_p>::changeSign(); return *this; }
+
       /* Ring, Group and Field methods */
       static const Z_px ZERO;
       static const Z_px ONE;

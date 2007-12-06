@@ -22,6 +22,14 @@ namespace mpplas{
 
       Rx& operator=(const Rx& src);
 
+      virtual inline Rx& makeZero(){ Polynomial<R>::makeZero(); return *this;} 
+      virtual inline Rx& makeOne() { Polynomial<R>::makeOne();  return *this;}
+
+      virtual bool isZero() const { return Polynomial<R>::isZero(); }
+      virtual bool isOne() const {  return Polynomial<R>::isOne(); }
+      virtual inline Rx& invertSign(){ Polynomial<R>::changeSign(); return *this; }
+
+
       /* Ring, Group and Field methods */
       static const Rx ZERO;
       static const Rx ONE;

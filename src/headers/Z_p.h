@@ -23,6 +23,13 @@ namespace mpplas{
 
       virtual ~Z_p(){};
 
+      virtual Z_p& makeZero();
+      virtual Z_p& makeOne();
+
+      virtual bool isZero() const { return Z_n::isZero(); }
+      virtual bool isOne() const { return Z_n::isOne(); }
+      virtual Z_p& invertSign();
+
       /* Ring, Group and Field methods */
       static const Z_p ZERO;
       static const Z_p ONE;

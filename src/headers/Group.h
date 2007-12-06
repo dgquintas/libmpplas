@@ -16,6 +16,10 @@ namespace mpplas{
         static bool isGroupCommutative() { return T::addCommutative; }
         static bool isGroupCyclic() { return T::groupCyclic; }
 
+        virtual T& makeZero() = 0;
+        virtual bool isZero() const = 0;
+        virtual T& invertSign() = 0;
+
         ~Group() {
           STATIC_ASSERT( ValidateRequirements() );
         }

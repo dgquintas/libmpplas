@@ -28,6 +28,14 @@ namespace mpplas{
       static const Zx ZERO;
       static const Zx ONE;
 
+      virtual inline Zx& makeZero(){ Polynomial<Z>::makeZero(); return *this;} 
+      virtual inline Zx& makeOne() { Polynomial<Z>::makeOne();  return *this;}
+
+      virtual bool isZero() const { return Polynomial<Z>::isZero(); }
+      virtual bool isOne() const {  return Polynomial<Z>::isOne(); }
+      virtual inline Zx& invertSign(){ Polynomial<Z>::changeSign(); return *this; }
+
+
       /* Ring and Group methods */
         static const bool addCommutative;
         static const bool groupCyclic;

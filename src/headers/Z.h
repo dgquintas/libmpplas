@@ -41,79 +41,6 @@ namespace mpplas
       explicit Z(const std::string& str); /**< construction from a std::string */
 
 
-      ////////////////////////////////
-      //   OPERADORES DE CONVERSION //
-      ////////////////////////////////
-      //se devuelve un objeto (y no una referencia) debido a lo
-      //expuesto en stroustrup pág. 297 ultimo parrafo.
-      //
-      //Estas funciones no son amigas de class Z por lo expuesto
-      //en stroustrup 11.3.1 (pag 282)
-
-      /** Función de conversión de tipo Digit a Z (entero).
-       *
-       *  @par Complejidad:
-       *       \f$O(1)\f$
-       * 
-       *  @param numSimple Número de precisión simple a convertir a entero.
-       *
-       *  @return El entero correspondiente a la conversión.
-       */
-//      static Z convertir(const Digit numSimple);
-
-
-      /** Función de conversión de tipo long a Z (entero).
-       *
-       *  @par Complejidad:
-       *       \f$O(1)\f$
-       * 
-       *  @param numSimple Número de precisión simple a convertir a entero.
-       *
-       *  @return El entero correspondiente a la conversión.
-       */
-//      static Z convertir(const SignedDigit numSimple);
-
-
-      /** Función de conversión de tipo cadena de caracteres a Z (entero).
-       * 
-       *  @par Complejidad:
-       *       \f$O(n)\f$
-       * 
-       *  @param cadena Vector de caracteres que representa el número a
-       *  convertir a entero.
-       *
-       *  @exception mpplas::Errors::Sintactico Error sintáctico en la
-       *  cadena.
-       *
-       *  @return El entero correspondiente a la conversión.
-       */
-//      static Z convertir(const char* cadena) throw(Errors::Sintactic);
-
-
-      /** Función de conversión de tipo double a Z (entero).
-       *
-       *  @note La conversión trunca el número double.
-       *  @par Complejidad:
-       *       \f$O(1)\f$
-       * 
-       *  @param numFlotante Número de precisión simple a convertir a entero.
-       *
-       *  @return El entero correspondiente a la conversión.
-       */
-//      static Z convertir(const double numFlotante);
-
-      /** Función de conversión de tipo MiVec<Digit> a Z (entero).
-       *
-       *  @par Complejidad:
-       *       \f$O(1)\f$
-       * 
-       *  @param vec Vector de Digit 's representando un entero
-       *  positivo en base sizeof(Digit)*8 
-       *
-       *  @return El entero correspondiente a la conversión.
-       */
-//      static Z convertir(const MiVec<Digit>& vec);
-
 
       /** Operador de asignación desde Z.
        *
@@ -271,7 +198,7 @@ namespace mpplas
        *
        *  @return Referencia a *this.
        */
-      Z& cuadrado(void);
+      Z& square(void);
 
        /** Hacer el cuadrado modular.
        *  
@@ -287,7 +214,7 @@ namespace mpplas
        *
        *  @return Referencia a *this.
        */
-      Z& cuadradoModular(const Z& mod);
+      Z& modularSquare(const Z& mod);
     
       /** Factorial.
        *  
@@ -716,7 +643,7 @@ namespace mpplas
       int getBase10Length(void) const;
  
       //redondeo
-      SignedDigit redondear(int exceso) ;
+      SignedDigit round(int exceso) ;
 
       /** Hacer cero.
        * 
@@ -733,7 +660,7 @@ namespace mpplas
        * \note Se fuerza asimismo el signo positivo, aunque pueda carecer de 
        * sentido el poner un signo al cero.
        */
-      Z& hacerCero(void);
+      virtual Z& makeZero();
  
       /** Hacer uno.
        * 
@@ -748,7 +675,7 @@ namespace mpplas
        *  operacion \f$ x = 1 \f$ para el entero \f$x\f$
        *
        */
-      Z& hacerUno(void);
+      virtual Z& makeOne();
   
       /** Hacer el número positivo.
        * 
@@ -786,7 +713,7 @@ namespace mpplas
        *  operacion \f$ x = -x \f$ para el entero \f$x\f$
        *
        */
-      inline Z& cambiarSigno(void) { signo_ *= -1; return *this; }
+      inline Z& invertSign() { signo_ *= -1; return *this; }
 
       
       /** Comprobar igualdad a cero.
@@ -800,7 +727,7 @@ namespace mpplas
        *  El objetivo de este método es ser un atajo para la frecuente 
        *  operacion de comprobar si un número es cero.
        */
-      bool esCero(void) const;  
+      virtual bool isZero() const;  
  
       /** Comprobar igualdad a uno.
        * 
@@ -813,7 +740,7 @@ namespace mpplas
        *  El objetivo de este método es ser un atajo para la frecuente 
        *  operacion de comprobar si un número es uno.
        */
-      bool esUno(void) const;  
+      virtual bool isOne() const;  
  
       /** Checks if the integer is negative.
        * 
@@ -870,7 +797,7 @@ namespace mpplas
        *  El objetivo de este método es ser un atajo para la frecuente 
        *  operacion de comprobar si un número es par.
        */
-      inline bool esPar(void) const { return (!(coefPoliB_[0] & 0x1)); }
+      inline bool isEven(void) const { return (!(coefPoliB_[0] & 0x1)); }
       
       /** Comprobar paridad impar.
        * 
@@ -883,7 +810,7 @@ namespace mpplas
        *  El objetivo de este método es ser un atajo para la frecuente 
        *  operacion de comprobar si un número es impar.
        */
-     inline bool esImpar(void) const { return ((coefPoliB_[0] & 0x1)); }
+     inline bool isOdd(void) const { return ((coefPoliB_[0] & 0x1)); }
   
      /** Mayor potencia de 2.
        *
@@ -928,7 +855,7 @@ namespace mpplas
        * @return true si *this es una potencia de primo. \n
        *         false si no.
        */
-      bool esPotenciaPrima(Z* primo = NULL);
+      bool isPrimePower(Z* primo = NULL);
         
       /** Leer un entero de una ristra de bytes.
        *
@@ -1228,7 +1155,7 @@ namespace mpplas
         };
         Z getAddInverse()  const{
           Z tmp(*this);
-          tmp.cambiarSigno();
+          tmp.invertSign();
           return tmp;
         };
         static const Z& getGroupGenerator() {
@@ -1513,9 +1440,9 @@ namespace mpplas
   *
   * @return Entero igual a \f$ x^2 \f$.
   *
-  * @sa Z::cuadrado()
+  * @sa Z::square()
   */
-  Z cuadrado(Z x);
+  Z square(Z x);
  
  /** Cuadrado modular (versión "función").
   *
@@ -1524,9 +1451,9 @@ namespace mpplas
   *
   * @return Entero igual a \f$ x^2 \bmod mod\f$.
   *
-  * @sa Z::cuadrado()
+  * @sa Z::square()
   */
-  Z cuadradoModular(Z x, const Z& mod);
+  Z modularSquare(Z x, const Z& mod);
   
   /** Factorial (versión "función").
    *
@@ -1614,7 +1541,7 @@ namespace mpplas
   {
     // se supone que los iteradores son sobre un tipo de 8 bits.
     
-    this->hacerCero();
+    this->makeZero();
     
     if( (inicio >= fin) )
       return;
@@ -1643,7 +1570,7 @@ namespace mpplas
 
     Z temp(*this);
     fin--;
-    while( (!(this->esCero())) && (inicio != (fin+1)) ){
+    while( (!(this->isZero())) && (inicio != (fin+1)) ){
       (*fin) = temp.coefPoliB_[0] & 0xff;
       temp.operator>>=(8);
       fin--;

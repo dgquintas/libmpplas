@@ -212,7 +212,7 @@ namespace mpplas {
 
       R& abs();
 
-      R& cuadrado(void);
+      R& square(void);
 
       ////////////////////////////////////
       //   OPERADORES DE DESPLAZAMIENTO //
@@ -336,7 +336,7 @@ namespace mpplas {
        * \note Se fuerza asimismo el signo positivo, aunque pueda carecer de 
        * sentido el poner un signo al cero.
        */
-      void hacerCero(void);
+      R& makeZero();
       /** Hacer uno.
        * 
        * \par Complejidad:
@@ -350,7 +350,7 @@ namespace mpplas {
        *  operacion \f$ x = 1 \f$ para el real \f$x\f$
        *
        */
-      void hacerUno(void);
+      R& makeOne();
 
       /** Comprobar igualdad a cero.
        * 
@@ -363,9 +363,10 @@ namespace mpplas {
        *  El objetivo de este método es ser un atajo para la frecuente 
        *  operacion de comprobar si un número es cero.
        */
-      bool esCero(void) const;
+      bool isZero(void) const;
 
-      bool esUno(void) const;
+      bool isOne(void) const;
+
 
       /** Número de bits en la mantisa.
        *
@@ -392,7 +393,7 @@ namespace mpplas {
        *  operacion \f$ x = -x \f$ para el real \f$x\f$
        *
        */
-      inline void cambiarSigno(void) { mantisa_.cambiarSigno(); }
+      virtual R& invertSign(void) { mantisa_.invertSign(); return *this; }
 
 
 
@@ -585,7 +586,7 @@ namespace mpplas {
       };
       R getAddInverse()  const{
         R tmp(*this);
-        tmp.cambiarSigno();
+        tmp.invertSign();
         return tmp;
       };
       static const R& getGroupGenerator() {
@@ -725,6 +726,12 @@ namespace mpplas {
    *
    * @sa R::operator<<=(const int n) */
   R operator<<(R real, const int n);
+
+
+  inline R abs(R x){
+    x.abs();
+    return x;
+  }
 
 
   

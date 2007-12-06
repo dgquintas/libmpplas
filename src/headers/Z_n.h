@@ -96,11 +96,18 @@ namespace mpplas{
    
       Z_n& inverse();
       
-      Z_n& cuadrado(void);
+      Z_n& square(void);
       
       //funciones de informacion
       inline const Z& getMod() const { return n_; }
 
+      virtual Z_n& makeZero();
+      virtual Z_n& makeOne();
+
+      virtual bool isZero() const { return Z::isZero(); }
+      virtual bool isOne() const { return Z::isOne(); }
+
+      virtual Z_n& invertSign();
 
     /* Ring and Group methods */
       static const Z_n ZERO;
@@ -123,8 +130,7 @@ namespace mpplas{
       };
       Z_n getAddInverse() const{
         Z_n tmp(*this);
-        tmp.cambiarSigno();
-        tmp += n_;
+        tmp.invertSign();
         return tmp;
       };
       static const Z_n& getGroupGenerator() {

@@ -21,6 +21,8 @@ namespace mpplas{
         static bool isUnitaryRing() { return T::unitaryRing; };
         static bool isDivisionRing() { return T::divisionRing; }
 
+        virtual T& makeOne() = 0;
+        virtual bool isOne() const = 0;
 
         ~Ring() {
           STATIC_ASSERT( ValidateRequirements() );

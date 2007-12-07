@@ -784,8 +784,11 @@ template<typename T, typename Alloc>
   }
 
 
+//  const int aRowsPerBlock = 1 << (getBitLength(aRows)-1); //FIXME
+//  const int aColsPerBlock = aRowsPerBlock;
+//  const int bColsPerBlock = aRowsPerBlock;
 
-//  const int rowsPerBlock = 1 << (getBitLength(aRows)-1); //FIXME
+
   int aRowsPerBlock = aRows/2 ; 
   if( aRowsPerBlock & 0x1 ) aRowsPerBlock++;
   int aColsPerBlock = aCols/2 ; 
@@ -798,13 +801,7 @@ template<typename T, typename Alloc>
   const int aColsExtra = aCols % aColsPerBlock;
   const int bColsExtra = bCols % bColsPerBlock;
 
- 
-//  T* C( &(res( 0, 0 )) );
-//  const T* const A( &(lhs(0, 0)) );
-//  const T* const B( &(rhs(0, 0)) );
-//  strassen.baseMult(C,A,B,
-//      aRows, aCols, bCols,
-//      bCols, aCols, bCols);
+
 
 #pragma omp parallel for schedule(static,1)
   for (int aRow = 0; aRow < aRows; aRow += aRowsPerBlock) {
@@ -826,7 +823,6 @@ template<typename T, typename Alloc>
               bCols, aCols, bCols);
         }
         else {
-
           strassen.run(C,A,B,
               aRowsPerBlock,aColsPerBlock,bColsPerBlock,
               bCols, aCols, bCols);
@@ -1343,7 +1339,6 @@ namespace MatrixHelpers{
             const int numRowsA, const int numColsA, const int numColsB,
             const int strideC, const int strideA, const int strideB, bool reset) const{
 
-
       const int halfRowsA = numRowsA / 2;
       const int halfColsA = numColsA / 2;
       const int halfRowsB = halfColsA;
@@ -1557,7 +1552,7 @@ namespace MatrixHelpers{
         const int numRowsA, const int numColsA, const int numColsB,
         const int strideC, const int strideA, const int strideB) const {
 
-      if( numRowsA < 64 || ( (numRowsA & 0x1) || numColsB & 0x1) ){ //FIXME: esto ha de pulirse, no se puede comprobar solo una dim
+      if( numRowsA <= 32 || ( (numRowsA & 0x1) || numColsB & 0x1) ){ //FIXME: esto ha de pulirse, no se puede comprobar solo una dim
         baseMult(C,A,B,
             numRowsA, numColsA, numColsB,
             strideC, strideA, strideB, true);

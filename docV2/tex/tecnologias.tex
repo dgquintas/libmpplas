@@ -46,6 +46,12 @@
 
 %--------------------------------------------------------%
 
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.65\textwidth,keepaspectratio]{dilbert} 
+\caption{La terminología puede a veces resultar confusa...}
+\end{figure}
+
 \section{Comprobaciones en tiempo de compilación}
 %XXX: completar con una intro
   Siempre es mejor prevenir que curar, como reza el refranero. Por tanto, mejor que simplemente detectar el error
@@ -60,45 +66,51 @@
   o bien constantes --que no dejan de ser asimismo un caso particular de estos.
 
  \subsection{Consideraciones generales}
- %TODO: poner aqui la referencia a imperfectc++ donde ponia el por que de utilizar el destructor como sitio desde el cual
- % se lanzan las comprobaciones
   Un proceso de compilación se interrumpe si y sólo si el compilador se ve forzado a generar código para una expresión inválida. 
   Existen circustancias en las cuales, incluso si la expresión a compilar es inválida, el proceso de compilación no se interrumpirá
-  porque el proceso de compilado no se ve forzado en ese momento a generar instrucciones para tal sentencia inválida. Por ejemplo:
+  porque el proceso de compilado no se ve forzado en ese momento a generar instrucciones para tal sentencia inválida. El ejemplo más
+  habitual es el uso de clases parametrizadas: en una clase de plantilla, sólo las funciones miembro que son utilizadas son 
+  instanciadas para los tipos de la plantilla. Puede darse el caso, dependiendo del compilador, de que el código de estos métodos
+  siquiera sea procesado por el compilador si no son utilizados.
 
-    
-  %TODO: traducir
-  \subsection{Trait classes}\label{traits}
-  What is a traits class?
-
-  Quoting 17.1.18 in the C++ standard, a traits class is:
-
-    "a class that encapsulates a set of types and functions necessary for template classes and template functions to manipulate objects of types for which they are instantiated."
-
-    The idea is that traits classes are templates used to carry extra information
-    -- especially information that templates can use -- about the classes on which
-    the traits template is instantiated. The nice thing is that the traits class
-    T<C> tacks on said extra information to class C without requiring any change at
-    all to C. Despite all the talk about "tacking on," traits are quite useful --
-    not "tacky" at all.
-
-
-    Pero ¿no realiza acaso esta comprobación el compilador sin necesidad de pasos adicionales? Sólo parcialmente.
-    \cite{%TODO
-    } lo expone de la siguiente forma: 
+  ¿Cómo forzar entonces que nuestras comprobaciones estáticas sean efectivamente evaluadas, siendo así efectivas?
+  \cite{moreexceptional} responde a esta pregunta de la siguiente manera (en su discusión \texttt{C} es una clase arbitraria):
   \begin{quote}
-    It's obvious that if C just writes code that tries to invoke T::Clone()
+    The solution is to put the code that enforces the requirement into a function
+    that's sure to be instantiated. The first thing most people think of is to put
+    it in the constructor, because of course it's impossible to use C without
+    invoking its constructor somewhere, right? True enough, but there could be
+    multiple constructors and then to be safe we'd have to put the
+    requirement-enforcing code into every constructor. There's a much easier
+    solution, namely: \emph{Put it in the destructor}. There's only one destructor, and
+    it's equally impossible to use C without invoking its destructor, so \emph{that's the
+    simplest place for the requirement-enforcing code to live.}
+  \end{quote}
+
+  Los énfasis han sido añadidos. Por tanto, todo mecanismo de comprobación estática en tiempo de compilación
+  se emplazará \emph{en el destructor} de la clase en cuestión.
+      
+  \subsection{Requiriendo métodos de un tipo de plantilla}\label{interfazSobreTemplate}
+  Lo expuesto en este punto está basado en gran medida en lo expuesto en 
+    \cite{moreexceptional}, item 4. La idea es poder implementar una clase
+    parametrizada sobre un tipo \texttt{T} tal que se pueda garantizar que este tipo \texttt{T}
+    implemente un cierto interfaz. Pero ¿no realiza acaso esta comprobación el compilador
+    sin necesidad de pasos adicionales? Sólo parcialmente.
+    \cite{moreexceptional} lo expone de la siguiente forma (en su discusión, llama a la
+    clase a desarrollar \texttt{C<T>}, y requiere que exista \texttt{T* T::Clone()}): 
+  \begin{quote}
+    It's obvious that if \texttt{C} just writes code that tries to invoke \texttt{T::Clone()}
     without parameters, then such code will fail to compile if there isn't a
-    T::Clone() that can be called without parameters. But that's not enough to
-    answer this question: Just trying to call T::Clone() without parameters would
-    also succeed in calling a Clone() that has defaulted parameters and/or does
-    not return a T*. The goal here is to specifically enforce that T provide a
-    function that looks exactly like this: T* T::Clone().
+    \texttt{T::Clone()} that can be called without parameters. But that's not enough to
+    answer this question: Just trying to call \texttt{T::Clone()} without parameters would
+    also succeed in calling a \texttt{Clone()} that has defaulted parameters and/or does
+    not return a \texttt{T*}. The goal here is to specifically enforce that \texttt{T} provide a
+    function that looks exactly like this: \texttt{T* T::Clone()}.
   \end{quote}
 
   \subsubsection{Aplicaciones}
   El poder garantizar la existencia de ciertos métodos --incluido el tipo de su valor retornado-- para un 
-  tipo $T$ parámetro de una plantilla tiene una aplicación inmediata en los mecanismos de categorización
+  tipo \texttt{T} parámetro de una plantilla tiene una aplicación inmediata en los mecanismos de categorización
   algebraica descritos en la sección \ref{categorizacionAlgebraica}: si un tipo aspira a poder considerarse
   como, por ejemplo, un grupo, habrá de contar entre otros con un método para el cálculo de la inversa de la 
   suma, que retorne exactamente un elemento también del grupo (composición interna).
@@ -175,8 +187,8 @@
 \end{lstlisting}
 El anterior código nos lo garantiza. 
 
-Una aplicación alternativa es el forzar la evaluación de funciones estáticas, que normalmente contendrán otro tipo de comprobaciones en tiempo de compilación. 
-Por ejemplo:
+Una aplicación alternativa es el forzar la evaluación de funciones estáticas, que normalmente contendrán otro tipo de 
+comprobaciones en tiempo de compilación. Por ejemplo:
 
 \begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=STATIC\_ASSERT, label=lst:staticassert]
   ~Group() {
@@ -192,11 +204,11 @@ private:
   }
 \end{lstlisting}
 
-En este ejemplo --también de lo anteriormente expuesto en la sección \ref{traits}-- se requiere que \emph{el compilador}, 
-   evalue las tres asignaciones del método estático \texttt{ValidateRequirements()}. Para esto, se invoca este método 
-   dentro del aserto estático, ya que por la propia naturaleza de éste, evaluará su contenido. Si \texttt{ValidateRequirements}
-   es superado con éxito, el \texttt{return true} que concluye \texttt{ValidateRequirements} evitará que se incumpla
-   la evaluación del aserto estático.
+En este ejemplo --también de lo anteriormente expuesto en la sección \ref{interfazSobreTemplate}-- se requiere que \emph{el compilador}, 
+evalue las tres asignaciones del método estático \texttt{ValidateRequirements()}. Para esto, se invoca este método 
+dentro del aserto estático, ya que por la propia naturaleza de éste, evaluará su contenido. Si \texttt{ValidateRequirements}
+es superado con éxito, el \texttt{return true} que concluye \texttt{ValidateRequirements} evitará que se incumpla
+la evaluación del aserto estático.
     
 
   \subsection{Vínculos de familia}
@@ -217,9 +229,9 @@ Constraints::must_have_base<S, MPPDataType > dummy2; (*@\label{algparent:MPPData
   \end{lstlisting}
   Este trozo de código se corresponde a la clase \texttt{Polynomial<S>} (véanse las secciones \ref{tipos:polinomios} 
   y \ref{impl:polinomios} para una descripción de este tipo de dato y una pormenorización de sus detalles de 
-  implementacion, respectivamente). En sendas líneas se comprueba que el tipo de plantilla $S$ 
+  implementacion, respectivamente). En sendas líneas se comprueba que el tipo de plantilla \texttt{S} 
   --que recordemos se corresponde al tipo de los coeficientes del polinomio-- «es un» anillo y un tipo de dato
-  «de la biblioteca». \footnote{que el tipo $S$ verifique las propiedades algebraicas de un anillo por el mero hecho de 
+  «de la biblioteca». \footnote{que el tipo \texttt{S} verifique las propiedades algebraicas de un anillo por el mero hecho de 
   heredar de la clase \texttt{Ring} lo aseguran los mecanismos de categorización algebraica expuestos en la
  sección \ref{categorizacionAlgebraica} --los cuales, recuérdese, se valen precisamente de mecanismos de comprobación
   en tiempo de compilación}.
@@ -241,28 +253,60 @@ struct must_have_base{
 }; 
   \end{lstlisting}
 
-  En la línea \ref{algmusthavebase:quiz} se encuentra el meollo del método. Si es posible realizar una conversión desde un puntero del tipo derivado --\texttt{pd}--
-  a un puntero del tipo base --\texttt{pb}-- sin ningún tipo de \textit{cast}, \texttt{pd} resultará cumplir el «ser un» elemento del tipo base. Es por esto que incluso
-  si la relacion tipo derivado-tipo base no es de herencia directa, también funcionaría, al poder realizarse dicha asignación.%TODO: buscar ref en el standar de por que todo esto.
+  En la línea \ref{algmusthavebase:quiz} se encuentra el meollo del método. Si es posible realizar una conversión desde un puntero 
+  del tipo derivado --\texttt{pd}-- a un puntero del tipo base --\texttt{pb}-- sin ningún tipo de \textit{cast}, \texttt{pd} resultará 
+  cumplir el «ser un» elemento del tipo base. Es por esto que incluso si la relacion tipo derivado-tipo base no es de herencia directa, 
+  también funcionaría, al poder realizarse dicha asignación.
 
   
   \subsubsection{Aplicaciones}
   Su campo de aplicación fundamental son las clases parametrizadas en las cuales se desea comprobar que sus parámetros de tipo cumplen ciertas
   propiedades «familiares», tal como se ha visto para el caso del tipo de los coeficientes en polinomios. Otra de las aplicaciones dadas a
   este mecanismo en la biblioteca ha sido en la implementación del nuevo repositorio de funciones (véase sección \ref{nuevoRepdeFuncs}), para
-  garantizar que tan todo método considerado por el mismo hereda de \texttt{AbstractMethod}. Esto ahorra sorpresas desagradables en tiempo
+  garantizar que todo método considerado por el mismo hereda de \texttt{AbstractMethod}. Esto ahorra sorpresas desagradables en tiempo
   de ejecución si se trata de insertar u obtener una instancia de un objeto arbitrario: si se tratase de hacer esto, gracias a este mecanismo, 
   siquiera se superaría la etapa de compilación.
 
-    
-
 \section{Programación orientada a aspectos (AOP)}
 
-\section{Mix-ins}
 
-\section{Mock objects}
+Esta tecnología ha sido utilizada para la implementación de los mecanismos de perfilado,
+como se expone en la sección \ref{impl:aop}.
 
-\section{Test units}
+
+
+\section{\textit{Mix-ins}}
+
+
+\section{\textit{Mock/stub objects}}
+El concepto de \textit{mock object}\footnote{podría traducirse como «objecto simulado», aunque incluso en la
+  bibliografía en castellano se utiliza la expresión en inglés} se introduce como un patrón útil dentro de las
+  baterías de pruebas
+  basadas en \textit{test units}\footnote{tecnología también utilizada. Véase sección \ref{testunits}} en la referencia
+  fundamental de este campo, \cite{testdrivendevelopment}\footnote{capítulo 27}.
+
+  El lugar de la librería resulta ventajosa la utilización de estos objetos es en lo relacionado con las rutinas 
+  ofrecidas por en entorno OpenMP. Sin embargo, estas rutinas  --descritas en \cite{openmpstandard}\footnote{capítulo 3, pág. 97}--
+  no se encuentran disponibles si se compila la librería con un compilador que no soporte OpenMP o bien si dicho 
+  soporte se encuentra desactivado\footnote{una de las razones para prescindir de OpenMP aun cuando el compilador
+  lo soporte es cuando el sistema no cuenta más que con una unidad de ejecución --CPU. En tal caso, el utilizar
+  OpenMP no aportaría ventajas y sí el inconveniente de la sobrecarga que acarrea su uso.}. ¿Qué hacer entonces 
+  en aquellas partes del código donde se depende de estas rutinas? La solución trivial sería, previamente a su uso,
+  comprobar si el soporte para OpenMP está disponible. Sin embargo, el mantener un código tal resulta muy engorroso 
+  y, desde un punto de vista estético, muy poco elegante. 
+
+  El punto clave hacia una mejor solución solución estriba en darse cuenta de que es posible \emph{imitar} el comportamiento
+  de dichas rutinas cuando o bien el sistema no las soporta o se encuentran desactivadas: su comportamiento
+  se correspondería a la situación en la que OpenMP sí estuviera disponible y el máximo número de hilos disponibles en
+  todo momento fuera uno. De esta manera, cuando OpenMP se encontrase disponible, las llamadas a estas rutinas se 
+  ejecutarían de forma «nativa». En caso contrario, serían sus «imitadoras» las que serían ejecutadas. Todo ello de forma
+  transparente para el código que recurriese a las mismas.
+
+  Esta idea no es nueva. Incluso \cite{openmpstandard} en su apéndice B provee una base para la implementación de estas
+  rutinas sustitutas.
+
+
+\section{\textit{Test units}}\label{testunits}
  
 
 

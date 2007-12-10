@@ -7,13 +7,10 @@
     \begin{flushright}
       \begin{quote}
         \emph{
-        No tenía la obligación de hacerlo; no era importante para
-        el futuro de la ciencia; otros lo habían estudiado ya. Pero eso
-        no importaba nada: yo inventaba cosas y jugaba con cosas, y lo
-        hacia para mi propia recreación y entretenimiento.
+          Todo comienzo tiene su encanto.
         }
         \begin{flushright}
-          \textbf{\textemdash Richard P. Feynman}
+          \textbf{\textemdash Johann Wolfgang von Goethe  }
         \end{flushright}
       \end{quote}
     \end{flushright}
@@ -27,10 +24,13 @@
     \begin{flushright}
       \begin{quote}
         \emph{
-        Lo último que se sabe cuando se realiza un trabajo es por dónde empezar.
+          The Feynman Problem-Solving Algorithm:
+          (1) write down the problem;
+          (2) think very hard;
+          (3) write down the answer.
         }
         \begin{flushright}
-          \textbf{\textemdash Blaise Pascal}
+          \textbf{\textemdash Atribuida a Murray Gell-Mann}
         \end{flushright}
       \end{quote}
     \end{flushright}
@@ -38,165 +38,187 @@
 \end{flushright}
 
 
-\bigskip
-
-
 \begin{center}{\line(1,0){325}}\end{center}
 
 %--------------------------------------------------------%
   
+  El presente Proyecto Fin de Carrera descansa sobre las bases establecidas por otro trabajo
+  similar, aunque más modesto, realizado también como Proyecto Final de Carrera de la Ingeniería 
+  Técnica en Informática de Sistemas. Éste, \cite{miproyecto}, fue realizado también por 
+  quien suscribe, David García Quintas. La dirección también repite, de mano de
+  Policarpo Abascal Fuentes y Jorge Jiménez Meana. El haber podido volver a trabajar
+  con ellos, sobre el mismo campo en más profundidad así como en otros nuevos, ha sido una suerte,
+  y con el presente trabajo aspiramos no sólo a completar el anterior Proyecto, sino a utilizar éste
+  como referente y punto de partida para de esta forma poder desarrollar nuestras ideas sabiéndonos
+  conocedores --y creadores-- del total del trabajo.
+
+  Esta base, la biblioteca LibNumTh, ha sido modificada en numerosos puntos, llegando a fundirse
+  indistinguiblemente con las mejoras y novedades. El resultado es el presente trabajo, bautizado
+  como LibMPPLAS. A lo largo de esta introducción se pormenorizarán estas mejoras y novedades.
+
+
 \section{Motivación}
+  Insistir en la implementación de una biblioteca cuyos métodos, desde la distancia, 
+  parencen ya cubiertos por numerosas soluciones, tanto libres como comerciales, puede parecer
+  superfluo: MatLab, Mathematica, GMP, Pari... muchos de estos paquetes cubren varios aspectos
+  de los soportados por esta biblioteca. Sin embargo, exceptuando quizás a Mathematica, no cubren
+  simultáneamente todo el espectro de funcionalidades de la biblioteca. O bien su forma de trabajar
+  no resulta, a nuestro juicio, tan cómoda\footnote{un ejemplo es el trabajo con cuerpos finitos,
+  descritos en la sección \ref{cuerposFinitos}}
+  
+  Asimismo, la característica «estrella» de la biblioteca es el incorporar el tan en boga concepto
+  de \emph{paralelismo}. Con la relativamente reciente incorporación de múltiples unidades de ejecución
+  --núcleos-- a los procesadores de consumo, se hace necesaria en la industria una revisión drástica de
+  los métodos hasta ahora existentes, fundamentalmente orientados a un trabajo secuencial. Un análisis 
+  de la serie de cambios que se avecinan se recoge en \cite{landscape}. %FIXME: completar. contar que se cuenta ahi
+
+  Pero no solo es el uso de paralelismo lo que caracteriza a esta biblioteca. Varias tecnologías y enfoques
+  novedosos han sido aplicados también: comprobaciones en tiempo de compilación para asegurar la coherencia
+  algebraica de los tipos, el reciente paradigma de la «programación orientada a aspectos» (AOP), \textit{mock
+    objects} que suplantan funcionalidades cuando éstas no se encuentran disponibles para homogeneizar el código,
+   patrones de diseño tales como los \textit{mix-ins}, etc. Los pormenores de las tecnologías utilizadas se exponen
+   en el capítulo \ref{chaper:tecnologias}.
+   Aún con el afán de investigar enfoques útiles a la vez que originales, incluso en los programas de ejemplo desarrollados
+   se han utilizado técnicas como la autoescritura e interpretación en tiempo de ejecución de código y computación distribuida
+   mediante XML-RPC. 
+
+   Resumiendo: es no sólo el interés por desarrollar un abanico relativamente amplio de métodos con los cuales resulte 
+   cómodo trabajar --cuyo rendimiento no sea puntero pero sí competitivo--, sino también explorar nuevas técnicas y su aplicación
+   práctica a problemas concretos. Es mediante esta experimentación original mediante la cual modestamente se espera 
+   contribuir al eventual progreso de la computación científica.  
+
 
 \section{Objetivos}
-\begin{itemize}
-  \item Números enteros, $\mathbb{Z}$
-  \begin{itemize}
-    \item Enteros de longitud arbitraria.
-    \item Aritmética general.
-    \item Generación de números aleatorios.
-    \item Orientadas hacia la Teoría de Números.
-    \begin{itemize}
-      \item Símbolos para Residuos Cuadráticos
-      (Legendre-Jacobi-Kronecker).
-      \item Rutinas para el cálculo del Máximo Común Divisor (GCD).
-      \item Rutinas para el cálculo del Mínimo Común Múltiplo (LCM).
-      \item Pruebas de primalidad.
-      \item Generación de primos.
-      \item Algoritmos de factorización.
-      \item Algoritmos de potenciación.
-      \item Teorema Chino de los Restos (CRT).
-    \end{itemize}
-    \item Aritmética modular, $\mathbb{Z}_n$
-    \begin{itemize}
-      \item Potenciación modular.
-      \item Métodos especiales de reducción. 
-      \item Cálculo de inversas.
-      \item Cuerpos Finitos $\mathbb{F}_p$.
-    \end{itemize}
-  \end{itemize}
-  
-  \item Conjunto $\mathbb{R}$
-  \begin{itemize}
-      \item Operaciones aritméticas habituales sobre $\mathbb{R}$.
-      \item Precisión (decimal) arbitraria.
-      \item Técnicas para un redondeo correcto.
-      \item Soporte de notación científica.
-      \item Algoritmos de potenciación.
-  \end{itemize}
-
-  \item Mecanismo de excepciones para el tratamiento de errores.
-
-  \item Arquitectura de "plug-ins" que posibilita que el usuario dé su
-    propia implementación de las funciones para ser ésta la utilizada en
-    todos los demás algoritmos de forma transparente y sin
-    recompilación.
-
-  \item Mecanismos de perfilado integrados en la propia librería.
-
-\end{itemize}
+%%TODO: completar 
+%\begin{itemize}
+%  \item Números enteros, $\mathbb{Z}$
+%  \begin{itemize}
+%    \item Enteros de longitud arbitraria.
+%    \item Aritmética general.
+%    \item Generación de números aleatorios.
+%    \item Orientadas hacia la Teoría de Números.
+%    \begin{itemize}
+%      \item Símbolos para Residuos Cuadráticos
+%      (Legendre-Jacobi-Kronecker).
+%      \item Rutinas para el cálculo del Máximo Común Divisor (GCD).
+%      \item Rutinas para el cálculo del Mínimo Común Múltiplo (LCM).
+%      \item Pruebas de primalidad.
+%      \item Generación de primos.
+%      \item Algoritmos de factorización.
+%      \item Algoritmos de potenciación.
+%      \item Teorema Chino de los Restos (CRT).
+%    \end{itemize}
+%    \item Aritmética modular, $\mathbb{Z}_n$
+%    \begin{itemize}
+%      \item Potenciación modular.
+%      \item Métodos especiales de reducción. 
+%      \item Cálculo de inversas.
+%      \item Cuerpos Finitos $\mathbb{F}_p$.
+%    \end{itemize}
+%  \end{itemize}
+%  
+%  \item Conjunto $\mathbb{R}$
+%  \begin{itemize}
+%      \item Operaciones aritméticas habituales sobre $\mathbb{R}$.
+%      \item Precisión (decimal) arbitraria.
+%      \item Técnicas para un redondeo correcto.
+%      \item Soporte de notación científica.
+%      \item Algoritmos de potenciación.
+%  \end{itemize}
+%
+%  \item Mecanismo de excepciones para el tratamiento de errores.
+%
+%  \item Arquitectura de "plug-ins" que posibilita que el usuario dé su
+%    propia implementación de las funciones para ser ésta la utilizada en
+%    todos los demás algoritmos de forma transparente y sin
+%    recompilación.
+%
+%  \item Mecanismos de perfilado integrados en la propia librería.
+%
+%\end{itemize}
 
 
   \subsection{Características a destacar}
-    \begin{itemize}
-      \item La librería está preparada para soportar hilos\footnote{El
-        término inglés y más extendido para esto es ``thread safe''}.
-        Esto es muy importante desde el punto de vista de la posible
-        paralelización de los algoritmos. Por lo general, otras
-        librerías no lo soportan debido al uso relativamente frecuente
-        de variables globales con las consecuencias que ello tiene en
-        este aspecto: problemas de interbloqueo, sincronización, etc.
-      \item Soporte de perfilado integrado en la librería. La causa de
-        que esto sea algo único de esta librería es bastante claro: las
-        demás confían en herramientas externas y por otra parte suelen
-        buscar el rendimiento máximo. La presente librería también
-        busca el máximo rendimiento, claro está, pero se ha
-        considerado interesante la inclusión de esta característica,
-        siendo además opcional su activación. Véase \ref{perfilado} para más
-        detalles. %está en implementacion.tex
-      \item Soporte de excepciones para el manejo de errores. Las
-        librerías analizadas recurrían a métodos ``clásicos'' como los
-        expuestos en \ref{controlDeErrores}. Por contra, y como se
-        expone en dicha sección, esta librería hace uso del mecanismo
-        de excepciones que C++ brinda, con las ventajas allí
-        expuestas.
-      \item Soporte de ``funciones enchufables''. Esta es una de las
-        características más destacadas de la librería. A grandes
-        rasgos, permite que el usuario, sin necesidad de tocar para
-        nada el código de la librería, proporcione su propia
-        implementación de los algoritmos para las funciones numéricas
-        soportadas, y que esta implementación sea utilizada incluso
-        internamente por la librería a partir del punto en el que el
-        usuario la hace entrar en vigor. Para una descripción más en
-        detalle, véase \ref{funcionesBasico}.
-    \end{itemize}
+%    \begin{itemize}
+%      \item La librería está preparada para soportar hilos\footnote{El
+%        término inglés y más extendido para esto es ``thread safe''}.
+%        Esto es muy importante desde el punto de vista de la posible
+%        paralelización de los algoritmos. Por lo general, otras
+%        librerías no lo soportan debido al uso relativamente frecuente
+%        de variables globales con las consecuencias que ello tiene en
+%        este aspecto: problemas de interbloqueo, sincronización, etc.
+%      \item Soporte de perfilado integrado en la librería. La causa de
+%        que esto sea algo único de esta librería es bastante claro: las
+%        demás confían en herramientas externas y por otra parte suelen
+%        buscar el rendimiento máximo. La presente librería también
+%        busca el máximo rendimiento, claro está, pero se ha
+%        considerado interesante la inclusión de esta característica,
+%        siendo además opcional su activación. Véase \ref{perfilado} para más
+%        detalles. %está en implementacion.tex
+%      \item Soporte de excepciones para el manejo de errores. Las
+%        librerías analizadas recurrían a métodos ``clásicos'' como los
+%        expuestos en \ref{controlDeErrores}. Por contra, y como se
+%        expone en dicha sección, esta librería hace uso del mecanismo
+%        de excepciones que C++ brinda, con las ventajas allí
+%        expuestas.
+%      \item Soporte de ``funciones enchufables''. Esta es una de las
+%        características más destacadas de la librería. A grandes
+%        rasgos, permite que el usuario, sin necesidad de tocar para
+%        nada el código de la librería, proporcione su propia
+%        implementación de los algoritmos para las funciones numéricas
+%        soportadas, y que esta implementación sea utilizada incluso
+%        internamente por la librería a partir del punto en el que el
+%        usuario la hace entrar en vigor. Para una descripción más en
+%        detalle, véase \ref{funcionesBasico}.
+%    \end{itemize}
 
 \section{El sistema de desarrollo}\label{sistemaDeDesarrollo}
   \subsection{Sistemas hardware}
   \begin{description}
-    \item[Plataforma compatible Intel.] 
-      Sistema con microprocesador AMD Athlon K7 funcionando a una
-      frecuencia de 900 MHz. Esta ha sido la plataforma hardware
-      principal en el desarrollo.
+    \item[Intel Core 2 Duo E6750 CPU] 
+      Sistema multinúcleo en el que se han ejecutado las pruebas en paralelo. 
+      %TODO: completar
+    \item[Intel Pentium M Banias B1 CPU] 
+      Sistema monoprocesador y principal plataforma de desarrollo. 
+      %TODO: completar
   \end{description}
 
   \subsection{Sistemas software}
-  En este grupo se distinguen distintos ``niveles''. Se citan los
-  distintos elementos con una cierta jerarquía.
   \begin{description}
     \item[Sistema operativo Linux.]
-      En sus versiones 2.4.x y 2.6.x. Ha sido el sistema operativo
+      En su versión 2.6.x. Ha sido el sistema operativo
       principal en el desarrollo. Los distintos programas y versiones
       de librerías fundamentales del sistema han sido:
       \begin{description}
         \item[Librerías del sistema.] 
-          Implementación GNU de la librería de C, versión 2.3.2.
-        \item[Librerías adicionales.]
-          Librería Qt versión 3.3.0 para el desarrollo del interfaz gráfico de la
-          aplicación de demostración expuesta en \ref{laCalculadora}.
-        \item[Compilador.]
-          Compilador GNU Compiler Collection (GCC).
-          Versión principal usada en el desarrollo 3.3.3. Realizadas
-          pruebas en diferentes versiones hasta la 3.2 inclusive.
+          Implementación GNU de la librería de C, versión 2.5.
+        \item[Compiladores.]
+        \begin{description}
+          \item[GCC] Compilador GNU Compiler Collection, en dos diferentes variedades: con soporte
+          OpenMP (versión especial de RedHat 4.1.1 con el soporte OpenMP de la versión 4.2) y sin él
+          (versión oficial 4.1.2). 
+          \item[Intel Compiler] En su versión 9.1. Soporta OpenMP.
+        \end{description}
         \item[Documentación.]
-          Procesador de documentos \LaTeXe{} y \TeX{} versión 3.14159
+          Procesador de documentos \LaTeXe{} y \TeX{} versión 3.141592
           \footnote{Un inciso curioso: las versiones de \TeX{} se numeran de
           forma convergente al valor de $\pi$} para la presente
           documentación.
-          Procesador Doxygen versión 1.3.6 para el procesador de la
+          Procesador Doxygen versión 1.5.1 para el procesador de la
           documentación del código.
         \item[Edición.]
-          Editor VIM versión 6.2 para la escritura del código y la documentación. 
-          (Con la excepción del diseño del interfaz de la aplicación
-          de demostración expuesta en \ref{laCalculadora} donde se
-          utilizó Qt Designer versión 3.3.0).
-          Editor de diagramas Dia versión 0.92.2 para la creación de los
+        \begin{itemize}
+          \item Editor VIM versión 7.0 para la escritura del código y la documentación. 
+          No se ha utilizado ningún tipo de entorno para la creación del código.
+          \item Editor de diagramas Dia versión 0.96.1 para la creación de los
           diagramas presentes en la documentación.
+        \end{itemize}
+        \item[Software adicional.]
+          Python 2.5
+          %TODO: completar
       \end{description}
-      Parece adecuado destacar que todo el software anteriormente
-      reseñado es \emph{software libre}. Y es más, ha sido
-      precisamente gracias a que mucho del mejor software científico
-      disponible también es software libre que a lo largo del
-      desarrollo de esta librería se ha podido examinar y aprender
-      muchísimo de la forma en la que, personas con años de experiencia
-      en la creación de este tipo de software, resuelven e implementan
-      los problemas que se van presentando. Mi deuda para con todos
-      ellos, creadores de software libre, es grande.
       
     \item[Sistema operativo Windows.]
-      En sus versiones 2000 y XP. Se ha restringido su uso al de
-      simplemente banco de pruebas y como muestra de la portabilidad
-      de la librería entre sistemas en una misma plataforma hardware
-      ---Intel, en este caso.
-      Los distintos programas y versiones
-      de librerías fundamentales del sistema han sido:
-      \begin{description}
-        \item[Librerías adicionales.]
-          Librería Qt versión 3.2.1 para el desarrollo del interfaz gráfico de la
-          aplicación de demostración expuesta en \ref{laCalculadora}.
-        \item[Compilador.]
-          Adaptación del compilador GNU Compiler Collection (GCC) para
-          entornos Windows MinGW.
-          Versión principal usada en el desarrollo 3.3.1. 
-      \end{description}
+    %TODO
     \end{description}
       

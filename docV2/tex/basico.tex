@@ -6,27 +6,10 @@
     \begin{flushright}
       \begin{quote}
         \emph{
-        Se debe hacer todo tan sencillo como sea posible, pero no más sencillo.
+          Basic research is what I am doing when I don't know what I am doing.
         }
         \begin{flushright}
-          \textbf{\textemdash Albert Einstein}
-        \end{flushright}
-      \end{quote}
-    \end{flushright}
-  \end{minipage}
-\end{flushright}
-
-\bigskip
-
-\begin{flushright}
-  \begin{minipage}[t]{13cm}
-    \begin{flushright}
-      \begin{quote}
-        \emph{
-        Fundamental progress has to do with the reinterpretation of basic ideas.
-        }
-        \begin{flushright}
-          \textbf{\textemdash Alfred North Whitehead}
+          \textbf{\textemdash Wernher von Braun}
         \end{flushright}
       \end{quote}
     \end{flushright}
@@ -40,27 +23,77 @@
 %--------------------------------------------------------%
 
   
-\section{Estructura general de la librería}\label{estructuraGeneralDeLaLiberia}
+\section{Estructura general de la biblioteca}
   
   \subsection{Los procesadores virtuales}
 
-  \subsubsection{Las CPU básicas} 
+    \paragraph{Perfilado}
+      
 
-  \paragraph{La CPU escalar}
+    \subsubsection{La CPU escalar}
 
-  \paragraph{La CPU SIMD}\label{basico:cpusimd}
+    \subsubsection{La CPU SIMD}\label{basico:cpusimd}
+    Existe un tipo de paralelismo que ha estado disponible en procesadores de consumo
+    desde hace más de una década, cuando en $1997$ Intel introdujo el juego de instrucciones 
+    MMX en su familia de procesadores Pentium\footnote{\url{ http://www.intel.com/design/intarch/mmx/mmx.htm }}.
+    Este tipo de paralelismo, denominado por las siglas SIMD\footnote{instrucción única multiples datos, por sus siglas en inglés}, 
+    se expone en la sección \ref{flynn}. Resumiendo, se trata de aplicar una única intrucción a un conjunto de datos «en bloque».
+    Compárese la figura \ref{fig:sinSIMD} con la figura \ref{fig:conSIMD}. En la primera, los datos son tratados secuencialmente de
+    una manera que podría denominarse «horizontal». Por contra, en la segunda, se aplica la operación en cuestión simultáneamente
+    a todos los datos, «verticalmente».
 
-  \subsubsection{La CPU vectorial} se encarga de las operaciones sobre los
-  vectores (polinomios) que se utilizan para representar los números,
-  como se expone en \ref{representacionZ}. Descansa totalmente
-  sobre la capa inmediatamente inferior, la CPU básica.
-  Implementa tan sólo operaciones en $\mathbb{Z}_0$: el
-  tratamiento del signo vendrá en capas superiores. Si la CPU básica
-  era importante, esta capa lo es mucho más: el grueso del manejo de
-  operaciones en múltiple precisión se encuentra aquí.
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.85\textwidth,keepaspectratio]{sinSIMD} 
+      \caption{Sin utilizar SIMD}\label{fig:sinSIMD}
+    \end{figure}
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.85\textwidth,keepaspectratio]{conSIMD} 
+      \caption{Utilizando SIMD}\label{fig:conSIMD}
+    \end{figure}
+
+    Este paralelismo intrínseco al procesador requiere el uso de instrucciones específicas del mismo, y es por ello
+    dificilmente portable a otros sistemas. Asimismo, su utilización suele requerir el trabajo en lenguaje ensamblador, 
+    con todo lo que ello supone (dificultad de mantenimiento, complejidad, etc.).
+
+   Para poder disponer de la potencia de esta característica presente de una forma u otra practicamente
+   todos los procesadores actuales,  pese a lo poco amigable de su uso, se ha desarrollado esta «CPU SIMD». Sus 
+   objetivos son:
+   \begin{itemize}
+      \item Aislar a las rutinas de la biblioteca que deseen hacer uso de instrucciones SIMD de la implementación
+      real particular del procesador en cuestión sobre el que se esté operando. Incluso si no existe implementación
+      alguna, la biblioteca provee una implementación generica que simula su comportamiento.
+      \item Homogeneizar la familia de operaciones disponibles, del mismo modo que se ha hecho con la CPU escalar.
+      \item Proporcionar una abstracción adecuada que evite lidar con los entresijos del lenguaje ensamblador. 
+   \end{itemize} 
+
+   \bigskip 
+
+   Los «paquetes» SIMD tendrán siempre una longitud de $128$ bits. En base a esto, se han definido
+   tres variedades diferentes de «paquetes» de datos SIMD:
+   \begin{itemize}
+   \item Pares de números en coma flotante de $64$ bits.
+   \item Cuantro números en coma flotante de $32$ bits.
+   \item Ocho enteros con signo de $16$ bits
+   \end{itemize}
+   Los detalles de la implementación y una descripción más pormenorizada se dan en la sección \ref{simddigit}.
+
+
+
+%  \subsubsection{La CPU vectorial} se encarga de las operaciones sobre los
+%  vectores (polinomios) que se utilizan para representar los números,
+%  como se expone en \ref{representacionZ}. Descansa totalmente
+%  sobre la capa inmediatamente inferior, la CPU básica.
+%  Implementa tan sólo operaciones en $\mathbb{Z}_0$: el
+%  tratamiento del signo vendrá en capas superiores. Si la CPU básica
+%  era importante, esta capa lo es mucho más: el grueso del manejo de
+%  operaciones en múltiple precisión se encuentra aquí.
 
   \subsection{Funciones}\label{funcionesBasico}
     
   \subsection{Control de errores}\label{controlDeErrores}
 
 
+\section{Compilando la biblioteca}\label{estructuraGeneralDeLaLiberia}

@@ -15,7 +15,7 @@
 \usepackage{graphics}
 \usepackage{array}
 \providecommand{\tabularnewline}{\\}
-
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
 
 \usepackage[boxed,section]{algorithm}
 \usepackage{algpseudocode}
@@ -71,7 +71,8 @@
    {\end{list}}
 
 \usepackage{type1cm}
-
+\newcommand{\sgn}{\operatorname{{\mathrm sgn}}}
+\newcommand{\GF}[1]{\mathrm{GF}\left(#1 \right)}
 \makeindex
 
 \pagestyle{headings}
@@ -138,21 +139,23 @@ MultiPrecision Parallel Linear Algebra System}
 
 
 \tableofcontents
-\listoffigures
-\listofalgorithms
+%FIXME: reenable
+%\listoffigures
+%\listofalgorithms
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \include{prologo}
-%\include{introduccion}
-%\include{basico}
+\include{introduccion}
+\include{basico}
 \include{tecnologias}
 \include{tipos}
 \include{implementacion}
 \include{paralelismo}
+\include{resultados}
 %\include{trascendentes}
 \include{mpplab}
 \include{ejemplos}
-%\include{ampliaciones}
+\include{ampliaciones}
 %\include{pruebas}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

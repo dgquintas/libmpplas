@@ -6,10 +6,12 @@
     \begin{flushright}
       \begin{quote}
         \emph{
-        Se debe hacer todo tan sencillo como sea posible, pero no más sencillo.
+          It turns out that an eerie type of chaos can lurk just behind a
+          facade of order -- and yet, deep inside the chaos lurks an even
+          eerier type of order.
         }
         \begin{flushright}
-          \textbf{\textemdash Albert Einstein}
+          \textbf{\textemdash Douglas Hostadter}
         \end{flushright}
       \end{quote}
     \end{flushright}
@@ -22,8 +24,55 @@
 
 %--------------------------------------------------------%
 
-%MPPDataType 
-%  
+\section{Consideraciones generales}
+% - tipos "contenedores" (matrices, polis, etc), aseguran la coherencia
+% matematica mediante comprobaciones estataticas en tiempo de compilacion
+% del caracter algebraico de sus parametros, que seran sus elementos/coeficientes/whatever.
+
+\section{El tipo general \texttt{MPPDataType}}
+Formalmente, no es un tipo \emph{de dato}. Es más bien un tipo abstracto del cual todos los 
+demás tipos de la biblioteca, directa o indirectamente, heredan. De hecho, la definición de
+«tipo de la biblioteca» podría ser «todo tipo que tenga a \texttt{MPPDataType} como ancestro».
+¿Qué ventajas aporta el contar con un tipo padre único? La experiencia de lenguajes orientados 
+a objeto que --a diferencia de C++-- sí cuentan con un tipo de dato genérico ancestro común de
+todos los demás demuestra que resulta efectivamente útil: por ejemplo, Java cuenta con la clase \texttt{Object},
+lo cual permite por una parte definir métodos comunes para todas las demás clases, así como
+poder declarar colecciones «genéricas». 
+
+En la biblioteca, se explota la primera de estas características: el definir métodos comunes 
+a todos los tipos. En concreto, y copiando a Java flagrantemente, se define como método virtual
+puro \texttt{std::string toString()}, que devuelve una representación textual del dato. 
+El siguiente código es por tanto válido para copiar un entero:
+
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Uso de \texttt{toString()}]
+  Z n("123");
+  Z m( n.toString() );
+  
+  // n == m
+\end{lstlisting}
+  
+¿Para que hacer esto cuando se puede utilizar directamente el constructor de copia del dato? Desde luego
+en situaciones en las que se tenga acceso a la \emph{instancia} del dato a ser copiado, es absurdo hacerlo 
+de la forma anterior. Sin embargo, si nos encontramos con un escenario distribuido, no es trivial \textit{serializar}
+\footnote{es decir, transformar una instancia arbitraria en una representación únicamente basada en tipos básicos 
+susceptible de ser transferida a través de la red} una instancia de un dato arbitrario. Sin embargo sí es inmediato
+serializar una cadena de caracteres. Si mediante la representación textual es posible reproducir la instancia en cuestión,
+se habrá salvado este obstáculo.
+
+La segunda y última función virtual pura declarada en el tipo \texttt{MPPDataType} es \texttt{std::string toHRString()}, en la
+que «HR» corresponde a «\textit{Human Readable}»: la idea es devolver una representación textual susceptible de ser mostrada
+a un usuario \emph{humano}\footnote{«usuario humano» \emph{no} es una redundancia: bien podría ser otro programa el usuario 
+encargado de interpretar un resultado devuelto por la biblioteca}. En algunos casos la representación será la misma que la devuelta
+por \texttt{toString()} --tal como en el caso de los enteros--, mientras que en otros será diferente --para las matrices, 
+por poner un caso.
+
+\bigskip
+
+Poder declarar \emph{colecciones genéricas}, tales como un vector que almacene cualquier tipo de dato soportado
+por la biblioteca, resulta extremadamente útil a la hora de programar de forma genérica. Un ejemplo de esto 
+se encuentra en la implementación de los mecanismos de gestión de datos en tiempo de ejecución del entorno de ejemplo
+desarrollado, el cual se describe en la sección \ref{par:runtimeData}
+
 %Enteros, Z
 %Reales, R
 %Enteros modulares, Z\_n
@@ -42,7 +91,7 @@ similares.
 \subsection{Preliminares}
 Una conocida forma de exponenciación modular se basa en el método de
 multiplicacion/reducción de Montgomery (\cite{montgomeryOrig}). 
-El metodo de reducción/multiplicación se encontraba ya incorporado en
+El método de reducción/multiplicación se encontraba ya incorporado en
 la antigua versión de la biblioteca (véase \cite{miproyecto}, sección 5.5.3),
 utilizándose precisamente para la exponenciación modular. 
 
@@ -182,8 +231,6 @@ mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
 %  Sobre R
 %  Sobre Z\_p 
 %
-%Cuerpos de Galois
-%  Elementos de cuerpos de Galois
 %
 %Matrices
 %  Sobre Z
@@ -192,22 +239,18 @@ mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
 %
 %Vectores
 
-\section{Consideraciones generales}
- - tipos "contenedores" (matrices, polis, etc), aseguran la coherencia
- matematica mediante comprobaciones estataticas en tiempo de compilacion
- del caracter algebraico de sus parametros, que seran sus elementos/coeficientes/whatever.
 
 
 \section{Polinomios}\index{tipos!Polinomios}\label{tipos:polinomios}
   En \cite{knuth}\footnote{pág. 418} se define polinomio como:
 
-  \begin{definicion}[\index{Polinomio}Polinomio]
-    Un \emph{polinomio sobre $S$} es una expresión de la forma
+  \begin{definicion}[Polinomio]
+    Un \emph{polinomio sobre \texttt{S}} es una expresión de la forma
     \begin{equation}
     u(x) = u_n x^n + \cdots + u_1 x + u_0 \label{poly}
     \end{equation}
     donde los \emph{coeficientes} $u_n,\ldots,u_1,u_0$ son elementos de algún
-    sistema algebraico $S$, y la \emph{variable} $x$ puede ser considerada como 
+    sistema algebraico \texttt{S}, y la \emph{variable} $x$ puede ser considerada como 
     un símbolo formal con un valor indeterminado.
 
     Nótese que se considera al polinomio $0x^{n+m}+\cdots+0x^{n+1} + u_nx^n + \cdots + u_1x+u_0$ 
@@ -221,9 +264,9 @@ mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
     Se denomina \emph{polinomio nulo} al polinomio cuyos coeficientes son todos igual a $0$.
   \end{definicion}
 
-  \begin{observacion}[Caracter del sistema algebraico $S$]\label{obs:caracterS}
-    Se asume que el sistema algebraico $S$ es un \emph{anillo conmutativo con identidad}.
-    Esto es, $S$ admite operaciones de suma, resta y multiplicación, con las propiedades
+  \begin{observacion}[Caracter del sistema algebraico \texttt{S}]\label{obs:caracterS}
+    Se asume que el sistema algebraico \texttt{S} es un \emph{anillo conmutativo con identidad}.
+    Esto es, \texttt{S} admite operaciones de suma, resta y multiplicación, con las propiedades
     habituales. Nótese que \emph{no} se asume nada respecto a la división como operación
     inversa a la multiplicación. 
   \end{observacion}
@@ -234,13 +277,9 @@ mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
     director como $0$.
   \end{observacion}
 
-
-
-
-
-  \subsection{Operaciones básicas sobre polinomios en $S$}
-  \paragraph{Suma y resta} La suma (resp. resta) en polinomios sobre un sistema $S$ se define como la suma (resp. resta) 
-    sobre $S$ de coeficientes de potencias iguales de $x$ (asumiendo sin pérdida de generalidad que $n > m$): 
+  \subsection{Operaciones básicas sobre polinomios en \texttt{S}}
+  \paragraph{Suma y resta} La suma (resp. resta) en polinomios sobre un sistema \texttt{S} se define como la suma (resp. resta) 
+    sobre \texttt{S} de coeficientes de potencias iguales de $x$ (asumiendo sin pérdida de generalidad que $n > m$): 
       \begin{eqnarray}
       (u_nx^n + \cdots + u_1x + u_0) + (v_mx^m + \cdots + v_1x+v_0)  ={}  \nonumber\\
         {} = u_nx^n + \cdots + (u_m+v_m)x^m + \cdots + (u_1+v_1)x + u_0+v_0 
@@ -257,37 +296,111 @@ mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
       considerándose $u_i$ o $v_j$ iguales a $0$ cuando $i > j$ o $j > s$.
       Es decir, de la misma forma que para $\mathbb{Z}$ pero sin acarreos, ya que no existe relación
       entre coeficientes vecinos. Esto conlleva que las optimizaciones
-      realizadas sobre la multiplicación de enteros, tales como el método de Karatsuba (véase %TODO%
-          ) y su paralelización, son directamente aplicables también a este caso.
-
+      realizadas sobre la multiplicación de enteros, tales como el método de Karatsuba 
+      (véase \cite{miproyecto}\footnote{pág. 50}) y su paralelización, son directamente 
+      aplicables también a este caso.
 
   \paragraph{División}
+  \cite{knuth} dedica toda una sección --la 4.6.1, pág. 420-- al análisis de la división de polinomios.
+  En general, al igual que para el producto, dos polinomios se dividen esencialmente del mismo modo
+  que dos elementos de $\mathbb{Z}$, siempre y cuando \texttt{S} sea \emph{un cuerpo}. Formalmente,
+  dados $u(x) = u_mx^m + \cdots + u_1x+ u_0$ y $v(x) = v_nx^n + \cdots + v_1x + v0$ con coeficientes 
+  sobre un cuerpo y verificando $v_n \neq 0$ y $m \geq n \geq 0$, existe un polinomio cociente $q(x)$ 
+  y un polinomio resto $r(x)$ tales que:
+  \begin{equation}
+    u(x) = q(x) \cdot v(x) + r(x)  \qquad grado(r) < grado(v)
+  \end{equation}
 
-
+  $q(x)$ y $r(x)$ toman la siguiente forma:
+  \begin{eqnarray}
+  q(x) & = & q_{m-n}x^{m-n} + \cdots + q_0 \\
+  r(x) & = & r_{n-1}x^{n-1} + \cdots + r0 
+  \end{eqnarray}
 
  \subsection{Máximo común divisor}\label{gcdPoly}
 
-   \subsubsection{Con $S$ un cuerpo}
+   \subsubsection{Con \texttt{S} un cuerpo}
 
 
-   \subsubsection{Con $S$ un dominio de factorización única}
-      El caso más común en el que $S$ cumple el requisito de ser un anillo conmutativo con identidad
+   \subsubsection{Con \texttt{S} un dominio de factorización única}
+      El caso más común en el que \texttt{S} cumple el requisito de ser un anillo conmutativo con identidad
       es en el caso de polinomios sobre $\mathbb{Z}$. De hecho, el sistema de los números enteros 
-      verifica también el ser un \emph{dominio de factorización única}, esto es, %TODO
+      verifica también el ser un \emph{dominio de factorización única}, esto es:
+      \begin{definicion}[Dominio de factorización única]
+        Un sistema algebraico $S$ es un \emph{dominio de factorización única} si cumple:
+        \begin{itemize}
+          \item $S$ es un anillo conmutativo con identidad
+          \item $u,v \in S \textrm{ tal que } u, v \neq 0 \iff uv \neq 0$
+          \item $\forall u \in S \textrm{ tal que } u \neq 0$, $u$ es o bien una \emph{unidad}
+                \footnote{un elemento con inversa. Es decir, un elemento $u$ tal que $\exists v \in S$ tal que
+                          $uv = 1$}
+         o tiene una representación única como producto de \emph{primos}
+        \footnote{un elemento \emph{no} unitario $p$ tal que la ecuación $p = qr$ se cumple sólo si o bien $q$ o $r$ es una unidad}.
+        \end{itemize}
+      \end{definicion}
+
       Un aspecto muy importante de los polinomios con coeficientes en $\mathbb{Z}$ es el siguiente:
     \begin{lema}[Polinomios sobre dominios de factorización única]
-    %TODO
+     Los polinomios con coeficientes en un dominio de factorización única
+     forman a su vez un dominio de factorización única.
     \end{lema}
 
       Esto conduce a justificar la existencia y sentido de la habitual operación
       de cálculo del máximo común divisor sobre polinomios con coeficientes en un dominio de factorización
-      única. El hecho de que  La especial operación de división de estos
-      polinomios necesaria para implementar este método se expone en \ref{divUFD}.
+      única. 
+      La especial operación de división de estos
+      polinomios necesaria para implementar este método se expone a continuación.
 
-    \paragraph{Pseudo-división de polinomios con $S$ un dominio de factorización única}
-
-
-  \subsection{Evaluación\index{polinomios!evaluación}}
+    \paragraph{Pseudo-división de polinomios con \texttt{S} un dominio de factorización única}
 
 
-  
+  \subsection{Evaluación}
+    Evaluar el valor de un polinomio $f(x)$ para un valor de $x = x_0$ dado es conceptualmente trivial:
+    sustituir $x$ en la expresión del polinomio por $x_0$ y operar. Como suele ser habitual, la solución
+    trivial dista de ser la óptima. De hecho, \cite{recipes} bromea con «cualquier que evalue de esta
+    forma un polinomio será ejecutando de forma sumarísima». En esa obra se encuentra, en su sección 5.3, pág. 179
+    un interesante análisis de la evaluación de polinomios.
+
+    La conocida \emph{regla de Horner} evalúa un polinomio en de grado $n$ tal como el dado en \eqref{poly} 
+    en $n$ productos y $n$ sumas:
+    \begin{equation}
+      u(x_0) = u_0 + x_0(u_1 + x_0(u_2 + \cdots + x_0(u_n) \cdots )) \label{horner}
+    \end{equation}
+
+    Aunque este método resulta a primera viste inherentemente secuencial, en la sección \ref{parallel:evalPoly}
+    se muestra de que forma es posible paralelizarlo.
+
+
+\section{Matrices}
+%TODO
+  \subsection{Instancias concretas}
+
+  \subsection{Operaciones}
+    \subsubsection{Triangularización}
+    \subsubsection{Resolución de sistemas de ecuaciones}
+    \subsubsection{Inversión}
+    \subsubsection{Determinante}
+
+      \begin{definicion}[Determinante]\label{def:determinante}
+      Sea $A = \mathcal{M}_n$ una matriz cuadrada de tamaño $n \times n$. 
+      Es posible definir su  determinante como (fórmula de Leibniz):
+      \begin{equation}
+        \det(A) = \sum_{\sigma \in S_n} \sgn(\sigma) \prod_{i=1}^n A_{i,\sigma(i)}. \label{eq:determinante}
+      \end{equation}
+      con $S_n$ el grupo de permutaciones de $n$ elementos. El sumatorio
+      contempla por tanto todas las permutaciones $\sigma$ de la secuencia $\{1,2,\ldots,n\}$.
+      $\sgn(\sigma)$ se corresponde a la signatura de la permutación $\sigma$: $+1$ si
+      $\sigma$ es una permutación par y $-1$ si es impar.
+      \end{definicion}
+
+      Nótese que el número de sumandos según la equación \eqref{eq:determinante} es $n!$, 
+      lo cual hace que no sea útil para el cálculo práctico del determinante. Detalles de los métodos
+      utilizados en la biblioteca se muestran en la sección \ref{impl:determinante}
+     
+            
+
+
+ \section{Cuerpos finitos}\label{cuerposFinitos}
+  %TODO
+  \subsection{Elementos de un cuerpos finitos}
+

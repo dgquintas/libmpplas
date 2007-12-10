@@ -50,12 +50,13 @@
     - compilation config
   - preprocesador en python => necesario por uso de aop
   - el cliente en python
-  - el mecanismo de perfilado basado en aop
+  \subsection{Mecanismo de perfilado basado en AOP}\label{impl:aop}
+
 
 
 \section{Asegurando la coherencia algebraica}
-- comprobaciones estataticas de caracter algebraico de parametros de templates
-en la particularización de estructuras genericas
+%comprobaciones estáticas de carácter algebraico de parámetros de templates
+%en la particularización de estructuras genericas
 
 
 \section{El nuevo repositorio de funciones}\ref{nuevoRepdeFuncs}
@@ -63,32 +64,116 @@ en la particularización de estructuras genericas
 \section{La CPU SIMD}
 Descrita en la sección \ref{basico:cpusimd}, esta CPU virtual consigue trabajar
 no sólo con sus operandos de forma intrínsecamente paralela sino también con
-tres tipos diferentes de datos. Todo ello con una interfaz común que aisla 
-al usuario programador de los entresijos de su funcionamiento. Sin embargo no se
-consigue este comportamiento por arte de mágia.
+tres tipos diferentes de datos. Todo ello con una interfaz común que aísla 
+al usuario de los entresijos de su funcionamiento. Sin embargo no se
+consigue este comportamiento por arte de magia.
 
-\subsection{El tipo \texttt{SIMDDigit}}
+\subsection{El tipo \texttt{SIMDDigit}}\label{simddigit}
+  Se cuenta con registros de $128$ bits, que pueden ser distribuidos
+  de diferentes formas, en función del tamaño de los tipos básicos que 
+  acomode. En la figura \ref{fig:packedfloat} se representan cuatro
+  números en coma flotante de $32$ bits, emplazados dentro de uno de estos
+  registros de $128$ bits. 
+   \begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\textwidth,keepaspectratio]{packedfloat} 
+    \caption{Ejemplo de SIMDDigit}\label{fig:packedfloat}
+  \end{figure}
+
+  Las otras dos opciones soportadas son: dos números en coma flotante de $64$ bits
+  y ocho enteros con signo de $16$ bits.
+
+  Para que la implementación de la CPU SIMD sea realmente genérica, ha de ser posible
+  trabajar con estos registros de $128$ bits de forma abstracta, sin entrar en el tipo
+  de dato básico que contienen. Es a raíz de esta necesidad que surge el concepto de 
+  \texttt{SIMDDigit}. El siguiente listado muestra su declaración tal como se encuentra
+  en la biblioteca:
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Declaración de SIMDDigit]
+template<typename T>
+struct SIMDDigit {
+  SIMDDigit() {}
+  SIMDDigit( const SIMDDigit<T>& src )
+    : data(src.data) {}
+
+  typedef typename SIMDtoBasicTypes<T>::BasicType BasicType;
+
+  inline SIMDDigit& operator+=(const SIMDDigit<T>& rhs);
+  inline SIMDDigit& operator-=(const SIMDDigit<T>& rhs);
+  inline SIMDDigit& operator*=(const SIMDDigit<T>& rhs);
+  inline SIMDDigit& operator/=(const SIMDDigit<T>& rhs);
+
+  inline SIMDDigit& operator=(const SIMDDigit<T>& rhs);
+
+  inline SIMDDigit& pack(const BasicType* const src);
+  inline BasicType* unpack(BasicType* const out) const;
+  inline BasicType sum() const;
+
+  inline short getSize() const;
+
+  T data;
+};
+\end{lstlisting}
+
+Mediante esta clase parametrizada se ocultan los detalles concretos para cada uno de las
+tras variedades. Como puede apreciarse, soporta las operaciones aritméticas básicas así como 
+la introducción y extracción de sus componentes desde vectores estáticos sobre los tipos básicos.
+Estas operaciones dependen de los métodos de la CPU SIMD, que implementa las siguientes operaciones:
+
+ \begin{description}
+  \item[Add] Suma dos elementos de tipo \texttt{SIMDDigit}.
+  \item[Sub] Sustrae dos elementos de tipo \texttt{SIMDDigit}.
+  \item[Mul] Multiplica dos elementos de tipo \texttt{SIMDDigit}.
+  \item[Div] Divide dos elementos de tipo \texttt{SIMDDigit}.
+  \item[Sum] Suma «horizontalmente» los elementos básicos de un \texttt{SIMDDigit}.
+  \item[Pack] Convierte desde un vector de tipos básicos a un \texttt{SIMDDigit}.
+  \item[Unpack] Convierte desde un \texttt{SIMDDigit} a un vector de tipos básicos.
+ \end{description}
+
+ Nótese que cuando se opera con SIMDDigits, se asume que los operandos albergan
+ el mismo tipo de datos básicos.
+ De no ser así, el resultado que se obtenga es indefinido, ya que por cuestiones de rendimiento a 
+ este nivel no se realizan este tipo de comprobaciones.
+
+
 \subsection{El problema del alineamiento}
-\subsection{Mismo fin, diferentes medios}
-no solo el soporte de tres tipos, sino tambien la forma subyacente de procesarlos
-en función de las tecnologias disponibles.
+  A causa de como el subsistema de memoria maneja los datos a y desde la memoria principal,
+  pasando por varios niveles de cachés, resulta siempre ventajoso desde el punto de vista del 
+  rendimiento \emph{alinear los datos en direcciones de memoria múltiplo del tamaño del tipo 
+  en cuestión} (véase \cite{intelOpt}\footnote{sección 3.6.3, pág. 3-47}). Esto es aún más 
+  importante en el caso de datos SIMD, tal como indica \cite{intelOpt}\footnote{sección 4.4.2, pág. 4-18}:
+  \begin{quote}
+  For best performance, the Streaming SIMD Extensions and Streaming SIMD Extensions
+  2 require their memory operands to be aligned to 16-byte boundaries.
+  Unaligned data can cause significant performance penalties compared to aligned
+  data.
+  \end{quote}
 
+  Pese a que esta cita se refiere a las instrucciones SSE2, es asimismo válido para cualquier 
+  tipo de dato, incluso no SIMD. Tan solo cobra más importancia en estos últimos.
 
+  Hasta aquí la teoría. ¿En que se traduce esto desde un punto de vista práctico? En que se le ha
+  de indicar al compilador \emph{cómo alinear} los datos. En el mundo del lenguaje C y sus 
+  estructuras de datos de bajo nivel esto resulta relativamente sencillo. Sin embargo, si se desea
+  aprovechar las ventajas que ofrece el uso de las bibliotecas STL en C++, el asunto se complica,
+  aunque afortunadamente sigue siendo posible. La solución pasa por utilizar mecanismos un tanto 
+  oscuros de los contenedores STL como son los \emph{\textit{allocators}}: los objetos encargados
+  de reservar la memoria que estos contenedores utilizarán. Si se particularizan estos \textit{allocators} 
+  para que tal memoria se alinee en función de nuestras necesidades, se habrá resuelto el problema.
+  Las modificaciones realizadas se recogen en la clase \texttt{SSEAlloc}, dentro del fichero \texttt{kernelSIMD.h}. 
+  No se reproducen aquí por brevedad.
 
+  
 
-
-\section{La utilidad de fingir}
+\section{Suplantación de identidad}
 - mock openmp
 
 
 \section{El mundo de los $64$ bits}
 
-\section{El maestro compilador}
-- scons
+%\section{El maestro compilador}
+%- scons
 
 \section{Implementación de tipos}
-  \subsection{El tipo \emph{\texttt{MPPDataType}}\index{tipos!MPPDataType} }
-
   \subsection{Categorización algebraica}\label{categorizacionAlgebraica}
   En la figura \ref{fig:categoriasAlgebraicas} se muestra la jerarquía de clases que
   modelan las categorías algebraicas consideradas, junto con sus métodos (estáticos) asociados.  
@@ -97,16 +182,15 @@ en función de las tecnologias disponibles.
     \includegraphics[width=0.95\textwidth,keepaspectratio]{categoriasAlgebraicas} 
     \caption{Categorias algebraicas}\label{fig:categoriasAlgebraicas}
   \end{figure}
-  Cuando un tipo de dato de la libraría (es decir, un hijo de \texttt{MPPDataType}) se
+  Cuando un tipo de dato de la biblioteca (es decir, un hijo de \texttt{MPPDataType}) se
   encasilla dentro de esta jerarquía, sobre dicho tipo (representado mediante el parámetro 
   de plantilla \texttt{T}) se realizan una serie de comprobaciones, diseñadas para verificar
   que efectivamente dicho tipo cumple las condiciones impuestas por la categoría 
   algebraica a la que aspira pertenecer. Esta serie de comprobaciones se realizan por medio
-  de \emph{asertos}.
+  de \emph{asertos}. Un ejemplo correspondiente a la categoría de grupo --\texttt{Group.h}-- se
+  reproduce en el listado \ref{lst:ejAssertsGroup}
 
-
-
-\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=STATIC\_ASSERT, label=lst:staticassert]
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=STATIC\_ASSERT, label=lst:ejAssertsGroup]
 ~Group() {
   STATIC_ASSERT( ValidateRequirements() );
 }
@@ -120,6 +204,24 @@ static bool ValidateRequirements() {
 }
 \end{lstlisting}
 
+  Se aprecia como dentro del método estático \texttt{ValidateRequirements} se verifica que el tipo \texttt{T} 
+  cumple con las propiedades requeridas para un grupo. Comprobaciones similares, descritas textualmente en
+  la figura \ref{fig:categoriasAlgebraicas}, se realizan para los anillos --\texttt{Ring.h}-- y los cuerpos
+  --\texttt{Field.h}.
+
+  Los tipos de la biblioteca susceptibles de ser categorizados --más adelante se verá la utilidad de esto-- dentro
+  de estas familias algebraicas simplemente han de heredar de la clase adecuada. Por ejemplo, los enteros módulo
+  un primo respresentan un cuerpo. Se indica este hecho, en código, de la siguiente manera:
+
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Inclusión de $\mathbb{Z}_p$ como cuerpo]
+(...)
+  class Z_p : public Z_n, public Field<Z_p> 
+(...)
+\end{lstlisting}
+
+  La categoría algebraica a la que pertenecen los distintos tipos de la biblioteca se representa en la figura
+  \ref{fig:categorizacionAlgebraica} mediante un código de colores: el color de fondo de cada recuadro de tipo
+  se corresponde con el color de fondo de su categoria en la figura \ref{fig:categoriasAlgebraicas}.
 
   \begin{figure}[h]
     \centering
@@ -127,23 +229,130 @@ static bool ValidateRequirements() {
     \caption{Categorización algebraica}\label{fig:categorizacionAlgebraica}
   \end{figure}
 
-
+  Las matrices no encajan dentro de ninguna categoría, ya que tan solo las matrices cuadradas son
+  susceptibles de ser invertidas y por tanto aspirar a formar un anillo (su producto no es conmutativo, por lo que
+  tampoco podrían ser un cuerpo). Crear un tipo \textit{ex profeso} para representar matrices cuadradas limitaría
+  en exceso la flexibilidad del tipo matriz. En cualquier caso, la categorización algebraica resulta útil precisamente
+  para las comprobaciones de los tipos de plantilla al utilizar polinomios y matrices; es decir, a la hora de definir
+  el tipo de los coeficientes/elementos, respectivamente. Por tanto, no sería posible con la actual implementación
+  definir estructuras tales como «polinomios sobre matrices». Sin embargo, sí es posible definir, por ejemplo,
+  una «matriz de polinomios sobre los enteros» 
 
 
   \subsection{Enteros $\mathbb{Z}M_n$}\label{implZM_n}
 
-  \subsection{Polinomios}\index{implementación!polinomios}\label{impl:polinomios}
-    totalmente genericos
-  \subsubsection{Verificando el carácter de $S$}
-    tiene que ser como ser como minimo anillo conmutativo con unidad. Verificaciones estaticas
+  \subsection{Polinomios}\label{impl:polinomios}
+%    totalmente genericos
+    \subsubsection{Verificando el carácter de \texttt{S}}
+%      tiene que ser como ser como mínimo anillo conmutativo con unidad. Verificaciones estáticas
 
- El requerir que $S$ sea un tipo de la biblioteca responde simplemente a que en la posterior
-  implementación de los métodos, se depende de las características comunes de los tipos de la biblioteca.
+%      El requerir que \texttt{S} sea un tipo de la biblioteca responde simplemente a que en la posterior
+%      implementación de los métodos, se depende de las características comunes de los tipos de la biblioteca.
+
+    \subsubsection{Aritmética sobre polinomios}
+      \paragraph{Suma y resta}
+      \paragraph{Producto}
+      \paragraph{División}
+
+      \paragraph{Operaciones dependientes de \texttt{S}}
+        \subparagraph{División sobre un dominio de factorización única}
+        \subparagraph{Máximo común divisor sobre un dominio de factorización única}
+
+      \paragraph{Evaluación}
+
+    \subsubsection{Especializaciones}
+      \paragraph{\texttt{Zx}}
+      \paragraph{\texttt{Rx}}
+      \paragraph{\texttt{Z\_px}}
+
+  \subsection{Cuerpos finitos}\label{impl:cuerposFinitos}
+    \subsubsection{Elementos de un cuerpo finito}\label{impl:cuerposFinitos}
 
 
+  \subsection{Matrices}
 
-  \subsubsection{Operaciones dependientes de $S$}
-    p ej, div en udf o  no, idem pa gcd  
+    \subsubsection{Descomposición $LU$}\label{sec:lu}
+    
+    \subsubsection{Inversión}
+
+    \subsubsection{Cálculo del determinante}\label{impl:determinante}
+      El cálculo del determinante resulta trivial una vez que se ha triangularizado 
+      la matriz cuyo determinante se desea obtener. Es trivial comprobar que el 
+      determinante de una matriz triangular --superior o inferior-- es igual al producto
+      de los elementos de su diagonal (véase la definición de determinante: \ref{def:determinante}).
+      Asimismo, si se tiene en cuenta que $det(AB) = det(A) det(B)$ para $A,B \in \mathcal{M}_n$ 
+      (véase \cite{algebraburgos}\footnote{sección 4.4, pág. 85}), si se cuenta con la descomposición
+      $LU$ de la matriz, el cálculo de su determinante se reduce al producto de los elementos de la 
+      matriz triangular superior $U$:
+      \[
+        A = P \times L \times U  \Rightarrow det(A)  = \underbrace{det(P)}_{\sgn{\sigma}} \underbrace{det(L)}_{1} det(U) 
+      \]
+
+      El signo de $det(P)$ depende de la signatura de la permutacion $\sigma$ de filas realizadas durante la
+      descomposición $LU$. Recuérdese que los elementos de la diagonal de $L$ son \emph{por construcción} 
+      iguales a la unidad. Por tanto:
+
+      \begin{equation}
+        det(A) =  \pm det(U) = \sgn{\sigma} \prod_{i=1}^n U_{n,n} \label{eq:detA_detU}
+      \end{equation}
+
+      El cálculo del determinate se reduce por tanto a una operación
+      de complejidad lineal en $n$, \emph{dada la descomposición de $A$}. Es decir, la eficiencia y posibilidad 
+      de utilización de la equación \eqref{eq:detA_detU} en la práctica depende no sólo del coste de la 
+      descomposición de $A$ sino también de la \emph{posibilidad} de realizarla. Como se ha visto en el punto 
+      \ref{sec:lu}, es requisito la existencia de inversa para elementos arbitrarios del conjunto sobre el cual
+      se encuentre definida la matriz. El caso que viene inmediatamente a la cabeza como ejemplo de \emph{no} 
+      posibilida de utilización es por tanto el de $\mathbb{Z}$, donde tan solo $1$ y $-1$ tienen inversa... algo
+      que ciertamente no parece suficiente\footnote{salvo que alguien pretenda el calculo de la inversa de la matriz
+      identidad. En cuyo caso el problema realmente sería de dicho alguien.}. Sin embargo, a la vista de la definición
+      dada en \ref{def:determinante} por la ecuación \eqref{eq:determinante}, sí es posible calcular desde un punto
+      de vista teórico el determinante de matrices sobre anillos, tal como $\mathbb{Z}$. Hace falta tan solo aplicar
+      una estratégia que no conlleve divisiones --es decir, inversiones.
+
+      \paragraph{Cálculo de determinante sin divisiones: Gauss-Bareiss} \label{impl:bareiss}
+      \cite{bareiss2}
+      \cite{bookbareiss}\footnote{sección 10.2}
+      \cite{cohen}\footnote{algoritmo 2.2.6, pág. 52}
+      
+      \begin{algorithm}
+        \caption{Algoritmo de Gauss-Bareiss}\label{alg:bareiss}
+        \begin{algorithmic}[1]
+          \Procedure{Gauss-Bareiss}{Matriz $M \in \mathcal{M}_{n \times n}$}
+          \State $sign \gets 1$
+          \For{$i \in \{0, \ldots, n-2\}$}
+            \State $p \gets M_{i,i}$
+            \If{$p = 0$}
+              \If{$ \neg \mathrm{pivot(}$i$\mathrm{)} $} 
+                \Statex \Comment{Si \textrm{pivot} es falso, no se ha podido pivotar}
+                \State \textbf{Return} $0$ \Comment{Matriz singular}
+              \EndIf
+              \State $sign \gets -sign$ \Comment{Se ha permutado una fila}
+              \State $p \gets M_{i,i}$ \Comment{$M_{i,i} \neq 0$}
+            \EndIf
+            \For{$j \in \{i+1,\ldots,n-1\}$}
+              \For{$k \in \{i+1,\ldots,n-1\}$}
+                \State $M_{j,k} \gets M_{j,k} * p - M_{j,i}*M_{i,k}$
+                \If{ $i > 0$ }
+                  \State $M_{j,k} \gets M_{j,k} / M_{i-1,i-1}$ \Comment{Esta división \emph{siempre} es exacta}
+                \EndIf
+              \EndFor %for k
+            \EndFor %for j
+          \EndFor %for i
+
+          \State \textbf{Return } $sign * M_{n-1,n-1}$
+          \EndProcedure
+        \end{algorithmic}
+      \end{algorithm}
+
+      Éste es uno de los métodos paralelizados en la biblioteca. Para más detalles, véase la sección
+      \ref{para:bareiss}.
+
+    \subsubsection{Especializaciones}
+      \paragraph{\texttt{MatrixZ}}
+      \paragraph{\texttt{MatrixR}}
+      \paragraph{\texttt{MatrixGFx}}
 
 
-  \subsection{Matrices}\index{tipos!Matrices}
+  \subsection{Vectores}
+    \subsubsection{Un caso especial: vectores sobre SIMDDigits}
+

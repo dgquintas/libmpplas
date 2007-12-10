@@ -2260,9 +2260,10 @@ class MRInvMethod : public xmlrpc_c::method {
       paramList.verifyEnd(2);
 
       try{
-        const mpplas::MatrixR op1( *((mpplas::MatrixR*)table.get(clientId, varId1)));
+        mpplas::MatrixR op1( *((mpplas::MatrixR*)table.get(clientId, varId1)));
+        op1.invert();
 
-        const std::string varId = table.set(clientId, new mpplas::MatrixR( mpplas::MatrixHelpers::invert(op1) ), "MR");
+        const std::string varId = table.set(clientId, new mpplas::MatrixR( op1 ), "MR");
 
         *retvalP = xmlrpc_c::value_string( varId );
       }
@@ -2613,9 +2614,10 @@ class MGFxInvMethod : public xmlrpc_c::method {
       paramList.verifyEnd(2);
 
       try{
-        const mpplas::MatrixGFx op1( *((mpplas::MatrixGFx*)table.get(clientId, varId1)));
+        mpplas::MatrixGFx op1( *((mpplas::MatrixGFx*)table.get(clientId, varId1)));
+        op1.invert();
 
-        const std::string varId = table.set(clientId, new mpplas::MatrixGFx( mpplas::MatrixHelpers::invert(op1) ), "MGFx");
+        const std::string varId = table.set(clientId, new mpplas::MatrixGFx( op1 ), "MGFx");
 
         *retvalP = xmlrpc_c::value_string( varId );
       }
@@ -3194,6 +3196,51 @@ class FactorizationMethod: public xmlrpc_c::method {
     mpplas::Factoriza* factor;
 };
 
+class FactorizationWithExpsMethod: public xmlrpc_c::method {
+  public:
+
+    FactorizationWithExpsMethod() {
+      this->_signature = "A:is";
+      this->_help = "Returns an array with the integer factors and their exponents of the given integer";
+
+      mpplas::MethodsFactory::getInstance()->getFunc(factor);
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId(paramList.getString(1));
+      paramList.verifyEnd(2);
+
+      try{
+        const mpplas::Z op( *((mpplas::Z*)table.get(clientId, varId)));
+
+        const mpplas::MiVec< std::pair<mpplas::Z, int> > factors( factor->factorsWithExps(op) );
+        std::vector<xmlrpc_c::value> factorsArray;
+
+        std::vector<xmlrpc_c::value> factorsPair;
+
+        std::string varId;
+        for(int i = 0; i < factors.size(); i++){
+          factorsPair.push_back( xmlrpc_c::value_string( factors[i].first.toString() ) );
+          factorsPair.push_back( xmlrpc_c::value_int   ( factors[i].second ) );
+
+          factorsArray.push_back(xmlrpc_c::value_array( factorsPair ));
+          factorsPair.clear();
+        }
+        *retvalP  = xmlrpc_c::value_array(factorsArray);
+      }
+      catch(const std::exception& e){
+        throw(girerr::error(e.what()));
+      }
+
+    }
+
+  private:
+    mpplas::Factoriza* factor;
+};
+
+
 
 
 
@@ -3520,6 +3567,7 @@ int main(int const, const char ** const) {
     myRegistry.addMethod("crt", new CRTMethod);
 
     myRegistry.addMethod("factorize", new FactorizationMethod);
+    myRegistry.addMethod("factorizeWithExps", new FactorizationWithExpsMethod);
 
     myRegistry.addMethod("getSystemInfo", new SysInfoMethod);
 

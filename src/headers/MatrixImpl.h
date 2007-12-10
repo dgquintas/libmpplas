@@ -86,17 +86,38 @@ inline const T& Matrix<T, Alloc>::operator()(int i) const{
 
 template<typename T, typename Alloc>
 inline T& Matrix<T, Alloc>::operator()(int i, int j){
-  if( i >= this->getRows() || j >= this->getColumns() ){
-    throw Errors::InvalidRange();
+  if( i >= this->getRows() ){ 
+    std::ostringstream oss;
+    oss << i+1 << ">" << this->getRows() << ". ";
+    GEN_TRACE_INFO_OSS(oss);
+    throw Errors::InvalidRange(oss.str());
   }
+  if( j >= this->getColumns() ){ 
+    std::ostringstream oss;
+    oss << j+1 << ">" << this->getColumns() << ". ";
+    GEN_TRACE_INFO_OSS(oss);
+    throw Errors::InvalidRange(oss.str());
+  }
+
   const int index( (i* _dims.getColumns() ) + j );
   return _data[ index ];
 }
 template<typename T, typename Alloc>
 inline const T& Matrix<T, Alloc>::operator()(int i, int j) const{
-  if( i >= this->getRows() || j >= this->getColumns() ){
-    throw Errors::InvalidRange();
+
+  if( i >= this->getRows() ){ 
+    std::ostringstream oss;
+    oss << i+1 << ">" << this->getRows() << ". ";
+    GEN_TRACE_INFO_OSS(oss);
+    throw Errors::InvalidRange(oss.str());
   }
+  if( j >= this->getColumns() ){ 
+    std::ostringstream oss;
+    oss << j+1 << ">" << this->getColumns() << ". ";
+    GEN_TRACE_INFO_OSS(oss);
+    throw Errors::InvalidRange(oss.str());
+  }
+
   const int index( (i* _dims.getColumns() ) + j );
   return _data[ index ];
 
@@ -116,13 +137,15 @@ Matrix<T, Alloc> Matrix<T, Alloc>::operator()(int n1, int n2,
 
   if( (n1 > n2) ){
     std::ostringstream oss;
-    oss << "Invalid interval for submatrix operator (rows)";
+    oss << "Invalid interval for submatrix operator (rows): " << n1 << ">" << n2 ;
+    GEN_TRACE_INFO_OSS(oss);
     throw Errors::InvalidRange(oss.str());
   }
 
   if( (m1 > m2) ){
     std::ostringstream oss;
-    oss << "Invalid interval for submatrix operator (columns)";
+    oss << "Invalid interval for submatrix operator (columns): " << m1 << ">" << m2 ;
+    GEN_TRACE_INFO_OSS(oss);
     throw Errors::InvalidRange(oss.str());
   }
 
@@ -172,6 +195,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::operator+=(const Matrix<T, Alloc>& rhs)
   if( this->getDimensions() != rhs.getDimensions() ){
     std::ostringstream oss;
     oss << "Right-hand-side operator size = " << rhs.getDimensions().toString();
+    GEN_TRACE_INFO_OSS(oss);
     throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions(),  oss.str());
   }
   const int length = this->getSize();
@@ -246,7 +270,9 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::operator-=(const Matrix<T, Alloc>& rhs)
 {
   //both matrices should have the same length (and shape!)
   if( this->getDimensions() != rhs.getDimensions() ){
-    throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions());
+    std::ostringstream oss;
+    GEN_TRACE_INFO_OSS(oss);
+    throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions(), oss.str());
   }
   const int length = this->getSize();
   if( length > 0 ){
@@ -356,7 +382,9 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::byElementProd(const Matrix<T, Alloc>& rhs)
 {
   //both matrices should have the same length (and shape!)
   if( this->getDimensions() != rhs.getDimensions() ){
-    throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions());
+    std::ostringstream oss;
+    GEN_TRACE_INFO_OSS(oss);
+    throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions(), oss.str());
   }
   const int length = this->getSize();
   if( length > 0 ){
@@ -439,7 +467,9 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::operator/=(const SignedDigit rhs){
   Matrix<T, Alloc>& Matrix<T, Alloc>::byElementDiv( const Matrix<T, Alloc>& rhs){
     //both matrices should have the same length (and shape!)
     if( this->getDimensions() != rhs.getDimensions() ){
-      throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions());
+      std::ostringstream oss;
+      GEN_TRACE_INFO_OSS(oss);
+      throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions(), oss.str());
     }
     const int length = this->getSize();
     if( length > 0 ){
@@ -474,7 +504,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::transpose(){
     register T *tmpPtr1, *tmpPtr2;
     const int numRows = this->getRows();
     const int numCols = this->getColumns();
-#pragma omp parallel for schedule(guided) private(tmp)
+#pragma omp parallel for schedule(static) private(tmp)
     for( int row=0; row < numRows; row++){
       for( int col = row+1; col < numCols; col++){
         tmpPtr1 = &((*this)(row, col));
@@ -490,7 +520,7 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::transpose(){
     // transposed matrix has to be allocated anyway. Therefore 
     // in the case the most general approach is to "externalize" 
     // the method 
-    (*this) = mpplas::transpose(*this);
+    (*this) = this->getTranspose();
   }
   return *this;
 
@@ -510,6 +540,73 @@ Matrix<T, Alloc>& Matrix<T, Alloc>::invert(){
 
     return *this; 
 }
+
+template<typename T, typename Alloc>
+Matrix<T, Alloc> Matrix<T, Alloc>::getInverse() const {
+  Matrix<T, Alloc> tmp(*this);
+  tmp.invert();
+  return tmp;
+}
+
+template<typename T, typename Alloc>
+Matrix<T, Alloc> Matrix<T, Alloc>::getTranspose() const {
+  
+  const int numRows = this->getRows();
+  const int numCols = this->getColumns();
+ 
+  mpplas::Matrix<T, Alloc> resMat( numCols, numRows );
+  T* res( &(resMat(0,0)) );
+  const T* src( &(this->operator()(0,0)) );
+
+  bool firstIter = true;
+
+  // the reason behind splitting the procedure is to minimize the number
+  // of "short jumps" due to long strides. ie, the stride length is minimized
+  // by making the "stride dimension" the smaller one. The longer the stride, 
+  // the more likely the cache miss.
+  //
+  // There are no problems due to the sharing of the res array, as each write is 
+  // performed to a single location. There are no updates coming from different 
+  // threads to a single shared location.
+  if( numRows >= numCols ){ 
+    //if *this is square, both approaches are equivalent, so we may
+    //as well use this one.
+    const int stride = numRows;
+#pragma omp parallel for firstprivate(res,src, firstIter) schedule(static)
+    for(int row=0; row < numRows; row++){
+      if(firstIter){
+        res += row;
+        src += (row * numCols);
+        firstIter = false;
+      }
+      for(int i = 0; i < numCols; i++){
+        res[(i*stride)] = src[i];
+      }
+      res += 1;
+      src += numCols;
+    }
+  }
+  else { // numRows < numCols 
+    const int stride = numCols;
+#pragma omp parallel for firstprivate(res,src, firstIter) schedule(static)
+    for(int col=0; col < numCols; col++){
+      if(firstIter){
+        res += (col*numRows);
+        src += col;
+        firstIter = false;
+      }
+      for(int i = 0; i < numRows; i++){
+        res[i] = src[(i*stride)];
+      }
+      res += numRows;
+      src += 1;
+    }
+  }
+
+  return resMat;
+}
+
+
 
 
 
@@ -692,63 +789,9 @@ void Matrix<T, Alloc>::_reset() {
 
 
 
-template<typename T, typename Alloc>
-Matrix<T, Alloc> transpose(const Matrix<T, Alloc>& matrix){
-  
-  const int numRows = matrix.getRows();
-  const int numCols = matrix.getColumns();
- 
-  mpplas::Matrix<T, Alloc> resMat( numCols, numRows );
-  T* res( &(resMat(0,0)) );
-  const T* src( &(matrix(0,0)) );
 
-  bool firstIter = true;
 
-  // the reason behind splitting the procedure is to minimize the number
-  // of "short jumps" due to long strides. ie, the stride length is minimized
-  // by making the "stride dimension" the smaller one. The longer the stride, 
-  // the more likely the cache miss.
-  //
-  // There are no problems due to the sharing of the res array, as each write is 
-  // performed to a single location. There are no updates coming from different 
-  // threads to a single shared location.
-  if( numRows >= numCols ){ 
-    //if the matrix is square, both approaches are equivalent, so we may
-    //as well use this one.
-    const int stride = numRows;
-#pragma omp parallel for firstprivate(res,src, firstIter) schedule(static)
-    for(int row=0; row < numRows; row++){
-      if(firstIter){
-        res += row;
-        src += (row * numCols);
-        firstIter = false;
-      }
-      for(int i = 0; i < numCols; i++){
-        res[(i*stride)] = src[i];
-      }
-      res += 1;
-      src += numCols;
-    }
-  }
-  else { // numRows < numCols 
-    const int stride = numCols;
-#pragma omp parallel for firstprivate(res,src, firstIter) schedule(static)
-    for(int col=0; col < numCols; col++){
-      if(firstIter){
-        res += (col*numRows);
-        src += col;
-        firstIter = false;
-      }
-      for(int i = 0; i < numRows; i++){
-        res[i] = src[(i*stride)];
-      }
-      res += numRows;
-      src += 1;
-    }
-  }
 
-  return resMat;
-}
 
 
 //same as for transposition: the operation cannot be perfomed "in place": *this 
@@ -765,6 +808,7 @@ template<typename T, typename Alloc>
     std::ostringstream oss;
     oss << "Left-hand-side operator size = " << lhs.getDimensions().toString() << "\n";
     oss << "Right-hand-side operator size = " << rhs.getDimensions().toString();
+    GEN_TRACE_INFO_OSS(oss);
     throw Errors::NonConformantDimensions(lhs.getDimensions(), rhs.getDimensions(),  oss.str());
   }
   const int aRows = lhs.getRows();
@@ -772,11 +816,8 @@ template<typename T, typename Alloc>
 
   Matrix<T, Alloc> res( aRows, bCols );
 
-  //  MatrixHelpers::Strassen<T> strassen;
-  MatrixHelpers::Winograd<T> strassen;
-
   if( aRows == 1 || aCols == 1 || bCols == 1 ){
-    strassen.baseMult(&res[0],&lhs[0],&rhs[0],
+    MatrixHelpers::Winograd::baseMult(&res[0],&lhs[0],&rhs[0],
         aRows, aCols, bCols,
         bCols, aCols, bCols);
 
@@ -816,14 +857,14 @@ template<typename T, typename Alloc>
         const bool aColsOF = ((aCol + aColsPerBlock) > aCols);
 
         if( aRowsOF || aColsOF || bColsOF ){
-          strassen.baseMult(C,A,B,
+          MatrixHelpers::Winograd::baseMult(C,A,B,
               aRowsOF ? aRowsExtra : aRowsPerBlock,
               aColsOF ? aColsExtra : aColsPerBlock,
               bColsOF ? bColsExtra : bColsPerBlock,
               bCols, aCols, bCols);
         }
         else {
-          strassen.run(C,A,B,
+          MatrixHelpers::Winograd::run(C,A,B,
               aRowsPerBlock,aColsPerBlock,bColsPerBlock,
               bCols, aCols, bCols);
         }
@@ -915,7 +956,10 @@ void _parseMatrixInput(std::istream& in, Matrix<U, V>& m){
       else{
         columnsRead++;
         if( columnsRead > columnsIni ){
-          throw Errors::Sintactic("Inconsistent number of columns");
+          std::ostringstream oss;
+          oss << "Inconsistent number of columns";
+          GEN_TRACE_INFO_OSS(oss);
+          throw Errors::Sintactic(oss.str());
         }
       }
       in >> std::ws >> c;
@@ -931,7 +975,10 @@ void _parseMatrixInput(std::istream& in, Matrix<U, V>& m){
     }
 
     if( (!firstRow) && (columnsRead != columnsIni) ){
-      throw Errors::Sintactic("Inconsistent number of columns");
+      std::ostringstream oss;
+      oss << "Inconsistent number of columns";
+      GEN_TRACE_INFO_OSS(oss);
+      throw Errors::Sintactic(oss.str());
     }
     columnsRead = 0;
 
@@ -1161,7 +1208,9 @@ namespace MatrixHelpers{
           if( a(k,k).isZero() ){
             const int rowPivot(_pivot(a,k));
             if( rowPivot == 0 ){
-              throw Errors::NonInvertibleElement();
+              std::ostringstream oss;
+              GEN_TRACE_INFO_OSS(oss);
+              throw Errors::NonInvertibleElement(oss.str());
             }
             std::swap(p[k],p[rowPivot]);
             sgn *= -1;
@@ -1291,7 +1340,7 @@ namespace MatrixHelpers{
         inv(i,currCol) = sum;
       }
       }
-      catch( const Errors::DivisionPorCero& e){
+      catch( const Errors::DivisionByZero& e){
         throw Errors::NonInvertibleElement();
       }
       return ;
@@ -1333,302 +1382,303 @@ namespace MatrixHelpers{
 
 
 
+  namespace Winograd{
 
-  template<typename T>
-   void Winograd<T>::run(T* C, const T* const A, const T* const B, 
-            const int numRowsA, const int numColsA, const int numColsB,
-            const int strideC, const int strideA, const int strideB, bool reset) const{
+    template<typename T>
+      void run(T* C, const T* const A, const T* const B, 
+          const int numRowsA, const int numColsA, const int numColsB,
+          const int strideC, const int strideA, const int strideB, bool reset) {
 
-      const int halfRowsA = numRowsA / 2;
-      const int halfColsA = numColsA / 2;
-      const int halfRowsB = halfColsA;
-      const int halfColsB = numColsB / 2;
+        const int halfRowsA = numRowsA / 2;
+        const int halfColsA = numColsA / 2;
+        const int halfRowsB = halfColsA;
+        const int halfColsB = numColsB / 2;
 
-      T* r1 = new T[halfRowsA * halfColsA];
-      T* r2 = new T[halfRowsB * halfColsB];
-      T* r3 = new T[halfRowsA * halfColsB];
-      T* r32 = new T[halfRowsA * halfColsB];
+        T* r1 = new T[halfRowsA * halfColsA];
+        T* r2 = new T[halfRowsB * halfColsB];
+        T* r3 = new T[halfRowsA * halfColsB];
+        T* r32 = new T[halfRowsA * halfColsB];
 
-      const T* const a11 = A;
-      const T* const a12 = (A + halfColsA);
-      const T* const a21 = (A + (halfRowsA * strideA));
-      const T* const a22 = (a21 + halfColsA);
+        const T* const a11 = A;
+        const T* const a12 = (A + halfColsA);
+        const T* const a21 = (A + (halfRowsA * strideA));
+        const T* const a22 = (a21 + halfColsA);
 
-      const T* const b11 = B;
-      const T* const b12 = (B + halfColsB);
-      const T* const b21 = (B + (halfRowsB * strideB));
-      const T* const b22 = (b21 + halfColsB);
+        const T* const b11 = B;
+        const T* const b12 = (B + halfColsB);
+        const T* const b21 = (B + (halfRowsB * strideB));
+        const T* const b22 = (b21 + halfColsB);
 
-      T* const c11(C);
-      T* const c12(C + halfColsB );
-      T* const c21(C + (strideC * halfRowsA) );
-      T* const c22( c21 + halfColsB );
+        T* const c11(C);
+        T* const c12(C + halfColsB );
+        T* const c21(C + (strideC * halfRowsA) );
+        T* const c22( c21 + halfColsB );
 
-      // R1 <- (A21 + A22)
-      _addBlocks(r1, a21, a22,
-          halfRowsA, halfColsA,
-          halfColsA, strideA, strideA);
+        // R1 <- (A21 + A22)
+        _addBlocks(r1, a21, a22,
+            halfRowsA, halfColsA,
+            halfColsA, strideA, strideA);
 
-      // R2 <- B12 - B11 
-      _subBlocks(r2, b12, b11,
-          halfRowsB, halfColsB,
-          halfColsB, strideB, strideB);
+        // R2 <- B12 - B11 
+        _subBlocks(r2, b12, b11,
+            halfRowsB, halfColsB,
+            halfColsB, strideB, strideB);
 
-      // R3 <- R1 R2
-      _multBlocks(r3, r1, r2,
-          halfRowsA, halfColsA, halfColsB,
-          halfColsB, halfColsA, halfColsB);
+        // R3 <- R1 R2
+        _multBlocks(r3, r1, r2,
+            halfRowsA, halfColsA, halfColsB,
+            halfColsB, halfColsA, halfColsB);
 
-      // C12 <- R3
-      _accumBlocks(c12, r3,
-          halfRowsA, halfColsB,
-          strideC, halfColsB, reset);
-      // C22 <- R3
-      _accumBlocks(c22, r3,
-          halfRowsA, halfColsB,
-          strideC, halfColsB, reset);
+        // C12 <- R3
+        _accumBlocks(c12, r3,
+            halfRowsA, halfColsB,
+            strideC, halfColsB, reset);
+        // C22 <- R3
+        _accumBlocks(c22, r3,
+            halfRowsA, halfColsB,
+            strideC, halfColsB, reset);
 
 
-      //R1 <- R1 - A11
-       _subBlocks(r1, r1, a11,
-          halfRowsA, halfColsA,
-          halfColsA, halfColsA, strideA);
+        //R1 <- R1 - A11
+        _subBlocks(r1, r1, a11,
+            halfRowsA, halfColsA,
+            halfColsA, halfColsA, strideA);
 
-      //R2 <- B22 - R2
-       _subBlocks(r2, b22, r2,
-          halfRowsB, halfColsB,
-          halfColsB, strideB, halfColsB);
+        //R2 <- B22 - R2
+        _subBlocks(r2, b22, r2,
+            halfRowsB, halfColsB,
+            halfColsB, strideB, halfColsB);
 
-      // R3 <- (A11 B11)
-      _multBlocks(r3, a11, b11,
-          halfRowsA, halfColsA, halfColsB,
-          halfColsB, strideA, strideB);
+        // R3 <- (A11 B11)
+        _multBlocks(r3, a11, b11,
+            halfRowsA, halfColsA, halfColsB,
+            halfColsB, strideA, strideB);
 
-      // C11 <- R3
-      _accumBlocks(c11, r3,
-          halfRowsA, halfColsB,
-          strideC, halfColsB, reset);
+        // C11 <- R3
+        _accumBlocks(c11, r3,
+            halfRowsA, halfColsB,
+            strideC, halfColsB, reset);
 
-      //R3 <- R3 + R1 R2
+        //R3 <- R3 + R1 R2
         //R32 <- R1 R2
         _multBlocks(r32, r1, r2,
-           halfRowsA, halfColsA, halfColsB,
-           halfColsB, halfColsA, halfColsB);
+            halfRowsA, halfColsA, halfColsB,
+            halfColsB, halfColsA, halfColsB);
         //R3 <- R3 + R32
-      _addBlocks(r3, r3, r32,
-          halfRowsA, halfColsB,
-          halfColsB, halfColsB, halfColsB);
+        _addBlocks(r3, r3, r32,
+            halfRowsA, halfColsB,
+            halfColsB, halfColsB, halfColsB);
 
-      // C11 <- C11 + (A12 B21)  
+        // C11 <- C11 + (A12 B21)  
         // R32 <- A12 B21
-         _multBlocks(r32, a12, b21,
-           halfRowsA, halfColsA, halfColsB,
-           halfColsB, strideA, strideB);
+        _multBlocks(r32, a12, b21,
+            halfRowsA, halfColsA, halfColsB,
+            halfColsB, strideA, strideB);
         // C11 <- C11 + R32
         _addBlocks(c11, c11, r32,
-          halfRowsA, halfColsB,
-          strideC, strideC, halfColsB);
+            halfRowsA, halfColsB,
+            strideC, strideC, halfColsB);
 
-      //R1 <- A12 - R1
-       _subBlocks(r1, a12, r1,
-          halfRowsA, halfColsA,
-          halfColsA, strideA, halfColsA);
+        //R1 <- A12 - R1
+        _subBlocks(r1, a12, r1,
+            halfRowsA, halfColsA,
+            halfColsA, strideA, halfColsA);
 
-      //R2 <- (B21 - R2)
-       _subBlocks(r2, b21, r2,
-          halfRowsB, halfColsB,
-          halfColsB, strideB, halfColsB);
-         
-      // C12 <- C12 + (R1 B22)  
+        //R2 <- (B21 - R2)
+        _subBlocks(r2, b21, r2,
+            halfRowsB, halfColsB,
+            halfColsB, strideB, halfColsB);
+
+        // C12 <- C12 + (R1 B22)  
         // R32 <- R1 B22
-         _multBlocks(r32, r1, b22,
-           halfRowsA, halfColsA, halfColsB,
-           halfColsB, halfColsA, strideB);
+        _multBlocks(r32, r1, b22,
+            halfRowsA, halfColsA, halfColsB,
+            halfColsB, halfColsA, strideB);
         // C12 <- C12 + R32
         _addBlocks(c12, c12, r32,
-          halfRowsA, halfColsB,
-          strideC, strideC, halfColsB);
+            halfRowsA, halfColsB,
+            strideC, strideC, halfColsB);
 
-      // C12 <- C12 + R3   
-       _addBlocks(c12, c12, r3,
-          halfRowsA, halfColsB,
-          strideC, strideC, halfColsB);
+        // C12 <- C12 + R3   
+        _addBlocks(c12, c12, r3,
+            halfRowsA, halfColsB,
+            strideC, strideC, halfColsB);
 
 
-      // C21 <- beta C21 + (A22 R2)  
+        // C21 <- beta C21 + (A22 R2)  
         // R32 <- A22 R2
-         _multBlocks(r32, a22, r2,
-           halfRowsA, halfColsA, halfColsB,
-           halfColsB, strideA, halfColsB);
+        _multBlocks(r32, a22, r2,
+            halfRowsA, halfColsA, halfColsB,
+            halfColsB, strideA, halfColsB);
         // C21 <- beta C21 + R32
         _accumBlocks(c21, r32,
-          halfRowsA, halfColsB,
-          strideC, halfColsB, reset);
+            halfRowsA, halfColsB,
+            strideC, halfColsB, reset);
 
-       //R1 <- (A11 - A21)
-       _subBlocks(r1, a11, a21,
-          halfRowsA, halfColsA,
-          halfColsA, strideA, strideA);
-     
-      //R2 <- B22 - B12
-       _subBlocks(r2, b22, b12,
-          halfRowsB, halfColsB,
-          halfColsB, strideB, strideB);
- 
-      // R3 <- R3 + R1 R2  
+        //R1 <- (A11 - A21)
+        _subBlocks(r1, a11, a21,
+            halfRowsA, halfColsA,
+            halfColsA, strideA, strideA);
+
+        //R2 <- B22 - B12
+        _subBlocks(r2, b22, b12,
+            halfRowsB, halfColsB,
+            halfColsB, strideB, strideB);
+
+        // R3 <- R3 + R1 R2  
         // R32 <- R1 R2
-         _multBlocks(r32, r1, r2,
-           halfRowsA, halfColsA, halfColsB,
-           halfColsB, halfColsA, halfColsB);
+        _multBlocks(r32, r1, r2,
+            halfRowsA, halfColsA, halfColsB,
+            halfColsB, halfColsA, halfColsB);
         // R3 <- R3 + R32
         _addBlocks(r3, r3, r32,
-          halfRowsA, halfColsB,
-          halfColsB, halfColsB, halfColsB);
+            halfRowsA, halfColsB,
+            halfColsB, halfColsB, halfColsB);
 
-     // C21 <- C21 + R3
-     _addBlocks(c21, c21, r3,
-       halfRowsA, halfColsB,
-       strideC, strideC, halfColsB);
+        // C21 <- C21 + R3
+        _addBlocks(c21, c21, r3,
+            halfRowsA, halfColsB,
+            strideC, strideC, halfColsB);
 
-     // C22 <- C22 + R3
-     _addBlocks(c22, c22, r3,
-       halfRowsA, halfColsB,
-       strideC, strideC, halfColsB);
-
-
-      delete[] r1;
-      delete[] r2;
-      delete[] r3;
-      delete[] r32;
-
-      return;
-
-    }
- 
-  template<typename T>
-    void Winograd<T>::_addBlocks(T* res, const T* const A, const T* const B, 
-        const int rows, const int cols,
-        const int strideRes, const int strideA, const int strideB) const {
-
-      int rowStrideC = 0;
-      int rowStrideA = 0;
-      int rowStrideB = 0;
-      for(int row=0; row < rows; row++){
-        for(int col=0; col < cols; col++){
-          res[rowStrideC + col] = A[ rowStrideA + col ];
-          res[rowStrideC + col] += B[rowStrideB + col];
-        }
-        rowStrideC += strideRes;
-        rowStrideA += strideA;
-        rowStrideB += strideB;
-      }
-    }
-
-  template<typename T>
-    void  Winograd<T>::_subBlocks(T* res,const T* const A, const T* const B,
-        const int rows, const int cols,
-        const int strideRes, const int strideA, const int strideB) const {
-      int rowStrideC = 0;
-      int rowStrideA = 0;
-      int rowStrideB = 0;
- 
-      T tmp;
-
-      for(int row=0; row < rows; row++){
-        for(int col=0; col < cols; col++){
-          tmp = A[ rowStrideA + col ];
-          tmp -= B[rowStrideB + col];
-          res[rowStrideC + col] = tmp;
-        }
-        rowStrideC += strideRes;
-        rowStrideA += strideA;
-        rowStrideB += strideB;
-      }
-    }
-
-  template<typename T>
-    void Winograd<T>::_multBlocks(
-        T* C, const T* const A, const T* const B,
-        const int numRowsA, const int numColsA, const int numColsB,
-        const int strideC, const int strideA, const int strideB) const {
-
-      if( numRowsA <= 32 || ( (numRowsA & 0x1) || numColsB & 0x1) ){ //FIXME: esto ha de pulirse, no se puede comprobar solo una dim
-        baseMult(C,A,B,
-            numRowsA, numColsA, numColsB,
-            strideC, strideA, strideB, true);
-        return;
-      }
-      else{
-        run(C, A, B,
-            numRowsA, numColsA, numColsB,
-            strideC, strideA, strideB,true);
-      }
-      return;
-    }
-  template<typename T>
-    void Winograd<T>::_accumBlocks(T* res, const T* const A, 
-        const int rows, const int cols,
-        const int strideRes, const int strideA, const bool reset) const {
-
-      if( reset ){
-        for(int row=0; row < rows; row++){
-          for(int col=0; col < cols; col++){
-            res[row * strideRes + col] = A[ (row * strideA) + col ];
-          }
-        }
-      }
-      else{
-        for(int row=0; row < rows; row++){
-          for(int col=0; col < cols; col++){
-            res[row * strideRes + col] += A[ (row * strideA) + col ];
-          }
-        }
-      }
-    }
+        // C22 <- C22 + R3
+        _addBlocks(c22, c22, r3,
+            halfRowsA, halfColsB,
+            strideC, strideC, halfColsB);
 
 
-  template<typename T>
-    void Winograd<T>::baseMult(
-        T* C, const T* const A, const T* const B,
-        const int numRowsA, const int numColsA, const int numColsB,
-        const int strideC, const int strideA, const int strideB, const bool reset) const {
-
-      if( reset ){
-        T tmp, tmp2;
-        for (int aRow = 0; aRow < numRowsA; aRow++) {
-          for (int bCol = 0; bCol < numColsB; bCol++) {
-            tmp2 = A[aRow * strideA ];
-            tmp2 *= B[ bCol];
-            for (int aCol = 1; aCol < numColsA; aCol++) {
-               tmp = A[ aRow * strideA + aCol];
-               tmp *= B[aCol * strideB + bCol];
-               tmp2 += tmp;
-            }
-            C[aRow * strideC + bCol] = tmp2;
-          }
-        }
-      }
-      else{
-
-        T tmp, tmp2;
-        for (int aRow = 0; aRow < numRowsA; aRow++) {
-          for (int bCol = 0; bCol < numColsB; bCol++) {
-            tmp2 = A[aRow * strideA ];
-            tmp2 *= B[ bCol];
-            for (int aCol = 1; aCol < numColsA; aCol++) {
-               tmp = A[ aRow * strideA + aCol];
-               tmp *= B[aCol * strideB + bCol];
-               tmp2 += tmp;
-            }
-            C[aRow * strideC + bCol] += tmp2;
-          }
-        }
-      }
+        delete[] r1;
+        delete[] r2;
+        delete[] r3;
+        delete[] r32;
 
         return;
-    }  
+
+      }
+
+    template<typename T>
+      void _addBlocks(T* res, const T* const A, const T* const B, 
+          const int rows, const int cols,
+          const int strideRes, const int strideA, const int strideB) {
+
+        int rowStrideC = 0;
+        int rowStrideA = 0;
+        int rowStrideB = 0;
+        for(int row=0; row < rows; row++){
+          for(int col=0; col < cols; col++){
+            res[rowStrideC + col] = A[ rowStrideA + col ];
+            res[rowStrideC + col] += B[rowStrideB + col];
+          }
+          rowStrideC += strideRes;
+          rowStrideA += strideA;
+          rowStrideB += strideB;
+        }
+      }
+
+    template<typename T>
+      void  _subBlocks(T* res,const T* const A, const T* const B,
+          const int rows, const int cols,
+          const int strideRes, const int strideA, const int strideB) {
+        int rowStrideC = 0;
+        int rowStrideA = 0;
+        int rowStrideB = 0;
+
+        T tmp;
+
+        for(int row=0; row < rows; row++){
+          for(int col=0; col < cols; col++){
+            tmp = A[ rowStrideA + col ];
+            tmp -= B[rowStrideB + col];
+            res[rowStrideC + col] = tmp;
+          }
+          rowStrideC += strideRes;
+          rowStrideA += strideA;
+          rowStrideB += strideB;
+        }
+      }
+
+    template<typename T>
+      void _multBlocks(
+          T* C, const T* const A, const T* const B,
+          const int numRowsA, const int numColsA, const int numColsB,
+          const int strideC, const int strideA, const int strideB) {
+
+        if( numRowsA <= 32 || ( (numRowsA & 0x1) || numColsB & 0x1) ){ //FIXME: esto ha de pulirse, no se puede comprobar solo una dim
+          baseMult(C,A,B,
+              numRowsA, numColsA, numColsB,
+              strideC, strideA, strideB, true);
+          return;
+        }
+        else{
+          run(C, A, B,
+              numRowsA, numColsA, numColsB,
+              strideC, strideA, strideB,true);
+        }
+        return;
+      }
+    template<typename T>
+      void _accumBlocks(T* res, const T* const A, 
+          const int rows, const int cols,
+          const int strideRes, const int strideA, const bool reset) {
+
+        if( reset ){
+          for(int row=0; row < rows; row++){
+            for(int col=0; col < cols; col++){
+              res[row * strideRes + col] = A[ (row * strideA) + col ];
+            }
+          }
+        }
+        else{
+          for(int row=0; row < rows; row++){
+            for(int col=0; col < cols; col++){
+              res[row * strideRes + col] += A[ (row * strideA) + col ];
+            }
+          }
+        }
+      }
 
 
+    template<typename T>
+      void baseMult(
+          T* C, const T* const A, const T* const B,
+          const int numRowsA, const int numColsA, const int numColsB,
+          const int strideC, const int strideA, const int strideB, const bool reset) {
+
+        if( reset ){
+          T tmp, tmp2;
+          for (int aRow = 0; aRow < numRowsA; aRow++) {
+            for (int bCol = 0; bCol < numColsB; bCol++) {
+              tmp2 = A[aRow * strideA ];
+              tmp2 *= B[ bCol];
+              for (int aCol = 1; aCol < numColsA; aCol++) {
+                tmp = A[ aRow * strideA + aCol];
+                tmp *= B[aCol * strideB + bCol];
+                tmp2 += tmp;
+              }
+              C[aRow * strideC + bCol] = tmp2;
+            }
+          }
+        }
+        else{
+
+          T tmp, tmp2;
+          for (int aRow = 0; aRow < numRowsA; aRow++) {
+            for (int bCol = 0; bCol < numColsB; bCol++) {
+              tmp2 = A[aRow * strideA ];
+              tmp2 *= B[ bCol];
+              for (int aCol = 1; aCol < numColsA; aCol++) {
+                tmp = A[ aRow * strideA + aCol];
+                tmp *= B[aCol * strideB + bCol];
+                tmp2 += tmp;
+              }
+              C[aRow * strideC + bCol] += tmp2;
+            }
+          }
+        }
+
+        return;
+      }  
+
+  }
 
 
 

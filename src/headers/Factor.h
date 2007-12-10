@@ -65,7 +65,7 @@ namespace mpplas{
        * @param factores Puntero a MiVec<Z> donde se almacenarán los
        * factores no triviales encontrados.
        *
-       * @exception Se devuelve Errores::PunteroNulo si @a n o @a
+       * @exception Se devuelve Errores::NullPointer si @a n o @a
        * factores son punteros iguales a NULL.
        *
        */ 
@@ -115,7 +115,7 @@ namespace mpplas{
   class RhoPollard : public FactorZ
   {
     public:
-      virtual bool factorZ(Z* n, MiVec<Z>* factores);
+      virtual bool factorZ(Z* n, MiVec<Z>* factores) ;
 
       virtual ~RhoPollard(){}
 
@@ -130,7 +130,7 @@ namespace mpplas{
   class Trial : public FactorZ
   {
     public:
-      virtual bool factorZ(Z* n, MiVec<Z>* factores);
+      virtual bool factorZ(Z* n, MiVec<Z>* factores) ;
   
       virtual ~Trial(){}
   };

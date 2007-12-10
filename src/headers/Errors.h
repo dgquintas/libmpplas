@@ -8,18 +8,24 @@
 #include <string>
 #include <stdexcept>
 #include <exception>
+#include <sstream>
 
 #include "AlgebraUtils.h"
 
+#define GEN_TRACE_INFO_OSS(oss) \
+  oss << '(' << __FILE__ << ':' << __LINE__ << ')'
 
 namespace mpplas{
-  /** Espacio de nombres contenedor del mecanismo de errores. */
+  /** Library errors namespace. */
   namespace Errors{
-    // Tipos báicos
-    /** Clase base de todas las excepciones (errores) que comprende
-     * la librería. */
+    /** Base class of the library's exceptions hierarchy. */
     class Exception: public std::exception {
       public:
+        /** Textual (human readable) description of exception. 
+         *
+         * This follows std::exception conventions. 
+         *
+         * @return a textual (human readable) description of the exception. */
         virtual const char* what(void) const throw() {
           return _msg.c_str();
         }
@@ -29,7 +35,7 @@ namespace mpplas{
         std::string _msg;
     };
 
-    /** Base class for invalid arguments errors
+    /** Invalid arguments errors
      *
      * For instance, division by zero, non-invertible element, etc.
      * 
@@ -43,12 +49,9 @@ namespace mpplas{
         virtual ~InvalidArgument() throw() {}
     };
 
-    /** Clase base para errores de tipo sintáctico.
+    /** Sintactic errors.
      *
-     * Se utiliza por ejemplo en la lectura de números con el operador
-     * de entrada ">>".
-     * 
-     */
+     * Such as invalid parsing of textual description of a user-given number.  */
     class Sintactic : public Exception {
       public:
         Sintactic( std::string msg = "<empty>" ){
@@ -58,47 +61,40 @@ namespace mpplas{
         virtual ~Sintactic() throw() {}
     };
 
-    /** Clase base para errores internos.
+    /** Internal errors.
      *
-     * Por ejemplo al detectar un puntero inválido, intento de acceso
-     * a una posición de memoria no reservada, etc.
-     * */
-    class Interno : public Exception  {
+     * Such as invalid pointers, situations which in theory 
+     * should never happen, etc. */
+    class Internal : public Exception  {
       public:
-      Interno( std::string msg = "<empty>" ) {
+      Internal( std::string msg = "<empty>" ) {
         _msg += "Internal error: ";
         _msg += msg;
       }
 
-      virtual ~Interno() throw() {}
+      virtual ~Internal() throw() {}
     };
 
 
-    ////////////////////////////////////////////
-    // ARGUMENT ERRORS
-    ////////////////////////////////////////////
-
-
-    // Tipos derivados
-    /** Error de división por cero */
-    class DivisionPorCero : public InvalidArgument {
+    /** Division by zero attempt. */
+    class DivisionByZero : public InvalidArgument {
       public:
-        DivisionPorCero(const std::string details = "")
+        DivisionByZero(const std::string details = "")
           : InvalidArgument("Division by zero; ") {
             _msg += details;
           }
     };
 
-    /** Resultado negativo en resta sin signo */
-    class RestaNegativa : public InvalidArgument  {
+    /** Negative result in unsigned substraction. */
+    class NegativeSubstraction : public InvalidArgument  {
       public:
-        RestaNegativa(const std::string details = "")
+        NegativeSubstraction(const std::string details = "")
           : InvalidArgument("Subtrahend is greater than the minuend at unsigned subtraction; "){
             _msg += details;
           }
     };
 
-    /** Elemento no invertible */
+    /** Inversion of non-invertible element attempt. */
     class NonInvertibleElement : public InvalidArgument  {
       public:
         NonInvertibleElement(const std::string details = "")
@@ -107,37 +103,37 @@ namespace mpplas{
           }
     };
 
-    /** Intento de potenciación de un elemento no invertible en un no-cuerpo */
-    class ExponenteNegativo : public InvalidArgument  {
+    /** Negative exponentiation on a non-invertible element attempt */
+    class NegativeExponent : public InvalidArgument  {
       public:
-        ExponenteNegativo(const std::string details = "")
+        NegativeExponent(const std::string details = "")
           : InvalidArgument("Negative exponent on a non-invertible element; ") {
             _msg += details;
           }
     };
 
-    /** Segundo argumento de un símbolo de Jacobi es par */
-    class ParEnSimboloJacobi : public InvalidArgument {
+    /** Even Jacobi Symbol second argument. */
+    class EvenInJacobiSymbol : public InvalidArgument {
       public:
-        ParEnSimboloJacobi(const std::string details = "")
+        EvenInJacobiSymbol(const std::string details = "")
           : InvalidArgument("Even element as second argument of a Jacoby Symbol; "){
             _msg += details;
           }
     };
 
     /** Even modulus on a Montgomery reduction */
-    class ModuloParEnMontgomery : public InvalidArgument  {
+    class MontgomeryEvenMod : public InvalidArgument  {
       public:
-        ModuloParEnMontgomery(const std::string details = "") 
+        MontgomeryEvenMod(const std::string details = "") 
           : InvalidArgument("Even modulus on Montgomery reduction/exponentiation; "){
             _msg += details;
           }
     };
 
-    /** Logaritmo de cero */
-    class LogaritmoDeCero : public InvalidArgument  {
+    /** Log(0) calculation attempt */
+    class LogZero: public InvalidArgument  {
       public:
-        LogaritmoDeCero(const std::string details = "") 
+        LogZero(const std::string details = "") 
           : InvalidArgument("Calculation of the logarithm of zero; "){
             _msg += details;
           }
@@ -153,6 +149,7 @@ namespace mpplas{
     };
 
 
+    /** Dimensions of the operands are not conformant */
     class NonConformantDimensions: public InvalidArgument  {
       public:
         NonConformantDimensions(const Dimensions& dimsLeft, const Dimensions& dimsRight, std::string str = "")
@@ -162,6 +159,7 @@ namespace mpplas{
         }
     };
  
+    /** Square matrix required */
     class SquareMatrixRequired: public InvalidArgument  {
       public:
         SquareMatrixRequired( const std::string details = "" )
@@ -171,6 +169,7 @@ namespace mpplas{
     };
 
 
+    /** Invalid range */
     class InvalidRange : public InvalidArgument {
       public:
         InvalidRange(const std::string details = "")
@@ -179,6 +178,7 @@ namespace mpplas{
         }
     };
 
+    /** Field type required */
     class FieldRequired: public InvalidArgument {
       public:
         FieldRequired(const std::string details = "")
@@ -187,6 +187,7 @@ namespace mpplas{
         }
     };
 
+    /** Inconsistent finite field generator for operators */ 
     class InconsistentGFGenerator: public InvalidArgument {
       public:
         InconsistentGFGenerator(const std::string details = "")
@@ -194,6 +195,8 @@ namespace mpplas{
           _msg += details;
         }
     };
+
+    /** Irreducible polynomial expected */
     class IrreduciblePolyExpected: public InvalidArgument {
       public:
         IrreduciblePolyExpected(const std::string details = "")
@@ -209,7 +212,7 @@ namespace mpplas{
     // SINTACTIC ERRORS
     ////////////////////////////////////////////
 
-    /** Detectado símbolo inválido en la lectura de un nmero */
+    /** Invalid symbol while parsing */
     class InvalidSymbol: public Sintactic
     {
       public:
@@ -223,81 +226,80 @@ namespace mpplas{
     // INTERNAL ERRORS
     ////////////////////////////////////////////
 
-    /** Signo inválido */
-    class SignoInvalido : public Interno
+    /** Invalid sign */
+    class InvalidSign : public Internal
     {
       public: 
-        SignoInvalido(const std::string details = "")
-          : Interno("Incorrect sign; "){
+        InvalidSign(const std::string details = "")
+          : Internal("Incorrect sign; "){
             _msg += details;
           }
     };
 
     /** Number too big to be used in a given context */
-    class TooBig: public Interno  {
+    class TooBig: public Internal  {
       public:
         TooBig(const std::string details = "")
-          : Interno("Number too big; "){
+          : Internal("Number too big; "){
             _msg += details;
           }
     };
 
-    /** Intento de uso de perfilado en arquitectura que no lo soporta
-     * */
-    class ArchNoProfiling : public Interno  {
+    /** Current architecture does not support profiling */
+    class ArchNoProfiling : public Internal  {
       public:
         ArchNoProfiling(const std::string details = "")
-          : Interno("The current architecture does not support profiling; "){
+          : Internal("The current architecture does not support profiling; "){
             _msg += details;
           }
     };
 
 
-    /** Error en el proceso de perfilado */
-    class ErrorPerfilado : public Interno  {
+    /** Error while profiling */
+    class ProfilingError : public Internal  {
       public: 
-        ErrorPerfilado(const std::string details = "")
-          : Interno("Profiling error; "){
+        ProfilingError(const std::string details = "")
+          : Internal("Profiling error; "){
             _msg += details;
           }
     };
 
 
-    /** Error al acceder a la fuente de entropía */
-    class FuenteEntropiaInvalida : public Interno
+    /** Error while accessing the entropy source */
+    class InvalidEntropySource : public Internal
     {
       public:
-        FuenteEntropiaInvalida(const std::string details = "")
-          : Interno("Error while accessing the entropy source; "){
+        InvalidEntropySource(const std::string details = "")
+          : Internal("Error while accessing the entropy source; "){
             _msg += details;
           }
     };
 
 
-    /** Intento de desreferenciar un puntero nulo */
-    class PunteroNulo : public Interno {
+    /** Null pointer dereference attempt */
+    class NullPointer : public Internal {
       public:
-        PunteroNulo(const std::string details = "")
-          : Interno("Null pointer; "){
+        NullPointer(const std::string details = "")
+          : Internal("Null pointer; "){
             _msg += details;
           }
     };
 
-    /** Exponente de reales desbordado */
-    class OverflowExpReales : public Interno {
+    /** @a R exponent overflow*/
+    class RealsExpOverflow : public Internal {
       public: 
-        OverflowExpReales(const std::string details = "")
-          : Interno("The exponent for floating-point exp. overflowed; "){
+        RealsExpOverflow(const std::string details = "")
+          : Internal("The exponent for floating-point exp. overflowed; "){
             _msg += details;
           }
     };
 
-    /** Función no implementada */
-    class NoImplementado : public Interno
+    /** Feature not implemented */
+    class NotImplemented : public Internal
     {
       public:
-        NoImplementado(const std::string details = "")
-          : Interno("Feature not implemented; "){
+        NotImplemented(const std::string details = "")
+          : Internal("Feature not implemented; "){
             _msg += details;
           }
     };

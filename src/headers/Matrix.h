@@ -168,6 +168,9 @@ namespace mpplas {
         Matrix<T, Alloc>& transpose();
         Matrix<T, Alloc>& invert();
 
+        Matrix<T, Alloc> getInverse() const;
+        Matrix<T, Alloc> getTranspose() const;
+
 //        /** LU decomposition.
 //         *
 //         * Performs a LU decomposition over the current matrix.
@@ -228,8 +231,6 @@ namespace mpplas {
 
     };
 
-  template<typename T, typename Alloc>
-    Matrix<T, Alloc> transpose(const Matrix<T, Alloc>& matrix);
 
   template<typename T, typename Alloc>
     Matrix<T, Alloc> operator-(Matrix<T, Alloc> m); /**< Unary negation, sign inversion */
@@ -308,48 +309,45 @@ namespace mpplas {
     template<typename T, typename Alloc>
       void solveForInv(Matrix<T, Alloc> m, Matrix<T, Alloc>& inv, const int currCol, const int perm);
 
-
     template<typename T, typename Alloc>
       void forwardSubstitution(const Matrix<T, Alloc>& m, Matrix<T, Alloc>& b);
     template<typename T, typename Alloc>
       void backwardSubstitution(const Matrix<T, Alloc>& m, Matrix<T, Alloc>& y);
 
 
-    template<typename T>
-    class Winograd{
-      public:
-        Winograd(){}
-
+    namespace Winograd{
+      template<typename T>
         void run(T* C, const T* const A, const T* const B, 
             const int numRowsA, const int numColsA, const int numColsB,
-            const int strideC, const int strideA, const int strideB,bool reset=false) const;
+            const int strideC, const int strideA, const int strideB,bool reset=false) ;
 
-        virtual void baseMult(T* C, const T* const A, const T* const B,
+      template<typename T>
+        void baseMult(T* C, const T* const A, const T* const B,
         const int numRowsA, const int numColsA, const int numColsB,
-        const int strideC, const int strideA, const int strideB, const bool reset=false) const;
+        const int strideC, const int strideA, const int strideB, const bool reset=false) ;
 
      
-        virtual ~Winograd(){}
-
-      private:
-
-        virtual void _addBlocks(T* res, const T* const A, const T* const B, 
+      template<typename T>
+        void _addBlocks(T* res, const T* const A, const T* const B, 
             const int rows, const int cols,
-            const int strideRes, const int strideA, const int strideB) const;
+            const int strideRes, const int strideA, const int strideB) ;
 
-        virtual void _subBlocks(T* res,const T* const A, const T* const B,
+      template<typename T>
+        void _subBlocks(T* res,const T* const A, const T* const B,
             const int rows, const int cols,
-            const int strideRes, const int strideA, const int strideB) const;
+            const int strideRes, const int strideA, const int strideB) ;
 
-        virtual void _multBlocks(T* res,const T* const A, const T* const B,
+      template<typename T>
+        void _multBlocks(T* res,const T* const A, const T* const B,
             const int numRowsA, const int numColsA, const int numColsB,
-            const int strideRes, const int strideA, const int strideB) const;
+            const int strideRes, const int strideA, const int strideB) ;
 
-        virtual void _accumBlocks(T* res, const T* const A, 
+      template<typename T>
+        void _accumBlocks(T* res, const T* const A, 
             const int rows, const int cols,
-            const int strideRes, const int strideA, const bool reset ) const;
+            const int strideRes, const int strideA, const bool reset ) ;
 
-    };
+    }
 
   } /* namespace MatrixHelpers */
     

@@ -10,6 +10,7 @@
 
 namespace mpplas{
 
+  /** Base class for the library types. */
   class MPPDataType {
     public:
       /** Get a text representation of the data.

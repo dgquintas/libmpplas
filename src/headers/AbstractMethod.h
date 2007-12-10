@@ -3,13 +3,12 @@
 
 namespace mpplas{
 
-  /** Abstract base class for methods provided by the @a Functions mechanism. */
+  /** Abstract base class for methods provided by @a MethodsFactory. */
   class AbstractMethod{
     public:
       virtual ~AbstractMethod() {}; 
   };
 }
 
-//AbstractMethod::~AbstractMethod(){}
 
 #endif

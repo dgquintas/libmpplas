@@ -49,7 +49,10 @@ Polynomial<S>::Polynomial(const std::vector<S>& coeffs, const S& ini)
 Polynomial<S>::Polynomial(const S& coeff, const int exp, const S& ini) 
   : _ini(ini) {
     if( exp < 0 ){
-      throw Errors::ExponenteNegativo();
+      std::ostringstream oss;
+      oss << "\"exp\" at Polynomial<S> constructor.";
+      GEN_TRACE_INFO_OSS(oss);
+      throw Errors::NegativeExponent(oss.str());
     }
     _data.resize(exp+1, ini);
     _data.back() = coeff;
@@ -488,7 +491,10 @@ template<typename S>
 void Polynomial<S>::divAndMod(Polynomial<S> lhs, const Polynomial<S>& rhs, Polynomial<S>* q, Polynomial<S>* r){
   if( lhs.isCoeffsDomainAField() ){
     if( !rhs.isCoeffsDomainAField() ){
-      throw Errors::FieldRequired("RHS polynomial at 'divAndMod' does not have coeffs. on a field");
+      std::ostringstream oss;
+      oss << "RHS polynomial at 'divAndMod' does not have coeffs. on a field";
+      GEN_TRACE_INFO_OSS(oss);
+      throw Errors::FieldRequired(oss.str());
     }
     lhs._fieldDivide(rhs, q, true);
     *r = lhs;
@@ -674,7 +680,7 @@ std::istream& operator>>(std::istream& in, Polynomial<S>& p) {
     }
     in >> exp;
     if( exp < 0 ){
-      throw Errors::ExponenteNegativo();
+      throw Errors::NegativeExponent();
     }
     if( exp > maxExp ){
       maxExp = exp;
@@ -884,7 +890,19 @@ Polynomial<S> GCDExtPoly<S>::gcdext(Polynomial<S> g, Polynomial<S> h, Polynomial
 
   Constraints::must_have_base<S, Field<S> > dummy __attribute__ ((__unused__));
 
-  assert( s && t);
+  if( s == NULL ){
+    std::ostringstream oss;
+    oss << "Parameter s @ GCDExtPoly<S>::gcdext.";
+    GEN_TRACE_INFO_OSS(oss);
+    throw Errors::NullPointer(oss.str());
+  }
+  if( t == NULL ){
+    std::ostringstream oss;
+    oss << "Parameter t @ GCDExtPoly<S>::gcdext.";
+    GEN_TRACE_INFO_OSS(oss);
+    throw Errors::NullPointer(oss.str());
+  }
+
   if( h.isZero() ){
     s->makeOne();
     t->makeZero();

@@ -59,12 +59,12 @@
 
 \section{Motivación}
   Insistir en la implementación de una biblioteca cuyos métodos, desde la distancia, 
-  parencen ya cubiertos por numerosas soluciones, tanto libres como comerciales, puede parecer
+  parecen ya cubiertos por numerosas soluciones, tanto libres como comerciales, puede parecer
   superfluo: MatLab, Mathematica, GMP, Pari... muchos de estos paquetes cubren varios aspectos
   de los soportados por esta biblioteca. Sin embargo, exceptuando quizás a Mathematica, no cubren
   simultáneamente todo el espectro de funcionalidades de la biblioteca. O bien su forma de trabajar
   no resulta, a nuestro juicio, tan cómoda\footnote{un ejemplo es el trabajo con cuerpos finitos,
-  descritos en la sección \ref{cuerposFinitos}}
+  descritos en la sección \ref{cuerposFinitos}}.
   
   Asimismo, la característica «estrella» de la biblioteca es el incorporar el tan en boga concepto
   de \emph{paralelismo}. Con la relativamente reciente incorporación de múltiples unidades de ejecución
@@ -72,12 +72,12 @@
   los métodos hasta ahora existentes, fundamentalmente orientados a un trabajo secuencial. Un análisis 
   de la serie de cambios que se avecinan se recoge en \cite{landscape}. %FIXME: completar. contar que se cuenta ahi
 
-  Pero no solo es el uso de paralelismo lo que caracteriza a esta biblioteca. Varias tecnologías y enfoques
+  Pero no sólo es el uso de paralelismo lo que caracteriza a esta biblioteca. Varias tecnologías y enfoques
   novedosos han sido aplicados también: comprobaciones en tiempo de compilación para asegurar la coherencia
   algebraica de los tipos, el reciente paradigma de la «programación orientada a aspectos» (AOP), \textit{mock
     objects} que suplantan funcionalidades cuando éstas no se encuentran disponibles para homogeneizar el código,
    patrones de diseño tales como los \textit{mix-ins}, etc. Los pormenores de las tecnologías utilizadas se exponen
-   en el capítulo \ref{chaper:tecnologias}.
+   en el capítulo \ref{chap:tecnologias}.
    Aún con el afán de investigar enfoques útiles a la vez que originales, incluso en los programas de ejemplo desarrollados
    se han utilizado técnicas como la autoescritura e interpretación en tiempo de ejecución de código y computación distribuida
    mediante XML-RPC. 
@@ -188,10 +188,10 @@
     \item[Sistema operativo Linux.]
       En su versión 2.6.x. Ha sido el sistema operativo
       principal en el desarrollo. Los distintos programas y versiones
-      de librerías fundamentales del sistema han sido:
+      de bibliotecas fundamentales del sistema han sido:
       \begin{description}
-        \item[Librerías del sistema.] 
-          Implementación GNU de la librería de C, versión 2.5.
+        \item[Bibliotecas del sistema.] 
+          Implementación GNU de la biblioteca de C, versión 2.5.
         \item[Compiladores.]
         \begin{description}
           \item[GCC] Compilador GNU Compiler Collection, en dos diferentes variedades: con soporte
@@ -201,7 +201,7 @@
         \end{description}
         \item[Documentación.]
           Procesador de documentos \LaTeXe{} y \TeX{} versión 3.141592
-          \footnote{Un inciso curioso: las versiones de \TeX{} se numeran de
+          \footnote{un inciso curioso: las versiones de \TeX{} se numeran de
           forma convergente al valor de $\pi$} para la presente
           documentación.
           Procesador Doxygen versión 1.5.1 para el procesador de la

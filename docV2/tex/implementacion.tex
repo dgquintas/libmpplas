@@ -59,7 +59,7 @@
 %en la particularización de estructuras genericas
 
 
-\section{El nuevo repositorio de funciones}\ref{nuevoRepdeFuncs}
+\section{El nuevo repositorio de funciones}\label{nuevoRepdeFuncs}
 
 \section{La CPU SIMD}
 Descrita en la sección \ref{basico:cpusimd}, esta CPU virtual consigue trabajar
@@ -115,7 +115,7 @@ struct SIMDDigit {
 \end{lstlisting}
 
 Mediante esta clase parametrizada se ocultan los detalles concretos para cada uno de las
-tras variedades. Como puede apreciarse, soporta las operaciones aritméticas básicas así como 
+tres variedades. Como puede apreciarse, soporta las operaciones aritméticas básicas así como 
 la introducción y extracción de sus componentes desde vectores estáticos sobre los tipos básicos.
 Estas operaciones dependen de los métodos de la CPU SIMD, que implementa las siguientes operaciones:
 
@@ -138,7 +138,7 @@ Estas operaciones dependen de los métodos de la CPU SIMD, que implementa las sig
 \subsection{El problema del alineamiento}
   A causa de como el subsistema de memoria maneja los datos a y desde la memoria principal,
   pasando por varios niveles de cachés, resulta siempre ventajoso desde el punto de vista del 
-  rendimiento \emph{alinear los datos en direcciones de memoria múltiplo del tamaño del tipo 
+  rendimiento alinear los datos en \emph{direcciones de memoria múltiplo del tamaño del tipo 
   en cuestión} (véase \cite{intelOpt}\footnote{sección 3.6.3, pág. 3-47}). Esto es aún más 
   importante en el caso de datos SIMD, tal como indica \cite{intelOpt}\footnote{sección 4.4.2, pág. 4-18}:
   \begin{quote}
@@ -151,7 +151,7 @@ Estas operaciones dependen de los métodos de la CPU SIMD, que implementa las sig
   Pese a que esta cita se refiere a las instrucciones SSE2, es asimismo válido para cualquier 
   tipo de dato, incluso no SIMD. Tan solo cobra más importancia en estos últimos.
 
-  Hasta aquí la teoría. ¿En que se traduce esto desde un punto de vista práctico? En que se le ha
+  Hasta aquí la teoría. ¿En qué se traduce esto desde un punto de vista práctico? En que se le ha
   de indicar al compilador \emph{cómo alinear} los datos. En el mundo del lenguaje C y sus 
   estructuras de datos de bajo nivel esto resulta relativamente sencillo. Sin embargo, si se desea
   aprovechar las ventajas que ofrece el uso de las bibliotecas STL en C++, el asunto se complica,
@@ -180,7 +180,7 @@ Estas operaciones dependen de los métodos de la CPU SIMD, que implementa las sig
   \begin{figure}[h]
     \centering
     \includegraphics[width=0.95\textwidth,keepaspectratio]{categoriasAlgebraicas} 
-    \caption{Categorias algebraicas}\label{fig:categoriasAlgebraicas}
+    \caption{Categorías algebraicas}\label{fig:categoriasAlgebraicas}
   \end{figure}
   Cuando un tipo de dato de la biblioteca (es decir, un hijo de \texttt{MPPDataType}) se
   encasilla dentro de esta jerarquía, sobre dicho tipo (representado mediante el parámetro 
@@ -211,7 +211,7 @@ static bool ValidateRequirements() {
 
   Los tipos de la biblioteca susceptibles de ser categorizados --más adelante se verá la utilidad de esto-- dentro
   de estas familias algebraicas simplemente han de heredar de la clase adecuada. Por ejemplo, los enteros módulo
-  un primo respresentan un cuerpo. Se indica este hecho, en código, de la siguiente manera:
+  un primo representan un cuerpo. Se indica este hecho, en código, de la siguiente manera:
 
 \begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Inclusión de $\mathbb{Z}_p$ como cuerpo]
 (...)
@@ -221,7 +221,7 @@ static bool ValidateRequirements() {
 
   La categoría algebraica a la que pertenecen los distintos tipos de la biblioteca se representa en la figura
   \ref{fig:categorizacionAlgebraica} mediante un código de colores: el color de fondo de cada recuadro de tipo
-  se corresponde con el color de fondo de su categoria en la figura \ref{fig:categoriasAlgebraicas}.
+  se corresponde con el color de fondo de su categoría en la figura \ref{fig:categoriasAlgebraicas}.
 
   \begin{figure}[h]
     \centering
@@ -266,7 +266,7 @@ static bool ValidateRequirements() {
       \paragraph{\texttt{Z\_px}}
 
   \subsection{Cuerpos finitos}\label{impl:cuerposFinitos}
-    \subsubsection{Elementos de un cuerpo finito}\label{impl:cuerposFinitos}
+    \subsubsection{Elementos de un cuerpo finito}
 
 
   \subsection{Matrices}
@@ -288,7 +288,7 @@ static bool ValidateRequirements() {
         A = P \times L \times U  \Rightarrow det(A)  = \underbrace{det(P)}_{\sgn{\sigma}} \underbrace{det(L)}_{1} det(U) 
       \]
 
-      El signo de $det(P)$ depende de la signatura de la permutacion $\sigma$ de filas realizadas durante la
+      El signo de $det(P)$ depende de la signatura de la permutación $\sigma$ de filas realizadas durante la
       descomposición $LU$. Recuérdese que los elementos de la diagonal de $L$ son \emph{por construcción} 
       iguales a la unidad. Por tanto:
 
@@ -296,18 +296,18 @@ static bool ValidateRequirements() {
         det(A) =  \pm det(U) = \sgn{\sigma} \prod_{i=1}^n U_{n,n} \label{eq:detA_detU}
       \end{equation}
 
-      El cálculo del determinate se reduce por tanto a una operación
+      El cálculo del determinante se reduce por tanto a una operación
       de complejidad lineal en $n$, \emph{dada la descomposición de $A$}. Es decir, la eficiencia y posibilidad 
-      de utilización de la equación \eqref{eq:detA_detU} en la práctica depende no sólo del coste de la 
+      de utilización de la ecuación \eqref{eq:detA_detU} en la práctica depende no sólo del coste de la 
       descomposición de $A$ sino también de la \emph{posibilidad} de realizarla. Como se ha visto en el punto 
       \ref{sec:lu}, es requisito la existencia de inversa para elementos arbitrarios del conjunto sobre el cual
       se encuentre definida la matriz. El caso que viene inmediatamente a la cabeza como ejemplo de \emph{no} 
-      posibilida de utilización es por tanto el de $\mathbb{Z}$, donde tan solo $1$ y $-1$ tienen inversa... algo
+      posibilidad de utilización es por tanto el de $\mathbb{Z}$, donde tan solo $1$ y $-1$ tienen inversa... algo
       que ciertamente no parece suficiente\footnote{salvo que alguien pretenda el calculo de la inversa de la matriz
       identidad. En cuyo caso el problema realmente sería de dicho alguien.}. Sin embargo, a la vista de la definición
       dada en \ref{def:determinante} por la ecuación \eqref{eq:determinante}, sí es posible calcular desde un punto
       de vista teórico el determinante de matrices sobre anillos, tal como $\mathbb{Z}$. Hace falta tan solo aplicar
-      una estratégia que no conlleve divisiones --es decir, inversiones.
+      una estrategia que no conlleve divisiones --es decir, inversiones.
 
       \paragraph{Cálculo de determinante sin divisiones: Gauss-Bareiss} \label{impl:bareiss}
       \cite{bareiss2}

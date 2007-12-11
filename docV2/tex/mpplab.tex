@@ -1,6 +1,6 @@
 % CAPITULO SOBRE EL SERVIDOR XMLRPC Y EL CLIENTE EN PYTHON
 
-\chapter{MPPLab: (una) ventana a la biblioteca}\ref{chap:mpplab}
+\chapter{MPPLab: (una) ventana a la biblioteca}\label{chap:mpplab}
 
 \begin{flushright}
   \begin{minipage}[t]{13cm}
@@ -22,7 +22,7 @@
 
 
 \section{Motivación}
-  Una biblioteca como la que es el eje principal de este trabajo no es
+  Una biblioteca como la que concierne a este trabajo no es
   algo fácil de apreciar a primera vista. Puede que, y ojala así sea,
   quien se aventurase en la lectura de su código o concediese el beneficio
   de la duda tras la lectura de la presente memoria, pudiera hacerse una
@@ -75,7 +75,7 @@
   XML-RPC (\cite{xmlrpcspec}), por tratarse de un protocolo perfectamente
   indicado para la tarea a desempeñar: existen implementaciones del mismo en 
   prácticamente todos los lenguajes de programación mayoritarios, es sencillo aunque
-  también potente, y muy versatil. Incluso, dado que descansa sobre el protocolo 
+  también potente, y muy versátil. Incluso, dado que descansa sobre el protocolo 
   HTTP, es posible el cifrado y/o compresión de los datos que maneja. 
 
   La capa que implementa los servicios XML-RPC se comunica directamente con los métodos
@@ -92,11 +92,11 @@
 
     \paragraph{Características}
       \begin{itemize}
-        \item Exporta métodos mediante XML-RPC (basado en la biblioteca \texttt{xmlrpc-c}
-            \footnote{\url{http://xmlrpc-c.sourceforge.net/}}
-        \item Multihilo (basado en \texttt{pthreads})
-        \item Gestión dinámica de datos de los clientes en tiempo de ejecución
-        \item Mecanismos de recogida de basura (\textit{Garbage Collection})
+        \item Exporta métodos mediante XML-RPC (basado en la biblioteca \texttt{xmlrpc-c})
+            \footnote{\url{http://xmlrpc-c.sourceforge.net/}}.
+        \item Multihilo (basado en \texttt{pthreads}).
+        \item Gestión dinámica de datos de los clientes en tiempo de ejecución.
+        \item Mecanismos de recogida de basura (\textit{Garbage Collection}).
       \end{itemize}
 
 
@@ -111,7 +111,7 @@
           pp. 676 y siguientes, para una descripción de este protocolo), siendo estas \emph{independientes}
         y no guardando ninguna información de estado en ellas, posibilita una gestión de errores más sencilla.
         Por ejemplo, si la comunicación entre cliente y servidor se ve interrumpida temporalmente, no es
-        necesario reestablecer ninguna conexión posteriormente, ya que cada una de las operaciones a
+        necesario restablecer ninguna conexión posteriormente, ya que cada una de las operaciones a
         nivel cliente-servidor es independiente de las demás.
 
       \subsubsection{Multihilo}
@@ -129,13 +129,13 @@
         manejará peticiones XML-RPC desde los clientes de forma simultánea e independiente.
 
   \subsubsection{Gestión dinámica de datos de los clientes en tiempo de ejecución.}\label{par:runtimeData}
-    En el transcurso de una sesión de utilización del ciente, indudablemente se crearán
+    En el transcurso de una sesión de utilización del cliente, indudablemente se crearán
     instancias de los diferentes tipos de datos disponibles. Instancias que se corresponden,
     en el fondo, con datos de la biblioteca. Es necesario por tanto disponer de un mecanismo
-    de almacenaje y recuperación eficaz y eficiente que permita trabajar comodamente con
+    de almacenaje y recuperación eficaz y eficiente que permita trabajar cómodamente con
     los datos que el usuario vaya creando. Asimismo, habrá de cumplir también otros 
     requisitos impuestos por el cliente y la biblioteca, como son el ser \textit{thread-safe}
-    y gestionar multiplies clientes de forma simultánea.
+    y gestionar múltiples clientes de forma simultánea.
 
     \begin{figure}[h]
       \centering
@@ -146,10 +146,10 @@
     El mecanismo implementado se representa en la figura \ref{fig:runtimeData}. En ésta
     se representa a \textit{grosso modo} el modo de funcionamiento de este almacén 
     de datos dinámicos: a cada cliente conectado al servidor se le asigna un identificador
-    de cliente (\texttt{clientId}) único. Mediante este identificador, se posibilita a 
-    los clientes a insertar y recuperar sus datos. El almacen de datos asigna un identificador
+    de cliente (\texttt{clientId}) único. Mediante este identificador, se posibilita que 
+    los clientes inserten y recuperen sus datos. El almacén de datos asigna un identificador
     de variable (\texttt{varId}) único (por cliente) tras cada inserción de un nuevo dato. 
-    Es mediante este identicador de variable que el cliente puede posteriormente recuperar 
+    Es mediante este identificador de variable que el cliente puede posteriormente recuperar 
     el dato de forma unívoca.
 
     Todas las operaciones están, como se indicaba anteriormente, preparadas para soportar 
@@ -198,7 +198,7 @@
 
     El campo de los recolectores de basura es amplio y complejo, y su
     bibliografía abundante. Posiblemente los entornos de ejecución más
-    popular que utiliza esta técnica son las diferentes implementaciones 
+    populares que utilizan esta técnica son las diferentes implementaciones 
     del \textit{Java Runtime Environment}. 
     En el momento de redactar estas líneas, la inclusión de recolectores
     de basura está incluida dentro del borrador de la nueva revisión del
@@ -221,11 +221,11 @@
         \item \textit{Bootstrapping}: inspección de métodos disponibles
               en el servidor, realizando \emph{el propio cliente} la
               escritura e interpretación del código necesario para su 
-              utilización
-        \item Fácilmente configurable
-        \item Soporte para \textit{plotting}
-        \item Multiplataforma
-        \item Actualizaciones automáticas
+              utilización.
+        \item Fácilmente configurable.
+        \item Soporte para \textit{plotting}.
+        \item Multiplataforma.
+        \item Actualizaciones automáticas.
         \item Multihilo, pudiendo de ser explotado explícitamente por el usuario.
         \item Basado en el lenguaje Python: ofrece todas las
         funcionalidades de este lenguaje.
@@ -265,7 +265,7 @@
 
   \subsubsection{Muestra de cliente alternativo}\label{otroCliente}
     Utilizar el protocolo XML-RPC por parte del servidor a la hora de exportar 
-    servicios resulta en una gran flexibilidad. Tanto es así que con
+    servicios proporciona una gran flexibilidad. Tanto es así que con
     un mínimo de codificación se ha implementado un prototipo (ya que
     sólo es una muestra de concepto, carece de grandes
     sofisticaciones) en JavaScript, lo que posibilita el acceso a los
@@ -275,9 +275,9 @@
 
   \subsection{Pequeño manual de utilización}
       \paragraph{Consideraciones generales}
-      Ciertos aspectos pueden chocar al primera vista, o ser considerados como errores, aunque en ocasiones
+      Ciertos aspectos pueden chocar a primera vista, o ser considerados como errores, aunque en ocasiones
       su uso pueda resultar ventajoso. Sirva de ejemplo, la copia de variables:
-      Tal como se ha expuesto en \ref{arquitectura}, el cliente trabaja con \emph{referencias} a las instancias
+      tal como se ha expuesto en \ref{arquitectura}, el cliente trabaja con \emph{referencias} a las instancias
       de los datos almacenados en el servidor. Cuando en el interfaz Python del cliente, se ejecuta una asignación
       \texttt{var1 = var2}, lo que se asigna a \texttt{var1} en realidad es tal referencia, con lo cual \texttt{var1}
       y \texttt{var2} harían referencia a la misma variable. Cualquier modificación \textit{in situ} del dato 
@@ -326,7 +326,7 @@
       se crea una \emph{nueva instancia} de una matriz sobre los enteros, inicializada con los valores de \texttt{var1}.
 
     \subsubsection{Tipos disponibles}
-       \paragraph{Z} Representa un entero de precisión arbitraria. Para crear un tipo de dato de este tipo, basta con 
+       \paragraph{Z} Representa un entero de precisión arbitraria. Para crear este tipo de dato, basta con 
        invocar a su constructor de la siguiente manera: 
 \begin{verbatim}
 >>> unEntero = Z('35872687327373')
@@ -375,7 +375,7 @@
        en este tipo de dato son: 
        \begin{description}
         \item[\texttt{getInverse()}] Devuelve la inversa del elemento sobre el que se aplica el método.
-        \item[\texttt{getPBRString()}] Devuelve una cadena de caracteres representado en polinomio correspondiente
+        \item[\texttt{getPBRString()}] Devuelve una cadena de caracteres representado el polinomio correspondiente
         al elemento sobre el que se aplica.
         \item[\texttt{setValue(z)}] Asigna al elemento sobre el que se aplica el método el valor del entero $z$ argumento
         dentro del cuerpo finito.
@@ -425,6 +425,11 @@
 [  1  4  7 ]
 [  2  5  8 ]
 [  3  6  9 ]
+
+>>> print m
+[  1  2  3 ]
+[  4  5  6 ]
+[  7  8  9 ]
 
 >>> print m.getSubMatrix(rows=(2,), cols=(1,2))
 [  8  9 ]
@@ -500,8 +505,8 @@ Fault: <Fault 0: 'Invalid Argument error: Invalid range; Invalid interval for su
        de todo sentido matemático. Algunos métodos no disponibles para matrices de enteros se encuentran disponibles:
        \begin{description}
         \item[\texttt{getInverse()}] Devuelve la matriz inversa de la matriz sobre la que se aplica el método.
-        \item[\texttt{getTranspose()}] Devuelve la transpuesta de la matriz sobre la que la que se aplica el método.
-        \item[\texttt{solveFor(b)}] Espera una vector columna $b$ y devuelve el vector columna $y$ tal que $M \times y = b$, 
+        \item[\texttt{getTranspose()}] Devuelve la transpuesta de la matriz sobre la que se aplica el método.
+        \item[\texttt{solveFor(b)}] Espera un vector columna $b$ y devuelve el vector columna $y$ tal que $M \times y = b$, 
         siendo $M$ la matriz sobre la que se aplica el método.
         \end{description}
 
@@ -540,7 +545,7 @@ Fault: <Fault 0: 'Invalid Argument error: Invalid range; Invalid interval for su
 
        \paragraph{MR} Representa una matriz sobre el cuerpo de los reales. Los ejemplos anteriores para matrices
        sobre enteros son directamente aplicables a matrices sobre reales, con la salvedad, claro esta, de que 
-       allí donde se utilizase un tipo entero, habría de utilizarse un real. Asimismo, los métodos
+       allí donde se utilice un tipo entero, habría de utilizarse un real. Asimismo, los métodos
 
        Sin embargo, el repertorio se completa con los tres métodos anteriormente descritos para matrices sobre 
        cuerpos finitos. Su funcionamiento es análogo para matrices sobre reales.
@@ -603,8 +608,10 @@ Fault: <Fault 0: 'Invalid Argument error: Invalid range; Invalid interval for su
     Se describen a continuación los métodos disponibles relacionados con los números primos
     \begin{description}
     \item[\texttt{getPrime(n)}] Devuelve un primo de al menos $n$ bits.
-    \item[\texttt{getPrimeBounded(z)}] Devuelve un primo menos o igual que el entero $z$.
-    \item[\texttt{getStrongPrime(n)}] Devuelve un primo criptográficamente seguro de $n$ bits.
+    \item[\texttt{getPrimeBounded(z)}] Devuelve un primo menor o igual que el entero $z$.
+    \item[\texttt{getStrongPrime(n)}] Devuelve un primo criptográficamente seguro
+      \footnote{véase \cite{miproyecto}, sección 6.6.2, pág. 86, para 
+      la definición de primo criptográficamente seguro} de $n$ bits.
     \item[\texttt{isPrime(z)}] Comprueba si el entero $z$ dado es primo.
     \end{description}
 
@@ -627,23 +634,22 @@ True
     Se describen a continuación los métodos disponibles relacionados con los números (pseudo)aleatorios
 
     \begin{description}
-    \item[\texttt{getRandomZ(n)}] Devuelve un entero pseudoaleatorio de aproximadamente $n$ bits. 
+    \item[\texttt{getRandomZ(n)}] Devuelve un entero pseudoaleatorio de $n$ bits. 
     \item[\texttt{getRandomZLessThan(z)}] Devuelve un entero pseudoaleatorio menor que el entero $z$.
-    \item[\texttt{getSecureRandomZ(n)}] Devuelve un entero aleatorio (basado en entropía real) criptográficamente seguro, 
-    con un numero de bits aproximadamente $n$.
+    \item[\texttt{getSecureRandomZ(n)}] Devuelve un entero aleatorio (basado en entropía real) criptográficamente seguro de bits $n$.
 
     \end{description}
 
 
     \paragraph{Mínimo común múltiplo}
-    La funcion \texttt{lcm()}\footnote{«LCM» es la abreviatura
+    La función \texttt{lcm()}\footnote{«LCM» es la abreviatura
       habitual de este método en la bibliografía en inglés: \textit{Least Common Multiple}}
       devuelve el mínimo común múltiplo de sus dos argumentos enteros.
 
    \paragraph{Miscelanea}
    \begin{description}
    \item[\texttt{jacobiSymbol(a,n)}]: Devuelve el símbolo de Jacobi para los dos enteros pasados como argumentos.
-   \item[\texttt{legendreSymbol(a,p)}]': Devuelve el símbolo de Legendre para los dos enteros pasados como argumentos.
+   \item[\texttt{legendreSymbol(a,p)}]: Devuelve el símbolo de Legendre para los dos enteros pasados como argumentos.
    \item[\texttt{modExp(base, exp, mod)}]: Realiza la exponenciación modular del primer entero por el segundo, reducidos módulo el tercero.
    \item[\texttt{modInverse(base, exp)}]: Invierte el primer entero pasado como argumento módulo el segundo.
 
@@ -700,12 +706,12 @@ True
 \end{verbatim}
 
 
-    \subsubsection{Ejecución en paralelo}\label{runInParallel}.
+    \subsubsection{Ejecución en paralelo}\label{runInParallel}
       Mediante la función \texttt{runInParallel}, es posible ejecutar un número arbitrario de operaciones
       en el cliente de forma simultánea, con un grado \emph{lógico} de paralelismo también arbitrario.
       Con «lógico», se quiere resaltar que es posible lanzar simultáneamente tantos hilos del cliente como se
       desee, pero el grado \emph{físico} de paralelismo siempre vendrá fijado por el número de unidades de ejecución
-      físicas disponibles en el sistema sobre el cual se este ejecutando el servidor. Es posible inspeccionar 
+      físicas disponibles en el sistema sobre el cual se esté ejecutando el servidor. Es posible inspeccionar 
       las características de este sistema servidor mediante la instrucción \texttt{getSystemInfo()}, como se ha descrito
       en el punto \ref{funciones}.
 
@@ -739,14 +745,14 @@ True
         resulta útil por ejemplo cuando, ya dentro de una cadena de caracteres, es necesario utilizar otra, como 
         al definir el contenido de la matriz. 
         \item Si en la cadena a ejecutar hay más de una sentencia, éstas se separarán mediante puntos y coma.
-        \item Ademas de la lista conteniendo las instrucciones a ejecutar, el segundo argumento es un entero, que 
+        \item Además de la lista conteniendo las instrucciones a ejecutar, el segundo argumento es un entero, que 
         indica el número de hilos ejecutores a utilizar. Si el número de elementos de la lista es mayor que este
         número de hilos, los elementos de la lista se irán procesando según vayan quedando libres los hilos ejecutores.
         El orden de ejecución no es predecible a priori. Sin embargo, los resultados se devuelven en orden.
       \end{itemize}
 
 
-        Vease a continuación otro ejemplo:
+        Véase a continuación otro ejemplo:
 \begin{verbatim}
 >>> toRun1 = open('thread1.py')
 >>> toRun2 = open('thread2.py')
@@ -767,7 +773,7 @@ result = m.getInverse()
 \end{lstlisting}
 
 
-    \subsubsection{Mecanismo de perfilado}. 
+    \subsubsection{Mecanismo de perfilado}
     En el cliente se encuentran disponibles los mecanismos de conteo de tiempo e instrucciones de la libraría, siempre que ésta
     haya sido compilada con soporte de perfilado. Las funciones relacionadas con este mecanismo son:
     \begin{description}

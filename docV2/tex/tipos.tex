@@ -71,7 +71,7 @@ por poner un caso.
 Poder declarar \emph{colecciones genéricas}, tales como un vector que almacene cualquier tipo de dato soportado
 por la biblioteca, resulta extremadamente útil a la hora de programar de forma genérica. Un ejemplo de esto 
 se encuentra en la implementación de los mecanismos de gestión de datos en tiempo de ejecución del entorno de ejemplo
-desarrollado, el cual se describe en la sección \ref{par:runtimeData}
+desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
 
 %Enteros, Z
 %Reales, R
@@ -90,7 +90,7 @@ similares.
 
 \subsection{Preliminares}
 Una conocida forma de exponenciación modular se basa en el método de
-multiplicacion/reducción de Montgomery (\cite{montgomeryOrig}). 
+multiplicación/reducción de Montgomery (\cite{montgomeryOrig}). 
 El método de reducción/multiplicación se encontraba ya incorporado en
 la antigua versión de la biblioteca (véase \cite{miproyecto}, sección 5.5.3),
 utilizándose precisamente para la exponenciación modular. 
@@ -116,7 +116,7 @@ como $k$. Es posible concluir entonces
 R_n = 2^{k \cdot BED} = B^{k} \Rightarrow i = k \label{eq:defRMont}
 \end{equation}
 Esto simplifica e incrementa el rendimiento de las operaciones,
-tal como se indica en de nuevo en \cite{handbook}\footnote{Fact 14.30 (ii), pág. 601}. Sin embargo, la limitación que esto
+tal como se indica en  \cite{handbook}\footnote{Fact 14.30 (ii), pág. 601}. Sin embargo, la limitación que esto
 impone es la imposibilidad de utilizar un módulo $n$ par. De todas maneras, en los escenarios de aplicación más comunes
 $n$ es primo.
 
@@ -131,16 +131,16 @@ en este dominio están bien definidas, como se expone en la sección \ref{opsZM}.
 
 \subsection{Operaciones}
 Las operaciones sobre $\mathbb{Z}M_n$ se dividen en dos grupos:
-las orientadas al trabajo dentro del propio dominio, denominadas "específicas", 
+las orientadas al trabajo dentro del propio dominio, denominadas «específicas», 
 y las que se corresponden con las operaciones habituales sobre $\mathbb{Z}$, 
-denominadas "habituales", presentadas de cara al usuario programador.
+denominadas «habituales», presentadas de cara al usuario programador.
 
 Los detalles de implementación pueden encontrarse en el capítulo dedicado
 al efecto, en la sección \ref{implZM_n}.
 
 \subsubsection{Específicas}
 \begin{definicion}[Multiplicación de Montgomery]\label{def:multMont}
-Sea $R_n$ tal como se define en \eqref{eq:defRMont}, $x,y \in \mathbb{Z}$. 
+Sea $R_n$ tal como se define en la ecuación \eqref{eq:defRMont}, $x,y \in \mathbb{Z}$. 
 Se define la función \texttt{MultMon} como
 \[
   \mathtt{MultMon}(x,y,n) = x \cdot y \cdot R^{-1} \pmod{n}
@@ -156,20 +156,20 @@ Se define la función \texttt{MultMon} como
 
 
 Koç y Savas ( \cite{montInvRev} ) ampliaron el
-concepto, en especial con una "nueva inversa de montgomery":
+concepto, en especial con una «nueva inversa de Montgomery»:
 \begin{definicion}[Inversa de Montgomery (\cite{montInvRev})]\label{nuevaMontInv}
-Sea $R_n$ tal como se define en \eqref{eq:defRMont}, $a \in \mathbb{Z}$. 
+Sea $R_n$ tal como se define en la ecuación \eqref{eq:defRMont}, $a \in \mathbb{Z}$. 
 \[
   \mathtt{NuevaInvMon}(a \cdot R,n) = a^{-1} \cdot R \pmod{n}
 \]
 \end{definicion}
 Es decir,este último método obtiene la inversa de un número dado en el
-dominio de Montgomery, manteniendose tambien el resultado en dicho dominio.
+dominio de Montgomery, manteniéndose también el resultado en dicho dominio.
 
 \subsubsection{Habituales}\label{opsZM}
 A continuación se definen las operaciones básicas sobre este tipo 
 de enteros modulares en el dominio de Montgomery, así como la conversión
-hacia y desde $\mathbb{Z}$ o $\mathbb{Z}_n$.
+hacia y desde $\mathbb{Z}$ ó $\mathbb{Z}_n$.
 
 En lo sucesivo se asume que los operandos comparten el mismo módulo
 $n$.
@@ -177,13 +177,13 @@ $n$.
   \paragraph{Suma y resta} 
   Sean $x,y \in \mathbb{Z}_n$,
   $0 \le xR, yR < n  \Rightarrow  xR + yR = (x+y)R \leq 2n-2$
-  con lo que si la suma es mayor que $n$, bastará con restar $n$ a ésta , a lo sumo una vez
+  con lo que si la suma es mayor que $n$, bastará con restar $n$ a ésta , a lo sumo una vez.
 
   Para la resta, el razonamiento es análogo, salvo que en este caso, el módulo habrá de
   sumarse si $(x-y)R < 0$, aunque a lo sumo tan solo dos veces.
 
  \paragraph{Producto} 
-  Utilizando la múltiplicación de Montgomery (véase la definición \ref{def:multMont}),
+  Utilizando la multiplicación de Montgomery (véase la definición \ref{def:multMont}),
   se obtiene el producto de dos elementos del dominio de Montgomery, resultando 
   en su producto también en éste, de la siguiente manera:
   $\mathtt{MultMon}( xR, yR ) = xR \cdot yR \cdot R^{-1} = xyR^2 \cdot R^{-1} = xyR$
@@ -195,7 +195,7 @@ $n$.
     $ (aR / bR ) = \mathtt{MultMon}( aR, b^{-1}R ) = aR \cdot b^{-1}R \cdot R^{-1} = ab^{-1}R $
  
  \paragraph{Conversión desde $\mathbb{Z}$ a $\mathbb{Z}M_n$}
-  Si el entero a convertir verifica $a \geq n$, se realizá previamente una reducción módulo $n$.
+  Si el entero a convertir verifica $a \geq n$, se realizar  previamente una reducción módulo $n$.
   Dado $0 \leq a < n$ , $\mathtt{MultMon}( a, R^2, n ) = a R^2 R^{-1} \pmod{n}  = a \cdot R \pmod{n}$
 
   \paragraph{Conversión desde $\mathbb{Z}M_n$ a $\mathbb{Z}$}
@@ -205,22 +205,27 @@ $n$.
 
 
 \subsection{Aplicaciones}
-El utilizar este tipo hace que trabajar en $\mathbb{Z}_n$ sea mucho más rapido.
-Como se ha mencionado anteriormente, no se realizan divisiones --la operación básica computacionalmente
-más costosa. Asimismo, el cálculo del elemento inverso a uno dado
-no require del uso del algoritmo extendido de Euclides 
+El utilizar este tipo hace que trabajar en $\mathbb{Z}_n$ sea mucho más rápido.
+Esto es debido a que, como se ha mencionado anteriormente, 
+no se realizan divisiones --el «algoritmo básico»\footnote{
+la división \emph{no} es una operación básica como erroneamente 
+suele considerarse. Tan solo la suma y el producto (para las estructuras
+algebraicas donde tuviera lugar) lo son.}
+ computacionalmente
+más costoso. Asimismo, el cálculo del elemento inverso a uno dado
+no requiere del uso del algoritmo extendido de Euclides 
 (véase \cite{miproyecto}\footnote{sección 5.5.2, pág. 64}),
 también computacionalmente costoso. 
 
-Ahora bien, la creación y conversion desde/hacia los enteros habituales es costosa. 
+Ahora bien, la creación y conversión desde/hacia los enteros habituales es costosa. 
 Resulta conveniente mantenerse en el dominio de Montgomery durante el mayor número de
 operaciones posibles. Determinados algoritmos se prestan a esto: aquellos en los que
 el módulo de trabajo es común a un cierto número de operaciones, donde se utilicen
-frecuentemente exponenciaciones y inversiones. Dos ejemplos de algoritmos tales son
+frecuentemente exponenciaciones e inversiones. Dos ejemplos de algoritmos tales son
 el mecanismo de firma digital DSA (\cite{schneier}\footnote{sección 20.1, pág. 483}) 
 y el mecanismo de firma y cifrado ElGamal (\cite{schneier}\footnote{sección 19.6, pág. 476}).
 
-En la sección \label{ejZM_n} se recoge una comparativa de la implementación de estos métodos 
+En la sección \ref{ejZM_n} se recoge una comparativa de la implementación de estos métodos 
 mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
 
 
@@ -303,7 +308,7 @@ mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
   \paragraph{División}
   \cite{knuth} dedica toda una sección --la 4.6.1, pág. 420-- al análisis de la división de polinomios.
   En general, al igual que para el producto, dos polinomios se dividen esencialmente del mismo modo
-  que dos elementos de $\mathbb{Z}$, siempre y cuando \texttt{S} sea \emph{un cuerpo}. Formalmente,
+  que dos elementos de $\mathbb{Z}$, siempre y cuando \texttt{S} sea un \emph{cuerpo}. Formalmente,
   dados $u(x) = u_mx^m + \cdots + u_1x+ u_0$ y $v(x) = v_nx^n + \cdots + v_1x + v0$ con coeficientes 
   sobre un cuerpo y verificando $v_n \neq 0$ y $m \geq n \geq 0$, existe un polinomio cociente $q(x)$ 
   y un polinomio resto $r(x)$ tales que:
@@ -357,11 +362,11 @@ mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
   \subsection{Evaluación}
     Evaluar el valor de un polinomio $f(x)$ para un valor de $x = x_0$ dado es conceptualmente trivial:
     sustituir $x$ en la expresión del polinomio por $x_0$ y operar. Como suele ser habitual, la solución
-    trivial dista de ser la óptima. De hecho, \cite{recipes} bromea con «cualquier que evalue de esta
-    forma un polinomio será ejecutando de forma sumarísima». En esa obra se encuentra, en su sección 5.3, pág. 179
+    trivial dista de ser la óptima. De hecho, \cite{recipes} bromea con «cualquiera que evalúe de esta
+    forma un polinomio será ejecutado de forma sumarísima». En esa obra se encuentra, en su sección 5.3, pág. 179
     un interesante análisis de la evaluación de polinomios.
 
-    La conocida \emph{regla de Horner} evalúa un polinomio en de grado $n$ tal como el dado en \eqref{poly} 
+    La conocida \emph{regla de Horner} evalúa un polinomio de grado $n$ tal como el dado en \eqref{poly} 
     en $n$ productos y $n$ sumas:
     \begin{equation}
       u(x_0) = u_0 + x_0(u_1 + x_0(u_2 + \cdots + x_0(u_n) \cdots )) \label{horner}
@@ -393,7 +398,7 @@ mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
       $\sigma$ es una permutación par y $-1$ si es impar.
       \end{definicion}
 
-      Nótese que el número de sumandos según la equación \eqref{eq:determinante} es $n!$, 
+      Nótese que el número de sumandos según la ecuación \eqref{eq:determinante} es $n!$, 
       lo cual hace que no sea útil para el cálculo práctico del determinante. Detalles de los métodos
       utilizados en la biblioteca se muestran en la sección \ref{impl:determinante}
      

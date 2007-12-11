@@ -1,5 +1,5 @@
 % TECNOLOGÍAS UTILIZADAS
-\chapter{Tecnologías utilizadas}
+\chapter{Tecnologías utilizadas}\label{chap:tecnologias}
 
 \begin{flushright}
   \begin{minipage}[t]{13cm}
@@ -67,7 +67,7 @@
 
  \subsection{Consideraciones generales}
   Un proceso de compilación se interrumpe si y sólo si el compilador se ve forzado a generar código para una expresión inválida. 
-  Existen circustancias en las cuales, incluso si la expresión a compilar es inválida, el proceso de compilación no se interrumpirá
+  Existen circunstancias en las cuales, incluso si la expresión a compilar es inválida, el proceso de compilación no se interrumpirá
   porque el proceso de compilado no se ve forzado en ese momento a generar instrucciones para tal sentencia inválida. El ejemplo más
   habitual es el uso de clases parametrizadas: en una clase de plantilla, sólo las funciones miembro que son utilizadas son 
   instanciadas para los tipos de la plantilla. Puede darse el caso, dependiendo del compilador, de que el código de estos métodos
@@ -119,52 +119,52 @@
   \subsection{Asertos estáticos}
   El concepto de \emph{aserto} como «comprobación de la certeza de algo» en el mundo de la programación
   se asocia habitualmente a comprobaciones \emph{en tiempo de ejecución}. Así, por ejemplo, en C/C++ existe el mecanismo
-  estándard \texttt{assert(ex)}, que interrumpirá la \emph{ejecución} de un programa si su argumento \texttt{ex} se evalua como falso.
+  estándar \texttt{assert(ex)}, que interrumpirá la \emph{ejecución} de un programa si su argumento \texttt{ex} se evalúa como falso.
   Aunque pudiera parecer que las restricciones anteriormente descritas para las comprobaciones en tiempo de compilación
   en general convierten en algo inútil el aserto estático, se expondrán en el punto \ref{aplicacionesStaticAssert} 
   escenarios en los cuales sí resulta útil.
 
   Previamente, se mostrará cómo se consigue este comportamiento, 
-  que no forma parte de C++ de forma directa. Considérese la macro mostrada en el listado \ref{lst::staticassert}.
+  que no forma parte de C++ de forma directa. Considérese la macro mostrada en el listado \ref{lst:staticassert}.
 
-\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=STATIC\_ASSERT, label=lst:staticassert]
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Definición de STATIC\_ASSERT, label=lst:staticassert]
 #define STATIC_ASSERT(ex) \
   do { typedef int ai[(ex) ? 1 : -1]; } while(0) 
 \end{lstlisting}
 
-  Al contrario que en el caso del estándard \texttt{assert(arg)}, no interesa devolver un valor booleano: si la expresión
+  Al contrario que en el caso del estándar \texttt{assert(arg)}, no interesa devolver un valor booleano: si la expresión
   a comprobar es falsa, el proceso de compilación debe detenerse con un error. Si no lo es, continuar sin más. Idealmente,
-  tampoco se generará codigo adicional debido a estos asertos estáticos.
-  \texttt{STATIC\_ASSERT(ex)} se traduce mediante el preprocesador en una seria de sentencias un tanto particular:
+  tampoco se generará código adicional debido a estos asertos estáticos.
+  \texttt{STATIC\_ASSERT(ex)} se traduce mediante el preprocesador en una serie de sentencias un tanto particular:
   \begin{enumerate}
     \item Un bucle do-while que no itera ( \texttt{while(0)} nunca se evaluará como cierto ).\label{enum:while0}
     \item Una declaración de un alias de tipo mediante \texttt{typedef}. \label{enum:typedef}
-    \item Dentro del punto anterior, una declaración de un vector estático de un tamaño $1$ o $-1$ dependiendo
+    \item Dentro del punto anterior, una declaración de un vector estático de un tamaño $1$ ó $-1$ dependiendo
     de si \texttt{ex} resulta cierto o falso \emph{a ojos de C++}. \label{enum:elQuizStaticAssert}
   \end{enumerate}
   
-  Previamente al anásis de esta construcción: cuando se pone énfasis en el valor de verdad \emph{a los ojos de C++},
-  se quiere recordar al lector que, heredado del mundo de C, en C++ se evalua como cierto todo valor distinto
+  Previamente al análisis de esta construcción: cuando se pone énfasis en el valor de verdad \emph{a los ojos de C++},
+  se quiere recordar al lector que, heredado del mundo de C, en C++ se evalúa como cierto todo valor distinto
   de $0$\footnote{C++ contribuyó con el tipo \texttt{bool} y sus dos valores \texttt{true} y \texttt{false} a clarificar este ámbito,
   pero siguen siendo válidos los viejos hábitos (y en este caso, necesarios)}.
 
   ¿Cumple con los requisitos anteriormente expuestos el código anterior? Considerando su requisito fundamental, 
   que interrumpa la compilación en función de \texttt{ex}. Esto se consigue aprovechando la definición de 
-  vector estático por parte del estándard ANSI C (\cite{c}\footnote{sección A8.6.2, pág. 239}):
+  vector estático por parte del estándar ANSI C (\cite{c}\footnote{sección A8.6.2, pág. 239}):
   \begin{quote}
   Si la expresión-constante está presente, debe ser de tipo entero, y con valor mayor que $0$.
   \end{quote}
   Por «expresión-constante» se refiere en ese contexto al tamaño que se asigna al vector estático en su 
   declaración. Así pues, por lo expuesto en el punto \ref{enum:elQuizStaticAssert}. de la enumeración precedente,
-  si \texttt{ex} se evalua como falso, se estaría declarando \texttt{ai} con tamaño $-1$\footnote{¿y por qué si la
+  si \texttt{ex} se evalúa como falso, se estaría declarando \texttt{ai} con tamaño $-1$\footnote{¿y por qué si la
   referencia del lenguaje cita $0$ como valor ya invalido, se utiliza $-1$? Debido a que, tal como indica \cite{imperfectc++},
   por alguna razón algunos compiladores, entre ellos GCC y el compilador de Intel, sí consideran válido un vector estático de tamaño
-  cero. Esto incumple claramente el estándard ANSI C, pero afotunadamente siquiera estos compiladores admiten un tamaño negativo
+  cero. Esto incumple claramente el estándar ANSI C, pero afortunadamente siquiera estos compiladores admiten un tamaño negativo
   como dimensión de dicho vector}, algo que incumple la semántica de C, y por tanto, también de C++. Este incumplimiento resulta
   en una interrupción de la compilación.
 
-  La razón de ser de los puntos \ref{enum:while0}., y \ref{enum:typedef}. es la de no generar código pero a la vez
-  ser expresiones que són evaluadas por el compilador. Lo primero se consigue a raíz de que en realidad no existe código
+  La razón de ser de los puntos \ref{enum:while0}, y \ref{enum:typedef} es la de no generar código pero a la vez
+  ser expresiones que son evaluadas por el compilador. Lo primero se consigue a raíz de que en realidad no existe código
   «ejecutable», ninguna sentencia con efecto sobre el entorno. Cualquier compilador que realice optimización de código (esto 
   es, todos) omitirá incluir ninguna instrucción correspondiente a esta porción de código. Pero no antes de haberla evaluado:
   a raíz de que el bucle, al ser do-while, fuerza la entrada en su cuerpo al menos una vez. En este cuerpo, el \texttt{typedef}
@@ -172,12 +172,13 @@
 
   Véase \cite{imperfectc++}\footnote{sección 1.4.8, pág. 25} para un enfoque de este método en más en profundidad.
 
-  \subsubsection{Aplicaciones}
+  \subsubsection{Aplicaciones}\label{aplicacionesStaticAssert}
   Sus usos principales son los mismos que se le darían al clásico \texttt{assert} en tiempo de compilación: comprobación
   de casos que nunca deberían llegar a darse. Por ejemplo, en álgebra abstracta se requiere que el anillo que conforma
   un cuerpo cumpla una serie de propiedades: ser un anillo de división y ser conmutativo para el producto. \emph{Nunca} debería
-  tenerse un cuerpo incumpliendo estas propiedades. De intentar declarar un objeto tal, el compilador debería evitarlo. Pues bien:
-\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=STATIC\_ASSERT, label=lst:staticassert]
+  tenerse un cuerpo incumpliendo estas propiedades. De intentar declarar un objeto tal, el compilador debería evitarlo. Pues bien,
+el código mostrado en el listado \ref{lst:staticAssertAp1} nos lo garantiza.
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Comprobación estática de las propiedades de un anillo, label=lst:staticAssertAp1]
 ~Field() {
 (...)
   STATIC_ASSERT( T::divisionRing );
@@ -185,12 +186,11 @@
 (...)
 }
 \end{lstlisting}
-El anterior código nos lo garantiza. 
 
 Una aplicación alternativa es el forzar la evaluación de funciones estáticas, que normalmente contendrán otro tipo de 
 comprobaciones en tiempo de compilación. Por ejemplo:
 
-\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=STATIC\_ASSERT, label=lst:staticassert]
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Forzando evaluación de funciones estáticas, label=lst:staticAssertAp2]
   ~Group() {
     STATIC_ASSERT( ValidateRequirements() );
   }
@@ -205,7 +205,7 @@ private:
 \end{lstlisting}
 
 En este ejemplo --también de lo anteriormente expuesto en la sección \ref{interfazSobreTemplate}-- se requiere que \emph{el compilador}, 
-evalue las tres asignaciones del método estático \texttt{ValidateRequirements()}. Para esto, se invoca este método 
+evalúe las tres asignaciones del método estático \texttt{ValidateRequirements()}. Para esto, se invoca este método 
 dentro del aserto estático, ya que por la propia naturaleza de éste, evaluará su contenido. Si \texttt{ValidateRequirements}
 es superado con éxito, el \texttt{return true} que concluye \texttt{ValidateRequirements} evitará que se incumpla
 la evaluación del aserto estático.
@@ -215,8 +215,8 @@ la evaluación del aserto estático.
   El siguiente método para asegurarse que una clase dada hereda de otra se expone en 
   \cite{imperfectc++}\footnote{sección 1.2.1, pág. 5}. Su utilidad, una vez más, deriva del hecho de ser
   una comprobación \emph{en tiempo de compilación}. Su equivalente en tiempo de \emph{ejecución} sería 
-  la comprobación de que \texttt{dynamic\_cast<*Base>(instanciaDeriv)} no devuelve un valor nulo. Aun así,
-  esta variante require una \emph{instancia} del tipo derivado, y en cualquier caso, su dominio de aplicación es 
+  la comprobación de que \texttt{dynamic\_cast< *Base >( instanciaDeriv )} no devuelve un valor nulo. Aun así,
+  esta variante requiere una \emph{instancia} del tipo derivado, y en cualquier caso, su dominio de aplicación es 
   totalmente diferente: compilación vs. ejecución.
 
 
@@ -227,9 +227,9 @@ la evaluación del aserto estático.
 Constraints::must_have_base<S, Ring<S> > dummy1; (*@\label{algparent:Ring}@*)
 Constraints::must_have_base<S, MPPDataType > dummy2; (*@\label{algparent:MPPDataType}@*)
   \end{lstlisting}
-  Este trozo de código se corresponde a la clase \texttt{Polynomial<S>} (véanse las secciones \ref{tipos:polinomios} 
+  Este fragmento de código se corresponde a la clase \texttt{Polynomial<S>} (véanse las secciones \ref{tipos:polinomios} 
   y \ref{impl:polinomios} para una descripción de este tipo de dato y una pormenorización de sus detalles de 
-  implementacion, respectivamente). En sendas líneas se comprueba que el tipo de plantilla \texttt{S} 
+  implementación, respectivamente). En sendas líneas se comprueba que el tipo de plantilla \texttt{S} 
   --que recordemos se corresponde al tipo de los coeficientes del polinomio-- «es un» anillo y un tipo de dato
   «de la biblioteca». \footnote{que el tipo \texttt{S} verifique las propiedades algebraicas de un anillo por el mero hecho de 
   heredar de la clase \texttt{Ring} lo aseguran los mecanismos de categorización algebraica expuestos en la
@@ -289,7 +289,7 @@ El concepto de \textit{mock object}\footnote{podría traducirse como «objecto sim
   ofrecidas por en entorno OpenMP. Sin embargo, estas rutinas  --descritas en \cite{openmpstandard}\footnote{capítulo 3, pág. 97}--
   no se encuentran disponibles si se compila la librería con un compilador que no soporte OpenMP o bien si dicho 
   soporte se encuentra desactivado\footnote{una de las razones para prescindir de OpenMP aun cuando el compilador
-  lo soporte es cuando el sistema no cuenta más que con una unidad de ejecución --CPU. En tal caso, el utilizar
+  lo soporte sería que el sistema no cuenta más que con una unidad de ejecución --CPU. En tal caso, el utilizar
   OpenMP no aportaría ventajas y sí el inconveniente de la sobrecarga que acarrea su uso.}. ¿Qué hacer entonces 
   en aquellas partes del código donde se depende de estas rutinas? La solución trivial sería, previamente a su uso,
   comprobar si el soporte para OpenMP está disponible. Sin embargo, el mantener un código tal resulta muy engorroso 

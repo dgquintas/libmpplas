@@ -36,8 +36,8 @@
     Existe un tipo de paralelismo que ha estado disponible en procesadores de consumo
     desde hace más de una década, cuando en $1997$ Intel introdujo el juego de instrucciones 
     MMX en su familia de procesadores Pentium\footnote{\url{ http://www.intel.com/design/intarch/mmx/mmx.htm }}.
-    Este tipo de paralelismo, denominado por las siglas SIMD\footnote{instrucción única multiples datos, por sus siglas en inglés}, 
-    se expone en la sección \ref{flynn}. Resumiendo, se trata de aplicar una única intrucción a un conjunto de datos «en bloque».
+    Este tipo de paralelismo, denominado por las siglas SIMD\footnote{instrucción única múltiples datos, por sus siglas en inglés}, 
+    se expone en la sección \ref{flynn}. Resumiendo, se trata de aplicar una única instrucción a un conjunto de datos «en bloque».
     Compárese la figura \ref{fig:sinSIMD} con la figura \ref{fig:conSIMD}. En la primera, los datos son tratados secuencialmente de
     una manera que podría denominarse «horizontal». Por contra, en la segunda, se aplica la operación en cuestión simultáneamente
     a todos los datos, «verticalmente».
@@ -55,18 +55,17 @@
     \end{figure}
 
     Este paralelismo intrínseco al procesador requiere el uso de instrucciones específicas del mismo, y es por ello
-    dificilmente portable a otros sistemas. Asimismo, su utilización suele requerir el trabajo en lenguaje ensamblador, 
+    difícilmente portable a otros sistemas. Asimismo, su utilización suele requerir el trabajo en lenguaje ensamblador, 
     con todo lo que ello supone (dificultad de mantenimiento, complejidad, etc.).
 
-   Para poder disponer de la potencia de esta característica presente de una forma u otra practicamente
-   todos los procesadores actuales,  pese a lo poco amigable de su uso, se ha desarrollado esta «CPU SIMD». Sus 
-   objetivos son:
+   La práctica ubicuidad y potencia de estos métodos los hacen muy atractivos. Con el fin de evitar el obstáculo
+   de lo poco amigable de su uso, se ha desarrollado esta «CPU SIMD». Sus objetivos son:
    \begin{itemize}
       \item Aislar a las rutinas de la biblioteca que deseen hacer uso de instrucciones SIMD de la implementación
       real particular del procesador en cuestión sobre el que se esté operando. Incluso si no existe implementación
-      alguna, la biblioteca provee una implementación generica que simula su comportamiento.
+      alguna, la biblioteca provee una implementación genérica que simula su comportamiento.
       \item Homogeneizar la familia de operaciones disponibles, del mismo modo que se ha hecho con la CPU escalar.
-      \item Proporcionar una abstracción adecuada que evite lidar con los entresijos del lenguaje ensamblador. 
+      \item Proporcionar una abstracción adecuada que evite lidiar con los entresijos del lenguaje ensamblador. 
    \end{itemize} 
 
    \bigskip 
@@ -75,8 +74,8 @@
    tres variedades diferentes de «paquetes» de datos SIMD:
    \begin{itemize}
    \item Pares de números en coma flotante de $64$ bits.
-   \item Cuantro números en coma flotante de $32$ bits.
-   \item Ocho enteros con signo de $16$ bits
+   \item Cuatro números en coma flotante de $32$ bits.
+   \item Ocho enteros con signo de $16$ bits.
    \end{itemize}
    Los detalles de la implementación y una descripción más pormenorizada se dan en la sección \ref{simddigit}.
 

@@ -1,7 +1,7 @@
 import time, sys, os, shutil
 
 filesStr = """
-    AlgebraUtils.cpp
+    Dimensions.cpp
     BitChecker.cpp
     CPUInfo.cpp
     CRT.cpp
@@ -23,6 +23,7 @@ filesStr = """
     ProfResult.cpp
     Random.cpp
     R.cpp
+    Range.cpp
     RedModular.cpp
     Rx.cpp
     Seedbank.cpp

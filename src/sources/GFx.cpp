@@ -66,11 +66,6 @@ namespace mpplas {
     return *this;
   }
 
-  GFx& GFx::operator=(const Z& src){
-    assert( this->_gfGenerator != GF::NULL_GF );
-    this->setIntegerValue(src);
-    return *this;
-  }
 
 
   GFx& GFx::operator+=(const GFx& rhs){
@@ -154,13 +149,13 @@ namespace mpplas {
   }
 
 
-  GFx& GFx::fromString(const std::string& str){
-    Z_px::fromString(str);
-    if( !_gfGenerator.getMod().isZero() ){
-      this->operator%=(_gfGenerator.getMod());
-    }
-    return *this;
-  }
+//  GFx& GFx::fromString(const std::string& str){
+//    Z_px::fromString(str);
+//    if( !_gfGenerator.getMod().isZero() ){
+//      this->operator%=(_gfGenerator.getMod());
+//    }
+//    return *this;
+//  }
 
   Z GFx::getIntegerValue() const{
     return this->evaluate(_gfGenerator.getCharacteristic());

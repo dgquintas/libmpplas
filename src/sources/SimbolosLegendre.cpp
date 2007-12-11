@@ -21,7 +21,7 @@ namespace mpplas{
   Z SJacobiViaKronecker::simboloJacobi(Z a, Z b)
   {
     if( b.isEven() )
-      throw Errors::ParEnSimboloJacobi();
+      throw Errors::EvenInJacobiSymbol();
    
     MethodsFactory *funcs = MethodsFactory::getInstance();
     

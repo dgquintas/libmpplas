@@ -80,12 +80,12 @@ namespace mpplas{
 		uint8_t ptr;
 	  if( !CryptAcquireContext (&crypt_prov, NULL, MS_DEF_PROV, PROV_RSA_FULL,
 			       CRYPT_VERIFYCONTEXT | CRYPT_MACHINE_KEYSET) ){
-      throw Errors::FuenteEntropiaInvalida();
+      throw Errors::InvalidEntropySource();
     }
 
 		for(int i=0; i < numBytes; i++){
 			if( !CryptGenRandom(crypt_prov, 1, (BYTE *)&ptr) ){
-        throw Errors::FuenteEntropiaInvalida();
+        throw Errors::InvalidEntropySource();
       }
 			rnd[i] = ptr;
 		}
@@ -94,7 +94,7 @@ namespace mpplas{
     //Se *supone* estar en un sistema tipo UNIX con /dev/urandom
 		std::ifstream* const urandom(new std::ifstream("/dev/urandom", std::ios::in | std::ios::binary ));
     if( !urandom->is_open() ){
-        throw Errors::FuenteEntropiaInvalida();
+        throw Errors::InvalidEntropySource();
     }
     
     for(int i=0; i < numBytes; i++){

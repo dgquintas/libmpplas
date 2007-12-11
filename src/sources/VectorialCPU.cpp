@@ -346,7 +346,7 @@ namespace mpplas{
       const int tamB = b.size();
 
       if( menorque(a,b) ){ // a < b
-        throw Errors::RestaNegativa();
+        throw Errors::NegativeSubstraction();
       }
 
       mpplas::MiVec<Digit> c(tamA,0);

@@ -103,7 +103,7 @@ namespace mpplas{
 
     // modulus has to odd 
     if( mod.isEven() ){  
-      throw Errors::ModuloParEnMontgomery();
+      throw Errors::MontgomeryEvenMod();
     }
     
     const int n = mod.longitud();

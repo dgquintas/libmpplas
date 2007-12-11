@@ -55,7 +55,7 @@ namespace mpplas{
        *   
        * @param exp Exponente de la operación de potenciación. 
        *
-       * @exception Se devuelve Errores::PunteroNulo si @a n o @a
+       * @exception Se devuelve Errores::NullPointer si @a n o @a
        *  factores son punteros iguales a NULL.
        * 
        *  @note La razón de que el argumento @a exp sea de tipo
@@ -73,7 +73,7 @@ namespace mpplas{
        * 
        * @param exp Exponente de la operación de potenciación. El
        *  paso de un valor negativo provocará una excepción
-       *  "ExponenteNegativo". 
+       *  "NegativeExponent". 
        *
        * @return El entero resultado de \f$base^{exp}\f$.
        * 
@@ -120,53 +120,11 @@ namespace mpplas{
     public:
       Exponentiation();
 
-       /** Potenciación modular "in-situ".
+      /** In-place modular integer inverse.
        *
-       * Realizar una potenciación modular "in-situ". Es ligeramente más
-       * eficiente al no necesitar operaciones de copia en el paso de
-       * parametros y devolución del resultado.
+       * Inverts the given modular integer @a base in place.
        * 
-       *  @param base Puntero a entero que inicialmente contiene la
-       *  base de la operación y el cual se modifica para contener el
-       *  resultado al final. El paso de un puntero nulo provocará una
-       *  excepción de tipo "PunteroNulo"
-       * 
-       * @param exp Exponente de la operación de potenciación.
-       * Si el módulo @a mod suministrado no es primo y se pasa un
-       * valor de exponente negativo, se producirá un error de tipo
-       * "NonInvertibleElement".
-       *
-       * @param mod El módulo reductor.
-       */
-//      virtual void potModular(Z* const base, const Z& exp, const Z& mod) = 0; 
-  
-      /** Potenciación modular.
-       *
-       * Realizar una potenciación modular devolviendo el resultado.
-       * 
-       *  @param base Entero base de la potenciación.
-       * 
-       * @param exp Exponente de la operación de potenciación.
-       * Si el módulo @a mod suministrado no es primo y se pasa un
-       * valor de exponente negativo, se producirá un error de tipo
-       * "NonInvertibleElement".
-       *
-       * @param mod El módulo reductor.
-       *
-       * @return El entero resultado de \f$base^{exp} \bmod mod\f$.
-       */
-//      Z potModular(Z base, const Z& exp, const Z& mod); 
- 
-      /** Cálculo de la inversa.
-       *
-       * Realizar el cálculo de la inversa en un cuerpo finito.
-       * 
-       * @param base Entero a invertir.
-       * 
-       * @param mod El módulo reductor. Si este valor no es primo, se
-       * producirá un error de tipo "NonInvertibleElement".
-       *
-       * @return El entero resultado de \f$base^{-1} \bmod mod\f$.
+       * @param base a pointer to the modular integer to invert.
        */
       void invert(Z_n* const base) const;
       Z_n inverse(Z_n base) const;
@@ -337,7 +295,7 @@ namespace mpplas{
       return;
     }
     if( k.isNegative() ){
-      throw Errors::ExponenteNegativo();
+      throw Errors::NegativeExponent();
     }
     
     Utils::BitChecker bc(k, true);

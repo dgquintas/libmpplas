@@ -40,61 +40,6 @@ namespace mpplas {
       explicit R( const Z& ); /**< constructor desde Z */
 
 
-      /** Función de conversión de tipo Digit a R (real).
-       *
-       *  @par Complejidad:
-       *       \f$O(1)\f$
-       * 
-       *  @param numSimple Número de precisión simple a convertir a real.
-       *
-       *  @return El real correspondiente a la conversión.
-       */
-      //    static R convertir(const Digit numSimple);
-      /** Función de conversión de tipo SignedDigit a R (real).
-       *
-       *  @par Complejidad:
-       *       \f$O(1)\f$
-       * 
-       *  @param numSimple Número de precisión simple con signo a convertir a real.
-       *
-       *  @return El real correspondiente a la conversión.
-       */  
-      //    static R convertir(const SignedDigit numSimple);
-      /** Función de conversión de tipo cadena de caracteres a R (real).
-       * 
-       *  @par Complejidad:
-       *       \f$O(n)\f$
-       * 
-       *  @param cadena Vector de caracteres que representa el número a
-       *  convertir a real.
-       *
-       *  @exception mpplas::Errores::Sintactico Error sintáctico en la
-       *  cadena.
-       *
-       *  @return El real correspondiente a la conversión.
-       */
-      //   static R convertir(const char* cadena);
-      /** Función de conversión de tipo double a R (real).
-       *
-       *  @par Complejidad:
-       *       \f$O(1)\f$
-       * 
-       *  @param numFlotante Número flotante de precisión simple a convertir a real.
-       *
-       *  @return El real correspondiente a la conversión.
-       */
-      //   static R convertir(const double numFlotante);
-      /** Función de conversión de Z (entero) a R (real).
-       *
-       *  @par Complejidad:
-       *       \f$O(1)\f$
-       * 
-       *  @param entero Número entero a convertir a real.
-       *
-       *  @return El real correspondiente a la conversión.
-       */
-      //   static R convertir(const Z& entero);
-
       /** Operador de asignación desde R.
        *
        *  @par Complejidad:
@@ -106,7 +51,6 @@ namespace mpplas {
        */
       R& operator=(const R& origen);
 
-      // OPERADORES ARITMETICOS
       /** Operador de suma acumulada.
        *
        * @pre *this y sumandoDerecha reales válidos.
@@ -204,7 +148,7 @@ namespace mpplas {
        * Se realiza la operación \f$(*this) = (*this)^{exp}\f$
        *
        * \exception 
-       * Errores::ExponenteNegativo Si el entero que
+       * Errores::NegativeExponent Si el entero que
        * representa el exponente exp es negativo.
        */
       R& operator^=(SignedDigit exp); 

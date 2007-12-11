@@ -52,7 +52,7 @@ class SimboloJacobi : public AbstractMethod
        *
        *  @return El símbolo de Jacobi \f$ \left(\frac{a}{b}\right) \f$.
        *
-       *  @note Si \f$b\f$ es par, se lanzará una excepción de tipo Errores::ParEnSimboloJacobi.
+       *  @note Si \f$b\f$ es par, se lanzará una excepción de tipo Errores::EvenInJacobiSymbol.
        *  */
       virtual Z simboloJacobi( Z a,  Z b) = 0;
 

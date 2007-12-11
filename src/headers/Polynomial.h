@@ -44,6 +44,23 @@ namespace mpplas{
          * */
         Polynomial(const S& ini = S::getAddIdentity() );
 
+        /** Constructor from textual representation. 
+         *
+         */
+        Polynomial(const std::string& str, const S& ini = S() );
+
+        /** Constructor from coefficient enumeration.
+         *
+         */
+        Polynomial(const std::vector<S>& coeffs, const S& ini = S() );
+
+        /** Constructor from a single coefficient.
+         *
+         */
+        Polynomial(const S& coeff, const int exp, const S& ini = S() );
+
+
+
         /** Copy constructor for polynomials */
         Polynomial(const Polynomial<S>& src );
 
@@ -113,20 +130,6 @@ namespace mpplas{
 
       protected:
 
-        /** Constructor from textual representation. 
-         *
-         */
-        Polynomial(const std::string& str, const S& ini = S() );
-
-        /** Constructor from coefficient enumeration.
-         *
-         */
-        Polynomial(const std::vector<S>& coeffs, const S& ini = S() );
-
-        /** Constructor from a single coefficient.
-         *
-         */
-        Polynomial(const S& coeff, const int exp, const S& ini = S() );
 
         /** Erase leading zeros.
          *

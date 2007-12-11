@@ -36,7 +36,7 @@ namespace mpplas{
       /** Reducción de Barrett.
        *
        * @param num Puntero a entero. Si es NULL, se lanza una
-       * excepción de tipo Errores::PunteroNulo. En él se dejará
+       * excepción de tipo Errores::NullPointer. En él se dejará
        * almacenado, al final, su valor inicial reducido módulo @a
        * mod.
        * @param mod Entero reductor.
@@ -70,7 +70,7 @@ namespace mpplas{
        /** Reducción de Montgomery.
        *
        * @param num Puntero a entero. Si es NULL, se lanza una
-       * excepción de tipo Errores::PunteroNulo. En él se dejará
+       * excepción de tipo Errores::NullPointer. En él se dejará
        * almacenado, al final, su valor inicial reducido módulo @a
        * mod.
        * @param mod Entero reductor.
@@ -110,7 +110,7 @@ namespace mpplas{
        * \f$BASE^t - c\f$  con   \f$ \log_2(c) < t \f$.
        *
        * @param num Puntero a entero. Si es NULL, se lanza una
-       * excepción de tipo Errores::PunteroNulo. En él se dejará
+       * excepción de tipo Errores::NullPointer. En él se dejará
        * almacenado, al final, su valor inicial reducido módulo @a
        * mod.
        * @param t Exponente de \f$BASE\f$ de la forma del módulo

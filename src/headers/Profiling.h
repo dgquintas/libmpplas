@@ -55,11 +55,11 @@ namespace mpplas{
 
       /** Get the profiling results for a given thread (const version)
        *
-       * @param threadNum The number of the thread whose profiling resuls to retrive. Begins at 0.
+       * @param threadNum the number of the thread whose profiling resuls to retrive. Begins at 0.
        *
-       * @return A constant reference to the profiling results for thread @a threadNum.
+       * @return a constant reference to the profiling results for thread @a threadNum.
        */
-      const ProfResult& operator[](int i) const;
+      const ProfResult& operator[](int threadNum) const;
 
       /** Get the profiling results for all threads.
        *

@@ -109,7 +109,7 @@ namespace mpplas{
        * generate prime numbers of a given bit-length. This method makes
        * it possible to set this bit-length: the greater the more
        * secure, but also slower generation.
-       * If omitted, a value of \f$256$\f is considered.
+       * If omitted, a value of \f$256\f$ is considered.
        *
        * @param n Bit-length of the primes to use internally by the
        * CSPRNG process.

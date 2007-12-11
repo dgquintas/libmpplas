@@ -7,26 +7,35 @@
 
 #include <map>
 #include <typeinfo>
-#include <cassert>
 #include <string>
 
 #include "AbstractMethod.h"
 #include "Constraints.h"
 #include "SingletonMixIn.h"
+#include "Errors.h"
 
 namespace mpplas{
 
   /** Library methods repository.
    *
-   * Esta clase implementa los mecanismos expuestos en la
-   * documentación de teoría (dentro del capítulo "Implementación de
-   * algoritmos básicos") en lo relativo al repositorio de
-   * funciones. 
    */
   class MethodsFactory : public SingletonMixIn<MethodsFactory> {
     public:
-      
+
+      /** Sets an instance of a method. 
+       *
+       * Establishes an AbstractMethod instance to use as T's default implementation.
+       *
+       * @pre T must inherit from AbstractMethod.
+       *
+       * @param[in] m the instance to use as T's implementation henceforth. */
       template<typename T> void setFunc(T* const m);
+
+      /** Retrieve method implementing T's functionality.
+       *
+       * @pre T must inherit from AbstractMethod.
+       *
+       * @param[out] m pointer to a reference of T, where the method for T will be returned. */
       template<typename T> void getFunc(T* &m) ;
 
       /** Resets all the methods to their default implementation */
@@ -37,9 +46,14 @@ namespace mpplas{
     private:
       MethodsFactory();
 
+      /** Thread-safe setting of a method's instance */
       template<typename T> void _set(T* const m);
+
+      /** Thread-safe retrieval of a method's instance */
       template<typename T> void _get(T* &m) ;
 
+
+      /** Table relating the abstract method T to its actual current implementation. */
       std::map<std::string, AbstractMethod* > _methods;
       friend class SingletonMixIn< MethodsFactory >;
   };
@@ -78,7 +92,9 @@ namespace mpplas{
       }
       else{
         m = dynamic_cast<T*>(_methods[name]);
-        assert(m != 0);
+        if(m == NULL){
+          throw Errors::Internal("dynamic_cast failed while retrieving method at MethodsFactory");
+        }
       }
     }
 

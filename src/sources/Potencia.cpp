@@ -59,10 +59,10 @@ namespace mpplas{
 
   void PotVentanaDeslizante::exponentiation(Z* const base,const Z& exp) {
     if( base == NULL ){
-      throw Errors::PunteroNulo();
+      throw Errors::NullPointer();
     }
     if( exp.isNegative() ){
-      throw Errors::ExponenteNegativo();
+      throw Errors::NegativeExponent();
     }
     if( exp.longitud() > 1 ){
       throw Errors::TooBig();
@@ -157,10 +157,10 @@ namespace mpplas{
   void PotLeftRight::exponentiation(Z* const base, const Z& exp)
   {
     if( base == NULL ){
-      throw Errors::PunteroNulo();
+      throw Errors::NullPointer();
     }
     if( exp.isNegative() ){
-      throw Errors::ExponenteNegativo();
+      throw Errors::NegativeExponent();
     }
     if( exp.longitud() > 1 ){
       throw Errors::TooBig();
@@ -186,11 +186,11 @@ namespace mpplas{
 
   void PotMontgomery::exponentiation(Z_n* const base, const Z& e) {
     if( base == NULL ){
-      throw Errors::PunteroNulo();
+      throw Errors::NullPointer();
     }
 
     if( base->getMod().isEven() ){ //modulo par => No puede aplicarse Montgomery
-      throw Errors::ModuloParEnMontgomery();
+      throw Errors::MontgomeryEvenMod();
     }
 
     ZM_n tmp(*base);
@@ -210,7 +210,7 @@ namespace mpplas{
  
   void ClasicoConBarrett::exponentiation(Z_n* const base, const Z& exp) { 
     if( base == NULL ){
-      throw Errors::PunteroNulo();
+      throw Errors::NullPointer();
     }
     const Z mu(redbarrett->precomputaciones(base->getMod()));
     barrettStep(base, exp, base->getMod(), mu);
@@ -245,10 +245,10 @@ namespace mpplas{
   
   void PotVentanaDeslizanteR::exponentiation(R* const base, const Z& exp) {
     if( base == NULL ){
-      throw Errors::PunteroNulo("NULL pointer at R exponentiation");
+      throw Errors::NullPointer("NULL pointer at R exponentiation");
     }
     if( exp.isNegative() ){
-      throw Errors::NoImplementado("Negative exponentiation for R not yet implemented");
+      throw Errors::NotImplemented("Negative exponentiation for R not yet implemented");
     }
     if( exp.longitud() > 1 ){
       throw Errors::TooBig("Exponent for exp. in R must be < max(Digit)");

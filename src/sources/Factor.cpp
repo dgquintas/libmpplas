@@ -177,9 +177,9 @@ namespace mpplas{
 //  {
 //
 //    if( n == NULL )
-//      throw Errors::PunteroNulo();
+//      throw Errors::NullPointer();
 //    if( factores == NULL )
-//      throw Errors::PunteroNulo();
+//      throw Errors::NullPointer();
 //
 //    
 //    // pag 430 cohen
@@ -349,10 +349,12 @@ namespace mpplas{
 
   bool RhoPollard::factorZ(Z* n, MiVec<Z>* factores)
   {
-    if( n == NULL )
-      throw Errors::PunteroNulo();
-    if( factores == NULL )
-      throw Errors::PunteroNulo();
+    if( n == NULL ){
+      throw Errors::NullPointer();
+    }
+    if( factores == NULL ){
+      throw Errors::NullPointer();
+    }
 
     // pag 91 Menezes
     MethodsFactory* const funcs = MethodsFactory::getInstance();
@@ -532,10 +534,12 @@ namespace mpplas{
   bool Trial::factorZ(Z* n, MiVec<Z>* factores)
   {
 
-    if( n == NULL )
-      throw Errors::PunteroNulo();
-    if( factores == NULL )
-      throw Errors::PunteroNulo();
+    if( n == NULL ){
+      throw Errors::NullPointer();
+    }
+    if( factores == NULL ){
+      throw Errors::NullPointer();
+    }
 
     //pag. 364 Knuth
     

@@ -311,11 +311,13 @@ class MatrixSlicingMethod : public xmlrpc_c::method {
       const int clientId(paramList.getInt(0));
       const std::string varId1(paramList.getString(1));
       const int rowIni(paramList.getInt(2));
-      const int rowEnd(paramList.getInt(3));
-      const int colIni(paramList.getInt(4));
-      const int colEnd(paramList.getInt(5));
+      const int rowStep(paramList.getInt(3));
+      const int rowEnd(paramList.getInt(4));
+      const int colIni(paramList.getInt(5));
+      const int colStep(paramList.getInt(6));
+      const int colEnd(paramList.getInt(7));
 
-      paramList.verifyEnd(6);
+      paramList.verifyEnd(8);
 
       mpplas::MPPDataType* const mat( table.get(clientId, varId1) );
 
@@ -326,19 +328,19 @@ class MatrixSlicingMethod : public xmlrpc_c::method {
       try {
         matrixZ = dynamic_cast<mpplas::MatrixZ*>(mat);
         if( matrixZ ){
-          const std::string varId = table.set(clientId, new mpplas::MatrixZ( matrixZ->operator()(rowIni, rowEnd ,colIni, colEnd) ), "MZ");
+          const std::string varId = table.set(clientId, new mpplas::MatrixZ( matrixZ->operator()(rowIni, rowEnd ,colIni, colEnd, rowStep, colStep) ), "MZ");
           *retvalP = xmlrpc_c::value_string( varId );
           return;
         }
         matrixR = dynamic_cast<mpplas::MatrixR*>(mat);
         if( matrixR ){
-          const std::string varId = table.set(clientId, new mpplas::MatrixR( matrixR->operator()(rowIni, rowEnd ,colIni, colEnd) ), "MR");
+          const std::string varId = table.set(clientId, new mpplas::MatrixR( matrixR->operator()(rowIni, rowEnd ,colIni, colEnd, rowStep, colStep) ), "MR");
           *retvalP = xmlrpc_c::value_string( varId );
           return;
         }
         matrixGFx = dynamic_cast<mpplas::MatrixGFx*>(mat);
         if( matrixGFx ){
-          const std::string varId = table.set(clientId, new mpplas::MatrixGFx( matrixGFx->operator()(rowIni, rowEnd ,colIni, colEnd) ), "MGFx");
+          const std::string varId = table.set(clientId, new mpplas::MatrixGFx( matrixGFx->operator()(rowIni, rowEnd ,colIni, colEnd, rowStep, colStep) ), "MGFx");
           *retvalP = xmlrpc_c::value_string( varId );
           return;
         }

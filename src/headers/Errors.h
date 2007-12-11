@@ -10,7 +10,7 @@
 #include <exception>
 #include <sstream>
 
-#include "AlgebraUtils.h"
+#include "Dimensions.h"
 
 #define GEN_TRACE_INFO_OSS(oss) \
   oss << '(' << __FILE__ << ':' << __LINE__ << ')'
@@ -205,6 +205,14 @@ namespace mpplas{
         }
     };
 
+    /** No such element found in a sequence */
+    class NoSuchElement: public InvalidArgument {
+      public:
+        NoSuchElement(const std::string details = "")
+        : InvalidArgument("No such element in the sequence; ") {
+          _msg += details;
+        }
+    };
 
 
 

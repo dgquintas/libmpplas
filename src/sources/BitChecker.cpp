@@ -1,6 +1,3 @@
-
-#include <cassert>
-
 #include "BitChecker.h"
 
 
@@ -32,7 +29,13 @@ namespace mpplas{
     }
 
     void BitChecker::setPosition(int bitPos){
-      //TODO: check bitPos for validity: 0 <= bitPos <= _bitLength
+      // 0 <= bitPos <= _bitLength
+      if( bitPos < 0 || bitPos > _bitLength ){
+        std::ostringstream oss;
+        oss << "Invalid bit position " << bitPos << " for a " << _bitLength << " sequence. ";
+        GEN_TRACE_INFO_OSS(oss);
+        throw Errors::InvalidArgument(oss.str());
+      }
       _bitPos = bitPos;
       _init(_bitPos, _rightToLeft);
       return;
@@ -43,7 +46,13 @@ namespace mpplas{
     }
 
     bool BitChecker::checkNext(){
-      assert( hasNext() );
+      if( !hasNext() ){
+        std::ostringstream oss;
+        oss << "No next element when calling \"BitChecker::checkNext\". ";
+        GEN_TRACE_INFO_OSS(oss);
+        throw Errors::NoSuchElement(oss.str());
+      }
+
       static const Digit BASEMASK = (Digit)1;
       static const Digit IN_DIGIT_POS_MAX = 
         ((Digit)1) << (Constants::BITS_EN_CIFRA -1);
@@ -75,7 +84,12 @@ namespace mpplas{
     }
 
     bool BitChecker::checkPrevious(){
-      assert( hasPrevious() );
+      if( !hasPrevious() ){
+        std::ostringstream oss;
+        oss << "No previous element when calling \"BitChecker::checkPrevious\". ";
+        GEN_TRACE_INFO_OSS(oss);
+        throw Errors::NoSuchElement(oss.str());
+      }
       static const Digit BASEMASK = 
         ((Digit)1) << (Constants::BITS_EN_CIFRA -1);
 

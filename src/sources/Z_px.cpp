@@ -49,7 +49,12 @@ namespace mpplas{
 
 
   Z_px Z_px::gcd(Z_px u, Z_px v, Z_px* const s, Z_px* const t){
-    assert(u.getCharacteristic() == v.getCharacteristic());
+    if(u.getCharacteristic() != v.getCharacteristic()){
+      std::ostringstream oss;
+      oss << "Polynomials over Z_p do not share a common p @ Z_px::gcd; ";
+      GEN_TRACE_INFO_OSS(oss);
+      throw Errors::InvalidArgument(oss.str());
+    }
     if( s && t ){
       GCDExt< Polynomial<Z_p> >* gcdext;
       MethodsFactory::getReference().getFunc(gcdext);

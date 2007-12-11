@@ -471,7 +471,7 @@ namespace mpplas{
   {
 
     if( divisor.isZero() )
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
 
     if( (signo_ > 0) ){
       if( (divisor.signo_ > 0) ){
@@ -504,7 +504,7 @@ namespace mpplas{
   Z& Z::operator%=(const Z& divisor)
   {
     if( divisor.isZero() )
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
 
     if( divisor.signo_ > 0){ // divisor.signo_ > 0
       if( signo_ > 0 ){
@@ -889,7 +889,7 @@ namespace mpplas{
   Z& Z::operator/=(const SignedDigit corto)
   {
     if( corto == 0 ){
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
     }
 
 
@@ -933,7 +933,7 @@ namespace mpplas{
   Z& Z::operator%=(const SignedDigit divisorSigned)
   {
     if( divisorSigned == 0 ){
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
     }
 
     this->operator%=(Z(divisorSigned));
@@ -1086,7 +1086,7 @@ namespace mpplas{
   Z& Z::operator/=(const Digit corto)
   {
     if( corto == 0 )
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
 
 
 
@@ -1109,7 +1109,7 @@ namespace mpplas{
   Z& Z::operator%=(const Digit corto)
   {
     if( corto == 0 )
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
 
     this->operator%=(Z(corto));
 
@@ -1189,7 +1189,7 @@ namespace mpplas{
   Z& Z::operator^=(const SignedDigit exp)
   {
     if( exp < 0 ){
-      throw Errors::ExponenteNegativo();
+      throw Errors::NegativeExponent();
     }
 
     return operator^=((Digit)labs(exp));
@@ -1793,7 +1793,7 @@ Z& Z::fromString(const std::string& str){
   Z operator/(Z izq, const Z& der)
   {
     if( der.isZero() )
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
 
     izq /= der;
 
@@ -1803,7 +1803,7 @@ Z& Z::fromString(const std::string& str){
   Z operator%(Z izq, const Z& der)
   {
     if( der.isZero() )
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
 
     izq %= der;
 
@@ -1866,7 +1866,7 @@ Z& Z::fromString(const std::string& str){
   Z operator/(const SignedDigit corto, const Z& largo)
   {
     if( largo.isZero() )
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
 
     return ( Z(corto) / largo );
 
@@ -1895,7 +1895,7 @@ Z& Z::fromString(const std::string& str){
   Z operator%(const SignedDigit corto, const Z& largo)
   {
     if( largo.isZero() )
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
 
     return( (Z(corto) % largo ) );
   }
@@ -1935,7 +1935,7 @@ Z& Z::fromString(const std::string& str){
   Z operator/(Z largo, const SignedDigit corto)
   {
     if( corto == 0 )
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
 
     largo /= corto;
     return largo;
@@ -1943,7 +1943,7 @@ Z& Z::fromString(const std::string& str){
   Z operator%(Z largo, const SignedDigit corto)
   {
     if( corto == 0 )
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
 
     largo %= corto;
     return largo;
@@ -1988,7 +1988,7 @@ Z& Z::fromString(const std::string& str){
   Z operator/(const Digit corto, const Z& largo)
   {
     if( largo.isZero() )
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
 
     if( largo > corto) {
       Z cero;
@@ -2009,7 +2009,7 @@ Z& Z::fromString(const std::string& str){
   Z operator%(const Digit corto, const Z& largo)
   {
     if( largo.isZero() )
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
 
     if( largo > corto ){
       return Z(corto);
@@ -2061,7 +2061,7 @@ Z& Z::fromString(const std::string& str){
   Z operator/(Z largo, const Digit corto)
   {
     if( corto == 0 )
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
 
     largo /= corto;
     return largo;
@@ -2069,7 +2069,7 @@ Z& Z::fromString(const std::string& str){
   Z operator%(Z largo, const Digit corto)
   {
     if( corto == 0 )
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
 
     largo %= corto;
     return largo;
@@ -2220,7 +2220,7 @@ Z& Z::fromString(const std::string& str){
   Z operator^(Z base, const SignedDigit exp)
   {
     if( exp < 0 ){
-      throw Errors::ExponenteNegativo();
+      throw Errors::NegativeExponent();
     }
 
     base ^= ((Digit)labs(exp));
@@ -2232,11 +2232,11 @@ Z& Z::fromString(const std::string& str){
 
 
   void divMod(const Z& dividendo, const Z& divisor, Z* cociente, Z* resto)
-    throw (Errors::DivisionPorCero)
+    throw (Errors::DivisionByZero)
     {
 
       if( divisor.isZero() )
-        throw Errors::DivisionPorCero();
+        throw Errors::DivisionByZero();
 
       //por precaucion, no sea que se hayan pasado cosas ya trajinadas
       cociente->hacerPositivo();
@@ -2302,14 +2302,14 @@ Z& Z::fromString(const std::string& str){
     }
 
   void divMod(const Z& dividendo, const SignedDigit divisor, Z* cociente, Z* resto)
-    throw (Errors::DivisionPorCero)
+    throw (Errors::DivisionByZero)
     {
 
       bool divisorPositivo;
       Digit divisorDigit;
 
       if( divisor == 0 )
-        throw Errors::DivisionPorCero();
+        throw Errors::DivisionByZero();
 
       if( divisor < 0 ){
         divisorPositivo = false;
@@ -2385,12 +2385,12 @@ Z& Z::fromString(const std::string& str){
 
 
   void divMod(const Z& dividendo, const Digit divisor, Z* cociente, Z* resto)
-    throw (Errors::DivisionPorCero)
+    throw (Errors::DivisionByZero)
     {
 
 
       if( divisor == 0 )
-        throw Errors::DivisionPorCero();
+        throw Errors::DivisionByZero();
 
       //por precaucion, no sea que se hayan pasado cosas ya trajinadas
       cociente->hacerPositivo();

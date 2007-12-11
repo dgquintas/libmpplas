@@ -165,7 +165,7 @@ namespace mpplas{
         potMod->invert(this);
       }
       else{ // must be zero
-        throw Errors::DivisionPorCero();  
+        throw Errors::DivisionByZero();  
       }
     }
     else{
@@ -377,7 +377,7 @@ namespace mpplas{
   Z_n operator/(Z_n izq, const Z_n& der)
   {
     if( der.isZero() ){
-      throw Errors::DivisionPorCero();  
+      throw Errors::DivisionByZero();  
     }
 
     izq /= der;
@@ -413,7 +413,7 @@ namespace mpplas{
 
   Z_n operator/(Z_n izq, const Z& der) {
     if( der.isZero() )
-      throw Errors::DivisionPorCero();  
+      throw Errors::DivisionByZero();  
 
     izq /= der;
 
@@ -470,7 +470,7 @@ namespace mpplas{
   }
   Z_n operator/(Z_n largo, const SignedDigit corto) {
     if( corto == 0 )
-      throw Errors::DivisionPorCero(); 
+      throw Errors::DivisionByZero(); 
 
     largo /= corto;
     return largo;
@@ -514,7 +514,7 @@ namespace mpplas{
   Z_n operator/(const Digit corto, const Z_n& largo)
   {
     if( largo.isZero() )
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
 
     Z_n cortoZ_n(Z_n(corto), largo.getMod() );
 
@@ -545,7 +545,7 @@ namespace mpplas{
   Z_n operator/(Z_n largo, const Digit corto)
   {
     if( corto == 0 )
-      throw Errors::DivisionPorCero();
+      throw Errors::DivisionByZero();
 
     largo /= corto;
     return largo;

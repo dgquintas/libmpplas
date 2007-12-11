@@ -62,13 +62,26 @@ void GFTest::testGeneratorFromPrimitivePoly(){
 }
 void GFTest::testGetElement(){}
 
-void GFTest::testAddition(){}
+void GFTest::testAddition(){
+  const Z charact(gfIrred->getCharacteristic());
+  GFx one = gfIrred->getElement(Z::ONE);
+  GFx accum(one);
+
+  for(Z i = 0 ; i < charact-1 ; i++){
+    accum += one;
+    std::cout << accum << std::endl;
+  }
+
+  qassertTrue( accum.getIntegerValue() == Z::ZERO );
+}
 void GFTest::testSubstraction(){}
 void GFTest::testMultiplication(){}
 void GFTest::testSquare(){}
 void GFTest::testDivision(){}
 
-void GFTest::testInversion(){}
+void GFTest::testInversion(){
+
+}
 void GFTest::testExponentiation(){}
 
 void GFTest::testConversions(){}

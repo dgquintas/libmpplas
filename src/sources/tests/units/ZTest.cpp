@@ -218,7 +218,7 @@ void ZTest::testIsPerfectSquare(){
 void ZTest::testDivideByZeroThrows(){
   try{
     uno / cero;
-  } catch (Errors::DivisionPorCero){
+  } catch (Errors::DivisionByZero){
     return;
   }
 
@@ -228,7 +228,7 @@ void ZTest::testDivideByZeroThrows(){
 void ZTest::testModulusByZeroThrows(){
   try{
     uno % cero;
-  } catch (Errors::DivisionPorCero){
+  } catch (Errors::DivisionByZero){
     return;
   }
 

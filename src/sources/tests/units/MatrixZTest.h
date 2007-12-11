@@ -31,6 +31,7 @@ namespace com_uwyn_qtunit{
       void testToString();
       void testSetDiagonal();
       void testProduct();
+      void testDeterminant();
 
     private:
       MatrixZ _A;

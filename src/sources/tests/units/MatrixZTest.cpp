@@ -25,14 +25,15 @@ MatrixZTest::MatrixZTest()
   addTest(MatrixZTest, testToString);
   addTest(MatrixZTest, testSetDiagonal);
   addTest(MatrixZTest, testProduct);
+  addTest(MatrixZTest, testDeterminant);
 
 }
 
 void MatrixZTest::setUp(){
   
-  const int n = brand(100,200);
-  const int m = brand(100,200);
-  const int k = brand(100,200);
+  const int n = brand(50, 100);
+  const int m = brand(50, 100);
+  const int k = brand(50, 100);
 
   const int elemsSize = brand(50, 100);
 
@@ -126,5 +127,27 @@ void MatrixZTest::testProduct(){
       qassertEquals( GENtostr( gcoeff( Cpari, i+1,j+1) ), C(i,j).toString());
     }
   }
-
 }
+
+
+
+
+  void MatrixZTest::testDeterminant(){
+    const int dimMin = _A.getRows() > _A.getColumns() ? _A.getColumns() : _A.getRows() ;
+    _A.setDimensions( mpplas::Dimensions(dimMin, dimMin) );
+    GEN _Apari;
+    _Apari = zeromatcopy( _A.getRows(), _A.getColumns() );
+    
+    for( int i = 0; i < _A.getRows() ; i++){
+      for( int j = 0; j < _A.getColumns() ; j++){
+        gcoeff( _Apari, i+1,j+1) = gp_read_str( (char*)_A(i,j).toString().c_str() );
+      }
+    }
+
+    const Z d( _A.getDeterminant() );
+    GEN dPari = det(_Apari);
+
+    qassertEquals( d.toString(), GENtostr( dPari ));
+  }
+
+

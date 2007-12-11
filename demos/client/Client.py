@@ -730,6 +730,17 @@ class MZ(Variable): #matrix Z
 
     return _mzSlice(self, rows[0], rows[1], rows[2], cols[0], cols[1], cols[2] )
 
+  def appendByRows(self, anotherMZ):
+    if not isinstance(anotherMZ,type(self)):
+      anotherMZ = MZ(repr(anotherMZ))
+    return _mzAppendByRows(self, anotherMZ)
+
+  def appendByColumns(self, anotherMZ):
+    if not isinstance(anotherMZ,type(self)):
+      anotherMZ = MZ(repr(anotherMZ))
+    return _mzAppendByColumns(self, anotherMZ)
+
+
 
 #########################################################
 
@@ -824,6 +835,15 @@ class MR(Variable): #matrix R
 
     return _mrSlice(self, rows[0], rows[1], rows[2], cols[0], cols[1], cols[2] )
 
+  def appendByRows(self, anotherMR):
+    if not isinstance(anotherMR,type(self)):
+      anotherMR = MR(repr(anotherMR))
+    return _mrAppendByRows(self, anotherMR)
+
+  def appendByColumns(self, anotherMR):
+    if not isinstance(anotherMR,type(self)):
+      anotherMR = MR(repr(anotherMR))
+    return _mrAppendByColumns(self, anotherMR)
 
 
 class MGFx(Variable): #matrix GFx
@@ -839,36 +859,36 @@ class MGFx(Variable): #matrix GFx
       else:
         Variable.__init__(self,_mgfxCreate(str(mgfxStr),gf).getId())
 
-  def __add__(self, anotherMR): 
-    if not isinstance(anotherMR,type(self)):
-      anotherMR = MR(repr(anotherMR))
-    return _mgfxAdd(self, anotherMR )
-  def __iadd__(self, anotherMR): 
-    self.setId( self.__add__(anotherMR).getId() )
+  def __add__(self, anotherMGFx): 
+    if not isinstance(anotherMGFx,type(self)):
+      anotherMGFx = MGFx(repr(anotherMGFx))
+    return _mgfxAdd(self, anotherMGFx )
+  def __iadd__(self, anotherMGFx): 
+    self.setId( self.__add__(anotherMGFx).getId() )
     return self
 
-  def __sub__(self, anotherMR): 
-    if not isinstance(anotherMR,type(self)):
-      anotherMR = MR(repr(anotherMR))
-    return _mgfxSub(self, anotherMR )
-  def __isub__(self, anotherMR): 
-    self.setId( self.__sub__(anotherMR).getId() )
+  def __sub__(self, anotherMGFx): 
+    if not isinstance(anotherMGFx,type(self)):
+      anotherMGFx = MGFx(repr(anotherMGFx))
+    return _mgfxSub(self, anotherMGFx )
+  def __isub__(self, anotherMGFx): 
+    self.setId( self.__sub__(anotherMGFx).getId() )
     return self
 
-  def __mul__(self, anotherMR): 
-    if not isinstance(anotherMR,type(self)):
-      anotherMR = MR(repr(anotherMR))
-    return _mgfxMul(self, anotherMR )
-  def __imul__(self, anotherMR): 
-    self.setId( self.__mul__(anotherMR).getId() )
+  def __mul__(self, anotherMGFx): 
+    if not isinstance(anotherMGFx,type(self)):
+      anotherMGFx = MGFx(repr(anotherMGFx))
+    return _mgfxMul(self, anotherMGFx )
+  def __imul__(self, anotherMGFx): 
+    self.setId( self.__mul__(anotherMGFx).getId() )
     return self
  
-  def __div__(self, anotherMR): 
-    if not isinstance(anotherMR,type(self)):
-      anotherMR = MR(repr(anotherMR))
-    return _mgfxDiv(self, anotherMR )
-  def __idiv__(self, anotherMR): 
-    self.setId( self.__div__(anotherMR).getId() )
+  def __div__(self, anotherMGFx): 
+    if not isinstance(anotherMGFx,type(self)):
+      anotherMGFx = MGFx(repr(anotherMGFx))
+    return _mgfxDiv(self, anotherMGFx )
+  def __idiv__(self, anotherMGFx): 
+    self.setId( self.__div__(anotherMGFx).getId() )
     return self
 
 
@@ -913,6 +933,15 @@ class MGFx(Variable): #matrix GFx
 
     return _mgfxSlice(self, rows[0], rows[1], rows[2], cols[0], cols[1], cols[2] )
 
+  def appendByRows(self, anotherMGFx):
+    if not isinstance(anotherMGFx,type(self)):
+      anotherMGFx = MGFx(repr(anotherMGFx))
+    return _mgfxAppendByRows(self, anotherMGFx)
+
+  def appendByColumns(self, anotherMGFx):
+    if not isinstance(anotherMGFx,type(self)):
+      anotherMGFx = MGFx(repr(anotherMGFx))
+    return _mgfxAppendByColumns(self, anotherMGFx)
 
 
 

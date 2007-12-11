@@ -302,7 +302,7 @@ class MatrixSlicingMethod : public xmlrpc_c::method {
   public:
 
     MatrixSlicingMethod() {
-      this->_signature = "n:isiiii";
+      this->_signature = "s:isiiii";
       this->_help = "Returns a submatrix of the given matrix";
     }
 
@@ -353,6 +353,122 @@ class MatrixSlicingMethod : public xmlrpc_c::method {
 
 };
 
+
+class MatrixRowAppendingMethod : public xmlrpc_c::method {
+  public:
+
+    MatrixRowAppendingMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Returns the row-wise junction of two matrices";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const std::string varId2(paramList.getString(2));
+
+      paramList.verifyEnd(3);
+
+      mpplas::MPPDataType* const mat1( table.get(clientId, varId1) );
+      mpplas::MPPDataType* const mat2( table.get(clientId, varId2) );
+
+      mpplas::MatrixZ* matrixZ1; 
+      mpplas::MatrixZ* matrixZ2; 
+      mpplas::MatrixR* matrixR1; 
+      mpplas::MatrixR* matrixR2; 
+      mpplas::MatrixGFx* matrixGFx1; 
+      mpplas::MatrixGFx* matrixGFx2; 
+
+      try {
+        matrixZ1 = dynamic_cast<mpplas::MatrixZ*>(mat1);
+        matrixZ2 = dynamic_cast<mpplas::MatrixZ*>(mat2);
+        if( matrixZ1 ){
+          const std::string varId = table.set(clientId, new mpplas::MatrixZ( matrixZ1->appendByRows(*matrixZ2) ), "MZ");
+          *retvalP = xmlrpc_c::value_string( varId );
+          return;
+        }
+
+        matrixR1 = dynamic_cast<mpplas::MatrixR*>(mat1);
+        matrixR2 = dynamic_cast<mpplas::MatrixR*>(mat2);
+        if( matrixR1 ){
+          const std::string varId = table.set(clientId, new mpplas::MatrixR( matrixR1->appendByRows(*matrixR2) ), "MR");
+          *retvalP = xmlrpc_c::value_string( varId );
+          return;
+        }
+
+        matrixGFx1 = dynamic_cast<mpplas::MatrixGFx*>(mat1);
+        matrixGFx2 = dynamic_cast<mpplas::MatrixGFx*>(mat2);
+        if( matrixGFx1 ){
+          const std::string varId = table.set(clientId, new mpplas::MatrixGFx( matrixGFx1->appendByRows(*matrixGFx2) ), "MGFx");
+          *retvalP = xmlrpc_c::value_string( varId );
+          return;
+        }
+
+
+      } catch( const std::exception &e ){
+        throw girerr::error( e.what() );
+      }
+    }
+};
+
+class MatrixColumnAppendingMethod : public xmlrpc_c::method {
+  public:
+
+    MatrixColumnAppendingMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Returns the column-wise junction of two matrices";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const std::string varId2(paramList.getString(2));
+
+      paramList.verifyEnd(3);
+
+      mpplas::MPPDataType* const mat1( table.get(clientId, varId1) );
+      mpplas::MPPDataType* const mat2( table.get(clientId, varId2) );
+
+      mpplas::MatrixZ* matrixZ1; 
+      mpplas::MatrixZ* matrixZ2; 
+      mpplas::MatrixR* matrixR1; 
+      mpplas::MatrixR* matrixR2; 
+      mpplas::MatrixGFx* matrixGFx1; 
+      mpplas::MatrixGFx* matrixGFx2; 
+
+      try {
+        matrixZ1 = dynamic_cast<mpplas::MatrixZ*>(mat1);
+        matrixZ2 = dynamic_cast<mpplas::MatrixZ*>(mat2);
+        if( matrixZ1 ){
+          const std::string varId = table.set(clientId, new mpplas::MatrixZ( matrixZ1->appendByColumns(*matrixZ2) ), "MZ");
+          *retvalP = xmlrpc_c::value_string( varId );
+          return;
+        }
+
+        matrixR1 = dynamic_cast<mpplas::MatrixR*>(mat1);
+        matrixR2 = dynamic_cast<mpplas::MatrixR*>(mat2);
+        if( matrixR1 ){
+          const std::string varId = table.set(clientId, new mpplas::MatrixR( matrixR1->appendByColumns(*matrixR2) ), "MR");
+          *retvalP = xmlrpc_c::value_string( varId );
+          return;
+        }
+
+        matrixGFx1 = dynamic_cast<mpplas::MatrixGFx*>(mat1);
+        matrixGFx2 = dynamic_cast<mpplas::MatrixGFx*>(mat2);
+        if( matrixGFx1 ){
+          const std::string varId = table.set(clientId, new mpplas::MatrixGFx( matrixGFx1->appendByColumns(*matrixGFx2) ), "MGFx");
+          *retvalP = xmlrpc_c::value_string( varId );
+          return;
+        }
+
+
+      } catch( const std::exception &e ){
+        throw girerr::error( e.what() );
+      }
+    }
+};
 
 class MatrixGetDimensionsMethod : public xmlrpc_c::method {
   public:
@@ -3499,6 +3615,8 @@ int main(int const, const char ** const) {
     myRegistry.addMethod("_mzTranspose", new MZTransposeMethod);
     myRegistry.addMethod("_mzSlice", new MatrixSlicingMethod);
     myRegistry.addMethod("_mzDims", new MatrixGetDimensionsMethod);
+    myRegistry.addMethod("_mzAppendByRows", new MatrixRowAppendingMethod);
+    myRegistry.addMethod("_mzAppendByColumns", new MatrixColumnAppendingMethod);
 
     myRegistry.addMethod("_mrCreate", new MRCreate);
     myRegistry.addMethod("_mrCreateDims", new MRCreateFromDims);
@@ -3513,6 +3631,9 @@ int main(int const, const char ** const) {
     myRegistry.addMethod("_mrTranspose", new MRTransposeMethod);
     myRegistry.addMethod("_mrSlice", new MatrixSlicingMethod);
     myRegistry.addMethod("_mrDims", new MatrixGetDimensionsMethod);
+    myRegistry.addMethod("_mrAppendByRows", new MatrixRowAppendingMethod);
+    myRegistry.addMethod("_mrAppendByColumns", new MatrixColumnAppendingMethod);
+
 
     myRegistry.addMethod("_mgfxCreate", new MGFxCreate);
     myRegistry.addMethod("_mgfxCreateDims", new MGFxCreateFromDims);
@@ -3527,6 +3648,9 @@ int main(int const, const char ** const) {
     myRegistry.addMethod("_mgfxTranspose", new MGFxTransposeMethod);
     myRegistry.addMethod("_mgfxSlice", new MatrixSlicingMethod);
     myRegistry.addMethod("_mgfxDims", new MatrixGetDimensionsMethod);
+    myRegistry.addMethod("_mgfxAppendByRows", new MatrixRowAppendingMethod);
+    myRegistry.addMethod("_mgfxAppendByColumns", new MatrixColumnAppendingMethod);
+
 
 
     myRegistry.addMethod("_getHRString", new GetHRStringMethod);

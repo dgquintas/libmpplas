@@ -1,4 +1,4 @@
-#include "AlgebraUtils.h"
+#include "Dimensions.h"
 #include <sstream>
 
 namespace mpplas{

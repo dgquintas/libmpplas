@@ -11,7 +11,7 @@
 
 
 #include "Errors.h"
-#include "AlgebraUtils.h"
+#include "Dimensions.h"
 #include "Matrix.h"
 #include "Constants.h"
 #include "R.h"

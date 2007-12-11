@@ -695,6 +695,55 @@ void Matrix<T, Alloc>::setToZero(){
   return;
 }
 
+
+
+
+template<typename T, typename Alloc>
+Matrix<T, Alloc>& Matrix<T, Alloc>::appendByRows(const Matrix<T, Alloc>& rhs){
+  if( this->getRows() != rhs.getRows()  ){
+    std::ostringstream oss;
+    oss << "Left-hand-side operator rows = " << this->getRows() << "\n";
+    oss << "Right-hand-side operator rows = " << rhs.getRows();
+    GEN_TRACE_INFO_OSS(oss);
+    throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions(),  oss.str());
+  }
+
+  typename mpplas::MiVec<T, Alloc>::const_iterator itSrc  =rhs._data.begin();
+
+  const int nCols = this->getColumns();
+  const int rhsStride = rhs.getColumns()+nCols;
+  int rhsStrideAccum = 0;
+  for(int i = 0; i < this->getRows(); i++){
+    _data.insert( _data.begin()+nCols+rhsStrideAccum, itSrc, itSrc+rhs.getColumns());
+
+    rhsStrideAccum += rhsStride;
+    itSrc += rhs.getColumns();
+  }
+
+  this->_dims.setColumns( nCols + rhs.getColumns() );
+
+
+  return *this;
+}
+
+
+template<typename T, typename Alloc>
+Matrix<T, Alloc>& Matrix<T, Alloc>::appendByColumns(const Matrix<T, Alloc> rhs){
+  if( this->getColumns() != rhs.getColumns()  ){
+    std::ostringstream oss;
+    oss << "Left-hand-side operator columns = " << this->getColumns() << "\n";
+    oss << "Right-hand-side operator columns = " << rhs.getColumns();
+    GEN_TRACE_INFO_OSS(oss);
+    throw Errors::NonConformantDimensions(this->getDimensions(), rhs.getDimensions(),  oss.str());
+  }
+
+  this->_data.insert( this->_data.end(), rhs._data.begin(), rhs._data.end() );
+  this->_dims.setRows( this->_dims.getRows() + rhs.getRows() );
+
+  return *this;
+}
+
+
 ////////////////////////////////////
 
 

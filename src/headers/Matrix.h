@@ -193,6 +193,10 @@ namespace mpplas {
         void setAll(const T& n);
         void setToZero();
 
+
+        Matrix<T, Alloc>& appendByRows(const Matrix<T, Alloc>& rhs);
+        Matrix<T, Alloc>& appendByColumns(const Matrix<T, Alloc> rhs);
+
         /** Number of elements in the matrix.
          *
          * That is, the product of its dimensions.
@@ -205,6 +209,7 @@ namespace mpplas {
         inline int getRows() const;
         inline int getColumns() const;
         inline bool isSquare() const;
+
 
         virtual std::string toString() const;
         virtual std::string toHRString() const;

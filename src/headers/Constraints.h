@@ -12,7 +12,7 @@ namespace mpplas {
 
   namespace Constraints {
     /** Ensures at compile time that class @a D derives from base class
-     * @B. 
+     * @a B. 
      *
      * From Imperfect C++, by Matthew Wilson, page 5, section 1.2.1   
      * @note This check has no runtime cost whatsoever.

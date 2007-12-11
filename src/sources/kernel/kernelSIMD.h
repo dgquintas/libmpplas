@@ -171,7 +171,7 @@ namespace mpplas{
 
         /** Horizontal addition.
          *
-         * Sums the individual values packed in @a arg1: \f$out = \sum_{e \in arg1} e$\f 
+         * Sums the individual values packed in @a arg1: \f$out = \sum_{e \in arg1} e\f$ 
          *
          * @param out The resulting sum.
          * @param arg1 The SIMDDigit whose elements to sum. */

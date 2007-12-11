@@ -18,7 +18,7 @@
 
 #include "MPPDataType.h"
 #include "Errors.h"
-#include "AlgebraUtils.h"
+#include "Dimensions.h"
 #include "Constants.h"
 #include "Constraints.h"
 #include "MiVec.h"
@@ -26,6 +26,7 @@
 #include "DigitUtils.h"
 #include "SystemInfo.h"
 #include "Field.h"
+#include "Range.h"
 
 namespace mpplas {
 
@@ -79,8 +80,10 @@ namespace mpplas {
          *
          * @return a matrix formed as described above  */
         Matrix<T, Alloc> operator()(int n1, int n2, 
-                                    int m1, int m2) const;
+                                    int m1, int m2, int nstep=1, int mstep=1) const;
 
+
+        Matrix<T, Alloc> operator()(const Range& rows, const Range& cols) const;
 
         /** Sets the contents of the matrix from a textual definition.
          *

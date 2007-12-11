@@ -125,12 +125,12 @@ inline const T& Matrix<T, Alloc>::operator()(int i, int j) const{
 
 
 template<typename T, typename Alloc>
-Matrix<T, Alloc> Matrix<T, Alloc>::operator()(int n1, int n2,
-                                              int m1, int m2) const {
-  if( n2 >= this->getRows() ){
+Matrix<T, Alloc> Matrix<T, Alloc>::operator()(int n1, int n2, 
+                                              int m1, int m2, int nstep, int mstep) const {
+  if( n2 >= this->getRows() || n2 < 0){
     n2 = this->getRows()-1;
   }
-  if( m2 >= this->getColumns() ){
+  if( m2 >= this->getColumns() || m2 < 0){
     m2 = this->getColumns()-1;
   }
 
@@ -150,19 +150,37 @@ Matrix<T, Alloc> Matrix<T, Alloc>::operator()(int n1, int n2,
   }
 
   const int stride = this->getColumns();
-  typename mpplas::MiVec<T, Alloc>::const_iterator it(this->_data.begin());
-  it += (n1 * stride)+m1;
 
   Matrix<T, Alloc> res;
-  for(int i=0; i < (n2-n1+1); i++){
-    const int colsSpan = (m2-m1+1);
-    res._data.insert( res._data.end(), it, it+colsSpan );
-    it += stride;
+  if( mstep == 1 ){
+    const int colsSpan = (m2-m1+1); 
+    typename mpplas::MiVec<T, Alloc>::const_iterator it(this->_data.begin());
+    it += (n1 * stride)+m1;
+    for(int i=0; i < (n2-n1+1); i+=nstep){
+      res._data.insert( res._data.end(), it, it+colsSpan );
+      it += (nstep*stride);
+    }
   }
-  res._dims.setBoth( (n2-n1+1), (m2-m1+1) );
+  else{
+    for(int i=n1; i <= n2; i+=nstep){
+      for(int j=m1; j <= m2; j+=mstep){
+        res._data.push_back(this->operator()(i,j));
+      }
+    }
+  }
+  res._dims.setBoth( (n2-n1)/nstep +1, (m2-m1)/mstep +1 );
 
   return res;
 
+}
+
+
+template<typename T, typename Alloc>
+Matrix<T, Alloc> Matrix<T, Alloc>::operator()(const Range& rows, const Range& cols) const{
+
+    return this->operator()(rows.getStart(), rows.getStop(), 
+                            cols.getStart(), cols.getStop(), 
+                            rows.getStep(), cols.getStep());
 }
 
 template<typename T, typename Alloc>

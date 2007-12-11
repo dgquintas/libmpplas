@@ -96,7 +96,7 @@ namespace mpplas{
    
       Z_n& inverse();
       
-      Z_n& square(void);
+      Z_n& square();
       
       //funciones de informacion
       inline const Z& getMod() const { return n_; }

@@ -26,9 +26,30 @@ namespace mpplas{
       Z_px(const Z_p& coeff, const int exp, const Z& p);
       Z_px(const Z& coeff, const int exp, const Z& p);
   
- 
+      /** Assignment operator */
       Z_px& operator=(const Z_px& src);
 
+      /** Greatest common divisor.
+       *
+       * Convenience shortcut for the calculation of the greatest common
+       * divisor. It relies on the implementations of 
+       * @a GCDExt< Polynomial<Z_p> > and @a GCD< Polynomial<Z_p> > given
+       * by @a mpplas::MethodsFactory.
+       *
+       * The optional output parameters @a s and @a t are only used for the
+       * extended version, that is, they represent the Bézout coefficients.
+       *
+       * @note 
+       * If either @a s or @a t is @e not NULL, the other one must also be
+       * @e not NULL. That is to say, it must not be the case that only of 
+       * of them is not NULL. 
+       *
+       * @param u first operator
+       * @param v second operator
+       * @param[out] s if not null, it will contain the Bézout coefficient for @a u.
+       * @param[out] t if not null, it will contain the Bézout coefficient for @a v. 
+       *
+       * @return the greatest common divisor of @a u and @a v. */
       static Z_px gcd(Z_px u, Z_px v, Z_px* const s = NULL, Z_px* const t = NULL);
 
 

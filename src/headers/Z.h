@@ -187,32 +187,21 @@ namespace mpplas
        */
        Z& XOR(const Z& der);
 
-      /** Hacer el cuadrado.
+      /** Square.
        *  
-       *  Versión especializada de la multiplicación con una mayor
-       *  eficiencia en el calculo del cuadrado de un número.
+       *  Optimized version of the product for squaring.
        *
-       *  @post *this es el cuadrado de su valor original.
-       *  
-       *  @param x Entero a elevar al cuadrado.
-       *
-       *  @return Referencia a *this.
+       *  @return a reference to *this.
        */
-      Z& square(void);
+      Z& square();
 
-       /** Hacer el cuadrado modular.
+       /** Square with modular reduction.
        *  
-       *  Versión especializada de la multiplicación y posterior
-       *  reducción modular con una mayor eficiencia en el calculo 
-       *  del cuadrado de un número.
+       *  Optimized version of the product for modular squaring.
        *
-       *  @post *this es el cuadrado de su valor original reducido
-       *  módulo @e mod. \f$ x^{2} \bmod mod \f$
-       *  
-       *  @param x Entero a elevar al cuadrado.
-       *  @param mod Módulo reductor.
+       *  @param mod modulus to consider.
        *
-       *  @return Referencia a *this.
+       *  @return a reference to *this
        */
       Z& modularSquare(const Z& mod);
     
@@ -350,7 +339,7 @@ namespace mpplas
        * Se realiza la operación \f$(*this) = (*this)^{exp}\f$
        *
        * \exception 
-       * Errors::ExponenteNegativo Si el entero que
+       * Errors::NegativeExponent Si el entero que
        * representa el exponente exp es negativo.
        *
        * \note
@@ -1007,7 +996,7 @@ namespace mpplas
       /** Rightshifts the integer and returns an integer
        * formed from the bits expelled from the right.
        *
-       * If \f$ end \gt \lceil \lg_2{(*this)} \rceil \f$, the all the bits of *this 
+       * If \f$ end > \lceil \lg_2{(*this)} \rceil \f$, the all the bits of *this 
        * will be considered, but no error is reported.
        *
        * @param n the number of bits to rightshift. */
@@ -1209,11 +1198,11 @@ namespace mpplas
        * "resto".
        */
       friend void divMod(const Z& dividendo, const Z& divisor, Z* cociente, Z* resto) 
-        throw (Errors::DivisionPorCero);
+        throw (Errors::DivisionByZero);
       friend void divMod(const Z& dividendo, const SignedDigit divisor, Z* cociente, Z* resto) 
-        throw (Errors::DivisionPorCero);
+        throw (Errors::DivisionByZero);
       friend void divMod(const Z& dividendo, const Digit divisor, Z* cociente, Z* resto) 
-        throw (Errors::DivisionPorCero);
+        throw (Errors::DivisionByZero);
 
 
   };
@@ -1429,7 +1418,7 @@ namespace mpplas
    * @sa class Potencia.
    *
    * @note El exponente ha de ser positivo o se lanzará un
-   * error de tipo Errors::ExponenteNegativo
+   * error de tipo Errors::NegativeExponent
    *
    */
  Z operator^(Z base, const SignedDigit exp); 

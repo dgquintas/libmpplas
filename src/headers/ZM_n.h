@@ -29,7 +29,7 @@ namespace mpplas{
        * @param mod Integer representing the modulus. It must be
        * odd. 
        *
-       * @throw Errors::ModuloParEnMontgomery The @a mod parameter 
+       * @throw Errors::MontgomeryEvenMod The @a mod parameter 
        * is even when it should have been odd.
        */
       explicit ZM_n( const Z& mod);

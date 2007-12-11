@@ -715,15 +715,20 @@ class MZ(Variable): #matrix Z
   def getDimensions(self):
     return _mzDims(self)
 
-  def getSubMatrix(self, rows=(0,), cols=(0,)):
-    rows = list(rows)
-    cols = list(cols)
-    matDims = self.getDimensions()
-    if len(rows) == 1:
-      rows.append( matDims[0]-1 )
-    if len(cols) == 1:
-      cols.append( matDims[1]-1 )
-    return _mzSlice(self, rows[0], rows[1], cols[0], cols[1])
+  def getSubMatrix(self, rangeRows=(0,1,), rangeCols=(0,1,)):
+    if isinstance(rangeRows, int):
+      rows = [rangeRows,1,-1]
+    else:
+      rows = [0,1,-1]
+      for (index,e) in enumerate(rangeRows): rows[index] = e
+
+    if isinstance(rangeCols, int):
+      cols = [rangeCols, 1,-1]
+    else:
+      cols = [0,1,-1]
+      for (index,e) in enumerate(rangeCols): cols[index] = e
+
+    return _mzSlice(self, rows[0], rows[1], rows[2], cols[0], cols[1], cols[2] )
 
 
 #########################################################
@@ -804,15 +809,20 @@ class MR(Variable): #matrix R
   def getDimensions(self):
     return _mrDims(self)
  
-  def getSubMatrix(self, rows=(0,), cols=(0,)):
-    rows = list(rows)
-    cols = list(cols)
-    matDims = self.getDimensions()
-    if len(rows) == 1:
-      rows.append( matDims[0]-1 )
-    if len(cols) == 1:
-      cols.append( matDims[1]-1 )
-    return _mgfxSlice(self, rows[0], rows[1], cols[0], cols[1])
+  def getSubMatrix(self, rangeRows=(0,1,), rangeCols=(0,1,)):
+    if isinstance(rangeRows, int):
+      rows = [rangeRows,1,-1]
+    else:
+      rows = [0,1,-1]
+      for (index,e) in enumerate(rangeRows): rows[index] = e
+
+    if isinstance(rangeCols, int):
+      cols = [rangeCols, 1,-1]
+    else:
+      cols = [0,1,-1]
+      for (index,e) in enumerate(rangeCols): cols[index] = e
+
+    return _mrSlice(self, rows[0], rows[1], rows[2], cols[0], cols[1], cols[2] )
 
 
 
@@ -888,15 +898,23 @@ class MGFx(Variable): #matrix GFx
   def getDimensions(self):
     return _mgfxDims(self)
  
-  def getSubMatrix(self, rows=(0,), cols=(0,)):
-    rows = list(rows)
-    cols = list(cols)
-    matDims = self.getDimensions()
-    if len(rows) == 1:
-      rows.append( matDims[0]-1 )
-    if len(cols) == 1:
-      cols.append( matDims[1]-1 )
-    return _mgfxSlice(self, rows[0], rows[1], cols[0], cols[1])
+  def getSubMatrix(self, rangeRows=(0,1,), rangeCols=(0,1,)):
+    if isinstance(rangeRows, int):
+      rows = [rangeRows,1,-1]
+    else:
+      rows = [0,1,-1]
+      for (index,e) in enumerate(rangeRows): rows[index] = e
+
+    if isinstance(rangeCols, int):
+      cols = [rangeCols, 1,-1]
+    else:
+      cols = [0,1,-1]
+      for (index,e) in enumerate(rangeCols): cols[index] = e
+
+    return _mgfxSlice(self, rows[0], rows[1], rows[2], cols[0], cols[1], cols[2] )
+
+
+
 
 
 

@@ -35,7 +35,6 @@ namespace mpplas{
 
   Z_n::Z_n(Digit mod)
     : Z(), n_(mod)  {
-//      n_ = Z::convertir(mod);
     }
 
 
@@ -117,6 +116,12 @@ namespace mpplas{
     if( n_.isZero() ){
       n_ = der.n_;
     }
+    else if( n_ != der.n_ ){
+      std::ostringstream oss;
+      oss << "Z_n::operator+=; ";
+      GEN_TRACE_INFO_OSS(oss);
+      throw Errors::InconsistentModulus(oss.str());
+    }
     Z::operator+=(der);
     if( *this >= n_ ){
       Z::operator%=(n_);
@@ -128,6 +133,12 @@ namespace mpplas{
   Z_n& Z_n::operator-=(const Z_n& der){
     if( n_.isZero() ){
       n_ = der.n_;
+    }
+    else if( n_ != der.n_ ){
+      std::ostringstream oss;
+      oss << "Z_n::operator+=; ";
+      GEN_TRACE_INFO_OSS(oss);
+      throw Errors::InconsistentModulus(oss.str());
     }
     Z::operator-=(der);
 
@@ -148,6 +159,12 @@ namespace mpplas{
         this->makeZero();
       }
     }
+    else if( n_ != der.n_ ){
+      std::ostringstream oss;
+      oss << "Z_n::operator+=; ";
+      GEN_TRACE_INFO_OSS(oss);
+      throw Errors::InconsistentModulus(oss.str());
+    }
     else{
       Z::operator*=(der);
       Z::operator%=(n_);
@@ -167,6 +184,12 @@ namespace mpplas{
       else{ // must be zero
         throw Errors::DivisionByZero();  
       }
+    }
+    else if( n_ != der.n_ ){
+      std::ostringstream oss;
+      oss << "Z_n::operator+=; ";
+      GEN_TRACE_INFO_OSS(oss);
+      throw Errors::InconsistentModulus(oss.str());
     }
     else{
       Exponentiation<Z_n> *potMod; MethodsFactory::getReference().getFunc(potMod);

@@ -193,8 +193,36 @@ namespace mpplas {
         void setAll(const T& n);
         void setToZero();
 
-
+        /** Append another matrix row-wise.
+         *
+         * Appends the @a rhs matrix to *this in a row-wise fashion:
+         *
+         * @verbatim
+         * [ 1 2 ]   [ 77 ]  ---  [ 1 2 77 ]
+         * [ 3 4 ]   [ 88 ]  ---  [ 3 4 88 ]
+         * @endverbatim
+         *
+         * @pre @a rhs must have the same number of rows as *this
+         *
+         * @return a reference to *this */
         Matrix<T, Alloc>& appendByRows(const Matrix<T, Alloc>& rhs);
+
+        /** Append another matrix column-wise.
+         *
+         * Appends the @a rhs matrix to *this in a column-wise fashion:
+         *
+         * @verbatim
+         * [ 1 2 ]   [ 7 7 ]  ---  [ 1 2 ]
+         * [ 3 4 ]   [ 8 8 ]  ---  [ 3 4 ]
+         * [ 5 6 ]                 [ 5 6 ]
+         *                         [ 7 7 ]
+         *                         [ 8 8 ]
+         * @endverbatim
+         *
+         * @pre @a rhs must have the same number of columns as *this
+         *
+         * @return a reference to *this */
+
         Matrix<T, Alloc>& appendByColumns(const Matrix<T, Alloc> rhs);
 
         /** Number of elements in the matrix.

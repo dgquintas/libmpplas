@@ -16,17 +16,17 @@ namespace mpplas{
        *
        * @param mod Entero representando el módulo reductor.
        */
-      explicit Z_n( const Z& mod);
+      explicit Z_n(const Z& mod = Z::ZERO);
        /** Constructor de \f$Z_n\f$ dado \f$n\f$.
        *
        * @param mod Digit representando el módulo reductor.
        */
-     explicit Z_n( Digit mod);
+     explicit Z_n(Digit mod);
        /** Constructor de \f$Z_n\f$ dado \f$n\f$.
        *
        * @param mod SignedDigit representando el módulo reductor.
        */
-     explicit Z_n( SignedDigit mod);
+     explicit Z_n(SignedDigit mod);
       
        /** Constructor de \f$Z_n\f$ a partir de un entero y \f$n\f$.
        *

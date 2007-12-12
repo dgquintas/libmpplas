@@ -20,6 +20,7 @@
 #include "Z_n.h"
 #include "ZM_n.h"
 #include "MatrixZ.h"
+#include "MatrixZ_n.h"
 #include "MatrixR.h"
 #include "MatrixGFx.h"
 #include "R.h"
@@ -206,6 +207,7 @@ class MatrixSetElementMethod : public xmlrpc_c::method {
       const mpplas::MPPDataType* elem( table.get(clientId, varId2) );
 
       mpplas::MatrixZ* matrixZ; const mpplas::Z* aZ;
+      mpplas::MatrixZ_n* matrixZ_n; const mpplas::Z_n* aZ_n;
       mpplas::MatrixR* matrixR; const mpplas::R* aR;
       mpplas::MatrixGFx* matrixGFx; const mpplas::GFx* aGFx;
 
@@ -220,6 +222,16 @@ class MatrixSetElementMethod : public xmlrpc_c::method {
           matrixZ->operator()(row,col) = *aZ;
           return;
         }
+        matrixZ_n = dynamic_cast<mpplas::MatrixZ_n*>(mat);
+        if( matrixZ_n ){
+          aZ_n = dynamic_cast<const mpplas::Z_n*>(elem);
+          if( !aZ_n ){
+            throw girerr::error( "Incompatible types in matrix assignation" );
+          }
+          matrixZ_n->operator()(row,col) = *aZ_n;
+          return;
+        }
+
         matrixR = dynamic_cast<mpplas::MatrixR*>(mat);
         if( matrixR ){
           aR = dynamic_cast<const mpplas::R*>(elem);
@@ -267,6 +279,7 @@ class MatrixGetElementMethod : public xmlrpc_c::method {
       mpplas::MPPDataType* const mat( table.get(clientId, varId1) );
 
       mpplas::MatrixZ* matrixZ; 
+      mpplas::MatrixZ_n* matrixZ_n; 
       mpplas::MatrixR* matrixR; 
       mpplas::MatrixGFx* matrixGFx; 
 
@@ -274,6 +287,12 @@ class MatrixGetElementMethod : public xmlrpc_c::method {
         matrixZ = dynamic_cast<mpplas::MatrixZ*>(mat);
         if( matrixZ ){
           const std::string varId = table.set(clientId, new mpplas::Z( matrixZ->operator()(row,col) ), "Z");
+          *retvalP = xmlrpc_c::value_string( varId );
+          return;
+        }
+        matrixZ_n = dynamic_cast<mpplas::MatrixZ_n*>(mat);
+        if( matrixZ_n ){
+          const std::string varId = table.set(clientId, new mpplas::Z_n( matrixZ_n->operator()(row,col) ), "Zn");
           *retvalP = xmlrpc_c::value_string( varId );
           return;
         }
@@ -322,6 +341,7 @@ class MatrixSlicingMethod : public xmlrpc_c::method {
       mpplas::MPPDataType* const mat( table.get(clientId, varId1) );
 
       mpplas::MatrixZ* matrixZ; 
+      mpplas::MatrixZ_n* matrixZ_n; 
       mpplas::MatrixR* matrixR; 
       mpplas::MatrixGFx* matrixGFx; 
 
@@ -332,6 +352,13 @@ class MatrixSlicingMethod : public xmlrpc_c::method {
           *retvalP = xmlrpc_c::value_string( varId );
           return;
         }
+        matrixZ_n = dynamic_cast<mpplas::MatrixZ_n*>(mat);
+        if( matrixZ_n ){
+          const std::string varId = table.set(clientId, new mpplas::MatrixZ_n( matrixZ_n->operator()(rowIni, rowEnd ,colIni, colEnd, rowStep, colStep) ), "MZn");
+          *retvalP = xmlrpc_c::value_string( varId );
+          return;
+        }
+
         matrixR = dynamic_cast<mpplas::MatrixR*>(mat);
         if( matrixR ){
           const std::string varId = table.set(clientId, new mpplas::MatrixR( matrixR->operator()(rowIni, rowEnd ,colIni, colEnd, rowStep, colStep) ), "MR");
@@ -375,8 +402,14 @@ class MatrixRowAppendingMethod : public xmlrpc_c::method {
 
       mpplas::MatrixZ* matrixZ1; 
       mpplas::MatrixZ* matrixZ2; 
+
+      mpplas::MatrixZ_n* matrixZ_n1; 
+      mpplas::MatrixZ_n* matrixZ_n2; 
+
+
       mpplas::MatrixR* matrixR1; 
       mpplas::MatrixR* matrixR2; 
+
       mpplas::MatrixGFx* matrixGFx1; 
       mpplas::MatrixGFx* matrixGFx2; 
 
@@ -388,6 +421,15 @@ class MatrixRowAppendingMethod : public xmlrpc_c::method {
           *retvalP = xmlrpc_c::value_string( varId );
           return;
         }
+
+        matrixZ_n1 = dynamic_cast<mpplas::MatrixZ_n*>(mat1);
+        matrixZ_n2 = dynamic_cast<mpplas::MatrixZ_n*>(mat2);
+        if( matrixZ_n1 ){
+          const std::string varId = table.set(clientId, new mpplas::MatrixZ_n( matrixZ_n1->appendByRows(*matrixZ_n2) ), "MZn");
+          *retvalP = xmlrpc_c::value_string( varId );
+          return;
+        }
+
 
         matrixR1 = dynamic_cast<mpplas::MatrixR*>(mat1);
         matrixR2 = dynamic_cast<mpplas::MatrixR*>(mat2);
@@ -433,8 +475,13 @@ class MatrixColumnAppendingMethod : public xmlrpc_c::method {
 
       mpplas::MatrixZ* matrixZ1; 
       mpplas::MatrixZ* matrixZ2; 
+
+      mpplas::MatrixZ_n* matrixZ_n1; 
+      mpplas::MatrixZ_n* matrixZ_n2; 
+
       mpplas::MatrixR* matrixR1; 
       mpplas::MatrixR* matrixR2; 
+
       mpplas::MatrixGFx* matrixGFx1; 
       mpplas::MatrixGFx* matrixGFx2; 
 
@@ -446,6 +493,15 @@ class MatrixColumnAppendingMethod : public xmlrpc_c::method {
           *retvalP = xmlrpc_c::value_string( varId );
           return;
         }
+
+        matrixZ_n1 = dynamic_cast<mpplas::MatrixZ_n*>(mat1);
+        matrixZ_n2 = dynamic_cast<mpplas::MatrixZ_n*>(mat2);
+        if( matrixZ_n1 ){
+          const std::string varId = table.set(clientId, new mpplas::MatrixZ_n( matrixZ_n1->appendByColumns(*matrixZ_n2) ), "MZn");
+          *retvalP = xmlrpc_c::value_string( varId );
+          return;
+        }
+
 
         matrixR1 = dynamic_cast<mpplas::MatrixR*>(mat1);
         matrixR2 = dynamic_cast<mpplas::MatrixR*>(mat2);
@@ -488,6 +544,7 @@ class MatrixGetDimensionsMethod : public xmlrpc_c::method {
       mpplas::MPPDataType* const mat( table.get(clientId, varId1) );
 
       mpplas::MatrixZ* matrixZ; 
+      mpplas::MatrixZ_n* matrixZ_n; 
       mpplas::MatrixR* matrixR; 
       mpplas::MatrixGFx* matrixGFx; 
 
@@ -497,6 +554,14 @@ class MatrixGetDimensionsMethod : public xmlrpc_c::method {
           std::vector<xmlrpc_c::value> res;
           res.push_back( xmlrpc_c::value_int(matrixZ->getRows()));
           res.push_back( xmlrpc_c::value_int(matrixZ->getColumns()));
+          *retvalP = xmlrpc_c::value_array( res );
+          return;
+        }
+        matrixZ_n = dynamic_cast<mpplas::MatrixZ_n*>(mat);
+        if( matrixZ_n ){
+          std::vector<xmlrpc_c::value> res;
+          res.push_back( xmlrpc_c::value_int(matrixZ_n->getRows()));
+          res.push_back( xmlrpc_c::value_int(matrixZ_n->getColumns()));
           *retvalP = xmlrpc_c::value_array( res );
           return;
         }
@@ -858,12 +923,13 @@ class Z_nCreate: public xmlrpc_c::method {
 
       paramList.verifyEnd(3);
       try{
-        const mpplas::Z ini( *((mpplas::Z*)table.get(clientId, varId1)));
+
+        const mpplas::Z ini( paramList.getString(1));
         const mpplas::Z mod( *((mpplas::Z*)table.get(clientId, varId2)));
 
         mpplas::Z_n* const op( new mpplas::Z_n(ini,mod));
 
-        const std::string varId(table.set(clientId, op, "Z_n"));
+        const std::string varId(table.set(clientId, op, "Zn"));
 
         *retvalP = xmlrpc_c::value_string(varId);
       }
@@ -894,7 +960,7 @@ class Z_nAddMethod : public xmlrpc_c::method {
         const mpplas::Z_n op1( *((mpplas::Z_n*)table.get(clientId, varId1)));
         const mpplas::Z_n op2( *((mpplas::Z_n*)table.get(clientId, varId2)));
 
-        const std::string varId = table.set(clientId, new mpplas::Z_n(op1+op2), "Z_n");
+        const std::string varId = table.set(clientId, new mpplas::Z_n(op1+op2), "Zn");
 
         *retvalP = xmlrpc_c::value_string( varId );
       }        
@@ -924,7 +990,7 @@ class Z_nSubMethod : public xmlrpc_c::method {
         const mpplas::Z_n op1( *((mpplas::Z_n*)table.get(clientId, varId1)));
         const mpplas::Z_n op2( *((mpplas::Z_n*)table.get(clientId, varId2)));
 
-        const std::string varId = table.set(clientId, new mpplas::Z_n(op1-op2), "Z_n");
+        const std::string varId = table.set(clientId, new mpplas::Z_n(op1-op2), "Zn");
 
         *retvalP = xmlrpc_c::value_string( varId );
       }
@@ -954,7 +1020,7 @@ class Z_nMulMethod : public xmlrpc_c::method {
         const mpplas::Z_n op1( *((mpplas::Z_n*)table.get(clientId, varId1)));
         const mpplas::Z_n op2( *((mpplas::Z_n*)table.get(clientId, varId2)));
 
-        const std::string varId = table.set(clientId, new mpplas::Z_n(op1 * op2), "Z_n");
+        const std::string varId = table.set(clientId, new mpplas::Z_n(op1 * op2), "Zn");
 
         *retvalP = xmlrpc_c::value_string( varId );
       }
@@ -983,7 +1049,7 @@ class Z_nDivMethod : public xmlrpc_c::method {
         const mpplas::Z_n op1( *((mpplas::Z_n*)table.get(clientId, varId1)));
         const mpplas::Z_n op2( *((mpplas::Z_n*)table.get(clientId, varId2)));
 
-        const std::string varId = table.set(clientId, new mpplas::Z_n(op1/op2), "Z_n");
+        const std::string varId = table.set(clientId, new mpplas::Z_n(op1/op2), "Zn");
 
         *retvalP = xmlrpc_c::value_string( varId );
       }
@@ -1011,7 +1077,7 @@ class Z_nInvMethod : public xmlrpc_c::method {
       try{
         mpplas::Z_n op1( *((mpplas::Z_n*)table.get(clientId, varId1)));
         op1.inverse(); 
-        const std::string varId = table.set(clientId, new mpplas::Z_n(op1), "Z_n");
+        const std::string varId = table.set(clientId, new mpplas::Z_n(op1), "Zn");
         *retvalP = xmlrpc_c::value_string( varId );
       }
       catch(const std::exception& e){
@@ -1041,7 +1107,7 @@ class Z_nPowMethod : public xmlrpc_c::method {
         const mpplas::Z op2( *((mpplas::Z_n*)table.get(clientId, varId2)));
 
 
-        const std::string varId = table.set(clientId, new mpplas::Z_n(  op1 ^ op2 ), "Z_n");
+        const std::string varId = table.set(clientId, new mpplas::Z_n(  op1 ^ op2 ), "Zn");
 
         *retvalP = xmlrpc_c::value_string( varId );
       }
@@ -1888,72 +1954,6 @@ class MZCreateFromDims: public xmlrpc_c::method {
 };
 
 
-class MZSetElementMethod : public xmlrpc_c::method {
-  public:
-
-    MZSetElementMethod() {
-      this->_signature = "n:isiis";
-      this->_help = "Sets an element of the matrix to the given value";
-    }
-
-    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
-
-      const int clientId(paramList.getInt(0));
-      const std::string varId1(paramList.getString(1));
-      const int row(paramList.getInt(2));
-      const int col(paramList.getInt(3));
-      const std::string varId2(paramList.getString(4));
-
-      paramList.verifyEnd(5);
-
-      try{
-        mpplas::MatrixZ* const mat( (mpplas::MatrixZ*)table.get(clientId, varId1));
-        const mpplas::Z elem( *((mpplas::Z*)table.get(clientId, varId2)));
-
-
-        (*mat)(row,col) = elem;
-
-        *retvalP = xmlrpc_c::value_nil();
-
-      } catch( const std::exception &e ){
-        throw girerr::error( e.what() );
-      }
-
-    }
-
-};
-
-class MZGetElementMethod : public xmlrpc_c::method {
-  public:
-
-    MZGetElementMethod() {
-      this->_signature = "s:isii";
-      this->_help = "Gets an element of the matrix";
-    }
-
-    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
-
-      const int clientId(paramList.getInt(0));
-      const std::string varId1(paramList.getString(1));
-      const int row(paramList.getInt(2));
-      const int col(paramList.getInt(3));
-
-      paramList.verifyEnd(4);
-      try{
-        const mpplas::MatrixZ* const mat( (mpplas::MatrixZ*)table.get(clientId, varId1));
-
-
-        const std::string varId = table.set(clientId, new mpplas::Z( mat->operator()(row,col) ), "Z");
-        *retvalP = xmlrpc_c::value_string( varId );
-      } catch( const std::exception &e ){
-        throw girerr::error( e.what() );
-      }
-    }
-
-};
-
-
-
 class MZAddMethod : public xmlrpc_c::method {
   public:
 
@@ -2170,72 +2170,6 @@ class MRCreateFromDims: public xmlrpc_c::method {
 
     }
 };
-
-class MRSetElementMethod : public xmlrpc_c::method {
-  public:
-
-    MRSetElementMethod() {
-      this->_signature = "n:isiis";
-      this->_help = "Sets an element of the matrix to the given value";
-    }
-
-    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
-
-      const int clientId(paramList.getInt(0));
-      const std::string varId1(paramList.getString(1));
-      const int row(paramList.getInt(2));
-      const int col(paramList.getInt(3));
-      const std::string varId2(paramList.getString(4));
-
-      paramList.verifyEnd(5);
-
-      try{
-        mpplas::MatrixR* const mat( (mpplas::MatrixR*)table.get(clientId, varId1));
-        const mpplas::R elem( *((mpplas::R*)table.get(clientId, varId2)));
-
-
-        (*mat)(row,col) = elem;
-
-        *retvalP = xmlrpc_c::value_nil();
-
-      } catch( const std::exception &e ){
-        throw girerr::error( e.what() );
-      }
-
-    }
-
-};
-
-class MRGetElementMethod : public xmlrpc_c::method {
-  public:
-
-    MRGetElementMethod() {
-      this->_signature = "s:isii";
-      this->_help = "Gets an element of the matrix";
-    }
-
-    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
-
-      const int clientId(paramList.getInt(0));
-      const std::string varId1(paramList.getString(1));
-      const int row(paramList.getInt(2));
-      const int col(paramList.getInt(3));
-
-      paramList.verifyEnd(4);
-
-      try{
-        const mpplas::MatrixR* const mat( (mpplas::MatrixR*)table.get(clientId, varId1));
-
-
-        const std::string varId = table.set(clientId, new mpplas::R( mat->operator()(row,col) ), "R");
-        *retvalP = xmlrpc_c::value_string( varId );
-      } catch( const std::exception &e ){
-        throw girerr::error( e.what() );
-      }
-    }
-
-};
-
 
 class MRAddMethod : public xmlrpc_c::method {
   public:
@@ -2523,72 +2457,6 @@ class MGFxCreateFromDims: public xmlrpc_c::method {
 };
 
 
-class MGFxSetElementMethod : public xmlrpc_c::method {
-  public:
-
-    MGFxSetElementMethod() {
-      this->_signature = "n:isiis";
-      this->_help = "Sets an element of the matrix to the given value";
-    }
-
-    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
-
-      const int clientId(paramList.getInt(0));
-      const std::string varId1(paramList.getString(1));
-      const int row(paramList.getInt(2));
-      const int col(paramList.getInt(3));
-      const std::string varId2(paramList.getString(4));
-
-      paramList.verifyEnd(5);
-
-      try{
-        mpplas::MatrixGFx* const mat( (mpplas::MatrixGFx*)table.get(clientId, varId1));
-        const mpplas::GFx elem( *((mpplas::GFx*)table.get(clientId, varId2)));
-
-
-        (*mat)(row,col) = elem;
-
-        *retvalP = xmlrpc_c::value_nil();
-
-      } catch( const std::exception &e ){
-        throw girerr::error( e.what() );
-      }
-
-    }
-
-};
-
-class MGFxGetElementMethod : public xmlrpc_c::method {
-  public:
-
-    MGFxGetElementMethod() {
-      this->_signature = "s:isii";
-      this->_help = "Gets an element of the matrix";
-    }
-
-    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
-
-      const int clientId(paramList.getInt(0));
-      const std::string varId1(paramList.getString(1));
-      const int row(paramList.getInt(2));
-      const int col(paramList.getInt(3));
-
-      paramList.verifyEnd(4);
-
-      try{
-        const mpplas::MatrixGFx* const mat( (mpplas::MatrixGFx*)table.get(clientId, varId1));
-
-
-        const std::string varId = table.set(clientId, new mpplas::GFx( mat->operator()(row,col) ), "GFx");
-        *retvalP = xmlrpc_c::value_string( varId );
-      } catch( const std::exception &e ){
-        throw girerr::error( e.what() );
-      }
-    }
-
-};
-
-
 class MGFxAddMethod : public xmlrpc_c::method {
   public:
 
@@ -2808,6 +2676,297 @@ class MGFxTransposeMethod : public xmlrpc_c::method {
     }
 
 };
+
+
+
+/***********************************************
+ **************** Z_n MATRICES *****************
+ ***********************************************/
+
+class MZ_nCreate: public xmlrpc_c::method {
+  public:
+
+    MZ_nCreate() {
+      this->_signature = "s:iss";
+      this->_help = "Creates a matrix on Zn";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string def(paramList.getString(1));
+      const std::string modId(paramList.getString(2));
+
+      paramList.verifyEnd(3);
+
+      try{
+        const mpplas::Z* const mod( (mpplas::Z*)table.get(clientId, modId));
+        mpplas::MatrixZ_n* const op( new mpplas::MatrixZ_n(def, *mod));
+
+        const std::string varId(table.set(clientId, op, "MZn"));
+
+        *retvalP = xmlrpc_c::value_string(varId);
+      }
+      catch(const std::exception& e){
+        throw(girerr::error(e.what()));
+      }
+
+    }
+};
+class MZ_nCreateFromDims: public xmlrpc_c::method {
+  public:
+
+    MZ_nCreateFromDims() {
+      this->_signature = "s:iiis";
+      this->_help = "Creates a matrix with elements from Zn";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const int rows(paramList.getInt(1));
+      const int cols(paramList.getInt(2));
+      const std::string modId(paramList.getString(3));
+
+      paramList.verifyEnd(4);
+
+      try{
+        const mpplas::Z* const mod( (mpplas::Z*)table.get(clientId, modId));
+
+        mpplas::MatrixZ_n* const op( new mpplas::MatrixZ_n(rows, cols, *mod));
+
+        const std::string varId(table.set(clientId, op, "MZn"));
+
+        *retvalP = xmlrpc_c::value_string(varId);
+      }
+      catch(const std::exception& e){
+        throw(girerr::error(e.what()));
+      }
+
+    }
+};
+
+
+class MZ_nAddMethod : public xmlrpc_c::method {
+  public:
+
+    MZ_nAddMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Adds two matrices together";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const std::string varId2(paramList.getString(2));
+
+      paramList.verifyEnd(3);
+      try{
+        const mpplas::MatrixZ_n op1( *((mpplas::MatrixZ_n*)table.get(clientId, varId1)));
+        const mpplas::MatrixZ_n op2( *((mpplas::MatrixZ_n*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixZ_n(op1+op2), "MZn");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+      catch(const std::exception& e){
+        throw(girerr::error(e.what()));
+      }
+
+    }
+
+};
+class MZ_nSubMethod : public xmlrpc_c::method {
+  public:
+
+    MZ_nSubMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Adds two matrices together";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const std::string varId2(paramList.getString(2));
+
+      paramList.verifyEnd(3);
+
+      try{
+        const mpplas::MatrixZ_n op1( *((mpplas::MatrixZ_n*)table.get(clientId, varId1)));
+        const mpplas::MatrixZ_n op2( *((mpplas::MatrixZ_n*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixZ_n(op1-op2), "MZn");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+      catch(const std::exception& e){
+        throw(girerr::error(e.what()));
+      }
+
+    }
+
+};
+
+class MZ_nMulMethod : public xmlrpc_c::method {
+  public:
+
+    MZ_nMulMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Multiplies two matrices";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const std::string varId2(paramList.getString(2));
+
+      paramList.verifyEnd(3);
+
+      try{
+        const mpplas::MatrixZ_n op1( *((mpplas::MatrixZ_n*)table.get(clientId, varId1)));
+        const mpplas::MatrixZ_n op2( *((mpplas::MatrixZ_n*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixZ_n(op1*op2), "MZn");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+      catch(const std::exception& e){
+        throw(girerr::error(e.what()));
+      }
+
+    }
+
+};
+class MZ_nDivMethod : public xmlrpc_c::method {
+  public:
+
+    MZ_nDivMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Divides two matrices";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const std::string varId2(paramList.getString(2));
+
+      paramList.verifyEnd(3);
+
+      try{
+        const mpplas::MatrixZ_n op1( *((mpplas::MatrixZ_n*)table.get(clientId, varId1)));
+        const mpplas::MatrixZ_n op2( *((mpplas::MatrixZ_n*)table.get(clientId, varId2)));
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixZ_n(op1/op2), "MZn");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+      catch(const std::exception& e){
+        throw(girerr::error(e.what()));
+      }
+
+    }
+
+};
+
+class MZ_nInvMethod : public xmlrpc_c::method {
+  public:
+
+    MZ_nInvMethod() {
+      this->_signature = "s:is";
+      this->_help = "Returns the inverse of the given matrix";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+
+      paramList.verifyEnd(2);
+
+      try{
+        mpplas::MatrixZ_n op1( *((mpplas::MatrixZ_n*)table.get(clientId, varId1)));
+        op1.invert();
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixZ_n( op1 ), "MZn");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+      catch(const std::exception& e){
+        throw(girerr::error(e.what()));
+      }
+
+    }
+
+};
+class MZ_nSolveMethod : public xmlrpc_c::method {
+  public:
+
+    MZ_nSolveMethod() {
+      this->_signature = "s:iss";
+      this->_help = "Solves the system specified by an square matrix and a vector";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+      const std::string varId2(paramList.getString(2));
+
+      paramList.verifyEnd(3);
+
+      try{
+        const mpplas::MatrixZ_n op1( *((mpplas::MatrixZ_n*)table.get(clientId, varId1)));
+        const mpplas::MatrixZ_n op2( *((mpplas::MatrixZ_n*)table.get(clientId, varId2)));
+
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixZ_n( mpplas::MatrixHelpers::solve(op1,op2) ), "MZn");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }catch( const std::exception &e ){
+        throw girerr::error( e.what() );
+      }
+
+    }
+
+};
+
+class MZ_nTransposeMethod : public xmlrpc_c::method {
+  public:
+
+    MZ_nTransposeMethod() {
+      this->_signature = "s:is";
+      this->_help = "Returns the transpose of the given matrix";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+
+      paramList.verifyEnd(2);
+
+      try{
+        mpplas::MatrixZ_n op1( *((mpplas::MatrixZ_n*)table.get(clientId, varId1)));
+        op1.transpose();
+
+        const std::string varId = table.set(clientId, new mpplas::MatrixZ_n( op1 ), "MZn");
+
+        *retvalP = xmlrpc_c::value_string( varId );
+      }
+      catch(const std::exception& e){
+        throw(girerr::error(e.what()));
+      }
+
+    }
+
+};
+
+
+
 
 
 /***********************************************
@@ -3633,6 +3792,23 @@ int main(int const, const char ** const) {
     myRegistry.addMethod("_mrDims", new MatrixGetDimensionsMethod);
     myRegistry.addMethod("_mrAppendByRows", new MatrixRowAppendingMethod);
     myRegistry.addMethod("_mrAppendByColumns", new MatrixColumnAppendingMethod);
+
+
+    myRegistry.addMethod("_mz_nCreate", new MZ_nCreate);
+    myRegistry.addMethod("_mz_nCreateDims", new MZ_nCreateFromDims);
+    myRegistry.addMethod("_mz_nAdd", new MZ_nAddMethod);
+    myRegistry.addMethod("_mz_nSub", new MZ_nSubMethod);
+    myRegistry.addMethod("_mz_nMul", new MZ_nMulMethod);
+    myRegistry.addMethod("_mz_nDiv", new MZ_nDivMethod); 
+    myRegistry.addMethod("_mz_nInv", new MZ_nInvMethod); 
+    myRegistry.addMethod("_mz_nSolve", new MZ_nSolveMethod); 
+    myRegistry.addMethod("_mz_nSetElement", new MatrixSetElementMethod);
+    myRegistry.addMethod("_mz_nGetElement", new MatrixGetElementMethod);
+    myRegistry.addMethod("_mz_nTranspose", new MZ_nTransposeMethod);
+    myRegistry.addMethod("_mz_nSlice", new MatrixSlicingMethod);
+    myRegistry.addMethod("_mz_nDims", new MatrixGetDimensionsMethod);
+    myRegistry.addMethod("_mz_nAppendByRows", new MatrixRowAppendingMethod);
+    myRegistry.addMethod("_mz_nAppendByColumns", new MatrixColumnAppendingMethod);
 
 
     myRegistry.addMethod("_mgfxCreate", new MGFxCreate);

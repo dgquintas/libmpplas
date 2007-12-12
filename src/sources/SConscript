@@ -14,6 +14,7 @@ filesStr = """
     LCM.cpp
     MatrixGFx.cpp
     MatrixZ.cpp
+    MatrixZ_n.cpp
     MatrixR.cpp
     VectorialCPU.cpp
     Potencia.cpp

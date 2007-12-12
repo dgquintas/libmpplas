@@ -391,64 +391,64 @@ class Z(Variable):
 #######################################################################
 
 
-class Z_n(Variable):
-  def __init__(self, zIniStr="0", zMod="0", id=None):
+class Zn(Variable):
+  def __init__(self, zIniStr="0", zMod=None, id=None):
     if id:
       Variable.__init__(self, id)
     else:
-      Variable.__init__(self, _znCreate(str(zIniStr), str(zMod)).getId())
+      Variable.__init__(self, _znCreate(str(zIniStr), zMod).getId())
 
-  def __add__(self, anotherZ_n): 
-    if not isinstance(anotherZ_n,type(self)):
-      anotherZ_n = Z_n(str(anotherZ_n))
-    return _znAdd(self, anotherZ_n )
-  def __iadd__(self, anotherZ_n): 
-    self.setId( self.__add__(anotherZ_n).getId() )
+  def __add__(self, anotherZn): 
+    if not isinstance(anotherZn,type(self)):
+      anotherZn = Zn(str(anotherZn))
+    return _znAdd(self, anotherZn )
+  def __iadd__(self, anotherZn): 
+    self.setId( self.__add__(anotherZn).getId() )
     return self
 
-  def __sub__(self, anotherZ_n): 
-    if not isinstance(anotherZ_n,type(self)):
-      anotherZ_n = Z_n(str(anotherZ_n))
-    return _znSub(self, anotherZ_n)
-  def __isub__(self, anotherZ_n): 
-    self.setId( self.__sub__(anotherZ_n).getId() )
+  def __sub__(self, anotherZn): 
+    if not isinstance(anotherZn,type(self)):
+      anotherZn = Zn(str(anotherZn))
+    return _znSub(self, anotherZn)
+  def __isub__(self, anotherZn): 
+    self.setId( self.__sub__(anotherZn).getId() )
     return self
 
-  def __mul__(self, anotherZ_n): 
-    if not isinstance(anotherZ_n,type(self)):
-      anotherZ_n = Z_n(str(anotherZ_n))
-    return _znMul(self, anotherZ_n)
-  def __imul__(self, anotherZ_n): 
-    self.setId( self.__mul__(anotherZ_n).getId() )
-    return self
-
-
-  def __div__(self, anotherZ_n): 
-    if not isinstance(anotherZ_n,type(self)):
-      anotherZ_n = Z_n(str(anotherZ_n))
-    return _znDiv(self, anotherZ_n)
-  def __idiv__(self, anotherZ_n): 
-    self.setId( self.__div__(anotherZ_n).getId() )
+  def __mul__(self, anotherZn): 
+    if not isinstance(anotherZn,type(self)):
+      anotherZn = Zn(str(anotherZn))
+    return _znMul(self, anotherZn)
+  def __imul__(self, anotherZn): 
+    self.setId( self.__mul__(anotherZn).getId() )
     return self
 
 
-  def __lt__(self, anotherZ_n):
-    return (_zCompare(self, anotherZ_n) < 0 )
-  def __le__(self, anotherZ_n):
-    return (_zCompare(self, anotherZ_n) <= 0)
-  def __eq__(self, anotherZ_n):
-    return (_zCompare(self, anotherZ_n) == 0)
-  def __ne__(self, anotherZ_n):
-    return (_zCompare(self, anotherZ_n) != 0)
-  def __gt__(self, anotherZ_n):
-    return (_zCompare(self, anotherZ_n) > 0)
-  def __ge__(self, anotherZ_n):
-    return (_zCompare(self, anotherZ_n) >= 0)
+  def __div__(self, anotherZn): 
+    if not isinstance(anotherZn,type(self)):
+      anotherZn = Zn(str(anotherZn))
+    return _znDiv(self, anotherZn)
+  def __idiv__(self, anotherZn): 
+    self.setId( self.__div__(anotherZn).getId() )
+    return self
+
+
+  def __lt__(self, anotherZn):
+    return (_zCompare(self, anotherZn) < 0 )
+  def __le__(self, anotherZn):
+    return (_zCompare(self, anotherZn) <= 0)
+  def __eq__(self, anotherZn):
+    return (_zCompare(self, anotherZn) == 0)
+  def __ne__(self, anotherZn):
+    return (_zCompare(self, anotherZn) != 0)
+  def __gt__(self, anotherZn):
+    return (_zCompare(self, anotherZn) > 0)
+  def __ge__(self, anotherZn):
+    return (_zCompare(self, anotherZn) >= 0)
 
 
   def __pow__(self, exp, mod=None):
     if not isinstance(exp,type(self)):
-      exp = Z_n(str(exp))
+      exp = Zn(str(exp))
     if mod:
       return modExp(self,exp,mod)
     else:
@@ -457,6 +457,8 @@ class Z_n(Variable):
     self.setId( self.__pow__(exp,mod).getId() )
 
 
+  def getInverse(self):
+    return _znInv(self)
 
   def __len__(self):
     return _zBitLength(self.getId())
@@ -663,32 +665,24 @@ class MZ(Variable): #matrix Z
 
 
   def __add__(self, anotherMZ): 
-    if not isinstance(anotherMZ,type(self)):
-      anotherMZ = MZ(repr(anotherMZ))
     return _mzAdd(self, anotherMZ )
   def __iadd__(self, anotherMZ): 
     self.setId( self.__add__(anotherMZ).getId() )
     return self
 
   def __sub__(self, anotherMZ): 
-    if not isinstance(anotherMZ,type(self)):
-      anotherMZ = MZ(repr(anotherMZ))
     return _mzSub(self, anotherMZ )
   def __isub__(self, anotherMZ): 
     self.setId( self.__sub__(anotherMZ).getId() )
     return self
 
   def __mul__(self, anotherMZ): 
-    if not isinstance(anotherMZ,type(self)):
-      anotherMZ = MZ(repr(anotherMZ))
     return _mzMul(self, anotherMZ )
   def __imul__(self, anotherMZ): 
     self.setId( self.__mul__(anotherMZ).getId() )
     return self
  
   def __div__(self, anotherMZ): 
-    if not isinstance(anotherMZ,type(self)):
-      anotherMZ = MZ(repr(anotherMZ))
     return _mzDiv(self, anotherMZ )
   def __idiv__(self, anotherMZ): 
     self.setId( self.__div__(anotherMZ).getId() )
@@ -731,13 +725,9 @@ class MZ(Variable): #matrix Z
     return _mzSlice(self, rows[0], rows[1], rows[2], cols[0], cols[1], cols[2] )
 
   def appendByRows(self, anotherMZ):
-    if not isinstance(anotherMZ,type(self)):
-      anotherMZ = MZ(repr(anotherMZ))
     return _mzAppendByRows(self, anotherMZ)
 
   def appendByColumns(self, anotherMZ):
-    if not isinstance(anotherMZ,type(self)):
-      anotherMZ = MZ(repr(anotherMZ))
     return _mzAppendByColumns(self, anotherMZ)
 
 
@@ -762,32 +752,24 @@ class MR(Variable): #matrix R
 
 
   def __add__(self, anotherMR): 
-    if not isinstance(anotherMR,type(self)):
-      anotherMR = MR(repr(anotherMR))
     return _mrAdd(self, anotherMR )
   def __iadd__(self, anotherMR): 
     self.setId( self.__add__(anotherMR).getId() )
     return self
 
   def __sub__(self, anotherMR): 
-    if not isinstance(anotherMR,type(self)):
-      anotherMR = MR(repr(anotherMR))
     return _mrSub(self, anotherMR )
   def __isub__(self, anotherMR): 
     self.setId( self.__sub__(anotherMR).getId() )
     return self
 
   def __mul__(self, anotherMR): 
-    if not isinstance(anotherMR,type(self)):
-      anotherMR = MR(repr(anotherMR))
     return _mrMul(self, anotherMR )
   def __imul__(self, anotherMR): 
     self.setId( self.__mul__(anotherMR).getId() )
     return self
  
   def __div__(self, anotherMR): 
-    if not isinstance(anotherMR,type(self)):
-      anotherMR = MR(repr(anotherMR))
     return _mrDiv(self, anotherMR )
   def __idiv__(self, anotherMR): 
     self.setId( self.__div__(anotherMR).getId() )
@@ -836,13 +818,9 @@ class MR(Variable): #matrix R
     return _mrSlice(self, rows[0], rows[1], rows[2], cols[0], cols[1], cols[2] )
 
   def appendByRows(self, anotherMR):
-    if not isinstance(anotherMR,type(self)):
-      anotherMR = MR(repr(anotherMR))
     return _mrAppendByRows(self, anotherMR)
 
   def appendByColumns(self, anotherMR):
-    if not isinstance(anotherMR,type(self)):
-      anotherMR = MR(repr(anotherMR))
     return _mrAppendByColumns(self, anotherMR)
 
 
@@ -860,32 +838,24 @@ class MGFx(Variable): #matrix GFx
         Variable.__init__(self,_mgfxCreate(str(mgfxStr),gf).getId())
 
   def __add__(self, anotherMGFx): 
-    if not isinstance(anotherMGFx,type(self)):
-      anotherMGFx = MGFx(repr(anotherMGFx))
     return _mgfxAdd(self, anotherMGFx )
   def __iadd__(self, anotherMGFx): 
     self.setId( self.__add__(anotherMGFx).getId() )
     return self
 
   def __sub__(self, anotherMGFx): 
-    if not isinstance(anotherMGFx,type(self)):
-      anotherMGFx = MGFx(repr(anotherMGFx))
     return _mgfxSub(self, anotherMGFx )
   def __isub__(self, anotherMGFx): 
     self.setId( self.__sub__(anotherMGFx).getId() )
     return self
 
   def __mul__(self, anotherMGFx): 
-    if not isinstance(anotherMGFx,type(self)):
-      anotherMGFx = MGFx(repr(anotherMGFx))
     return _mgfxMul(self, anotherMGFx )
   def __imul__(self, anotherMGFx): 
     self.setId( self.__mul__(anotherMGFx).getId() )
     return self
  
   def __div__(self, anotherMGFx): 
-    if not isinstance(anotherMGFx,type(self)):
-      anotherMGFx = MGFx(repr(anotherMGFx))
     return _mgfxDiv(self, anotherMGFx )
   def __idiv__(self, anotherMGFx): 
     self.setId( self.__div__(anotherMGFx).getId() )
@@ -934,14 +904,102 @@ class MGFx(Variable): #matrix GFx
     return _mgfxSlice(self, rows[0], rows[1], rows[2], cols[0], cols[1], cols[2] )
 
   def appendByRows(self, anotherMGFx):
-    if not isinstance(anotherMGFx,type(self)):
-      anotherMGFx = MGFx(repr(anotherMGFx))
     return _mgfxAppendByRows(self, anotherMGFx)
 
   def appendByColumns(self, anotherMGFx):
-    if not isinstance(anotherMGFx,type(self)):
-      anotherMGFx = MGFx(repr(anotherMGFx))
     return _mgfxAppendByColumns(self, anotherMGFx)
+
+
+
+
+
+
+
+class MZn(Variable): #matrix Zn
+
+  def __init__(self, mz_nStr="[]", n=0, m=0, mod=None, id=None):
+    if id:
+      Variable.__init__(self, id)
+    else:
+      if isinstance(mz_nStr, Variable):
+        Variable.__init__(self,_mz_nCreate(repr(mz_nStr), mod).getId())
+      elif n > 0 and m > 0:
+        Variable.__init__(self,_mz_nCreateDims(n,m,mod).getId())
+      else:
+        Variable.__init__(self,_mz_nCreate(str(mz_nStr),mod).getId())
+
+
+  def __add__(self, anotherMZn): 
+    return _mz_nAdd(self, anotherMZn )
+  def __iadd__(self, anotherMZn): 
+    self.setId( self.__add__(anotherMZn).getId() )
+    return self
+
+  def __sub__(self, anotherMZn): 
+    return _mz_nSub(self, anotherMZn )
+  def __isub__(self, anotherMZn): 
+    self.setId( self.__sub__(anotherMZn).getId() )
+    return self
+
+  def __mul__(self, anotherMZn): 
+    return _mz_nMul(self, anotherMZn )
+  def __imul__(self, anotherMZn): 
+    self.setId( self.__mul__(anotherMZn).getId() )
+    return self
+ 
+  def __div__(self, anotherMZn): 
+    return _mz_nDiv(self, anotherMZn )
+  def __idiv__(self, anotherMZn): 
+    self.setId( self.__div__(anotherMZn).getId() )
+    return self
+
+
+  def __getitem__(self, coords):
+    return _mz_nGetElement(self,coords[0],coords[1])
+  def __setitem__(self, coords, newVal):
+    return _mz_nSetElement(self,coords[0],coords[1], newVal)
+
+
+  def __repr__(self):
+    #return "%s with id %s" % (type(self),self.getId())
+    res = _getData(self.getId())
+    return res
+
+  def __str__(self):
+    return _getHRString(self.getId())
+
+  def getTranspose(self):
+    return _mz_nTranspose(self)
+
+  def getInverse(self):
+    return _mz_nInv(self)
+
+  def solveFor(self, b):
+    return _mz_nSolve(self, b)
+
+  def getDimensions(self):
+    return _mz_nDims(self)
+ 
+  def getSubMatrix(self, rangeRows=(0,1,), rangeCols=(0,1,)):
+    if isinstance(rangeRows, int):
+      rows = [rangeRows,1,-1]
+    else:
+      rows = [0,1,-1]
+      for (index,e) in enumerate(rangeRows): rows[index] = e
+
+    if isinstance(rangeCols, int):
+      cols = [rangeCols, 1,-1]
+    else:
+      cols = [0,1,-1]
+      for (index,e) in enumerate(rangeCols): cols[index] = e
+
+    return _mz_nSlice(self, rows[0], rows[1], rows[2], cols[0], cols[1], cols[2] )
+
+  def appendByRows(self, anotherMZn):
+    return _mz_nAppendByRows(self, anotherMZn)
+
+  def appendByColumns(self, anotherMZn):
+    return _mz_nAppendByColumns(self, anotherMZn)
 
 
 

@@ -196,6 +196,16 @@ namespace mpplas{
         }
     };
 
+    /** Inconsistent modulus for operators */ 
+    class InconsistentModulus: public InvalidArgument {
+      public:
+        InconsistentModulus(const std::string details = "")
+        : InvalidArgument("Operands do not share the same modulus; ") {
+          _msg += details;
+        }
+    };
+
+
     /** Irreducible polynomial expected */
     class IrreduciblePolyExpected: public InvalidArgument {
       public:

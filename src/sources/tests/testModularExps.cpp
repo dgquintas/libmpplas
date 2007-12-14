@@ -2,7 +2,7 @@
 #include "MethodsFactory.h"
 #include "Random.h"
 #include "Primos.h"
-#include "Z.h"
+#include "Z_n.h"
 #include "Profiling.h"
 
 #include <iostream>
@@ -24,20 +24,16 @@ int main(){
   MethodsFactory::getReference().getFunc(rnd);
   MethodsFactory::getReference().getFunc(prime);
 
-  Z base, exp, mod;
-  Z baseOrig;
-
   rnd->setSeed(Z::ZERO);
   prime->setRandomSeed(Z::ZERO);
+  Z_n base( rnd->getInteger(2048), prime->getPrime(1500));
+  const Z_n baseOrig(base);
 
-  baseOrig = rnd->getInteger(2048);
-  exp =  rnd->getInteger(5120);
-  mod = prime->getPrime(1500);
+  const Z exp(rnd->getInteger(5120));
 
-
-  cout << "BLA"<<endl;
-  cin.get();
-  cin.get();
+//  cout << "BLA"<<endl;
+//  cin.get();
+//  cin.get();
 //////////////7
   cout << "MONTGOMERY" << endl;
   cout << "----------" << endl;
@@ -45,7 +41,7 @@ int main(){
   prof.reset();
   prof.startClock();
 
-  pm.potModular(&base, exp, mod);
+  pm.exponentiation(&base, exp);
 
   double tpo = prof.stopClock();
   cout << "grand total = " << prof.getResults().getTotalOps() << endl;
@@ -60,7 +56,7 @@ int main(){
   prof.reset();
   prof.startClock();
 
-  barrett.potModular(&base, exp, mod);
+  barrett.exponentiation(&base, exp);
 
   tpo = prof.stopClock();
   cout << "grand total = " << prof.getResults().getTotalOps() << endl;
@@ -76,7 +72,7 @@ int main(){
   prof.reset();
   prof.startClock();
 
-  two.potModular(&base, exp, mod);
+  two.exponentiation(&base, exp);
 
   tpo = prof.stopClock();
   cout << "grand total = " << prof.getResults().getTotalOps() << endl;
@@ -92,7 +88,7 @@ int main(){
   prof.reset();
   prof.startClock();
 
-  multi.potModular(&base, exp, mod);
+  multi.exponentiation(&base, exp);
 
   tpo = prof.stopClock();
   cout << "grand total = " << prof.getResults().getTotalOps() << endl;

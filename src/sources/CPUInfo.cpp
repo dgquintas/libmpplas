@@ -1,6 +1,7 @@
 #include "CPUInfo.h"
 #include "BasicTypedefs.h"
 #include "CompilationConfig.h"
+#include "omp_mock.h"
 
 namespace mpplas{
 

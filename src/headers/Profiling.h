@@ -9,6 +9,7 @@
 
 #include "SingletonMixIn.h"
 #include "ProfResults.h"
+#include "omp_mock.h"
 
 namespace mpplas{
 

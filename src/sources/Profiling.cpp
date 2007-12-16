@@ -10,7 +10,11 @@ namespace mpplas {
   //static singleton initialization
   template<>
     std::auto_ptr< Profiling > 
-    SingletonMixIn< Profiling >::_singletonInstance(SingletonMixIn< Profiling >::_singletonInstance);
+    SingletonMixIn< Profiling >::_singletonInstance( new Profiling() );
+  template<>
+    pthread_mutex_t SingletonMixIn< Profiling >::mutex = PTHREAD_MUTEX_INITIALIZER;
+
+
 
   Profiling::Profiling() 
     : SingletonMixIn< Profiling >()  { 

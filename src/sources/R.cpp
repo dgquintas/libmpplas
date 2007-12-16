@@ -9,6 +9,7 @@
 #include <cmath>
 
 #include "R.h"
+#include "Rx.h"
 #include "MethodsFactory.h" 
 #include "Potencia.h"
 
@@ -26,8 +27,8 @@ namespace mpplas{
   const bool R::divisionRing(true);
 
   
-  const R R::ZERO((Digit)0);
-  const R R::ONE((Digit)1);
+  const R R::ZERO((Digit)0, false);
+  const R R::ONE((Digit)1, false);
   
   R::R() 
     : exponente_(0) , _spApprox(0) {
@@ -43,9 +44,11 @@ namespace mpplas{
     normalizar();
   }
 
-  R::R(const Digit otro)
+  R::R(const Digit otro, bool normalize)
     : exponente_(0), mantisa_(otro), _spApprox(otro) {
-    normalizar();
+      if(normalize){
+        normalizar();
+      }
   }
 
   R::R(const char* strC) {
@@ -311,7 +314,7 @@ namespace mpplas{
     return *this;
   }
 
-  R& R::square(void) {
+  R& R::square() {
     mantisa_.square();
     exponente_ <<= 1;
 
@@ -320,6 +323,39 @@ namespace mpplas{
     _spApprox *= _spApprox;
     return *this;
   }
+
+  R R::getSquareRoot() const {
+    static const double precomps[] = { 1, 0.5, 0.375, 0.3125 /*, 0.2734375, 0.24609375 */ };
+    static const std::vector<mpplas::R> coeffs( precomps, precomps+4);
+    static const mpplas::Rx P(coeffs);
+
+    mpplas::R xn(1/sqrt(this->getSPApprox()));
+    mpplas::R xn_1 = xn;
+    xn.square();
+    xn *= (*this);
+    xn.invertSign();
+    xn += mpplas::R::ONE;
+
+    while(true){
+      xn = P.evaluate(xn);
+      xn *= xn_1;
+      if( xn_1 == xn ) {
+        xn *= (*this);
+        break;
+      }
+      xn_1 = xn;
+      
+      //hn = 1-(*this)*(xn.square());
+      xn.square();
+      xn *= (*this);
+      xn.invertSign();
+      xn += mpplas::R::ONE;
+    } 
+
+    return xn;
+  }
+
+
 
   R& R::operator>>=(const int n)
   {
@@ -975,5 +1011,4 @@ namespace mpplas{
     real <<= n;
     return real;
   }
-
 }

@@ -33,7 +33,7 @@ namespace mpplas {
       R() /**< constructor por defecto */;
       R( const R& ); /**< constructor de copia */
       R( const SignedDigit ); /**< construccion desde simple precision */
-      R( const Digit ); /**< construccion desde 'token' básico */
+      R( const Digit, bool normalize=true ); /**< construccion desde 'token' básico */
       explicit R( const char* ); /**< construccion desde cadena de caracteres */
       explicit R( const std::string& str ); /**< construction from a std::string */ 
       explicit R( const double ); /**< construccion desde double */
@@ -156,7 +156,9 @@ namespace mpplas {
 
       R& abs();
 
-      R& square(void);
+      R& square();
+
+      R getSquareRoot() const;
 
       ////////////////////////////////////
       //   OPERADORES DE DESPLAZAMIENTO //
@@ -677,6 +679,10 @@ namespace mpplas {
     return x;
   }
 
+  inline R getSquare(R x){
+    x.square();
+    return x;
+  }
 
   
 }

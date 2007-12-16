@@ -7,8 +7,8 @@
 
 namespace mpplas{
 
-  const Rx Rx::ZERO(R((Digit)0),0);
-  const Rx Rx::ONE(R((Digit)1), 0);
+  const Rx Rx::ZERO(R((Digit)0, false),0);
+  const Rx Rx::ONE(R((Digit)1, false), 0);
   
   const bool Rx::addCommutative(true); 
   const bool Rx::groupCyclic(true);

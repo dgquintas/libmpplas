@@ -52,7 +52,53 @@
 \caption{La terminología puede a veces resultar confusa...}
 \end{figure}
 
-\section{Comprobaciones en tiempo de compilación}
+\section{OpenMP}
+A la hora de seleccionar la tecnología que nos permitiera explotar el paralelismo de los sistemas
+disponibles, nos encontramos básicamente con dos requisitos: el que ésta pudiera ser integrada con 
+el lenguaje C++ y que estuviera orientada a sistemas de memoria compartida. Tales restricciones 
+redujeron las opciones a dos, a saber: OpenMP y POSIX Threads. Ambas tecnologías en mayor o menor 
+medida extendidas y probadas. Sin embargo ser orientan a extremos diferentes del espectro de desarrollo. 
+Mientras que PThreads --forma habitual de nombrar POSIX Threads-- requiere que la identificación de tareas, 
+su asignación a unidades de ejecución y la sincronización sean realizadas de forma explícita por el programador,
+el API de OpenMP abstrae de estos detalles. Por supuesto, esto resta cierta flexibilidad, pero dada la inherente
+complejidad de la programación paralela, esto es más una ventaja que un problema. Por añadidura, OpenMP se orienta
+al cálculo científico, mientras que PThreads pertenece tiene un alcance mucho más general; lo cual una vez más
+resulta mejor en teoría pero contraproducente en la práctica. De hecho, OpenMP suele depender de PThreads --al
+menos en sistemas UNIX-- en su implimentación, la cual es dependiente del compilador. En cierto modo, OpenMP
+otorga una mayor productividad al «llevar de la mano» al programador mediante su API basada en el 
+modelo de programación \textit{fork/join} (\cite{openmpstandard}\footnote{sección 1.3, pág. 17}), el cual 
+es de especial utilidad a la hora de abordar problemas basados en el manejo de estructuras de tipo vector;
+o dicho de otra manera, datos que cuya forma más natural de ser procesados es iterativamente.
+Dos características más de OpenMP que decantan definitivamente la balanza son las que \cite{parpatterns}\footnote{
+apéndice A, pág. 253} denomina como \textit{equivalencia secuencial} y \textit{paralelismo secuencial}.
+\begin{description}
+\item[Equivalencia secuencial.] Se dice que un programa es \textit{secuencialmente equivalente} cuando 
+sus resultados son los mismos\footnote{concepto de igualdad sujeto a cuestiones tales como la no asociatividad
+en la práctica de operaciones en punto flotante}  independientemente de si se ejecutan sobre un solo hilo --secuencialmente--
+o sobre varios. Tales programas resultan más fáciles de mantener y en la mayoria de los casos de entender --y por ende de 
+desarrollar.
+\item[Paralelismo incremental.] Se refiere al estilo de programación en el cual un programa evoluciona
+desde una versión secuencial hasta una paralela. Progresivamente se van paralelizando ciertas porciones del método
+secuencial, comenzando por aquellas más sencillas de paralelizar o cuyos beneficios al ejercutarse en paralelo serían mayores.
+El paralelismo es añadido por tanto de forma \emph{incremental}. En cada etapa de este proceso, es posible verificar que
+el método continúa siendo correcto, lo cual ayuda de forma inestimable durante el desarrollo, y proporciona garantías bastante
+razonables de que el método paralelizado funcionará correctamente.
+\end{description}
+El concepto de paralelismo incremental viene como anillo al dedo a la hora de adaptar los métodos heredados de 
+LibNumth.
+
+Aunque OpenMP es una tecnología que abstrae de los detalles de implementación, es más que probable
+que las implementaciones hoy disponibles se fundamenten en un enfoque SMP. Sin embargo, existen
+diferencias fundamentales entre un sistema SMP y otro basado en lo denominado como \textit{Chip-scale
+MultiProcessors}, CMP --tales como los sistemas multicore, tan extendidos últimamente. Por ejemplo (\cite{landscape}),
+el ancho de banda disponible entre los núcleos dentro de un mismo encapsulado es mucho mayor que la 
+disponible entre procesadores en un sistema SMP. De forma análoga, la latencia es mucho menor, hasta un orden 
+de magnitud, en el primer caso que en el segundo. Esto implica que \emph{no} debe pensarse en un sistema
+basado en CMP como un sistema SMP, pese a que esta es la situación actual en prácticamente todos los frentes. Las
+diferentes características de los sistemas multicore brindan la oportunidad de desarrollar nuevos algoritmos que exploten
+estas diferencias.
+
+\section{Comprobaciones en tiempo de compilación}\label{tech:staticasserts}
 %XXX: completar con una intro
   Siempre es mejor prevenir que curar, como reza el refranero. Por tanto, mejor que simplemente detectar el error
   cuando el programa ya se encuentra en ejecución --que no es poco, pero no deja de ser una «mala cura»--, la detección
@@ -276,7 +322,35 @@ como se expone en la sección \ref{impl:aop}.
 
 
 \section{\textit{Mix-ins}}
+  \subsection{Singleton}\label{sec:singleton}
+    El patrón \emph{singleton} se encuentra entre los más conocidos y ampliamente utilizados de los
+    expuestos en el ya clásico \cite{gof}\footnote{pág. 127}. Allí se define como:
 
+
+    Es decir, un objeto del cual a lo sumo debe existir una instancia a lo largo de la ejecución, y que
+    simultáneamente dicha instancia sea accesible globalmente. 
+    
+    Su caracter global puede hacer saltar las alarmas --y con razón-- en base a lo expuesto en el punto
+    \ref{sec:thread-safety} referente a estructuras susceptibles de ser compartidas por varios hilos. 
+    De hecho, en \cite{singletonperils}, figuras en el mundo de C++ de la talla de Scott Meyers y Andrei Alexandrescu
+    analizan cómo %TODO
+
+    - en methodsfactory he tenido que meter un mutex recursivo, ya que p ej cosas como random requieren hacer
+    un get a su vez a hash. 
+    - ademas, esta tambien omp critical. o sea, que hay dos niveles de concurrencia contra
+    los que estar prevenido: el que viene de una ejecucion concurrente (multithread, como el server xmlrpc),
+    y la ejec paralela con openmp. 
+    - como dice el paper del alexandrescu y tal, se cachea alli donde es posible (static methodsfactory& funcs)
+    la instancia del methodsfactory. Este static no molesta, ya que aunque este compartida la instancia, los metodos
+    del mismo estan protegidos por locks. 
+
+
+  \cite{singletonperils}
+\section{\textit{Autowiring}}\label{sec:autowiring}
+%TODO
+%http://static.springframework.org/spring/docs/2.5.x/reference/beans.html#beans-factory-autowire
+%by type
+o sea, lo que hacen getFunc y setFunc de methodsfactory.
 
 \section{\textit{Mock/stub objects}}
 El concepto de \textit{mock object}\footnote{podría traducirse como «objecto simulado», aunque incluso en la

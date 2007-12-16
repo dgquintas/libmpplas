@@ -81,16 +81,76 @@
 
 
 
-%  \subsubsection{La CPU vectorial} se encarga de las operaciones sobre los
-%  vectores (polinomios) que se utilizan para representar los números,
-%  como se expone en \ref{representacionZ}. Descansa totalmente
-%  sobre la capa inmediatamente inferior, la CPU básica.
-%  Implementa tan sólo operaciones en $\mathbb{Z}_0$: el
-%  tratamiento del signo vendrá en capas superiores. Si la CPU básica
-%  era importante, esta capa lo es mucho más: el grueso del manejo de
-%  operaciones en múltiple precisión se encuentra aquí.
+  \subsection{Repositorio de funciones}\label{basico:nuevoRepdeFuncs}
+Ya en LibNumth exploramos la utilización de lo que se denominó «repositorio de funciones»
+(véase \cite{miproyecto}\footnote{secciones 5.6 y 4.2.3}). La idea era y sigue siendo
+«hacer extensible la colección de funciones \emph{sin necesidad de recompilación} por parte del usuario,
+y además de forma sencilla». La implementación de este mecanismo en dicha versión de la biblioteca
+era un tanto básica: dependía de convenciones en el nombrado, haciendo recaer sobre el usuario
+programador la carga de recordar el nombre concreto del tipo de función que desease obtener. Por ejemplo:
 
-  \subsection{Funciones}\label{funcionesBasico}
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Utilizando el \textbf{antiguo} repositorio de funciones, label=lst:antiguoRepFuncs]
+(...)
+numth::Funciones funcs;
+
+numth::congruentGen *LCG = new numth::congruentGen();
+funcs.ponerRandom(LCG);
+
+funcs.random()->ponerSemilla(numth::Z::convertir("323658476")); 
+n = funcs.genPrimos()->leerPrimoProb(600);
+(...)
+\end{lstlisting}
+En el anterior listado \ref{lst:antiguoRepFuncs} se aprecian los siguientes puntos:
+
+\begin{itemize}
+\item Tanto para establecer una nueva implementación 
+para una clase de método, como para obtener la implementación actual, era necesario estar al tanto del
+nombre de la clase de método que las instancias implementaban: \texttt{congruentGen} era un tipo de generador
+de números pseudo-aleatorios, y por ello debía utilizarse el método \texttt{ponerRandom} de la clase \texttt{Funciones}, 
+que representaba el repositorio. 
+\item Para obtener un número primo, el programador debía recordar que el método
+\texttt{genPrimos} era el indicado para obtener un puntero a una instancia generadora de primos. 
+\item Incluso aunque se pretendía seguir un patrón de nombrado, éste resultaba deficiente.
+\item El repositorio, instancia de la clase \texttt{Funciones}, podía instanciarse de forma arbitraria, pese a que
+conceptualmente el repositorio ha de ser único durante toda la ejecución del programa. Este escollo se salvaba
+haciendo que las instancias de las funciones contenidas en él fueran \texttt{static}. Este simple hecho choca frontalmente
+con el concepto de \textit{thread-safety}, tal como se expone en la sección \ref{par:datosStatic}.
+\end{itemize}
+
+Esta forma de operar no sólo resulta tediosa y 
+propensa a errores, sino también \emph{poco elegante}. La idea
+es siempre que la máquina trabaje por nosotros, no al contrario. Por si esto fuera poco, la presencia de datos
+estáticos da al traste con las aspiraciones de ejecución concurrente de la biblioteca mediante hilos. 
+
+Comparese el código mostrado en el listado \ref{lst:antiguoRepFuncs} con el mostrado en el siguiente listado \ref{lst:nuevoRepFuncs}:
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Utilizando el \textbf{nuevo} repositorio de funciones, label=lst:nuevoRepFuncs]
+(...)
+mpplas::MethodsFactory& funcs(MethodsFactory::getReference());
+mpplas::RandomFast* rnd;
+mpplas::PrimeGen* primes;
+
+mpplas::RandomFast* newRnd = new mpplas::CongruentGen();
+funcs.setFunc(newRnd);
+
+funcs.getFunc(rnd);
+rnd->setSeed(mpplas::Z("323658476"));
+
+funcs.getFunc(primes);
+n = primes->getInteger(600);
+(...)
+\end{lstlisting}
+Ambas porciones de código son semánticamente equivalentes. Sin embargo:
+\begin{itemize}
+\item El repositorio, denominado ahora \texttt{MethodsFactory}, es ahora un \texttt{Singleton} (véase sección \ref{sec:singleton}). 
+\item Se trabaja con punteros a los tipos que representan el concepto \emph{abstracto} a realizar: generar primos, obtener números
+pseudo-aleatorios, etc. en vez de con los tipos que en última instancia implementan dichos conceptos.
+\item El repositorio consiste \emph{únicamente} de dos métodos: \texttt{getFunc} y \texttt{setFunc}. El mecanismo
+de funcionamiento, denominado \textit{autowiring}, se expone en \ref{sec:autowiring}. En este contexto, ambos
+métodos inspeccionan el tipo de las instancias que les son pasadas como parámetros a la hora de asignar
+o establecer las instancias pertinentes, de forma totalmente transparente para el usuario, y garantizando \emph{en tiempo
+de compilación} la coherencia de dichas operaciones.
+\end{itemize}
+
     
   \subsection{Control de errores}\label{controlDeErrores}
 

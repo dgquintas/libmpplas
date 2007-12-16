@@ -8,7 +8,7 @@
           Right now I'm having amnesia and déjà vu at the same time.
         }
         \begin{flushright}
-          \textbf{\textemdash Stephen Wright siendo paralelo.}
+          \textbf{\textemdash Stephen Wright (en paralelo).}
         \end{flushright}
       \end{quote}
     \end{flushright}
@@ -43,28 +43,7 @@
   \end{description}
 
 
-\subsection{Terminología}
-  \begin{description}
-  \item[Tarea.] Unidad básica en el particionado paralelo de un problema. En \cite{parpatterns} se
-  define como:
-  \begin{quote}
-    (...) a sequence of instructions that operate together as a group.
-    This group corresponds to some logical part of an algorithm or program.
-  \end{quote}.
 
-  \item[Unidad de ejecución.] Una \emph{tarea} debe ser asignada a una \emph{unidad de ejecución} con 
-  el fin de ser completada. Desde el punto de vista de esta biblioteca se hablará \emph{hilos}. Se
-  define por tanto este concepto como una serie de entidades lógicas --\emph{hilos}-- 
-  susceptibles de ejecutarse de forma concurrente.
-
-  \item[Procesador o CPU.] Se refiere al elemento \emph{físico}, esto es, \textit{hardware}, encargado de
-  procesar las instrucciones proporcionadas por el usuario. Su estructura interna --\emph{lógica}-- puede variar 
-  considerablemente, conteniendo una o varias \emph{unidades de procesamiento}.
-
-  \item[Unidad de procesamiento.] Término genérico para cualquier elemento hardware capaz de ejecutar una
-  secuencia de instrucciones. El elemento hardware concreto depende del contexto, pudiendo variar desde un
-  núcleo en un procesador multinúcleo a toda el procesador en su conjunto. 
-  \end{description}
 
   \subsubsection{Especificación del paralelismo}
     Desgraciadamente, no existe una sintaxis universalmente aceptada para la especificación
@@ -78,118 +57,9 @@
     los ejemplos de código son autoexplicativos aun utilizando las directivas de OpenMP.
 
 
-\subsection{Arquitecturas paralelas}
-  A lo largo de los años, se han desarrollado numerosos enfoques 
-  de cara al proceso en paralelo. Se hace necesario el «cartografiar» 
-  este dominio, algo que M. J. Flynn realiza ya en $1972$:
-   \paragraph{La taxonomía de Flynn}\label{flynn}
-    Como se indica en \cite{parpatterns, sourcebook}\footnote{sección 2.2.1, pág. 8; sección 2.2, pág. 26 resp.}, 
-    esta clasificación es con un amplio margen la más extendida. Se realiza
-    en base al número de secuencias\footnote{\textit{streams}} de instrucciones y de datos.
-    Se distinguen las cuatro categorías mostradas en la siguiente tabla:
-    \begin{center}
-    \begin{tabular}{|c||c|c|} \hline \label{tab:flynn}
-      & \textbf{Instrucción única} & \textbf{Instrucción múltiple} \\
-        \hline \hline
-        \textbf{Dato único} & SISD & MISD \\
-        \hline
-        \textbf{Dato múltiple} & SIMD & MIMD \\ \hline
-    \end{tabular}
-    \end{center}
-
-    En detalle:
-
-    \begin{description}
-    \item[SISD] (Single Instruction Single Data). El enfoque «clásico», cuyo exponente es la máquina de von Neumann. Una
-    única secuencia de instrucciones procesa una única secuencia de datos. Obviando detalles tales como arquitecturas 
-    superescalares, éste es el modelo de la mayoría de los procesadores de consumo hasta aproximadamente $1997$, cuando
-    Intel introduce la tecnología MMX (\cite{intelVol1}, capítulo $9$).
-    \item[MISD] (Multiple Instruction Single Data). Esta combinación nunca se ha llevado a la práctica. Se incluye solamente
-    por completitud. No es de extrañar: se correspondería con un sistema que para el procesamiento de un sólo dato requeriría
-    la utilización simultánea de múltiples instrucciones.
-    \item[SIMD] (Single Instruction Multiple Data). Una única secuencia de instrucciones es remitida a cada una de las unidades
-    de encargadas del procesamiento de cada una de las múltiples secuencias de datos. Esto se ilustra esquemáticamente en la figura
-    \ref{fig:conSIMD} de la sección \ref{basico:cpusimd}, que se reproduce de nuevo en la figura \ref{fig:conSIMDBIS} por comodidad.
-    \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.85\textwidth,keepaspectratio]{conSIMD} 
-    \caption{Utilizando SIMD}\label{fig:conSIMDBIS}
-    \end{figure}
-
-    \item[MIMD] (Multiple Instruction Multiple Data). Cada unidad procesa su propia secuencia de instrucciones sobre sus propios datos. 
-    Es la arquitectura más general, ya que cualquiera de los otros tres casos se contiene en este. En la siguiente sección \ref{sec:mimd}
-    se pormenoriza esta categoría. Un esquema de esta arquitectura se muestra en la figura \ref{fig:mimd}.
-    \end{description}
-
-    \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.45\textwidth,keepaspectratio]{mimd} 
-    \caption{Utilizando MIMD}\label{fig:mimd}
-    \end{figure}
 
 
-    \subsubsection{MIMD}\label{sec:mimd}
-    La descripción que se deriva de simplemente las siglas de esta categoría es en exceso superficial. Dentro de esta arquitectura 
-    se distinguen dos enfoques fundamentales basados en la organización de la memoria. 
 
-    \paragraph{Memoria compartida}
-    La organización de estos sistemas se muestra en la figura \ref{fig:sharedmem}: cada unidad de procesamiento 
-    \emph{comparte} una memoria global, con la cual se comunican mediante un único bus. Las unidades de procesamiento
-    pueden compartir asimismo una memoria caché o bien poseer cachés independientes. Este último caso se corresponde
-    con el concepto de \emph{symmetric multiprocessor} (SMP). Hasta fechas recientes, esta era la forma habitual en la que
-    entendían los sistemas de memoria compartida: una placa con varios procesadores \emph{independientes} e \emph{idénticos}.
-    Con la llegada de los procesadores \emph{multinúcleo}, el panorama se diversifica: en la arquitectura Core de Intel,
-    cada núcleo --unidad de procesamiento-- cuenta con su propia caché L1, mientras que la caché L2 y la L3 
-    --en los casos en los que ésta se encuentra
-    presente-- se comparte\footnote{véase \cite{sharedcacheintel} para una muy interesante discusión de las ventajas de
-    este enfoque}. Por otra parte, la última microarquitectura de AMD en el momento de escribir estas líneas\footnote{finales de $2007$}
-    , AMD K10, no comparte ninguno de los niveles de caché
-    entre núcleos. La comparativa y valoración de las ventajas e inconvenientes de uno y otro enfoque están fuera del 
-    alcance de esta memoria.
-
-    \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.45\textwidth,keepaspectratio]{sharedmemory} 
-    \caption{Memoria compartida}\label{fig:sharedmem}
-    \end{figure}
-
-    En un sistema de memoria compartida, cualquier unidad de procesamiento tiene acceso al contenido de cualquier posición
-    de memoria mediante las operaciones de carga habituales. Esto facilita la comunicación entre las diferentes unidades de
-    ejecución (hilos), pero requiere de mecanismos de sincronización para evitar situaciones en las cuales más de uno
-    de estos hilos accede con intención de escribir a una estructura compartida. Una visión general de estos mecanismos se da
-   en  \cite{sourcebook}\footnote{sección 2.2.1, pág. 30}. 
-
-    La principal limitación de los sistemas de memoria compartida es su escalabilidad: cuando el número de elementos
-    que comparten el bus que lo comunican con la memoria compartida es elevado ($\approx 32$ hablando en términos prácticos
-    a día de hoy, \cite{sourcebook}), el fenómeno de contención en el bus termina por echar por tierra cualquier ganancia
-    derivada del aumento del número de unidades de procesamiento.
-
-    En lo referente a la biblioteca, este es el paradigma utilizando siempre que se habla de paralelismo.
-
-    \paragraph{Memoria distribuida}
-    La característica de estos sistemas es que cada proceso posee su propio espacio de direcciones y se comunica con otros procesos
-    a través del \emph{paso de mensajes}. Cada unidad de procesamiento posee su propia memoria local, véase la figura \ref{fig:distmem}. 
-    \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.85\textwidth,keepaspectratio]{distributedmemory} 
-    \caption{Memoria distribuida}\label{fig:distmem}
-    \end{figure}
-    Resultan ser mucho más escalables que los sistemas de memoria compartida si la estrategia de interconexión es adecuada\footnote{
-      \cite{sourcebook} apunta como una red en hipercubo tiene un coste proporcional a $n \lg{(n)}$, con $n$ el número de unidades
-        de procesamiento.}. 
-
-    El problema que se presenta con estos sistemas es de comunicación: dado que la latencia en el envío de mensajes es mucho mayor
-    que la de procesamiento, resulta vital una correcta una subdivisión del problema en porciones suficientemente grandes, a fin 
-    de compensar el coste de la comunicación. 
-
-    Pese a que en el presente proyecto no se utilizan tecnologías tales como MPI\footnote{\url{http://www-unix.mcs.anl.gov/mpi/}} 
-    para la implementación de los métodos en sí, se puede enmarcar la aplicación MPPLab --descrita en el capítulo \ref{chap:mpplab}--
-    dentro de este paradigma.
-
-    \bigskip
-
-    Además de estos dos enfoques, existen diversas soluciones intermedias, en las cuales no se va a profundizar aquí. Véase
-    \cite{parpatterns, sourcebook}\footnote{pág 12; sección 3.1, pág. 45 resp.}.
 
 
 \section{Potenciación modular}
@@ -198,7 +68,7 @@
   \subsection{Mi método}
 
 \section{Vectores}
-  \subsection{Dot product} %FIXME
+  \subsection{Producto escalar}
 
 \section{Matrices}
   \subsection{Producto}
@@ -220,6 +90,43 @@
     \includegraphics[width=0.95\textwidth,keepaspectratio]{patronAccesosBarreis} 
     \caption{Patrón accesos Gauss-Bareiss}\label{fig:accBar}
   \end{figure}
+
+  De este patrón de acceso se deriva una paralelización organizada por el acceso a los datos y
+  con una enumeración lineal. Por tanto el patrón estructural más indicado parece ser una descomposición
+  geométrica sobre las filas, siguiendo el recorrido de $k$. A nivel de estructura de soporte, el patrón de 
+  paralelismo de bucle se ajusta perfectamente: %FIXME
+
+      \begin{algorithm}
+        \caption{Algoritmo de Gauss-Bareiss}\label{alg:bareiss}
+        \begin{algorithmic}[1]
+          \Procedure{Gauss-Bareiss}{Matriz $M \in \mathcal{M}_{n \times n}$}
+          \State $sign \gets 1$
+          \For{$i \in \{0, \ldots, n-2\}$}
+            \State $p \gets M_{i,i}$
+            \If{$p = 0$}
+              \If{$ \neg \mathrm{pivot(}$i$\mathrm{)} $} 
+                \Statex \Comment{Si \textrm{pivot} es falso, no se ha podido pivotar}
+                \State \textbf{Return} $0$ \Comment{Matriz singular}
+              \EndIf
+              \State $sign \gets -sign$ \Comment{Se ha permutado una fila}
+              \State $p \gets M_{i,i}$ \Comment{$M_{i,i} \neq 0$}
+            \EndIf
+            \State \texttt{\#pragma omp parallel}
+            \For{$j \in \{i+1,\ldots,n-1\}$}
+              \State \texttt{\#pragma omp for}
+              \For{$k \in \{i+1,\ldots,n-1\}$}
+                \State $M_{j,k} \gets M_{j,k} * p - M_{j,i}*M_{i,k}$
+                \If{ $i > 0$ }
+                  \State $M_{j,k} \gets M_{j,k} / M_{i-1,i-1}$ \Comment{Esta división \emph{siempre} es exacta}
+                \EndIf
+              \EndFor %for k
+            \EndFor %for j
+          \EndFor %for i
+
+          \State \textbf{Return } $sign * M_{n-1,n-1}$
+          \EndProcedure
+        \end{algorithmic}
+      \end{algorithm}
 
 
 

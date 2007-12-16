@@ -74,7 +74,67 @@ se encuentra en la implementación de los mecanismos de gestión de datos en tiemp
 desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
 
 %Enteros, Z
-%Reales, R
+\section{Reales}
+
+  \subsection{Cálculo de la raiz cuadrada}\label{tipos:sqrt}
+  La función $\sqrt{A}$, puede definirse como las raices de la función $f(x) = x^2 - A$. Esto lleva a pensar
+  inmediatamente en la utilización de un método iterativo para el cálculo de raices. Por ejemplo, el conocido
+  método de Newton --descrito por ejemplo en \cite{recipes,calculoburgos}\footnote{sección 9.4, pág. 366; sección 092, pág. 
+  258, resp.}--, lo que nos llevaría a la siguiente formulación:
+  \begin{eqnarray}
+   x_{n+1} & = & x_n - \frac{f(x_n)}{f'(x_n)} = \\
+           & = & \frac{1}{2} \left( x_n + \frac{A}{x_n}  \right) \label{newtonDiv}
+  \end{eqnarray}
+  
+  Este método es eficaz, tanto en cuanto devuelve efectivamente un resultado correcto para $\sqrt{A}$. 
+  Sin embargo, adolece de un problema desde el punto de vista del rendimiento en la práctica: en la
+  expresión \eqref{newtonDiv}, se requiere realizar la división $A / x_n$ en cada paso. 
+
+  Con un pequeño ajuste (\cite{sqrt}) es posible evitar esta división y realizar solamente multiplicaciones, con la 
+  consiguiente mejora de rendimiento. Considérese la función $f(x) = 1/x^2 - A$, es decir, el cálculo
+  de la inversa de la raíz cuadrada, $1/\sqrt{A}$. En este caso,
+  \begin{equation}
+    x_{n+1} = \frac{3}{2} x_n - \frac{1}{2}Ax_n^3 \label{newton2}
+  \end{equation}
+
+  Como se ha dicho, esta iteración converge a $1/\sqrt{A}$. Multiplicando este valor por $A$, se 
+  obtiene el deseado valor de $\sqrt{A}$, como es sencillo de demostrar tras unas simples manipulaciones
+  algebraicas: $ (1 / \sqrt{x}) \equiv (\sqrt{x} / (\sqrt{x})^2) = \sqrt{x}/x$, por lo que
+  $(\sqrt{x}/x)x = \sqrt{x}$.
+
+  La iteración definida en \eqref{newton2} tiene convergencia cuadrática. Es posible ir mas allá. Por ejemplo,
+  en \cite{sqrt} se aplica el método de Newton dos veces, lo cual resulta en una convergencia cuádruple:
+
+  \begin{equation}
+  x_{n+1} = x_n - \frac{x_n}{16}(1-Ax^2_n)(-20 + 19A x^2_n - 8A^2 x^4_n + A^3 x^6_n) \label{newton3}
+  \end{equation}
+
+  Pero una vez más, todavía puede mejorarse. Dada la regularidad de $f$, resulta posible aplicar
+  una variante también cuádruple del método de Newton dada en \cite{newton}\footnote{sección 4.2}:
+  
+  \begin{equation}
+  x_{n+1} = x_n - \frac{x_n}{16}(1-Ax^2_n)(-19 + 16Ax^2_n - 5A^2 x^4_n) \label{newton4}
+  \end{equation}
+
+  Si se comparan las ecuaciones \eqref{newton3} y \eqref{newton4}, vemos como la segunda
+  resulta computacionalmente más sencilla de evaluar dado el menor order del polinomio
+  que contiene, aun manteniendo su orden de convergencia. Reformulando:
+
+  \begin{equation}
+  \left\{ 
+    \begin{array}{l}
+      h_n = 1 - Ax^2_n \\
+      x_{n+1} = x_n + \frac{x_n}{16} \left(  8h_n + 6h^2_n +5h^3_n \right) \label{eq:sqrtFinal}
+    \end{array} 
+  \right.
+  \end{equation}
+
+
+  Véase la sección \ref{impl:sqrt} para detalles específicos de la implementación.
+
+  \subsection{Funciones trascendentes}
+
+
 %Enteros modulares, Z\_n
 %Enteros modulares con modulo primo, Z\_p
 
@@ -359,7 +419,7 @@ mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
     \paragraph{Pseudo-división de polinomios con \texttt{S} un dominio de factorización única}
 
 
-  \subsection{Evaluación}
+  \subsection{Evaluación}\label{tipos:evaluacionPoly}
     Evaluar el valor de un polinomio $f(x)$ para un valor de $x = x_0$ dado es conceptualmente trivial:
     sustituir $x$ en la expresión del polinomio por $x_0$ y operar. Como suele ser habitual, la solución
     trivial dista de ser la óptima. De hecho, \cite{recipes} bromea con «cualquiera que evalúe de esta

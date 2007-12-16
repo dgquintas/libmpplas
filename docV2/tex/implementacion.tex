@@ -44,14 +44,16 @@
  
 
 \section{Elementos generados dinámicamente}
- 
-  - system info
-    - cpu info
-    - compilation config
-  - preprocesador en python => necesario por uso de aop
-  - el cliente en python
+  \subsection{La clase \texttt{SystemInfo}}
+    \subsubsection{Configuración de la compilación}
+    \subsubsection{La clase \texttt{CpuInfo }}
+
   \subsection{Mecanismo de perfilado basado en AOP}\label{impl:aop}
 
+    \subsubsection{Preprocesando con Python}
+
+  \subsection{Cliente de MPPLab}
+    \ref{boostrapping}
 
 
 \section{Asegurando la coherencia algebraica}
@@ -59,7 +61,7 @@
 %en la particularización de estructuras genericas
 
 
-\section{El nuevo repositorio de funciones}\label{nuevoRepdeFuncs}
+\section{El repositorio de funciones}\label{impl:nuevoRepdeFuncs}
 
 \section{La CPU SIMD}
 Descrita en la sección \ref{basico:cpusimd}, esta CPU virtual consigue trabajar
@@ -139,7 +141,8 @@ Estas operaciones dependen de los métodos de la CPU SIMD, que implementa las sig
   A causa de como el subsistema de memoria maneja los datos a y desde la memoria principal,
   pasando por varios niveles de cachés, resulta siempre ventajoso desde el punto de vista del 
   rendimiento alinear los datos en \emph{direcciones de memoria múltiplo del tamaño del tipo 
-  en cuestión} (véase \cite{intelOpt}\footnote{sección 3.6.3, pág. 3-47}). Esto es aún más 
+  en cuestión} (véase \cite{intelOpt, agnerc++}\footnote{sección 3.6.3, pág. 3-47; sección 8.5, pág. 78 resp.}). 
+  Esto es aún más 
   importante en el caso de datos SIMD, tal como indica \cite{intelOpt}\footnote{sección 4.4.2, pág. 4-18}:
   \begin{quote}
   For best performance, the Streaming SIMD Extensions and Streaming SIMD Extensions
@@ -238,6 +241,111 @@ static bool ValidateRequirements() {
   definir estructuras tales como «polinomios sobre matrices». Sin embargo, sí es posible definir, por ejemplo,
   una «matriz de polinomios sobre los enteros» 
 
+  \subsection{Reales} \label{impl:reales}
+    La implementación del tipo \texttt{mpplas::R} representando números en $\mathbb{R}$ con una precisión
+    arbitraria se describe en \cite{miproyecto}\footnote{sección 5.4, pág. 56}. Sobre esta base se ha 
+    ampliado el abanico de operaciones disponibles.
+    \subsubsection{Cálculo de la raiz cuadrada} \label{impl:sqrt}
+      El método implementado se describe en la sección \ref{tipos:sqrt}. Se corresponde con un método iterativo
+      con un orden de convergencia cuádruple ilustrado en la ecuacion \eqref{eq:sqrtFinal} de dicha sección, que
+      por comodidad se reproduce de nuevo a continuación:
+
+        \begin{equation}
+        \left\{ 
+          \begin{array}{l}
+            h_n = 1 - Ax^2_n \\
+            x_{n+1} = x_n + \frac{x_n}{16} \left(  8h_n + 6h^2_n +5h^3_n \right) \label{eq:sqrtFinalBis}
+          \end{array} 
+        \right.
+        \end{equation}
+
+      En general, la implementación de este tipo de métodos iterativos no esconde muchos secretos. Sin embargo
+      hay algunos aspectos dignos de mención en esta implementación que reflejan algunas estretegias de optimización
+      interesantes.
+
+\lstset{escapeinside={(*@}{@*)}}
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Cálculo de la raiz cuadrada, label=lst:sqrt]
+static const double precomps[] = { 1, 0.5, 0.375, 0.3125 };  (*@\label{algsqrt:staticconstini}@*)
+static const std::vector<mpplas::R> coeffs( precomps, precomps+4);
+static const mpplas::Rx P(coeffs); (*@\label{algsqrt:staticconstend}@*)
+
+mpplas::R xn(1/sqrt(this->getSPApprox()));  (*@\label{algsqrt:x0}@*)
+mpplas::R xn_1 = xn;
+xn.square();
+xn *= (*this);
+xn.invertSign();
+xn += mpplas::R::ONE;
+
+while(true){
+  xn = P.evaluate(xn);  (*@\label{algsqrt:eval}@*)
+  xn *= xn_1;
+  if( xn_1 == xn ) {  (*@\label{algsqrt:parada}@*)
+    xn *= (*this);  (*@\label{algsqrt:ajuste}@*)
+    break;
+  }
+  xn_1 = xn;
+  
+  //hn = 1-(*this)*(xn.square());
+  xn.square();
+  xn *= (*this);
+  xn.invertSign();
+  xn += mpplas::R::ONE;
+} 
+return xn;
+\end{lstlisting}
+
+   En los siguientes puntos, las líneas mencionadas se refieren siempre al listado \ref{alg:sqrt}.
+
+      \paragraph{Reutilización de datos \texttt{static const}.}
+      Una forma de explotación de las \textit{lookup-tables} (\cite{agnerc++}\footnote{sección 13.1, pág. 113}) es 
+      (re)utilizar datos \texttt{static} y \texttt{const}. Estos son creados una única vez, durante la etapa
+      de inicialización estática del programa --la cual es ejecutada incluso antes que la función \texttt{main}--, y
+      no pueden ser modificados, por lo que no incurren en una violación de la \textit{thread-safety} (véase sección 
+      \ref{sec:thread-safety}. Estas dos propiedades hacen que el compilador sea capaz de optimizar más agresivamente
+      estos datos, con el consecuente incremento en rendimiento. En el caso que nos ocupa, las líneas
+      \ref{algsqrt:staticconstini}--\ref{algsqrt:staticconstend} explotan esta técnica. La cadena de dependencias
+      que se establece entre ellas no es problemática dado que todos los datos comparten el caracter \texttt{static const}.
+
+      \paragraph{Cálculo de $x_0$.} En todo proceso iterativo es importante contar con un buen punto inicial $x_0$,
+      en especial en el método de Newton y similares este punto $x_0$ determina la convergencia del método. La pregunta
+      es, ¿cómo obtener una buena aproximación inicial para un real arbitrario? Sería ideal poder utilizar las rutinas
+      nativas del sistema --en este caso la función estándar \texttt{sqrt} de la librería de C-- sobre una versión 
+      truncada del real de la biblioteca en cuestión. El problema se translada pues a como el actual \texttt{mpplas::R} 
+      en formato \texttt{double} nativo. Dado que se cuenta con una función para obtener una representación
+      textual del real de la biblioteca, podría pensarse en utilizarla conjuntamente con la función estándard de C \texttt{atof}.
+      Este enfoque resultaría muy poco eficiente, ya que dicha transformación textual a base $10$ es costosa y por 
+      su propia construcción no es posible limitarla a solamente algunas de sus cifras más significativas. 
+
+      La solución adoptada requiere de que cada instancia de \texttt{mpplas::R} mantenga un \texttt{double} asociado
+      a sí misma, de tal forma que con cada operación sobre dicha instancia, se actualice también esta aproximación.
+      Dado que las operaciones que modifican el dato no son numerosas, no supone ningún trastorno. Asimismo, el coste
+      de estas operaciones sobre el tipo nativo es despreciable. El cálculo de $x_0$ dependerá ahora de la aplicación
+      de las funciones nativas sobre la aproximación \texttt{double} de la instancia en cuestión. Se aprecia este uso 
+      en la línea \ref{algsqrt:x0}.
+
+
+      \paragraph{Evaluación del polinomio.} El polinomio contenido en la formulación de $x_{n+1}$ en la ecuación \eqref{eq:sqrtFinalBis},
+      $x_n + \frac{x_n}{16} \left(  8h_n + 6h^2_n +5h^3_n \right)$ 
+      resulta en $ x_n + x_n \left(  \frac{8}{16}h_n + \frac{6}{16}h^2_n + \frac{5}{16}h^3_n\right)$. En base 
+      a que en la implementación es posible prescindir de $h_n$ como valor independiente, utilizando el propio $x_n$ temporalmente,
+      es posible refinar aún más dicho polinomio: $x_n \left(1 + \frac{8}{16}x_n + \frac{6}{16}x^2_n + \frac{5}{16}x^3_n\right)$.
+      Por tanto, se ha reducido el paso iterativo a la evaluación de un polinomio de grado $3$ y su producto por $x_n$
+      (línea \ref{algsqrt:eval}).
+      Resulta interesante concentrar el grueso del cálculo sobre la evaluación del polinomio ya que esta operación se
+      encuentra implementada de forma paralela (véase \ref{tipos:evaluacionPoly}). 
+
+      \paragraph{Condición de parada.}
+        ¿Cuándo deterner el proceso iterativo? En el momento en el que se tuvieran tantos dígitos exactos como 
+        interesase. Si no se cuenta con el valor correcto --ya que es éste precisamente el que se está calculando--, 
+        ¿cómo saber cuándo se han obtenido dichos dígitos? En realidad, tales preguntas sólo son tales desde un punto
+        de vista puramente teórico. Sin embargo en la práctica siempre se cuenta con un límite en la precisión de trabajo, 
+        aunque dicho límite pueda ser fijado a un valor arbitrario. Por tanto, «tantos dígitos exactos como interesase»
+        pasa a ser «tantos dígitos exactos como precisión se esté considerando». La si la iteración $i$-ésima ha producido
+        un $x_n$ con tantos o más dígitos como la precisión considerada, no tiene sentido proceder con la iteración $(i+1)$-ésima.
+        Se estará en esa situación cuando se cumpla la condición reflejada en la línea \ref{algsqrt:parada}: $x_n = x_{n-1}$.
+  
+  
+      \subsubsection{Funciones trascendentes} \label{impl:trascendentes}
 
   \subsection{Enteros $\mathbb{Z}M_n$}\label{implZM_n}
 

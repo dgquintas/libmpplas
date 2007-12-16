@@ -8,6 +8,7 @@
 #include <map>
 #include <typeinfo>
 #include <string>
+#include <pthread.h>
 
 #include "AbstractMethod.h"
 #include "Constraints.h"
@@ -45,7 +46,7 @@ namespace mpplas{
 
     private:
       MethodsFactory();
-
+      pthread_mutex_t _mutex;
       /** Thread-safe setting of a method's instance */
       template<typename T> void _set(T* const m);
 
@@ -66,17 +67,23 @@ namespace mpplas{
   template<typename T>
     void MethodsFactory::getFunc(T* &m) {
       Constraints::must_have_base<T,AbstractMethod>();
-      _get_lock();
-      _get(m);
-      _release_lock();
+#pragma omp critical 
+      {
+        pthread_mutex_lock( &_mutex);
+        _get(m);
+        pthread_mutex_unlock( &_mutex);
+      }
       return;
     }
   template<typename T>
     void MethodsFactory::setFunc(T* const m){
       Constraints::must_have_base<T,AbstractMethod>();
-      _get_lock();
-      _set(m);
-      _release_lock(); 
+#pragma omp critical 
+      {
+        pthread_mutex_lock( &_mutex);
+        _set(m);
+        pthread_mutex_unlock( &_mutex);
+      }
       return;
     }
 

@@ -1,6 +1,6 @@
-% CAPITULO SOBRE LAS POSIBLES MEJORAS Y AMPLIACIONES
+% CAPITULO SOBRE LAS POSIBLES MEJORAS, AMPLIACIONES Y CRITICA
 
-\chapter{Mejoras, ampliaciones y crítica}
+\chapter{Crítica}
 
 \begin{flushright}
   \begin{minipage}[t]{13cm}
@@ -21,21 +21,29 @@
 
 %--------------------------------------------------------%
 
+\section{Posibles mejoras}
+  \subsection{Mayor aprovechamiento de instrucciones SIMD}
+    En las operaciones con matrices.
 
-  \begin{flushright}
-    \begin{minipage}[t]{13cm}
-      \begin{flushright}
-        \begin{quote}
-          \emph{
-          Every human activity, good or bad, except mathematics, must come 
-          to an end.
-          }
-          \begin{flushright}
-            \textbf{\textemdash Paul Erdös.}
-          \end{flushright}
-        \end{quote}
-      \end{flushright}
-    \end{minipage}
-  \end{flushright}
+\section{Ampliaciones}
+  \subsection{Sobre Polinomios}
+    \subsubsection{Factorización}
+      Al igual que para la factorización de enteros, no se conoce
+      un método que permita realizar esta operación en un tiempo razonable. Como es habitual
+      en este contexto, «razonable» suele traducirse como «computable en tiempo polinomial».
+      %TODO
+  \subsection{Sobre cuerpos finitos}
+    En la implementación actual los cuerpos finitos $\GF{p^n}$, 
+    se modela $p$ como un entero de tipo \texttt{mpplas::Z}; es decir,
+    un entero de precisión arbitraria. En la mayoría de los casos, la característica de la precisión arbitraria
+    no es explotada, y de hecho influye negativamente en el rendimiento. De hecho, es usual el uso de cuerpos
+    finitos de la forma $\GF{2^n}$. En este caso, es posible explotar el carácter binario de los elementos.
+    Por ejemplo, la suma se reduce a una operación o-exclusivo a nivel de bits. 
 
+    En cualquier caso, la presente biblioteca se centra entorno a tipos de precisión arbitraria, razón por la cual
+    esta característica tendría más cabida en otro tipo de biblioteca.
+
+
+\section{Conclusiones}
+  
 

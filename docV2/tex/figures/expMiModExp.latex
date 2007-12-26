@@ -1,0 +1,66 @@
+\setlength{\unitlength}{4144sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFontNFSS\undefined%
+\gdef\SetFigFontNFSS#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(10917,2059)(907,-3570)
+\thinlines
+{\color[rgb]{1.000,1.000,1.000}\put(2363,-1523){\line( 1, 0){2362}}
+\put(4725,-1523){\line( 0,-1){945}}
+\put(4725,-2468){\line(-1, 0){2362}}
+\put(2363,-2468){\line( 0, 1){945}}
+}%
+{\color[rgb]{0,0,0}\put(2363,-1523){\line( 1, 0){2362}}
+\put(4725,-1523){\line( 0,-1){945}}
+\put(4725,-2468){\line(-1, 0){2362}}
+\put(2363,-2468){\line( 0, 1){945}}
+}%
+{\color[rgb]{1.000,1.000,1.000}\put(4725,-1523){\line( 1, 0){2362}}
+\put(7087,-1523){\line( 0,-1){945}}
+\put(7087,-2468){\line(-1, 0){2362}}
+\put(4725,-2468){\line( 0, 1){945}}
+}%
+{\color[rgb]{0,0,0}\put(4725,-1523){\line( 1, 0){2362}}
+\put(7087,-1523){\line( 0,-1){945}}
+\put(7087,-2468){\line(-1, 0){2362}}
+\put(4725,-2468){\line( 0, 1){945}}
+}%
+{\color[rgb]{1.000,1.000,1.000}\put(7087,-1523){\line( 1, 0){2362}}
+\put(9449,-1523){\line( 0,-1){945}}
+\put(9449,-2468){\line(-1, 0){2362}}
+\put(7087,-2468){\line( 0, 1){945}}
+}%
+{\color[rgb]{0,0,0}\put(7087,-1523){\line( 1, 0){2362}}
+\put(9449,-1523){\line( 0,-1){945}}
+\put(9449,-2468){\line(-1, 0){2362}}
+\put(7087,-2468){\line( 0, 1){945}}
+}%
+{\color[rgb]{1.000,1.000,1.000}\put(9449,-1523){\line( 1, 0){2363}}
+\put(11812,-1523){\line( 0,-1){945}}
+\put(11812,-2468){\line(-1, 0){2363}}
+\put(9449,-2468){\line( 0, 1){945}}
+}%
+{\color[rgb]{0,0,0}\put(9449,-1523){\line( 1, 0){2363}}
+\put(11812,-1523){\line( 0,-1){945}}
+\put(11812,-2468){\line(-1, 0){2363}}
+\put(9449,-2468){\line( 0, 1){945}}
+}%
+\put(10228,-2029){\makebox(0,0)[lb]{\smash{{\SetFigFontNFSS{20}{24.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$s_0$}%
+}}}}
+\put(7865,-2029){\makebox(0,0)[lb]{\smash{{\SetFigFontNFSS{20}{24.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$s_1$}%
+}}}}
+\put(5349,-2029){\makebox(0,0)[lb]{\smash{{\SetFigFontNFSS{20}{24.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\ldots$}%
+}}}}
+{\color[rgb]{0,0,0}\put(9449,-2940){\vector(-1, 0){  0}}
+\put(9449,-2940){\vector( 1, 0){2363}}
+}%
+\put(9678,-3447){\makebox(0,0)[lb]{\smash{{\SetFigFontNFSS{20}{24.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$sectionSize$}%
+}}}}
+\put(922,-2113){\makebox(0,0)[lb]{\smash{{\SetFigFontNFSS{29}{34.8}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$e =$}%
+}}}}
+\put(2829,-2029){\makebox(0,0)[lb]{\smash{{\SetFigFontNFSS{20}{24.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$s_{n-1}$}%
+}}}}
+\end{picture}%

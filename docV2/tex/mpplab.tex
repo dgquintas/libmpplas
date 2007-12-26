@@ -83,22 +83,38 @@
   para el intercambio de información (véase sección \ref{par:runtimeData}).
 
 
-  \subsection{El servidor}
+  \subsection{El servidor}\label{mpplab:server}
     Abarca la implementación de una capa cuya función es esperar a recibir peticiones
     XML-RPC de métodos exportados al cliente para posteriormente adaptarlas a las llamadas
     correspondientes a métodos de la biblioteca MPPLAS. Gestiona también todas las instancias
     de los datos creados en cada uno de los clientes. Estos puntos se desarrollan en mayor
     profundidad en las siguientes secciones.
 
-    \paragraph{Características}
+    \paragraph{Características}\label{servidor:caracteristicas}
       \begin{itemize}
         \item Exporta métodos mediante XML-RPC (basado en la biblioteca \texttt{xmlrpc-c})
             \footnote{\url{http://xmlrpc-c.sourceforge.net/}}.
         \item Multihilo (basado en \texttt{pthreads}).
         \item Gestión dinámica de datos de los clientes en tiempo de ejecución.
         \item Mecanismos de recogida de basura (\textit{Garbage Collection}).
+        \item Se soporta un subconjunto de los tipos soportados por la biblioteca. La
+        correspondencia con estos, en cuanto a su definición, es prácticamente directa:
+              \begin{description}
+                \item[Z:] Enteros de longitud arbitraria. Se corresponde a la clase \texttt{mpplas::Z}.
+                \item[Zn:]Enteros de modulares con módulo $n$ arbitrario. Se corresponde con \texttt{mpplas::Z\_n}.
+                \item[R:] Reales de precisión arbitraria. Correspondencia con \texttt{mpplas::R}.
+                \item[GF:]Cuerpos de Galois. Correspondencia con \texttt{mpplas::GF}.
+                \item[GFx:]Elementos de un cuerpo de Galois. Correspondencia con \texttt{mpplas::GFx}.
+                \item[MZ:] Matriz de enteros. Correspondencia con \texttt{mpplas::MatrixZ}.
+                \item[MR:] Matriz de reales.  Correspondencia con \texttt{mpplas::MatrixR}.
+                \item[MGFx:] Matriz sobre un cuerpo de Galois. Correspondencia con \texttt{mpplas::MatrixGFx}.
+                \item[MZn:]  Matriz de enteros modulares. Correspondencia con \texttt{mpplas::MatrixZn}
+              \end{description}
       \end{itemize}
 
+      \subsubsection{Requisitos}
+        Dado que el servidor exporta sus métodos mediante XMLRPC, se ha utilizado la implementación
+        de este protocolo denominada «xmlrpc-c», disponible en \url{http://xmlrpc-c.sourceforge.net/}.
 
       \subsubsection{Utilización de XML-RPC}
         Por las razones expuestas anteriormente (véase \ref{arquitectura}), el servidor 
@@ -216,6 +232,14 @@
     pequeña -su objetivo es tan solo ilustrar este punto- implementación
     de un cliente alternativo realizada en JavaScript.
 
+    En la figura \ref{fig:client} se muestra la estructura del cliente.
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.85\textwidth,keepaspectratio]{estructuraCliente} 
+      \caption{Estructura del cliente MPPLab}\label{fig:client}
+    \end{figure}
+
+
     \paragraph{Características}
       \begin{itemize}
         \item \textit{Bootstrapping}: inspección de métodos disponibles
@@ -223,13 +247,24 @@
               escritura e interpretación del código necesario para su 
               utilización.
         \item Fácilmente configurable.
-        \item Soporte para \textit{plotting}.
+        \item Soporte para el trazado de gráficas.
         \item Multiplataforma.
         \item Actualizaciones automáticas.
         \item Multihilo, pudiendo de ser explotado explícitamente por el usuario.
         \item Basado en el lenguaje Python: ofrece todas las
         funcionalidades de este lenguaje.
       \end{itemize}
+
+    \subsubsection{Requisitos y ejecución}
+      Para la correcta ejecución del cliente son necesarios una serie de paquetes adicionales:
+      \begin{description}
+        \item[WxPython.] Proporciona un vínculo (\textit{binding}) con el API gráfico WxWidgets
+        \footnote{\url{http://www.wxwidgets.org/}}, permitiendo presentar el interfaz del cliente
+        de forma gráfica. Disponible en \url{http://www.wxpython.org/}.
+        \item[matplotlib y numPy.] Paquetes necesarios para el trazado de gráficas. Disponibles en
+        \url{http://matplotlib.sourceforge.net/} y \url{http://numpy.scipy.org/} respectivamente. 
+      \end{description}
+
 
     \subsubsection{\textit{Bootstrapping} y autoescritura.}\label{boostrapping}
       Una de las características más destacables de este cliente es su habilidad para
@@ -241,12 +276,126 @@
       de incorporar en el cliente métodos ofrecidos por el servidor de forma automática en tiempo
       de ejecución, y por tanto sin necesidad de modificar el cliente. 
 
-      %TODO
+      Por brevedad, no se incluye aquí el código del cliente --el cual se puede consultar en el
+      fichero \texttt{Client.py}, función \texttt{initializeClient}. De todos modos, se 
+      presenta una versión en pseudocódigo en el algorimo \ref{alg:bootstrapping}.
+      
+       \begin{algorithm}
+        \caption{Mecanismo de \textit{bootstrapping}}\label{alg:bootstrapping}
+        \begin{algorithmic}[1]
+          \State $metodosDisponibles \gets $ \textsc{MétodosExportadosPorServidorXMLRPC()}
+          \ForAll{$metodo \in metodosDisponibles$}
+            \State \textsc{DeclararMétodoEnCliente($metodo$)}
+          \EndFor
+        \end{algorithmic}
+      \end{algorithm}
+
+      Detrás de la aparente simplicidad de esta representación en pseudocódigo se esconden
+      varios aspectos complejos en la práctica. Concretamente, se aprovecha la homogeneidad
+      en la invocación de los métodos del servidor para extraer el «factor común» a la declaración
+      de los mismos en el cliente. Este «factor común» se convierte en una plantilla de texto 
+      genérica, que es instanciada con el nombre y los datos concretos cada método, siendo
+      posteriormente incorporada por el cliente a sí mismo mediante \emph{en tiempo de ejecución}, 
+      gracias a la sentencia \texttt{exec} de Python. Es por eso que se habla de
+      \textit{bootstrapping}, porque el propio cliente es capaz de incorporar a
+      sí mismo el código encargado de poner a disposición las funciones de la biblioteca
+      exportadas por el servidor.
+      
+      Dos de los problemas concretos más importantes se analizan a continuación.
+      \paragraph{¿Cómo manejar el paso de parámetros de forma genérica?}
+        No todos los métodos requieren el mismo número de parametros. Algunos siquiera
+        requieren parametros en absoluto. Sin embargo todos los métodos se están declarando,
+        tal y como se ha descrito anteriormente, de la misma forma genérica. ¿Cómo
+        mantener este carácter genérico a la vez que se permite la diversidad en 
+        el número de parámetros de los métodos? Una vez más Python aporta la solución 
+        desde la base, facilitando el paso de un número arbitrario de argumentos  
+        (\cite{pythonref}\footnote{sección 5.3.4}):
+
+        \begin{quote}
+        If there are more positional arguments than there are formal parameter
+        slots, a TypeError exception is raised, unless a formal parameter using
+        the syntax "*identifier" is present; in this case, that formal
+        parameter receives a tuple containing the excess positional arguments
+        (or an empty tuple if there were no excess positional arguments).
+        \end{quote}
+
+        Por tanto, si cada método creado mediante \textit{bootstrapping} se
+        declara utilizando esta sintaxis, podrá recibir un número arbitrario de 
+        tantos argumentos.
+        
+      \paragraph{¿Cómo manejar los resultados de los métodos?}
+        De nuevo, la declaración generica de los métodos priva de toda 
+        consideración particular. El problema ahora es cómo interpretar los datos
+        devueltos por los diferentes métodos. Es más, si el dato devuelto es un 
+        tipo de los expustos anteriormente en el punto \ref{servidor:caracteristicas},
+        lo devuelto será su identificador dentro de la tabla de datos en tiempo 
+        de ejecución que gestiona el servidor. Por supuesto, esto ha de ser transparente
+        al usuario. Aquí se desvela la razón de anteponer el tipo de dato al identificador.
+        De esta manera es posible determinar el tipo de dato apuntado por el identificador,
+        e instanciarlo convenientemente.
+
 
     \subsubsection{Fácilmente configurable.}
-    \subsubsection{\textit{Plotting}.}
+    Varios aspectos del cliente son configurables por el usuario. Por ejemplo, la dirección y puerto en el sistema donde se está
+    ejecutando el servidor, si se debe comprobar si existen versiones más recientes en dicho servidor, la frecuencia
+    de ejecución del recolector de basura, etc. En el listado \ref{lst:ejConfig} se muestra el contenido del fichero de configuración
+    utilizado para conectarse al sistema de desarrollo principal:
+
+\begin{lstlisting}[captionpos=b,basicstyle=\small,frame=shadowbox,rulesepcolor=\color{black},language=python,caption=Ejemplo de configuración,label=lst:ejConfig] 
+[CLIENT]
+transport = http
+host = 156.35.170.162
+port = 1729
+path = /Client.py
+checkforupdates = true
+GCThreshold = 20
+
+[SERVER]
+host = 156.35.170.162
+port = 1729
+transport = http
+path =
+\end{lstlisting}
+
+  El procesado de estos ficheros de configuración corre a cargo de la clase \texttt{Configuration}, contenida en el
+  fichero \texttt{Configuration.py}. Se trata de una implementación propia basada en el módulo de la librería estandar
+  de Python \texttt{ConfigParser}\footnote{\cite{pythonlib}, sección 9,2}. 
+
+    \subsubsection{Trazado de gráficas}
+      Mediante la integración de las rutinas ofrecidas por el paquete \texttt{matplotlib}, resulta
+      posible el trazado de gráficas siguiendo la sintaxis del conocido paquete de cálculo simbólico
+      MatLab. En la sección \ref{mpplab:ejs} se ilustra con ejemplos esta funcionalidad. 
+
     \subsubsection{Actualización automática.}
+      Característica motivada por el deseo de agilizar el ciclo desarrollo-prueba-desarrollo-prueba
+      por parte del autor y sus supervisores, se incorporó un mecanismo de actualización automática.
+
+      Su funcionamiento se basa en comparar el fichero que contiene el grueso de la implementación 
+      del cliente, \texttt{Client.py}, en el sistema local con otra versión, presuntamente la más
+      reciente, almacenada en el servidor. Esta comparación utiliza una \emph{función resumen} 
+      --en concreto MD5-- para evitar comparar este fichero de forma íntegra. Si se 
+      detecta una discrepancia en los resultados de esta función resumen, se asume que es debido a
+      que la implementación almacenada en el servidor ha sido sustituida con una versión más reciente.
+      En tal caso, se informa al usuario, y si éste desea actualizarse, 
+      se descarga la versión disponible en el servidor, que sustituye a la local. Tras reiniciar
+      el cliente, se estará utilizando la versión actualizada.
+      
     \subsubsection{Multihilo.}
+      Esto no resulta más que un reflejo de ser a su vez multihilo el servidor. La
+      manera de explotar esta característica se expone en la sección \ref{runInParallel}.
+
+      Internamente, el cliente se apoya en una abstracción, dada por la clase \texttt{ThreadRunner} 
+      tal como aparece en la figura \ref{fig:client}. Esta clase hereda de la clase \texttt{thread.Thread}
+      de Python, y es la encargada de gestionar la ejecución de los cálculos lanzados concurrentemente
+      desde el cliente, asegurando la correcta gestión de las secciones críticas, tales como la 
+      recolección de resultados desde los distintos hilos. 
+      
+    \subsubsection{Modelando el servidor}
+      Como se puede observar en la figura \ref{fig:client}, existe una capa encargada
+      de aislar al cliente de los entresijos de la comunicación con el servidor. Dicha
+      capa se encuentra implementada mediante en el fichero  \texttt{RPCServer.py} y hace
+      uso de la técnica de los mix-ins (sección \ref{tech:mixins}) y el patrón singleton (sección \ref{sec:singleton})
+      en el contexto del lenguaje Python. 
 
 
     El resto de las características, ser multiplataforma y un
@@ -261,31 +410,22 @@
     podido ser mucho más simple, y casi con toda seguridad mucho menos
     potente. 
 
+      
 
-
-  \subsubsection{Muestra de cliente alternativo}\label{otroCliente}
-    Utilizar el protocolo XML-RPC por parte del servidor a la hora de exportar 
-    servicios proporciona una gran flexibilidad. Tanto es así que con
-    un mínimo de codificación se ha implementado un prototipo (ya que
-    sólo es una muestra de concepto, carece de grandes
-    sofisticaciones) en JavaScript, lo que posibilita el acceso a los
-    métodos del servidor desde cualquier navegador con intérprete de
-    este lenguaje.
-    %TODO
 
   \subsection{Pequeño manual de utilización}
       \paragraph{Consideraciones generales}
-      Ciertos aspectos pueden chocar a primera vista, o ser considerados como errores, aunque en ocasiones
-      su uso pueda resultar ventajoso. Sirva de ejemplo, la copia de variables:
-      tal como se ha expuesto en \ref{arquitectura}, el cliente trabaja con \emph{referencias} a las instancias
-      de los datos almacenados en el servidor. Cuando en el interfaz Python del cliente, se ejecuta una asignación
-      \texttt{var1 = var2}, lo que se asigna a \texttt{var1} en realidad es tal referencia, con lo cual \texttt{var1}
-      y \texttt{var2} harían referencia a la misma variable. Cualquier modificación \textit{in situ} del dato 
-      apuntado sería visible a través tanto de \texttt{var1} como de \texttt{var2}.
+        Ciertos aspectos pueden chocar a primera vista, o ser considerados como errores, aunque en ocasiones
+        su uso pueda resultar ventajoso. Sirva de ejemplo, la copia de variables:
+        tal como se ha expuesto en \ref{arquitectura}, el cliente trabaja con \emph{referencias} a las instancias
+        de los datos almacenados en el servidor. Cuando en el interfaz Python del cliente, se ejecuta una asignación
+        \texttt{var1 = var2}, lo que se asigna a \texttt{var1} en realidad es tal referencia, con lo cual \texttt{var1}
+        y \texttt{var2} harían referencia a la misma variable. Cualquier modificación \textit{in situ} del dato 
+        apuntado sería visible a través tanto de \texttt{var1} como de \texttt{var2}.
 
-      ¿Cómo evitar este comportamiento? Es habitual, y necesario en muchas ocasiones, el querer realizar 
-      copias \emph{independientes} de los datos. El modo de lograrlo es invocando \emph{el constructor} del tipo
-      a copiar. Por ejemplo:
+        ¿Cómo evitar este comportamiento? Es habitual, y necesario en muchas ocasiones, el querer realizar 
+        copias \emph{independientes} de los datos. El modo de lograrlo es invocando \emph{el constructor} del tipo
+        a copiar. Por ejemplo:
 
 \begin{verbatim}
 >>> var1 = MZ("[1 2; 3 4]")
@@ -348,6 +488,20 @@
 35872687327373
 >>> pow(unEntero, otroEntero, Z(11234)) #exponenciación modular
 1357
+\end{verbatim}
+
+
+       \paragraph{Zn} Representa un entero modular de precisión arbitraria. El constructor en este caso require
+       de la presencia del módulo $n$. Asimismo, si dicho $n$ es primo, es posible utilizar métodos propios
+       del trabajo sobre un cuerpo, tal como la inversión:
+\begin{verbatim}
+>>> z = Zn("1233", Z("19"))
+>>> print z
+17
+>>> z.getInverse()
+9
+>>> z * z.getInverse()
+1
 \end{verbatim}
 
        \paragraph{R} Representa un real de precisión arbitraria. Su utilización es muy similar al tipo de dato para 
@@ -425,59 +579,60 @@
 [  1  4  7 ]
 [  2  5  8 ]
 [  3  6  9 ]
-
->>> print m
-[  1  2  3 ]
-[  4  5  6 ]
-[  7  8  9 ]
-
->>> print m.getSubMatrix(rows=(2,), cols=(1,2))
-[  8  9 ]
-
->>> print m.getSubMatrix(rows=(1,), cols=(1,2))
-[  5  6 ]
-[  8  9 ]
-
->>> print m.getSubMatrix(rows=(2,2), cols=(1,2))
-[  8  9 ]
-
->>> print m.getSubMatrix(rows=(0,1), cols=(0,2))
-[  1  2  3 ]
-[  4  5  6 ]
-
->>> print m.getSubMatrix(cols=(0,2))
-[  1  2  3 ]
-[  4  5  6 ]
-[  7  8  9 ]
-
->>> print m.getSubMatrix(cols=(0,1))
-[  1  2 ]
-[  4  5 ]
-[  7  8 ]
-
->>> print m.getSubMatrix(cols=(0,0))
-[  1 ]
-[  4 ]
-[  7 ]
-
->>> print m.getSubMatrix(cols=(2,1))
-Traceback (most recent call last):
-(...)
-    raise Fault(**self._stack[0])
-Fault: <Fault 0: 'Invalid Argument error: Invalid range; Invalid interval for submatrix operator (columns)'>
->>> 
-
 \end{verbatim}
 
+\subparagraph{Obtención a submatrices.}
  La operación de acceso a una submatriz opera de la siguiente manera:
   \begin{description}
-    \item[\texttt{getSubMatrix(rows=(i,f), cols=(i,f))}] Devuelve la submatriz formada por 
-    las filas/columnas especificadas por $i$ (de inicio) y $f$ (de fin). Ambas filas/columnas
-    del interval son \emph{incluidas}. Si se omite el elemento $f$, como se aprecia en los ejemplos,
-    se considerarán a $f$ como la última fila/columna. 
+    \item[\texttt{getSubMatrix(rows=(inicio,paso,fin), cols=(inicio,paso,fin))}] Devuelve la submatriz formada por 
+    las filas/columnas especificadas por $inicio$, $paso$ y $fin$. Ambas filas/columnas
+    del interval son \emph{incluidas}. 
+    
+    Es posible omitir estos parámetros, pero «manteniendo el orden»; es decir, es posible omitir $fin$ y $paso$, pero no
+    es posible omitir $paso$ y especificar $fin$. Los valores dados a estos tres parametros por omisión son $0$, $1$ y 
+    «hasta el final», respectivamente.
   \end{description}
+\begin{verbatim}
+ >>> print m
+[   0   1   2   3   4 ]
+[   5   6   7   8   9 ]
+[  10  11  12  13  14 ]
+[  15  16  17  18  19 ]
+[  20  21  22  23  24 ]
 
+ >>> print m.getSubMatrix()
+[   0   1   2   3   4 ]
+[   5   6   7   8   9 ]
+[  10  11  12  13  14 ]
+[  15  16  17  18  19 ]
+[  20  21  22  23  24 ]
 
+#tres primeras filas, y de la primera a la quinta columna de forma
+#alternada
+ >>> print m.getSubMatrix((0,2),(0,2,4))
+[   0   2   4 ]
+[  10  12  14 ]
+[  20  22  24 ]
+
+#tres primeras filas y cinco primeras columnas
+ >>> print m.getSubMatrix((0,2),(0,1,4))
+[   0   1   2   3   4 ]
+[  10  11  12  13  14 ]
+[  20  21  22  23  24 ]
+
+# indicando solo donde empezar
+ >>> print m.getSubMatrix((2),(4))
+[  14 ]
+[  19 ]
+[  24 ]
+
+ >>> print m.getSubMatrix((1,1,3),(1,1,3))
+[   6   7   8 ]
+[  11  12  13 ]
+[  16  17  18 ]
+\end{verbatim}
+
+\subparagraph{Construcción dadas las dimensiones.}
        También es posible crear una matriz especificando sus dimensiones. Será inicializada con ceros:
 \begin{verbatim}
 >>> mat = MZ(n=3,m=5)
@@ -498,6 +653,92 @@ Fault: <Fault 0: 'Invalid Argument error: Invalid range; Invalid interval for su
 [  3987194506   831735211  1205127533  1202186320  1521499748 ]
 [  3996584786    46050137  1380962956  3307867696  3238229487 ]
 \end{verbatim}
+
+\subparagraph{Uniendo matrices}
+Así como es posible seleccionar submatrices de una matriz dada, resulta también útil
+el poder crear una nueva matriz a partir de la concatenación, por filas o columnas, de otras
+matrices. En este caso sólo se consideran filas o columnas contiguas. De todas formas, siempre
+resulta posible, mediante la adecuada combinación de las operaciones de concatenación, de replicar
+este comportamiento para filas o columnas no contiguas. Véanse algunos ejemplos
+\begin{verbatim}
+>>> m1 = MZ("[1 2; 3 4]")
+>>> m2 = MZ("[8 9 ;5 2; 5 7; 2 1]")
+>>> print m1
+[  1  2 ]
+[  3  4 ]
+
+>>> print m2
+[  8  9 ]
+[  5  2 ]
+[  5  7 ]
+[  2  1 ]
+
+>>> print m1.appendByColumns(m2)
+[  1  2 ]
+[  3  4 ]
+[  8  9 ]
+[  5  2 ]
+[  5  7 ]
+[  2  1 ]
+
+>>> print m1
+[  1  2 ]
+[  3  4 ]
+[  8  9 ]
+[  5  2 ]
+[  5  7 ]
+[  2  1 ]
+\end{verbatim}
+Como puede verse, la matriz se modifica.Si no se desea esto:
+\begin{verbatim}
+>>> print m1
+[  1  2 ]
+[  3  4 ]
+
+>>> print MZ(m1).appendByColumns(m2)
+[  1  2 ]
+[  3  4 ]
+[  8  9 ]
+[  5  2 ]
+[  5  7 ]
+[  2  1 ]
+
+>>> m1 = MZ("[1 2; 3 4]")
+>>> print m1.appendByColumns(m2).appendByColumns(m1)
+[  1  2 ]
+[  3  4 ]
+[  8  9 ]
+[  5  2 ]
+[  5  7 ]
+[  2  1 ]
+[  1  2 ]
+[  3  4 ]
+[  8  9 ]
+[  5  2 ]
+[  5  7 ]
+[  2  1 ]
+\end{verbatim}
+Asimismo, es posible encadenar las operaciones. Nótese que este tipo de
+sentencias se evaluan de derecha a izquierda:
+\begin{verbatim}
+>>> m1 = MZ("[1 2; 3 4]")
+>>> print m1.appendByColumns(m2).appendByColumns(m1)
+[  1  2 ]
+[  3  4 ]
+[  8  9 ]
+[  5  2 ]
+[  5  7 ]
+[  2  1 ]
+[  1  2 ]
+[  3  4 ]
+[  8  9 ]
+[  5  2 ]
+[  5  7 ]
+[  2  1 ]
+
+\end{verbatim}
+El funcionamiento del método \texttt{appendByRows} es análogo pero orientado
+a filas.
 
        \paragraph{MGFx} Representa una matriz sobre el un cuerpo finito dado. La particularidad de este tipo de 
        matrices radica en que llevan asociado un cuerpo finito. De otro modo, podría darse el caso de que un elemento
@@ -549,6 +790,53 @@ Fault: <Fault 0: 'Invalid Argument error: Invalid range; Invalid interval for su
 
        Sin embargo, el repertorio se completa con los tres métodos anteriormente descritos para matrices sobre 
        cuerpos finitos. Su funcionamiento es análogo para matrices sobre reales.
+
+       \paragraph{MZn} Matriz sobre enteros modulares $\mathbb{Z}_n$. El módulo $n$ es arbitrario. Si 
+       se utiliza un $n$ primo, será posible utilizar métodos propios de matrices sobre cuerpos, tales como
+       la inversión o la resolución de sistemas de ecuaciones. Al construir la matriz es necesario proporcionar
+       el módulo $n$. Ejemplos:
+
+\begin{verbatim}
+>>> print MZn("[1 2 3; 341 352 9; 0 31 1]", mod=Z("7"))
+[  1  2  3 ]
+[  5  2  2 ]
+[  0  3  1 ]      
+
+>>> a =  MZn("[1 2 3; 341 352 9; 0 31 1]", mod=Z("7"))
+>>> a*a.getInverse()
+[ 1 0 0 ; 0 1 0 ; 0 0 1  ]
+>>> b =  MZn("[1 2 3; 341 352 9; 0 31 1]", mod=Z("8"))
+>>> print b
+[  1  2  3 ]
+[  5  0  1 ]
+[  0  7  1 ]
+\end{verbatim}
+
+Si se trata de invertir una matriz sobre $\mathbb{Z}_n$ con $n$ \emph{no} primo, se producirá una excepción:
+\begin{verbatim}
+>>> b.getInverse()
+Traceback (most recent call last):
+  File "<input>", line 1, in <module>
+  File "/home/dgquintas/libmpplas/trunk/demos/client/Client.py", 
+    line 975, in getInverse
+    return _mz_nInv(self)
+  File "<string>", line 18, in _mz_nInv
+  File "xmlrpclib.py", line 1147, in __call__
+    return self.__send(self.__name, args)
+  File "xmlrpclib.py", line 1437, in __request
+    verbose=self.__verbose
+  File "xmlrpclib.py", line 1201, in request
+    return self._parse_response(h.getfile(), sock)
+  File "xmlrpclib.py", line 1340, in _parse_response
+    return u.close()
+  File "xmlrpclib.py", line 787, in close
+    raise Fault(**self._stack[0])
+Fault: <Fault 0: 'Invalid Argument error: Tried to invert a 
+non-invertible element;
+\end{verbatim}
+
+
+
 
     
     \subsubsection{Funciones disponibles}\label{funciones} 
@@ -814,7 +1102,7 @@ result = m.getInverse()
 
 
        
-       \subsubsection{Ejemplos}. 
+       \subsubsection{Ejemplos} \label{mpplab:ejs}
 \paragraph{$\pi$ de Euler} 
 
 Lorem ipsum\newline
@@ -851,12 +1139,11 @@ plot(t1, t1/log(t1), 'bx-', label=r"n/log(n) approx.")
 legend()
 \end{lstlisting}
 
-  \begin{center}
   \begin{figure}[h!]
+    \centering
     \includegraphics[width=0.85\textwidth,keepaspectratio]{plotExResult} 
     \caption{Gráfica resultado de la ejecución del ejemplo $\pi$ de Euler}\label{fig:plotExResult}
-  
-  \end{figure}\end{center}
+  \end{figure}
 
 \paragraph{RSA y paralelismo}
 Lorem ipsum\newline

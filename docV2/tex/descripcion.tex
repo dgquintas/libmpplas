@@ -1,0 +1,405 @@
+\chapter{Descripción general}
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+          Toda generalización es falsa.
+        }
+        \begin{flushright}
+          \textbf{\textemdash Anónimo}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+\bigskip
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+          People who like quotations love meaningless generalizations.
+        }
+        \begin{flushright}
+          \textbf{\textemdash Graham Greene}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+
+\begin{center}{\line(1,0){325}}\end{center}
+
+%--------------------------------------------------------%
+
+  
+\section{Estructura general de la biblioteca}
+  Siguiendo la filosofía de la antigua biblioteca LibNumth, se ha matenido el diseño jerárquico en capas,
+  como se muestra en la figura \ref{fig:estructuraGeneral}. Téngase en cuenta que, en pos de la claridad, no 
+  todas las relaciones entre los diferentes elementos individuales se representan.
+
+   \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.85\textwidth,keepaspectratio]{estructuraGeneral} 
+      \caption{Estructura general}\label{fig:estructuraGeneral}
+    \end{figure}
+
+  \subsection{Los procesadores virtuales}
+    La biblioteca utiliza una serie de lo que se ha denominado «procesadores virtuales»: 
+    colecciones de rutinas especializadas en el tratamiento de una clase concreta de datos,
+    de forma jerárquica. Esta modularidad favorece la portabilidad y la ampliación de los
+    sistemas soportados de forma nativa. De hecho, esto se ha demostrado, desde la introducción
+    de esta idea en \cite{miproyecto}, al incorporar la arquitectura x86-64 a la biblioteca 
+    con tan solo la escritura de las diez rutinas en ensamblador que conforman el escalón más 
+   bajo de la jerarquía de la biblioteca, la CPU básica. Se dan más detalles de esta incorporación
+   al mundo de los $64$ bits en la sección \ref{impl:64bits}.
+  
+    \subsubsection{La CPU vectorial}\label{basic:cpuvectorial}
+      Descrita ya en \cite{miproyecto}\footnote{pág. 38}, aglutina las rutinas encargadas
+      de operar sobre vectores de \texttt{Digit}s. No existe aún concepto de signo.
+
+    \subsubsection{La CPU básica}\label{basic:cpu}
+      Con sus implementaciones en ensamblador para las arquitecturas nativas soportadas, así como
+      su implementación genérica en C++ para garantizar la portabilidad, es el destino de toda
+      operación realizada por la biblioteca. Es sobre sus diez rutinas sobre las que se realiza
+      el conteo del mecanismo de perfilado, y el «núcleo duro» de la biblioteca. Heredada de LibNumth,
+      \cite{miproyecto}\footnote{pág. 38}, ha sufrido numerosas optimizaciones y la incorporación de 
+      arquitecturas. 
+      
+
+    \subsubsection{La CPU SIMD}\label{basico:cpusimd}
+       Existe un tipo de paralelismo que ha estado disponible en procesadores de consumo
+       desde hace más de una década, cuando en $1997$ Intel introdujo el juego de instrucciones 
+       MMX en su familia de procesadores Pentium\footnote{\url{ http://www.intel.com/design/intarch/mmx/mmx.htm }}.
+       Este tipo de paralelismo, denominado por las siglas SIMD\footnote{instrucción única múltiples datos, por sus siglas en inglés}, 
+       se expone en la sección \ref{flynn}. Resumiendo, se trata de aplicar una única instrucción a un conjunto de datos «en bloque».
+       Compárese la figura \ref{fig:sinSIMD} con la figura \ref{fig:conSIMD}. En la primera, los datos son tratados secuencialmente de
+       una manera que podría denominarse «horizontal». Por contra, en la segunda, se aplica la operación en cuestión simultáneamente
+       a todos los datos, «verticalmente».
+
+       \begin{figure}[h]
+         \centering
+         \includegraphics[width=0.85\textwidth,keepaspectratio]{sinSIMD} 
+         \caption{Sin utilizar SIMD}\label{fig:sinSIMD}
+       \end{figure}
+
+       \begin{figure}[h]
+         \centering
+         \includegraphics[width=0.85\textwidth,keepaspectratio]{conSIMD} 
+         \caption{Utilizando SIMD}\label{fig:conSIMD}
+       \end{figure}
+
+       Este paralelismo intrínseco al procesador requiere el uso de instrucciones específicas del mismo, y es por ello
+       difícilmente portable a otros sistemas. Asimismo, su utilización suele requerir el trabajo en lenguaje ensamblador, 
+       con todo lo que ello supone (dificultad de mantenimiento, complejidad, etc.).
+
+      La práctica ubicuidad y potencia de estos métodos los hacen muy atractivos. Con el fin de evitar el obstáculo
+      de lo poco amigable de su uso, se ha desarrollado esta «CPU SIMD». Sus objetivos son:
+      \begin{itemize}
+         \item Aislar a las rutinas de la biblioteca que deseen hacer uso de instrucciones SIMD de la implementación
+         real particular del procesador en cuestión sobre el que se esté operando. Incluso si no existe implementación
+         alguna, la biblioteca provee una implementación genérica que simula su comportamiento.
+         \item Homogeneizar la familia de operaciones disponibles, del mismo modo que se ha hecho con la CPU escalar.
+         \item Proporcionar una abstracción adecuada que evite lidiar con los entresijos del lenguaje ensamblador. 
+      \end{itemize} 
+
+      \bigskip 
+
+      Los «paquetes» SIMD tendrán siempre una longitud de $128$ bits. En base a esto, se han definido
+      tres variedades diferentes de «paquetes» de datos SIMD:
+      \begin{itemize}
+      \item Pares de números en coma flotante de $64$ bits.
+      \item Cuatro números en coma flotante de $32$ bits.
+      \item Ocho enteros con signo de $16$ bits.
+      \end{itemize}
+      Los detalles de la implementación y una descripción más pormenorizada se dan en la sección \ref{simddigit}.
+
+
+    \subsubsection{Perfilado}
+
+  \subsection{Repositorio de funciones}\label{basico:nuevoRepdeFuncs}
+    Ya en LibNumth exploramos la utilización de lo que se denominó «repositorio de funciones»
+    (véase \cite{miproyecto}\footnote{secciones 5.6 y 4.2.3}). La idea era y sigue siendo
+    «hacer extensible la colección de funciones \emph{sin necesidad de recompilación} por parte del usuario,
+    y además de forma sencilla». La implementación de este mecanismo en dicha versión de la biblioteca
+    era un tanto básica: dependía de convenciones en el nombrado, haciendo recaer sobre el usuario
+    programador la carga de recordar el nombre concreto del tipo de función que desease obtener. Por ejemplo:
+
+    \begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Utilizando el \textbf{antiguo} repositorio de funciones, label=lst:antiguoRepFuncs]
+    (...)
+    numth::Funciones funcs;
+
+    numth::congruentGen *LCG = new numth::congruentGen();
+    funcs.ponerRandom(LCG);
+
+    funcs.random()->ponerSemilla(numth::Z::convertir("323658476")); 
+    n = funcs.genPrimos()->leerPrimoProb(600);
+    (...)
+    \end{lstlisting}
+    En el anterior listado \ref{lst:antiguoRepFuncs} se aprecian los siguientes puntos:
+
+    \begin{itemize}
+    \item Tanto para establecer una nueva implementación 
+    para una clase de método, como para obtener la implementación actual, era necesario estar al tanto del
+    nombre de la clase de método que las instancias implementaban: \texttt{congruentGen} era un tipo de generador
+    de números pseudo-aleatorios, y por ello debía utilizarse el método \texttt{ponerRandom} de la clase \texttt{Funciones}, 
+    que representaba el repositorio. 
+    \item Para obtener un número primo, el programador debía recordar que el método
+    \texttt{genPrimos} era el indicado para obtener un puntero a una instancia generadora de primos. 
+    \item Incluso aunque se pretendía seguir un patrón de nombrado, éste resultaba deficiente.
+    \item El repositorio, instancia de la clase \texttt{Funciones}, podía instanciarse de forma arbitraria, pese a que
+    conceptualmente el repositorio ha de ser único durante toda la ejecución del programa. Este escollo se salvaba
+    haciendo que las instancias de las funciones contenidas en él fueran \texttt{static}. Este simple hecho choca frontalmente
+    con el concepto de \textit{thread-safety}, tal como se expone en la sección \ref{par:datosStatic}.
+    \end{itemize}
+
+    Esta forma de operar no sólo resulta tediosa y 
+    propensa a errores, sino también \emph{poco elegante}. La idea
+    es siempre que la máquina trabaje por nosotros, no al contrario. Por si esto fuera poco, la presencia de datos
+    estáticos da al traste con las aspiraciones de ejecución concurrente de la biblioteca mediante hilos. 
+
+    Compárese el código mostrado en el listado \ref{lst:antiguoRepFuncs} con el mostrado en el siguiente listado \ref{lst:nuevoRepFuncs}:
+    \begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Utilizando el \textbf{nuevo} repositorio de funciones, label=lst:nuevoRepFuncs]
+    (...)
+    mpplas::MethodsFactory& funcs(MethodsFactory::getReference());
+    mpplas::RandomFast* rnd;
+    mpplas::PrimeGen* primes;
+
+    mpplas::RandomFast* newRnd = new mpplas::CongruentGen();
+    funcs.setFunc(newRnd);
+
+    funcs.getFunc(rnd);
+    rnd->setSeed(mpplas::Z("323658476"));
+
+    funcs.getFunc(primes);
+    n = primes->getInteger(600);
+    (...)
+    \end{lstlisting}
+    Ambas porciones de código son semánticamente equivalentes. Sin embargo:
+    \begin{itemize}
+    \item El repositorio, denominado ahora \texttt{MethodsFactory}, es ahora un \texttt{Singleton} (véase sección \ref{sec:singleton}). 
+    Esto lidia con los problemas de concurrencia mencionados anteriormente, haciendo que sí sea seguro utilizar esta versión del repositorio
+    en un entorno concurrente.
+    \item Se trabaja con punteros a los tipos que representan el concepto \emph{abstracto} a realizar: generar primos, obtener números
+    pseudo-aleatorios, etc. en vez de con los tipos que en última instancia implementan dichos conceptos.
+    \item El repositorio consiste \emph{únicamente} de dos métodos: \texttt{getFunc} y \texttt{setFunc}. El mecanismo
+    de funcionamiento, denominado \textit{autowiring}, se expone en \ref{sec:autowiring}. En este contexto, ambos
+    métodos inspeccionan el tipo de las instancias que les son pasadas como parámetros a la hora de asignar
+    o establecer las instancias pertinentes, de forma totalmente transparente para el usuario, y garantizando \emph{en tiempo
+    de compilación} la coherencia de dichas operaciones.
+    \end{itemize}
+
+    
+  \subsection{Control de errores}\label{controlDeErrores}
+    Se ha mantenido la política de LibNumth de utilizar una jerarquía de excepciones propia (\cite{miproyecto}
+    \footnote{sección 4.2.4, pág. 39}). Sin embargo esta jerarquía se ha mejorado ostensiblemente:
+
+    \begin{itemize}
+      \item Integración dentro de la jerarquía de excepciones estándar, heredando de \texttt{std::exception}.
+      \item Incorporación de mecanismos para la identificación del origen de la excepción de forma
+      automática.
+    \end{itemize}
+
+    El segundo de estos puntos se desgrana a continuacion.
+    \subsubsection{Identificando al lanzador}
+      Por cuestiones de rendimiento, C++ no guarda trazas de ejecución, como por ejemplo
+      si hace Java o Python (téngase en cuenta que estos son lenguajes interpretados, o en 
+          cualquier caso, ejecutados mediante una máquina virtual). Esto hace que la identificación
+      del origen de una excepción se complique. Salvo que se esté utilizando un depurador, el cual sí
+      almacena una traza de la ejecución, normalmente toda la información que se recibe cuando se
+      produce una excepción es el tipo de ésta. Con la intención de mitigar esta carencia se han tomado dos
+      medidas:
+
+      \paragraph{Manualmente al constructor.}
+        Todos los constructores de las excepciones de la biblioteca aceptan una cadena de caracteres como 
+        argumento opcional. Resulta útil valerse de esta para proporcionar más datos que los que el propio
+        tipo de la excepción aporta, tales como nombre concreto del método desde el cual se lanza la excepción, etc.
+      \paragraph{Imitando a los asertos de C.} La función de la biblioteca estándar de C \texttt{assert}, cuando
+      su condición no se cumple e interrumpe el programa, señala el fichero y la línea del mismo en la que 
+      el programa se interrumpió. Esto ayuda a acotar la fuente del problema. Se ha replicado este comportamiento
+      en las excepciones de la biblioteca, añadiendo esta misma información --fichero y línea-- a la cadena
+      de caracteres informativa que devuelve el método \texttt{what()}. Los detalles de implementación de esta
+      característica se recogen en la sección \ref{impl:except}.
+
+  \section{Generación dinámica de código}\label{desc:dynamic}
+  En esta sección se describen las partes de la biblioteca donde, en pos de la flexibilidad de la misma,
+  se han incorporado elementos que son generados de forma dinámica en función de las necesidades del entorno
+  o por petición expresa del usuario. 
+
+  \subsection{Información del sistema}\label{desc:systeminfo}
+    El espacio de nombres \texttt{SystemInfo} contiene una serie de funciones cuyo cometido es
+    proporcionar al usuario y a la propia biblioteca información acerca del sistema sobre el
+    cual se está ejecutando la biblioteca. La biblioteca en sí utiliza algunos de los datos
+    descritos a continuación a la hora de, por ejemplo, comprobar si los mecanismos de perfilado
+    están activados, examinar el número de hilos que están siendo utilizados en un momento dado, etc. 
+    Se ha procurado que los datos proporcionados tengan un formato fácilmente utilizable tanto como por la
+    biblioteca en sí, como por un usuario humano: allí donde se utilizan descripciones textuales, éstas
+    siguen un formato fijo. 
+
+    \begin{itemize}
+      \item Información sobre la CPU física del sistema. Se utiliza un
+      objeto del tipo \texttt{CPUInfo} descrito más adelante.
+      \item El número de hilos que están siendo utilizados por la biblioteca
+      en un momento dado.
+      \item El máximo número de hilos que utilizará la biblioteca durante la
+      ejecución de métodos paralelizados.
+      \item Nivel de optimización (la \texttt{x} en el argumento \texttt{-Ox} pasado al compilador).
+      \item Arquitectura para la cual se ha compilado la biblioteca. Esta no tiene por que correspoder 
+      necesariamente con la arquitectura del sistema donde se está utilizando la biblioteca (caso de
+          una compilacion para $32$ bits sobre un sistema x86-64).
+      \item Soporte de depuración (uso de \texttt{-g} al compilar).
+      \item Mecanismo de perfilado de la biblioteca activado.
+      \item Uso de OpenMP.
+      \item Compilación con comprobaciones extras (\texttt{assert}s, comprobaciones de rangos en vectores, etc.)
+          activadas.
+      \item Número de revisión según el sistema de control de versiones.
+      \item Tipo de rutinas SIMD para las cuales se ha compilado la biblioteca. 
+      \item Línea de comando utilizada en para invocar el compilador sobre los distintos ficheros fuente. 
+      Aglutina en su forma «cruda» la mayoría de los anteriores parámetros.
+      \item Fecha de compilado de la biblioteca, de la forma «Dec 12 2007».
+      \item Hora de compilado de la biblioteca, de la forma «15:13:34».
+    \end{itemize}
+
+    En aplicaciones tales como MPPLab, descrita en el capítulo \ref{chap:mpplab}, estos datos
+    resultan aún más útiles, ya que en principio el usuario no tiene por qué saber en que sistema
+    remoto se está ejecutando el servidor, es decir, la biblioteca. Los datos proporcionados resultan
+    en situaciones como esta inestimables, ya que son imprescindibles a la hora de interpretar resultados
+    de rendimiento o de disponibilidad de mecanismos (paralelismo, perfilado...).
+
+    \subsubsection{Información de la CPU: \texttt{CPUInfo}}
+      La clase \texttt{CPUInfo} aglutina información relativa a la CPU física del sistema. Si la 
+      biblioteca ha sido compilada utilizanado como arquitectura «generic», la información no se
+      corresponderá con la CPU física sino con la CPU virtual de la biblioteca. Esto es así debido
+      a que el objetivo de la arquitectura «generic» es garantizar la portabilidad total, y los métodos
+      utilizados para recabar información sobre la CPU física recurren a métodos específicos en el lenguaje
+      ensamblador de la CPU en particular. Véase la sección \ref{impl:cpuinfo}.
+
+      Este clase proporciona la siguiente información:
+      \begin{itemize}
+        \item Tamaño de las cachés de nivel L1, L2 y L3 (si está presente).
+        \item Modelo de la CPU. Por ejemplo, «Intel(R) Core(TM)2 Duo CPU     E6750  @ 2.66GHz».
+        \item Arquitectura de la CPU. Por ejemplo, «x86\_64», «generic», etc.
+        \item Tecnologías SIMD soportadas. Por ejemplo, «MMX», «SSE2», «SSSE3», etc.
+        \item Tamaño en bits de su tipo de trabajo básico (típicamente $32$ o $64$).
+        \item Número de unidades de ejecución disponibles.
+      \end{itemize}
+
+      Estos datos resultan útiles no sólo como información en sí sobre la CPU sobre la cual
+      la biblioteca está ejecutándose, sino que también pueden ser explotados por determinados métodos.
+      Por ejemplo, el tamaño de las cachés a la hora de encontrar particionados óptimos que 
+       garanticen que las partes caben íntegras en la caché.
+
+
+  \subsection{Mecanismo de perfilado}
+    En la anterior versión de la biblioteca, LibNumth, ya se incorporaba soporte de perfilado
+    por parte de la biblioteca para el conteo de las operaciones de la CPU Virtual (véase 
+    \cite{miproyecto}, sección 5.2.1). En esta nueva versión, este soporte se mantiene, 
+    con la incorporación de un desglose de operaciones por hilo, si la biblioteca ha sido
+    compilada con soporte para OpenMP. Sin embargo, los entresijos de la implementación
+    de este mecanismo han cambiando completamente: el código responsable del perfilado es 
+    generado automáticamente por medio de una técnica conocida como AOP (Aspect Oriented Programming).
+    Estos detalles se recogen en la sección \ref{impl:aop}.
+
+      \paragraph{Perfilado con OpenMP y anidamiento.} Es importante destacar una peculiaridad
+      de OpenMP --al menos en su versión 2.5--: si durante la ejecución de una porción de código
+      paralelizada se encuentra otra directiva OpenMP que crearía un nuevo grupo de hilos, 
+      pueden abordarse la situación de dos maneras: creando efectivamente dicho nuevo grupo 
+      de la misma manera que se haría de no estar ya inmersos en una sección paralelizada o
+      serializando dicha sección y ejecutándola secuencialmente con sólo un hilo, siendo
+      este hilo ejecutor aquel del grupo original que primero se encontró con la directiva 
+      anidada. Hasta aquí ningún problema. Esta cuestión está contemplada por el estándar y 
+      se describe en \cite{openmpstandard} \footnote{sección 1.3, pág. 10}. Salvo que se esté
+      utilizando un sistema con numeras unidades de ejecución, la segunda opción es la utilizada:
+      que las secciones paralelas anidadas sean ejecutadas secuencialmente. El escenario típico
+      en el que se encuentran secciones paralelas anidadas es en las llamadas recursivas dentro
+      de métodos paralelizados. Ejemplo, el método de Karatsuba en paralelo (sección \ref{par:karatsubaZ}).
+      
+
+      El problema resulta cuando se tiene en cuenta lo siguiente, referido a la función \texttt{omp\_get\_thread\_num()}
+      utilizada para inspeccionar el identificador del hilo ejecutandose (\cite{openmpstandard}):
+      \begin{quote}
+        If called [\texttt{omp\_get\_thread\_num()}] fromwithin a nested parallel region that is 
+        serialized, this function returns $0$.
+      \end{quote}
+      Es decir, por ejemplo en el caso de la multiplicación de enteros, donde tal como se ha indicado
+      se utiliza un enfoque paralelo \emph{y} recursivo, el conteo de instrucciones será correcto 
+      \emph{en total}, pero no así el desglose: las operaciones tras el primer paso recursivo serán
+      asignadas al hilo con identificador $0$, es decir, al hilo maestro. Esto podría dar la falsa
+      impresión de que el método no está siendo ejecutando en paralelo si sólo se tiene en cuenta
+      el desglose de operaciones por hilos.
+
+      No existe una manera sencilla de sortear este problema. Si realmente se tiene interés en un 
+      desglose preciso de las operaciones por hilos, es posible activar el soporte de creación de
+      nuevos hilos incluso durante el anidamiento, lo cual por una parte podría repercutir en el 
+      rendimiento, pero arrojaría unos resultado de perfilados precisos. Para activar este soporte, 
+      véase \cite{openmpstandard}, secciones 3.2.9 y 4.4.
+
+
+
+\section{Compilando la biblioteca}\label{desc:scons}
+  Como se expuso en la sección \ref{tech:scons}, se ha utilizado la herramienta SCons para gestionar
+  el proceso de compilación de la biblioteca y su batería de pruebas. SCons facilita el paso manual 
+  de parámetros para la compilación. Invocando a SCons con el parámetro \texttt{-h} se obtiene la lista
+  de opciones disponibles, así como los valores válidos para estos y el valor que toman por omisión:
+
+\begin{verbatim}
+optLevel: Compiler optimization level (0|1|2|3|s)
+    default: 0
+
+arch: Target architecture (auto|generic|x86|x86Prof|ppc|x86_64|x86_64Prof)
+    default: auto
+
+enableExtraOpt: Use extra optimization flags (yes|no)
+    default: 0
+
+enableDebug: Generate debug symbols (yes|no)
+    default: 0
+
+enableAOPProf: Enable the profiling mechanisms via AOP (yes|no)
+    default: 0
+
+enableOpenmp: Use OpenMP (if available) (yes|no)
+    default: 1
+
+enableRelease: Generate a RELEASE version (optimized) (yes|no)
+    default: 0
+
+enableWarnings: Compile with -Wall and similar flags (yes|no)
+    default: 0
+
+enableSIMD: Use the given SIMD kernel (if available) (auto|nosimd|sse|sse2)
+    default: auto
+\end{verbatim}
+
+Gracias a SCons, aquí acaba el trabajo
+
+A continuación se muestran algunos ejemplos de escenarios de compilación:
+
+Versión sin optimizaciones, con la generación de símbolos de depuración y 
+comprobaciones extra (de límites y asertos) activados, perfilado activado
+y OpenMP desactivado. Esta es una configuración habitual durante el desarrollo
+ya que facilita la depuración.
+\begin{verbatim}
+scons -D all enableDebug=1 enableRelease=0 optLevel=0 enableAOPProf=1 enableOpenmp=0
+\end{verbatim}
+
+Para un rendimiento máximo, se desactivan las comprobaciones extras y el perfilado;
+se utiliza el máximo nivel de optimización así como las optimizaciones extra:
+\begin{verbatim}
+scons -D all enableRelease=1 optLevel=3 enableAOPProf=0 enableExtraOpt=1
+\end{verbatim}
+
+Es posible especificar el compilador a utilizar mediante la variable de entorno \texttt{CXX},
+en este caso el compilador de Intel para C++, \texttt{icpc}:
+\begin{verbatim}
+CXX="icpc" scons -D all
+\end{verbatim}
+
+Especificación de la arquitectura. Por ejemplo, compilar una versión de $32$ bits de la biblioteca
+en un sistema de $64$ bits:
+%TODO

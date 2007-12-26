@@ -14,8 +14,11 @@
   \graphicspath{{figures/}}
 \usepackage{graphics}
 \usepackage{array}
+\usepackage{wrapfig}
+\usepackage{wasysym}
 \providecommand{\tabularnewline}{\\}
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
+\setcounter{tocdepth}{3} 
 
 \usepackage[boxed,section]{algorithm}
 \usepackage{algpseudocode}
@@ -73,8 +76,10 @@
    {\end{list}}
 
 \usepackage{type1cm}
+\usepackage{pstricks}
 \newcommand{\sgn}{\operatorname{{\mathrm sgn}}}
-\newcommand{\GF}[1]{\mathrm{GF}\left(#1 \right)}
+\newcommand{\GFX}[1]{ \mathrm{GF}\left(#1 \right) }
+\newcommand{\GF}{ \mathrm{GF} }
 \makeindex
 
 \pagestyle{headings}
@@ -114,7 +119,27 @@ MultiPrecision Parallel Linear Algebra System}
     \end{flushright}
   \end{minipage}
 \end{flushright}
+
+\bigskip
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+            Number Theory:\\ the analysis of why not all numbers are like the number $1$. 
+        }
+        \begin{flushright}
+          \textbf{\textemdash The Urban Dictionary}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
 \vfill
+
+
 
 \newpage
 
@@ -142,8 +167,8 @@ MultiPrecision Parallel Linear Algebra System}
 
 \tableofcontents
 %FIXME: reenable
-%\listoffigures
-%\listofalgorithms
+\listoffigures
+\listofalgorithms
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \include{prologo}
@@ -154,15 +179,12 @@ MultiPrecision Parallel Linear Algebra System}
 \include{tipos}
 \include{implementacion}
 \include{paralelismo}
-\include{resultados}
-%\include{trascendentes}
 \include{mpplab}
 \include{ejemplos}
 \include{ampliaciones}
-%\include{pruebas}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\bibliographystyle{proyecto}
+\bibliographystyle{IEEEtranSA}
 \bibliography{bibliografia}
 
 \printindex 

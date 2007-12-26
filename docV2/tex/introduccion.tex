@@ -10,7 +10,7 @@
           Todo comienzo tiene su encanto.
         }
         \begin{flushright}
-          \textbf{\textemdash Johann Wolfgang von Goethe  }
+          \textbf{\textemdash Johann Wolfgang von Goethe}
         \end{flushright}
       \end{quote}
     \end{flushright}
@@ -109,10 +109,10 @@
   La introducción del paralelismo en la computación de propósito general no parece responder a un interés por parte
   de la industria o los consumidores --ya que por otra parte, la computación paralela lleva muchos años siendo
   utilizada en ámbitos especializados--, sino más bien a la única salida que los fabricantes tienen de 
-  aspirar a mantenerse dentro de los parametros de aumento del rendimiento cada cierto tiempo. 
+  aspirar a mantenerse dentro de los parámetros de aumento del rendimiento cada cierto tiempo. 
   Algo que reafirma cómo
   la industria se esfuerza por hacer que la observación de Moore se cumpla, y no al revés. Se juega también con el
-  hecho de que la formulación original de Moore, referente al número de transistores, se cumple más facilmente:
+  hecho de que la formulación original de Moore, referente al número de transistores, se cumple más fácilmente:
   efectivamente el integrar un mayor número de núcleos en un único encapsulado implica el uso de más transistores. El que
   esto se traduzca en un incremento lineal --o próximo a éste-- dependerá ya del nivel de paralelización de la arquitectura, software
   del sistema y programas de usuario subyacentes, no ya sólo del hardware.
@@ -140,7 +140,7 @@
   de almacenamiento de $\approx 10^{31}$ bits --es decir, $1.25$ millones de yottabytes, $1250$ billones de petabyes.
   A la vista de estas cifras concluye que si la variante de la Ley de Moore relativa al rendimiento se mantuviese, 
   se tardaría «solamente» $250$ años en compensar los $40$ ordenes de magnitud que separan los ordenadores actuales de
-  esos máximos teoricos. Parece un cierto indicador de que la Lay de Moore tiene los días contados.
+  esos máximos teóricos. Parece un cierto indicador de que la Lay de Moore tiene los días contados.
   
 
 
@@ -159,73 +159,113 @@
 
 
     \begin{itemize}
-    \item Comprobaciones estáticas en tiempo de compilación. Utilizadas por ejemplo para asegurar
+      \item Comprobaciones estáticas en tiempo de compilación. Utilizadas por ejemplo para asegurar
           la coherencia matemática en los tipos de datos. Ver \ref{tech:staticasserts}.
-
+      \item Utilización de programación orientada a aspectos para la implementación de conceptos «transversales» 
+            (\textit{cross-cutting concepts}). Se descifra el significado de una frase tan críptica como la anterior en 
+            \ref{tech:aop}.
+      \item Extensa utilización de programación genérica. Por ejemplo, en la implementación de los tipos matriz 
+            --sección \ref{impl:matrices}-- y polinomio --sección \ref{impl:polinomios}--.
+      \item Generación dinámica de código --sección \ref{desc:dynamic}--.
+      \item Excepciones propias integradas dentro de la jerarquía estándar de C++ para el tratamiento de errores,
+            con la incorporación de mecanismos para facilitar la identificación del lanzador de las mismas --sección \ref{controlDeErrores}--.
+      \item Repositorio de implementaciones de métodos posibilitando que el usuario aporte su propia implementación
+            de los mismos.
+      \item Uso de tecnologías SIMD si estas están disponibles.
+      \item Soporte de múltiples arquitecturas, incluyendo de $64$ bits.
+      \item Utilización del API OpenMP para la paralelización --capítulo \ref{chap:par}--.
+      \item Utilización del API pthreads para garantizar la correcta ejecución de la biblioteca en programas concurrentes,
+      no necesariamente paralelos.
     \end{itemize}
 
    Resumiendo: es no sólo el interés por desarrollar un abanico relativamente amplio de métodos con los cuales resulte 
    cómodo trabajar --cuyo rendimiento no sea puntero pero sí competitivo--, sino también explorar nuevas técnicas y su aplicación
-   práctica a problemas concretos. Es mediante esta experimentación original mediante la cual modestamente se espera 
+   práctica a problemas concretos. Es con esta experimentación original mediante la cual modestamente se espera 
    contribuir al eventual progreso de la computación científica.  
 
+    Asimismo, se soportan los siguientes tipos de entidades, descritas con más detalle en el capítulo \ref{chap:tipos}:
+      \begin{itemize}
+        \item Números enteros, $\mathbb{Z}$
+        \begin{itemize}
+          \item Enteros de longitud arbitraria.
+          \item Aritmética general.
+          \item Generación de números aleatorios.
+          \item Orientadas hacia la Teoría de Números.
+          \begin{itemize}
+            \item Símbolos para Residuos Cuadráticos
+            (Legendre-Jacobi-Kronecker).
+            \item Rutinas para el cálculo del Máximo Común Divisor (GCD).
+            \item Rutinas para el cálculo del Mínimo Común Múltiplo (LCM).
+            \item Pruebas de primalidad.
+            \item Generación de primos.
+            \item Algoritmos de factorización.
+            \item Algoritmos de potenciación.
+            \item Teorema Chino de los Restos (CRT).
+          \end{itemize}
+          \item Aritmética modular, $\mathbb{Z}_n$, $\mathbb{Z}_p$ y $\mathbb{Z}M_n$
+          \begin{itemize}
+            \item Potenciación modular.
+            \item Métodos especiales de reducción. 
+            \item Cálculo de inversas.
+          \end{itemize}
+        \end{itemize}
+        
+        \item Conjunto $\mathbb{R}$
+        \begin{itemize}
+            \item Operaciones aritméticas habituales sobre $\mathbb{R}$.
+            \item Precisión (decimal) arbitraria.
+            \item Técnicas para un redondeo correcto.
+            \item Soporte de notación científica.
+            \item Algoritmos de potenciación.
+            \item Cálculo de funciones trascendentes: exponencial,
+                  logaritmo, funciones trigonométricas, cálculo de la constante $\pi$.
+            \item Extracción de la raíz.
+        \end{itemize}
+ 
+        \item Polinomios.
+          \item Cálculo del máximo común divisor.
+          \begin{itemize}
+            \item Sobre $\mathbb{Z}$.
+            \item Sobre $\mathbb{R}$.
+            \item Sobre $\mathbb{Z_n}$.
+            \item Sobre $\mathbb{Z_p}$.
+            \item En general, sobre cualquier tipo implementando \texttt{mpplas::Ring}.
+          \end{itemize}
 
-\section{Objetivos}
-%%TODO: completar 
-%\begin{itemize}
-%  \item Números enteros, $\mathbb{Z}$
-%  \begin{itemize}
-%    \item Enteros de longitud arbitraria.
-%    \item Aritmética general.
-%    \item Generación de números aleatorios.
-%    \item Orientadas hacia la Teoría de Números.
-%    \begin{itemize}
-%      \item Símbolos para Residuos Cuadráticos
-%      (Legendre-Jacobi-Kronecker).
-%      \item Rutinas para el cálculo del Máximo Común Divisor (GCD).
-%      \item Rutinas para el cálculo del Mínimo Común Múltiplo (LCM).
-%      \item Pruebas de primalidad.
-%      \item Generación de primos.
-%      \item Algoritmos de factorización.
-%      \item Algoritmos de potenciación.
-%      \item Teorema Chino de los Restos (CRT).
-%    \end{itemize}
-%    \item Aritmética modular, $\mathbb{Z}_n$
-%    \begin{itemize}
-%      \item Potenciación modular.
-%      \item Métodos especiales de reducción. 
-%      \item Cálculo de inversas.
-%      \item Cuerpos Finitos $\mathbb{F}_p$.
-%    \end{itemize}
-%  \end{itemize}
-%  
-%  \item Conjunto $\mathbb{R}$
-%  \begin{itemize}
-%      \item Operaciones aritméticas habituales sobre $\mathbb{R}$.
-%      \item Precisión (decimal) arbitraria.
-%      \item Técnicas para un redondeo correcto.
-%      \item Soporte de notación científica.
-%      \item Algoritmos de potenciación.
-%  \end{itemize}
-%
-%  \item Mecanismo de excepciones para el tratamiento de errores.
-%
-%  \item Arquitectura de "plug-ins" que posibilita que el usuario dé su
-%    propia implementación de las funciones para ser ésta la utilizada en
-%    todos los demás algoritmos de forma transparente y sin
-%    recompilación.
-%
-%  \item Mecanismos de perfilado integrados en la propia librería.
-%
-%\end{itemize}
+        \item Cuerpos finitos/extensiones de cuerpos $\GF(p^n)$.
+        \begin{itemize}
+          \item Operaciones aritméticas habituales.
+          \item Cálculo del máximo común divisor.
+          \item Cálculo de los coeficientes de Bézout.
+          \item Generación de polinomios irreducibles.
+          \item Generación de polinomios primitivos.
+        \end{itemize}
+
+        \item Matrices.
+          \item Cálculo del determinante, tanto sobre matrices sobre un cuerpo como sobre un anillo.
+          \item Resolución de sistemas de ecuaciones.
+          \item Cálculo de la inversa.
+          \item Transposición.
+          \begin{itemize}
+            \item Sobre $\mathbb{Z}$.
+            \item Sobre $\mathbb{R}$.
+            \item Sobre $\mathbb{Z_n}$.
+            \item Sobre elementos de un cuerpo finito $\GF$.
+            \item En general, sobre cualquier tipo implementando \texttt{mpplas::Group}.
+          \end{itemize}
+      \end{itemize}
+
+
+
+
 
 
 
 \section{El sistema de desarrollo}\label{sistemaDeDesarrollo}
-  \subsection{Sistemas hardware}
+  \subsection{Sistemas hardware}\label{sistemaHard}
   \begin{description}
     \item[Intel Core 2 Duo E6750 CPU] 
-      Sistema multinúcleo en el que se han ejecutado las pruebas en paralelo. 
+      Sistema multinúcleo en el que se han ejecutado tanto el desarrollo como las pruebas en paralelo. 
       %TODO: completar
     \item[Intel Pentium M Banias B1 CPU] 
       Sistema monoprocesador y principal plataforma de desarrollo. 
@@ -239,35 +279,98 @@
       principal en el desarrollo. Los distintos programas y versiones
       de bibliotecas fundamentales del sistema han sido:
       \begin{description}
-        \item[Bibliotecas del sistema.] 
-          Implementación GNU de la biblioteca de C, versión 2.5.
-        \item[Compiladores.]
+        \item[Bibliotecas del sistema.]  Implementación GNU de la biblioteca de C, versión 2.5.
+        \item[Compiladores.] Nombres y versiones de los compiladores soportados.
         \begin{description}
           \item[GCC] Compilador GNU Compiler Collection, en dos diferentes variedades: con soporte
           OpenMP (versión especial de RedHat 4.1.1 con el soporte OpenMP de la versión 4.2) y sin él
           (versión oficial 4.1.2). 
           \item[Intel Compiler] En su versión 9.1. Soporta OpenMP.
         \end{description}
-        \item[Documentación.]
-          Procesador de documentos \LaTeXe{} y \TeX{} versión 3.141592
-          \footnote{un inciso curioso: las versiones de \TeX{} se numeran de
-          forma convergente al valor de $\pi$} para la presente
-          documentación.
-          Procesador Doxygen versión 1.5.1 para el procesador de la
-          documentación del código.
-        \item[Edición.]
-        \begin{itemize}
-          \item Editor VIM versión 7.0 para la escritura del código y la documentación. 
+        \item[Documentación.] Herramientas utilizadas para la elaboración de los diferentes tipos de documentación.
+          \begin{description}
+            \item[\LaTeXe{}.] Versión 3.141592\footnote{un inciso curioso: las versiones de \TeX{} se numeran de
+            forma convergente al valor de $\pi$}, para la creación de la presente memoria.
+            \item[Beamer.] Versión 3.06, para la creación de las transparencias a ser utilizadas durante
+            la defensa.
+            \item[Doxygen.] Versión 1.5.1, para el procesador de la documentación embebida en los comentarios del código.
+            \item[Gnuplot.] Versión 4.2, para la creación de las gráficas que acompañan a la memoria.
+            \item[Dia.] Versión 0.96.1, para la creación de los diagramas presentes en la documentación.
+          \end{description}
+        \item[Herramientas de desarrollo.] Utilizadas durante el desarrollo de la biblioteca, su batería
+        de pruebas y sus aplicaciones de ejemplo.
+        \begin{description}
+          \item[VIM.] Versión 7.0, para la escritura del código y la documentación. 
           No se ha utilizado ningún tipo de entorno para la creación del código.
-          \item Editor de diagramas Dia versión 0.96.1 para la creación de los
-          diagramas presentes en la documentación.
-        \end{itemize}
-        \item[Software adicional.]
-          Python 2.5
-          %TODO: completar
+          \item[Subversion.] Versión 1.4.3, para el control de versiones.
+          \item[SCons.] Versión 0.96.93, para el control del proceso de compilación.
+        \end{description}
+        \item[Software adicional.] Paquetes software adicionales utilizados durante el desarrollo.
+          \begin{description}
+            \item[Python.] Versión 2.5, para la implementación del cliente de MPPLab y la creación
+            de código C++ en tiempo de compilación.
+            \item[AspectC++.] Versión 1.0pre3, para la integración de mecanismos de AOP.
+            \item[QtUnit.] Versión 0.9.8, para las baterías de pruebas.
+          \end{description}
       \end{description}
       
-    \item[Sistema operativo Windows.]
-    %TODO
+    \item[Sistema operativo Windows.] Dado que el uso de este sistema se reduce a la ejecución
+    del cliente de MPPLab, será valida toda versión del mismo capaz de ejecutar el intérprete de Python.
     \end{description}
+
+
+    \subsubsection{Software libre}
+      Todos el software anteriormente señalado --a excepción de Microsoft Windows y Gnuplot-- es \emph{libre}
+      en el sentido definido por la Free Software Fundation\footnote{\url{http://www.fsf.org}}. 
+      La utilización única y exclusivamente de software libre durante el desarrollo no ha sido intencionada. 
+      Simplemente las herramientas más adecuadas han resultado ser libres. 
+      En el caso
+      particular de Gnuplot, pese a lo engañoso de su nombre, se trata solamente de software \emph{gratuito}, 
+      no libre. Microsoft Windows, aunque pudiera no parecerlo, no es ni lo uno ni lo otro. 
+
+      Las ventajas del uso de software libre son principalmente la libertad, valga la redundancia, que otorga el hecho
+      de poder ser utilizado al antojo, su disponibilidad en numerosos sistemas, la enorme comunidad que 
+      rodea a este tipo de proyectos, etc. No menos importante resulta que su código fuente esté disponible 
+      para su estudio. Esto, que pudiera ser tachado de banal, no lo es en absoluto: ya en la memoria 
+      correspondiente a LibNumth (\cite{miproyecto}) se apunta cómo se estudió el código de proyectos como 
+      NTL (\url{http://www.shoup.net/ntl/}), Pari (\url{http://pari.math.u-bordeaux.fr/}) o GMP (\url{http://gmplib.org/}). 
       
+      Por último, pero no por ellos menos importante, no debe descuidarse la vertiente filosófica de que,
+      si a lo que se aspira es a la creación de conocimiento en pos de la Ciencia, éste ha de ser libre,
+      por la propia naturaleza de la Ciencia. De hecho, en un reciente artículo, \cite{opensourcemathsw}, 
+      se analiza la problemática derivada del uso de software matemático de carácter propietario sus repercusiones.
+      En este artículo se cita a su vez a Joachim Neubüser:
+      \begin{quote}
+      (...) with this situation two of the most basic rules of conduct in mathematics 
+      are violated: In mathematics information is passed on free of charge and everything 
+      is laid open for checking.
+      \end{quote}
+      Si, además, la defensa de la utilización de métodos propietarios se realiza 
+      en el marco de métodos de seguridad informática, se estaría incurriendo
+      en lo conocido como «seguridad a través de la ocultación» --\textit{security through obscurity}--,
+      ámpliamente analizado durante los últimos $30$ años: véase \cite{obscurity}.
+
+      Si la no divulgación de resultados y/o métodos tiene un lugar, éste no puede ser el ámbito científico.
+      
+
+\section{Instalación del software de soporte}
+  Se depende de algunos paquetes software adicionales, enumerados a continuación junto con indicaciones
+  para su obtención e instalación. 
+  \subsection{Python}
+    Es utilizado por el sistema de compilado SCons y el cliente de MPPLab.
+    Su instalación resulta trivial, tanto en sistemas Unix como Windows, siguiendo los pasos indicados en su
+    página \textit{web}, desde donde también es posible descargarlo: \url{http://www.python.org/download/}.
+  \subsection{SCons}
+    Herramienta utilizada para la gestión del proceso de compilación, descrita en la sección \ref{tech:scons}. 
+    Dado que la compilación de la biblioteca sólo está soportada en entornos Unix, la forma más sencilla
+    de instalar SCons en estos sistemas es utilizar el sistema de paquetes de la variedad de Unix en cuestión.
+    En cualquier caso, en las raras ocasiones en las que no existe soporte para SCons por parte del sistema
+    de paquetes, su instalación resulta sencilla y tan sólo requiere, de nuevo, de la presencia de Python 
+    en el sistema. Se encuentra disponible en \url{http://www.scons.org/download.php}.
+  \subsection{AspectC++} Metacompilador utilizado para dotar a C++ de mecanismos de programación orientada
+  a aspectos. Su forma más conveniente de distribución es en forma de binarios precompilados, por lo que 
+  no es necesario un proceso de instalación propiamente dicho. Es posible descargarlos de \url{http://www.aspectc.org}.
+  \subsection{QTUnit} Implementación del concepto de pruebas unitarias --sección \ref{testunits}--, se encuentra
+  disponible en \url{http://www.uwyn.com/projects/qtunit/download.html}.
+  \subsection{libpari} Extensa biblioteca para el trabajo con Teoría de Números, álgebra y cálculo numérico, se ha 
+  utilizado a modo de «oráculo» en las baterías de pruebas --sección \ref{tech:oraculo}--.

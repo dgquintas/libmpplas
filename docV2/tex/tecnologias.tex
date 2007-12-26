@@ -64,7 +64,7 @@ el API de OpenMP abstrae de estos detalles. Por supuesto, esto resta cierta flex
 complejidad de la programación paralela, esto es más una ventaja que un problema. Por añadidura, OpenMP se orienta
 al cálculo científico, mientras que PThreads pertenece tiene un alcance mucho más general; lo cual una vez más
 resulta mejor en teoría pero contraproducente en la práctica. De hecho, OpenMP suele depender de PThreads --al
-menos en sistemas UNIX-- en su implimentación, la cual es dependiente del compilador. En cierto modo, OpenMP
+menos en sistemas UNIX-- en su implementación, la cual es dependiente del compilador. En cierto modo, OpenMP
 otorga una mayor productividad al «llevar de la mano» al programador mediante su API basada en el 
 modelo de programación \textit{fork/join} (\cite{openmpstandard}\footnote{sección 1.3, pág. 17}), el cual 
 es de especial utilidad a la hora de abordar problemas basados en el manejo de estructuras de tipo vector;
@@ -75,11 +75,11 @@ apéndice A, pág. 253} denomina como \textit{equivalencia secuencial} y \textit{p
 \item[Equivalencia secuencial.] Se dice que un programa es \textit{secuencialmente equivalente} cuando 
 sus resultados son los mismos\footnote{concepto de igualdad sujeto a cuestiones tales como la no asociatividad
 en la práctica de operaciones en punto flotante}  independientemente de si se ejecutan sobre un solo hilo --secuencialmente--
-o sobre varios. Tales programas resultan más fáciles de mantener y en la mayoria de los casos de entender --y por ende de 
+o sobre varios. Tales programas resultan más fáciles de mantener y en la mayoría de los casos de entender --y por ende de 
 desarrollar.
 \item[Paralelismo incremental.] Se refiere al estilo de programación en el cual un programa evoluciona
 desde una versión secuencial hasta una paralela. Progresivamente se van paralelizando ciertas porciones del método
-secuencial, comenzando por aquellas más sencillas de paralelizar o cuyos beneficios al ejercutarse en paralelo serían mayores.
+secuencial, comenzando por aquellas más sencillas de paralelizar o cuyos beneficios al ejecutarse en paralelo serían mayores.
 El paralelismo es añadido por tanto de forma \emph{incremental}. En cada etapa de este proceso, es posible verificar que
 el método continúa siendo correcto, lo cual ayuda de forma inestimable durante el desarrollo, y proporciona garantías bastante
 razonables de que el método paralelizado funcionará correctamente.
@@ -99,7 +99,6 @@ diferentes características de los sistemas multicore brindan la oportunidad de d
 estas diferencias.
 
 \section{Comprobaciones en tiempo de compilación}\label{tech:staticasserts}
-%XXX: completar con una intro
   Siempre es mejor prevenir que curar, como reza el refranero. Por tanto, mejor que simplemente detectar el error
   cuando el programa ya se encuentra en ejecución --que no es poco, pero no deja de ser una «mala cura»--, la detección
   de condiciones que no deberían darse es más efectiva cuanto antes se realice. La detección en \emph{tiempo de compilación}
@@ -257,7 +256,7 @@ es superado con éxito, el \texttt{return true} que concluye \texttt{ValidateRequ
 la evaluación del aserto estático.
     
 
-  \subsection{Vínculos de familia}
+  \subsection{Vínculos de familia}\label{sec:musthavebase}
   El siguiente método para asegurarse que una clase dada hereda de otra se expone en 
   \cite{imperfectc++}\footnote{sección 1.2.1, pág. 5}. Su utilidad, una vez más, deriva del hecho de ser
   una comprobación \emph{en tiempo de compilación}. Su equivalente en tiempo de \emph{ejecución} sería 
@@ -301,67 +300,244 @@ struct must_have_base{
 
   En la línea \ref{algmusthavebase:quiz} se encuentra el meollo del método. Si es posible realizar una conversión desde un puntero 
   del tipo derivado --\texttt{pd}-- a un puntero del tipo base --\texttt{pb}-- sin ningún tipo de \textit{cast}, \texttt{pd} resultará 
-  cumplir el «ser un» elemento del tipo base. Es por esto que incluso si la relacion tipo derivado-tipo base no es de herencia directa, 
+  cumplir el «ser un» elemento del tipo base. Es por esto que incluso si la relación tipo derivado-tipo base no es de herencia directa, 
   también funcionaría, al poder realizarse dicha asignación.
 
   
   \subsubsection{Aplicaciones}
   Su campo de aplicación fundamental son las clases parametrizadas en las cuales se desea comprobar que sus parámetros de tipo cumplen ciertas
   propiedades «familiares», tal como se ha visto para el caso del tipo de los coeficientes en polinomios. Otra de las aplicaciones dadas a
-  este mecanismo en la biblioteca ha sido en la implementación del nuevo repositorio de funciones (véase sección \ref{nuevoRepdeFuncs}), para
+  este mecanismo en la biblioteca ha sido en la implementación del nuevo repositorio de funciones (véase sección \ref{basico:nuevoRepdeFuncs}), para
   garantizar que todo método considerado por el mismo hereda de \texttt{AbstractMethod}. Esto ahorra sorpresas desagradables en tiempo
   de ejecución si se trata de insertar u obtener una instancia de un objeto arbitrario: si se tratase de hacer esto, gracias a este mecanismo, 
   siquiera se superaría la etapa de compilación.
 
-\section{Programación orientada a aspectos (AOP)}
+\section{Programación orientada a aspectos (AOP)}\label{tech:aop}
+  Este relativamente novedoso paradígma es considerado por algunos como una evolución de la programación
+  del mismo modo que la orientación a objetos supuso una evolución con respecto a la programación
+  meramente estructurada. 
+
+  Se puede considerar como una forma de preprocesado avanzada. Por ejemplo, es posible especificar
+  cosas como «para cada método cuyo nombre comiece con 'test', añadirlo a la lista de métodos a ejecutar
+  durante las pruebas». O bien «si se está ejecutando en modo de depuración, imprimir los valores de
+  los argumentos de cada método ejecutado». Todo esto sin necesidad de modificar los métodos afectados: se 
+  centraliza el tratamiento de «conceptos transversales». Los «conceptos» en los dos ejemplos anteriores serían 
+  los métodos cuyo nombre empieza por «test» y todos los métodos ejecutados, respectivamente. Asimismo, se trata
+  de conceptos transversales ya que se extienden a lo largo de toda la estructura del programa.
+  Como se puede apreciar, la abstracción y modularización que esta técnica ofrece son de una naturaleza diferente
+  a las ofrecias por la programación orientada a objetos. Más información acerca de este paradigma puede, entre
+  otros muchos lugares, encontrarse en \url{http://www.aopworld.com/}.
+
+  Esta tecnología ha sido utilizada para la implementación de los mecanismos de perfilado,
+  como se expone en la sección \ref{impl:aop}.
 
 
-Esta tecnología ha sido utilizada para la implementación de los mecanismos de perfilado,
-como se expone en la sección \ref{impl:aop}.
+\section{\textit{Mixins}} \label{tech:mixins}\index{mixin}{mixin}
+  En el ámbito de la programación orientada a objetos, un \textit{mixin} 
+  es una clase que provee una cierta funcionalidad a sus clases hijas, con 
+  la particularidad de no estar pensada para ser instanciada directamente. 
+  Es en cierto modo un tipo de clase abstracta. El heredar de una clase
+  mixin no se correspondería con una relación «es-un», sino 
+  con una «recolección de funcionalidad».  En lenguajes que soporten herencia múltiple, 
+  es posible heredar de varias clases mixin, consiguiendo
+  así aglutinar las funcionalidades ofrecidas por todas ellas. 
+  Si se considera un languaje con soporte de interfaces, tal como Java, podría pensarse que
+  estos son equivalentes a las clases mix-in. Sin embargo, por definición, un interfaz no lleva
+  asociado una implementación, siendo su único rol el de «definir polimorfismo». 
 
+  Este término proviene del ámbito gastronómico: al menos en el mundo de habla inglesa, 
+  el término «mix-in» --que se podría traducir libremente como «parte de una mezcla»--
+  se refiere a postres (típicamente helados) que se preparaban a partir
+  de una serie de ingredientes en el mismo momento del encargo. Son estos ingredientes
+  pensados para ser utilizados únicamente como parte de una mezcla y no por separado de donde
+  el componente software toma su nombre.
 
+  En esta librería  se ha implementado una clase siguiendo esta filosofía, que se describe a continuación. 
 
-\section{\textit{Mix-ins}}
   \subsection{Singleton}\label{sec:singleton}
     El patrón \emph{singleton} se encuentra entre los más conocidos y ampliamente utilizados de los
     expuestos en el ya clásico \cite{gof}\footnote{pág. 127}. Allí se define como:
 
-
     Es decir, un objeto del cual a lo sumo debe existir una instancia a lo largo de la ejecución, y que
     simultáneamente dicha instancia sea accesible globalmente. 
     
-    Su caracter global puede hacer saltar las alarmas --y con razón-- en base a lo expuesto en el punto
+    A primera vista, su carácter global puede hacer saltar las alarmas en base a lo expuesto en el punto
     \ref{sec:thread-safety} referente a estructuras susceptibles de ser compartidas por varios hilos. 
-    De hecho, en \cite{singletonperils}, figuras en el mundo de C++ de la talla de Scott Meyers y Andrei Alexandrescu
-    analizan cómo %TODO
+    Claro que se ha de ir un poco más allá para determinar si realmente se incurre en un incumplimiento
+    de los requisitos para ejecutarse en un entorno concurrente.
 
-    - en methodsfactory he tenido que meter un mutex recursivo, ya que p ej cosas como random requieren hacer
-    un get a su vez a hash. 
-    - ademas, esta tambien omp critical. o sea, que hay dos niveles de concurrencia contra
-    los que estar prevenido: el que viene de una ejecucion concurrente (multithread, como el server xmlrpc),
-    y la ejec paralela con openmp. 
-    - como dice el paper del alexandrescu y tal, se cachea alli donde es posible (static methodsfactory& funcs)
-    la instancia del methodsfactory. Este static no molesta, ya que aunque este compartida la instancia, los metodos
-    del mismo estan protegidos por locks. 
+     El patrón singleton \emph{clásico} opera en general de la siguiente manera (\cite{gof}):
 
+\lstset{escapeinside={(*@}{@*)}}
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Patrón singleton (I), label=lst:singleton1]
+  class Singleton {
+    public:
+      static Singleton* instance();
+    protected:
+      Singleton();
+    private:
+      static Singleton* _instance;
+  };
+\end{lstlisting}
 
-  \cite{singletonperils}
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Patrón singleton (II), label=lst:singleton2]
+  Singleton* Singleton::_instance = 0;
+  Singleton* Singleton::instance() {
+    // lazy initialization!
+    if(_instance == 0){ (*@\label{algsingleton:cs1}@*)
+      _instance = new Singleton;
+    }                   (*@\label{algsingleton:cs2}@*) 
+    return _instance;
+  }
+\end{lstlisting}
+
+  El detalle más importante a observar la sección crítica, allí donde se modifica el dato estático \texttt{\_instance}, que se 
+  extiende de las líneas \ref{algsingleton:cs1} a \ref{algsingleton:cs2}. Por tanto, en un marco concurrente, debe asegurarse la
+  dicha sección exclusión mutua dentro de dicha sección crítica. Esto desemboca en el uso de \textit{locks}, de tal forma que cada vez
+  que se requiera acceder a la instancia en cuestión, se comprueba si no hay otro hilo ya en esa sección. Ahora bien, tras la instanciación
+  inicial, la comprobación de que el punto \texttt{\_instance} no es nulo será siempre falsa, haciendo superfluas tanto dicha comprobación
+  como el intento de adquirir el \textit{lock}. Frente a esto se desarrolló otro patrón más complejo, bautizado como \textit{double-checked
+    locking pattern} (\cite{dclp}), el cual evitaba estos problemas de una forma supuestamente thread-safe. O así se creía hasta que
+  Scott Meyers y Andrei Alexandrescu desmontaron punto por punto los argumentos utilizados para garantizar esta seguridad en entornos
+  concurrentes (\cite{singletonperils}). Resumiendo, quedan pues dos opciones: o se conserva el patrón singleton clásico con todas
+  sus comprobaciones extras y se asume la perdida de rendimiento «por necesidad del guión» o bien... volviendo atrás sobre nuestros pasos,
+  échese otra ojeada al código del listado \ref{lst:singleton2}. ¿Qué motiva la aparición de la problemática sección crítica? El hecho 
+  de estar creando la instancia singleton de forma \textit{lazy}. La justificación de --aún otro-- anglicismo aquí es debido al concepto
+  de \textit{lazy initialization} (\cite{gof}\footnote{pág. 112}), que consiste en instanciar los objetos no en la fase de construcción, 
+  sino solamente cuando estos son requeridos. Esto tiene interés tanto en cuanto la carga derivada de la instanciación no se aglutina 
+  en el momento la construcción, sino que se distribuye a lo largo del tiempo. Si el objeto a construir es complejo, esta técnica realmente
+  paga sus dividendos. Sin embargo, cuando esto no es así --como en el caso que nos ocupa--, resulta peor el remedio que la enfermedad. 
+
+  De hecho, \cite{singletonperils} tiene algo que decir al respecto:
+  \begin{quote}
+  (...) avoid using a lazily-initialized Singleton unless you really need it. (...)
+  An alternative is to use \emph{eager initialization} instead, i.e., to
+  initialize a resource at the beginning of the program run. Because multithreaded
+  programs typically start running as a single thread, this approach can push some
+  object initializations into the single-threaded startup portion of the code, thus
+  eliminating the need to worry about threading during the initialization. In many
+  cases, initializing a singleton resource during single-threaded program startup
+  (e.g., prior to executing main) is the simplest way to offer fast, thread-safe
+  singleton access.
+  \end{quote}
+  Esto está en consonancia con lo expuesto en el punto \ref{par:datosStatic}. Si los objetos susceptibles de beneficiarse del patrón
+  singleton pueden ser inicializados de forma estática, se estaría frente a la segunda solución, en la cual no se tiene sobrecarga
+  por la comprobación superflua de condiciones, ni hay sección crítica en la que garantizar exclusión mutua: el código se simplifica
+  y aún es posible dar garantías sobre su idoneidad en entornos concurrentes. La única desventaja teórica es que todas las instanciaciones
+  se concentran en el tiempo. En la práctica sin embargo, para esta biblioteca, los objetos singleton son muy ligeros, con lo que esto
+  tampoco supondría un problema.
+
+    
 \section{\textit{Autowiring}}\label{sec:autowiring}
-%TODO
-%http://static.springframework.org/spring/docs/2.5.x/reference/beans.html#beans-factory-autowire
-%by type
-o sea, lo que hacen getFunc y setFunc de methodsfactory.
+    Detrás de otro vago termino anglosajón, se esconde la idea de asociar dos elementos automáticamente
+    en base a su tipo\footnote{en este contexto, «wiring» se refiere a la operación que antiguamente los operadores
+    de las centralitas telefónicas debían realizar manualmente a la hora de establecer una conexión telefónica. 
+    Podría traducirse, burdamente, como «cablear».}.
+    Es más sencillo ilustrar este concepto con un ejemplo. En la figura \ref{sfig:jerarqEj}
+    se presenta una sencilla jerarquía de tipos, todos implementando la clase abstracta \texttt{CommonBase}. 
+    Se supone que dos de estos tipos concretos son \texttt{A} y \texttt{B}. En \ref{sfig:autowiring2}
+    se presenta una colección de \emph{instancias} de tipos implementando \texttt{CommonBase}. Si 
+    se combina esta colección con el uso del \textit{autowiring}, cuando a este mecanismo se le proporcionase
+    un puntero a uno de las implementaciones de la jerarquía, devolvería dicho puntero asociado a la instancia
+    del tipo de la colección adecuado: «cablearía» el puntero proporcionado a la instancia concreta adecuada.
+ 
+    \begin{figure}[h] \label{fig:autowiring}
+      \centering
+      \subfigure[Jerarquía de ejemplo]{\label{sfig:jerarqEj}
+        \includegraphics[width=0.30\textwidth,keepaspectratio]{autowiring1}
+      }
+      \hspace{15mm}
+      \subfigure[Ilustración del \textit{autowiring}]{\label{sfig:autowiring2}
+        \includegraphics[width=0.50\textwidth,keepaspectratio]{autowiring2} 
+      }
+      \caption{Mecanismo de \textit{autowiring}}
+    \end{figure}
+
+    La idea deriva de un mecanismo similar implementado en el popular framework para Java Spring\footnote{
+      \url{http://static.springframework.org/spring/docs/2.5.x/reference/beans.html\#beans-factory-autowire}}.
+
+
+\section{Pruebas unitarias}\label{testunits}
+  Comprobar el correcto funcionamiento de cualquier programa es una tarea compleja. 
+  Como el célebre Edsger W. Dijkstra apuntó en su día, 
+  «Testing can only prove the presence of bugs, not their absence». 
+
+  El concepto de \emph{prueba unitaria} nace de la idea de garantizar --al menos en parte--
+  el correcto funcionamiento del todo a partir de la verificación del correcto funcionamiento
+  de las partes, y que dicha verificación se realize de forma sencilla y automatizada (\cite{unittestsorig}).
+  Este tipo de pruebas son el hilo conductor de \cite{testdrivendevelopment}, del mismo autor y uno de los pilares
+  de la filosofía de programación conocida como «extreme programming»\footnote{que no consiste
+    en desarrollar mientras se salta de un avión, sino que se ha probado muy efectiva en numerosos ámbitos. Véase
+      \url{http://www.extremeprogramming.org/} para más información.}.
+
+  Este tipo de pruebas aportan las siguientes ventajas:
+
+    \begin{description}
+      \item[Pruebas de regresión.] En una particular variante software del 
+      conocido «efecto mariposa», un pequeño cambio en una parte del código
+      puede resultar en nuevos bugs en otras partes del código que a primera
+      vista pudiera parecer independiente. Si se mantiene la disciplina
+      de ejecutar \emph{íntegramente} la batería de pruebas con cierta regularidad, es posible
+      verificar que cambios recientes no han introducido nuevos errores en código ya
+      probado. 
+      \item[Son ejemplos prácticos.] El código que conforma la prueba en sí es un ejemplo práctico de utilización
+      de la biblioteca. 
+      \item[Facilitan la identificación de errores.] Ya que los casos de prueba abarcan por construcción
+      un único método, en el momento en el que uno de ellos falle, resulta sencillo identificar de 
+      dónde se deriva el error.
+      \item[Facilitan los cambios.] Dado que es sencillo verificar si cada una de las piezas sigue
+      funcionando correctamente, de incentiva el realizar cambios para mejorar el código.
+    \end{description}
+
+  La implementación de los mecanismos necesarios para llevar a cabo
+  los procesos de pruebas automáticos anteriormente descritos, aunque sencillos,
+  no han sido desarrollados de nuevo, sino que se ha utilizado el paquete QtUnit
+  \footnote{\url{http://www.uwyn.com/projects/qtunit}}, de forma totalmente satisfactoria. 
+
+  \subsection{Necesidad y uso de un «oráculo»}\label{tech:oraculo}
+    Es en general prácticamente imposible cubrir todo el espectro de valores
+   de entrada y salida válidos y/o inválidos para un método dado. 
+   Se suele paliar esta limitación utilizando valores «de frontera», 
+   aquellos que se encuentran en el límite de los valores de entrada válidos,
+   para los cuales --en teoría-- es posible que se produzca una respuesta incorrecta 
+   con mayor probabilidad. 
+
+   Sin embargo, para una biblioteca como la que nos ocupa, esto dista aún mucho de cubrir 
+   una parte representativa de sus datos de entrada: más aún cuando el dominio válido para
+   gran cantidad de métodos es potencialmente infinito, lo cual no deja de ser precisamente
+   la utilidad de la misma: la precisión arbitrariamente grande de los datos manejados.
+   Ante lo limitado de considerar una serie de pares entrada/salida, generados de antemano
+   de tal forma que se garantiza su corrección, se ha optado por recurrir a un \emph{oráculo}\index{oráculo}{oráculo}. 
+   En otros ámbitos, tales como la criptografía o la teoría de la complejidad,
+   se utiliza también este término, de manera similar. La idea es disponer de una «caja negra»
+   de la cual pueden extraerse respuestas que, por definición, se consideran correctas.
+   Si se dispone de un tal oráculo capaz de proporcionar una respuesta para el par método-entradas,
+   sería posible automatizar aún más la ejecución de pruebas con un conjunto de entradas mucho mayor,
+   al poder generar las entradas de forma aleatoria. Estas entradas aleatorias serían 
+   procesadas por el método en cuestión de la biblioteca y su equivalente en el oráculo. Si las 
+   respuestas coinciden, se considera superada la prueba.
+
+   El único escollo de esta técnica en la práctica es la necesidad de adaptar las entradas y salidas
+   al formato propio del oráculo en cuestión. Y por supuesto, que un oráculo como el descrito
+   exista. En el caso de la biblioteca, se ha recurrido al uso de otra biblioteca de similares funcionalidades
+   --aunque de filosofía de trabajo totalmente diferente--: el sistema Pari/GP, \cite{libpari}. Se asume que tras
+   todos los años de desarrollo y pruebas\footnote{la versión más antigua a la que se ha podido tener acceso 
+     data de $1991$ }, se puede considerar que cumple los requisitos para ser considerado como oráculo.
+   La adaptación de los datos de entrada y salida anteriormente referida no resulta complicada para el sistema 
+   Pari/GP: al igual que la biblioteca desarrollada, cuenta con mecanismos para transformar desde (y hacia) cadenas de caracteres.
+
+
 
 \section{\textit{Mock/stub objects}}
 El concepto de \textit{mock object}\footnote{podría traducirse como «objecto simulado», aunque incluso en la
-  bibliografía en castellano se utiliza la expresión en inglés} se introduce como un patrón útil dentro de las
+  bibliografía en castellano se utiliza la expresión en inglés} se introduce en \cite{testdrivendevelopment}\footnote{capítulo 27}
+  como un patrón útil dentro de las
   baterías de pruebas
-  basadas en \textit{test units}\footnote{tecnología también utilizada. Véase sección \ref{testunits}} en la referencia
-  fundamental de este campo, \cite{testdrivendevelopment}\footnote{capítulo 27}.
+  basadas en pruebas unitarias (véase sección \ref{testunits} al respecto). 
 
-  El lugar de la librería resulta ventajosa la utilización de estos objetos es en lo relacionado con las rutinas 
+  En el caso de esta biblioteca resulta ventajosa la utilización de estos objetos es en lo relacionado con las rutinas 
   ofrecidas por en entorno OpenMP. Sin embargo, estas rutinas  --descritas en \cite{openmpstandard}\footnote{capítulo 3, pág. 97}--
-  no se encuentran disponibles si se compila la librería con un compilador que no soporte OpenMP o bien si dicho 
+  no se encuentran disponibles si se compila la biblioteca con un compilador que no soporte OpenMP o bien si dicho 
   soporte se encuentra desactivado\footnote{una de las razones para prescindir de OpenMP aun cuando el compilador
   lo soporte sería que el sistema no cuenta más que con una unidad de ejecución --CPU. En tal caso, el utilizar
   OpenMP no aportaría ventajas y sí el inconveniente de la sobrecarga que acarrea su uso.}. ¿Qué hacer entonces 
@@ -380,7 +556,118 @@ El concepto de \textit{mock object}\footnote{podría traducirse como «objecto sim
   rutinas sustitutas.
 
 
-\section{\textit{Test units}}\label{testunits}
- 
+  
+ \section{Generación dinámica de código}
+  La clave de la flexibilidad reside en el dinamismo. Dicho con menos pompa, para encajar 
+  en muchos sitios, se debe de poder cambiar con facilidad. Esto unido a la idea de «que trabaje la máquina»
+  lleva a desarrollar mecanismos que, en función del entorno, introduzcan los cambios necesarios para
+  adaptarse a las peculiaridades de éste. Evolución instantánea y a la carta. 
+
+  La implementación de estos mecanismos requiere en ocasiones un uso poco ortodoxo o directamente 
+  chocante de las herramientas al uso. Tanto más en cuanto C++ no se presta por su naturaleza a este
+  tipo de operaciones, lo que hace necesario recurrir a instrumentos alternativos que complementen
+  el lenguaje. 
+
+  \subsection{Herramientas de soporte}
+    Debido a que C++ no posee mecanismos orientados a la introspección ni a la ejecución dinámica de código,
+    es necesario recurrir a otras herramientas para conseguir el mismo efecto. O bien utilizar técnicas
+    como la metaprogramación de plantillas (\textit{template metaprogramming}) para conseguir un efecto similar. 
+
+    \paragraph{Python.} Utilizado a modo de «preprocesador» extra a la hora de recopilar información durante
+    el proceso de compilado y generar ciertas porciones de código, tal como las utilizadas en las clases
+    \texttt{SystemInfo} y \texttt{CPUInfo}. 
+    \paragraph{AspectC++.} Herramienta utilizada para incorporar mecanismos propios de la programación orientada
+    a aspectos (AOP) en C++. Utilizada en la implementación del perfilado, se describe en \cite{aspectc++}. Para
+    información sobre el uso que se le ha dado en la biblioteca, véase la sección \ref{tech:aop}.
+    \paragraph{Metaprogramación de plantillas.} Posiblemente lejos de ser el uso para el que fueron diseñadas, 
+    las plantillas de C++ hacen posible realizar verdaderos malabarismos. Debido a esta potencia, 
+    es asimismo uno de los mecanismos más complejos y que más sorpresas, para bien o para mal, 
+    da al programador. 
+    
+    En la biblioteca se utiliza para realizar el cálculo de una constante en tiempo de compilación. Véase la sección \ref{impl:templatemp}.
+    En \cite{c++templates} dedican su capítulo $17$ a esta técnica. 
+
+  Una descripción de los elementos generados dinámicamente se da en \ref{desc:dynamic}, mientras
+  que la implementación se expone en la sección \ref{impl:dynamic}.
+
+  \subsection{Mecanismo de perfilado basado en AOP}\label{tech:aop}
+    \subsubsection{Preprocesando con Python}
+
+\section{Para el desarrollo}
+  A lo largo del proceso de desarrollo, se han utilizado algunas herramientas habituales cuando
+el proyecto es de una cierta envergadura. El presente proyecto cuenta aproximadamente con $32000$ líneas
+de código, repartidas en aproximadamente $150$ ficheros. Gestionar toda esta cantidad de datos de forma
+manual habría resultado tedioso y propenso a errores al punto de haber tenido que emplear un elevado porcentaje
+del tiempo de desarrollo en el manejo del propio trabajo creado. Este sería un trabajo «de sobrecarga», sin un
+resultado útil. De nuevo, ¡qué trabaje la máquina!
+
+  \subsection{Control de versiones}\label{tech:svn}
+    En el momento de escribir estas líneas, a falta de no demasiados cambios, se han 
+    realizado aproximadamente $700$ revisiones al código. Puede pensarse en estas revisiones como
+    cada una de las mini-versiones que acaban desembocando en un producto final o una versión considerada
+    apta para su publicación. Estas revisiones han sido gestionadas mediante el uso del sistema de control
+    de versiones Subversion, \url{http://subversion.tigris.org/}\footnote{y es posible
+    examinar el historial íntegro de las mismas para esta biblioteca en \url{http://fisheye3.cenqua.com/browse/libmpplas}}.
+
+    Este tipo de sistemas de control de versiones despliegan toda su potencia en entornos de desarrollo
+    colaborativos, donde varios desarrolladores contribuyen a una pieza de software común. Pero incluso cuando se cuenta
+    con un único desarrollador como en este caso, resulta ventajoso tanto en cuanto se han utilizado varios sistemas
+    para desarrollar. La existencia de «un tercero» que haga las veces de árbitro en el versionado facilita la sincronización
+    y --sobre todo-- el seguimiento de los cambios. No es desdeñable tampoco la capacidad de deshacer un cambio, volviendo
+    hacia una versión anterior de un fichero determinado o del conjunto total de la biblioteca. 
+
+    El mundo de los sistemas de control de versiones, como Subversion, CVS, GIT, etc., es ámplio y complejo, y no se
+    profundizará más aquí sobre el mismo. Resulta sin embargo un elemento «\textit{sine qua non}» en cualquier proyecto
+    real.
+
+  \subsection{Gestión de la compilación}\label{tech:scons}
+    Si la gestión de las versiones resulta una pesada carga cuando se trabaja con las cifras presentadas
+    anteriormente, no menos fastidioso resulta su compilación. Si además se desea soportar diversos «sabores»
+    en la compilación, resultando en una biblioteca compilada con diferentes opciones activadas o no, no es ya
+    una cuestión de preferencia, sino de necesidad, el utilizar alguna herramienta que lleve las riendas del proceso
+    de compilación en base a las opciones dadas por el usuario.
+
+    Tal herramienta ha sido en este caso SCons, \url{http://www.scons.org/}. Lo sencillo de su uso unido a la potencia
+    que proporciona ha sido la razón para elegirla por encima de métodos más tradicionales como «make».
+
+    %TODO
+  
+
+    \subsubsection{Autoajuste al entorno}
+      Cada sistema tiene sus particularidades, y es deseable poder adaptarse a ellas con el fin de contar con un producto,
+      en este caso la biblioteca, lo más flexible posible. Algunos de los parámetros del entorno son tomados en consideración
+      en tiempo de ejecución, mientras que otros lo son al compilar. Es de estos últimos de los que se ocupará este punto. 
+
+      \paragraph{Verificando el entorno.} El código desarrollado descansa sobre algunas suposiciones. Se ha
+        minimizado este conjunto de asunciones, pero no es posible eliminarlo por completo. En concreto, se
+        require la existencia de dos tipos por parte de la biblioteca de C instalada en el sistema: \texttt{uint32\_t}
+        y \texttt{int32\_t} para arquitecturas de $32$ bits; \texttt{uint64\_t}y \texttt{int64\_t} para arquitecturas de 
+        $64$ bits. Estos se corresponden con tipos sin y con signo respectivamente, de la longitud en bits indicada. 
+        No son tipos estándar según ANSI C o C++, pero se recogen dentro de la nueva revisión del estándar C,\cite{c99},
+        en su sección 7.18.1.1. En el caso del compilador GCC, se soportan estos tipos desde la versión %TODO.
+        
+        SCons verifica el soporte de estos tipos por parte del compilador, abortando la compilación en caso de
+        no estar presentes.
+        
+      \paragraph{Adaptándose al sistema.}
+        Es posible invocar a SCons suminitrándole manualmente valores para una serie de variables
+        de compilación --véase la sección \ref{desc:scons} para una descripción de estas opciones--.
+        Si para alguna de estas variables no se especifica valor, o incluso si se especifica pero
+        debe verificarse si el valor dado tiene sentido para el hardware subyacente, es necesario
+        examinar el soporte presente en el sistema. Las opciones cuyo valor adecuado SCons se ocupa 
+        de detectar incluyen:
+        \begin{description}
+          \item[Arquitectura.] SCons detecta automáticamente qué arquitecturas soporta el
+          hardware subyacente. Algunos sistemas soportan más de una arquitectura. En concreto, los sistemas
+          x86-64 soportan asimismo la arquitectura x86 de $32$ bits. En este caso, se toma la arquitectura 
+          más ventajosa en términos de rendimiento.
+          \item[Instrucciones SIMD.] La biblioteca soporta dos conjuntos de instrucciones SIMD, las SSE y SSE2
+          de Intel. SCons autodetecta si está presente soporte para alguno o ambos de estos conjuntos de
+          instrucciones.
+          \item[Soporte de OpenMP.] Algunos compiladores, como el de Intel, soportan OpenMP desde hace tiempo.
+          Sin embargo, GCC incluye este soporte solamente a partir de su versión 4.2. Detectar este soporte
+          permite proporcionar los parámetros adecuados al compilador en cuestión.
+        \end{description}
+
 
 

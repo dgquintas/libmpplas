@@ -1,5 +1,5 @@
 % TIPOS SOPORTADOS POR LA BIBLIOTECA
-\chapter{Tipos soportados}
+\chapter{Tipos soportados}\label{chap:tipos}
 
 \begin{flushright}
   \begin{minipage}[t]{13cm}
@@ -20,16 +20,49 @@
 
 \bigskip
 
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+          God is Real, unless declared Integer
+        }
+        \begin{flushright}
+          \textbf{\textemdash J. Allan Toogood}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
 \begin{center}{\line(1,0){325}}\end{center}
 
 %--------------------------------------------------------%
 
-\section{Consideraciones generales}
-% - tipos "contenedores" (matrices, polis, etc), aseguran la coherencia
-% matematica mediante comprobaciones estataticas en tiempo de compilacion
-% del caracter algebraico de sus parametros, que seran sus elementos/coeficientes/whatever.
+\section{Introducción}
+En la figura \ref{fig:jerarquiaTipos} se muestran los distintos tipos y una
+visión general de sus interrelaciones. 
+  \begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\textwidth,keepaspectratio]{jerarquiaTipos} 
+    \caption{Tipos de la biblioteca}\label{fig:jerarquiaTipos}
+  \end{figure}
+Los tipos denominados compuestos, las matrices y los polinomios, reciben un tipo
+como argumento de plantilla: el tipo de sus componentes. Este concepto de tipo de
+plantilla es, claro está, propio de C++, no de la biblioteca. Sin embargo, como se
+expone en detalle en \ref{categorizacionAlgebraica}, se han incorporado mecanismos 
+para asegurar que la coherencia matemática se mantiene. También en dicha sección, 
+concretamente en la figura \ref{fig:categoriasAlgebraicas}, se presenta el modo en el que
+para cada tipo se ha modelado su categoría algebraica. 
 
-\section{El tipo general \texttt{MPPDataType}}
+Respecto a LibNumth, la familia de tipos disponibles ha aumentado cuantitativa y cualitativamente.
+No sólo se han añadido tipos completamente nuevos, sino que se han refinado los ya presentes. Por ejemplo,
+el cuerpo $Z_p$ que antes podía modelarse únicamente mediante $Z_n$ con un $n$ primo, ahora cuenta
+con tipo propio, lo que permite sacar partido de sus características particulares como cuerpo: $Z_n$ sólo
+puede ser considerado como anillo si no se imponen restricciones sobre el módulo $n$.
+
+
+\section{El tipo general \texttt{MPPDataType}}\label{tipos:mppdatatype}
 Formalmente, no es un tipo \emph{de dato}. Es más bien un tipo abstracto del cual todos los 
 demás tipos de la biblioteca, directa o indirectamente, heredan. De hecho, la definición de
 «tipo de la biblioteca» podría ser «todo tipo que tenga a \texttt{MPPDataType} como ancestro».
@@ -74,11 +107,186 @@ se encuentra en la implementación de los mecanismos de gestión de datos en tiemp
 desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
 
 %Enteros, Z
-\section{Reales}
+\section{Enteros}
+  La base de los demás tipos, ya sea por herencia o composición; es decir, formando un subconjunto --como en el caso 
+  de $\mathbb{Z}_n$-- o siendo utilizados internamente en las representaciones --como en $\mathbb{R}$--. El grueso 
+  de su implementación base proviene de LibNumth. Sin embargo se han realizado optimizaciones y añadido algunos métodos
+  en esta nueva versión de la biblioteca. %TODO: cuales?
 
-  \subsection{Cálculo de la raiz cuadrada}\label{tipos:sqrt}
-  La función $\sqrt{A}$, puede definirse como las raices de la función $f(x) = x^2 - A$. Esto lleva a pensar
-  inmediatamente en la utilización de un método iterativo para el cálculo de raices. Por ejemplo, el conocido
+\section{Enteros modulares}
+  En Teoría de Números, y por extensión en criptografía, se utilizan con mucha frecuencia enteros modulares. 
+  Pese a que forman un subconjunto de los enteros, y que toda operación sobre un entero modular puede reducirse
+  en última instancia a operaciones sobre los enteros habituales, es posible aprovecharse de sus características
+  particulares. Esto justifica su modelado por separado. 
+  %TODO
+
+  \subsection{Enteros módulo un primo}
+    Si en $\mathbb{Z}_n$ se restringe el módulo $n$ a números primos, es un resultando básico en Teoría de Números %TODO: cita
+    que la estructura algebraica resultante, usualmente denominada $\mathbb{Z}_p$, tiene carácter de \emph{cuerpo}. 
+    Esto es, se garantiza la existencia de inversa para todo elemento no nulo. La relevancia de esta estructura
+    en Teoría de Números es muy grande. %TODO: aplicaciones
+
+    La biblioteca modela a esta estructura de forma independiente, no como un mero caso particular de $\mathbb{Z}_n$, sacando
+    partido de los mecanismos de categorización algebraica de la misma. 
+
+  \subsection{Enteros modulares en el dominio de Montgomery}\label{sec:zm}
+  Nombrados como $\mathbb{Z}M\_n$, son un tipo de entero modular, siendo
+  su módulo reductor $n$. Su particularidad estriba en que ninguna de sus
+  operaciones requiere el uso de la división, excepto en el caso de potencias
+  de la base de trabajo, operación que se realiza mediante desplazamientos.
+    
+  Hasta donde se tiene constancia, se trata de un tipo de dato original
+  de esta biblioteca: no se tiene conocimiento de su implementación en otras bibliotecas
+  similares. 
+
+  \subsubsection{Preliminares}
+  Una conocida forma de exponenciación modular se basa en el método de
+  multiplicación/reducción de Montgomery (\cite{montgomeryOrig}). 
+  El método de reducción/multiplicación se encontraba ya incorporado en
+  la antigua versión de la biblioteca (véase \cite{miproyecto}, sección 5.5.3),
+  utilizándose precisamente para la exponenciación modular. 
+
+  A lo largo de esta sección se utilizará la nomenclatura introducida en \cite{miproyecto},
+  sección 5.2, para los siguientes conceptos: $B$ representa la base con la que la máquina trabaja
+  internamente de forma óptima, en la que se representan los tipos de datos básicos \texttt{Digit}.
+  El número de bits de esta base se denominará $BED$: bits en \texttt{Digit}. La implementación actual
+  soporta valores de $BED$ de $32$ y $64$.
+
+  Es mediante la precomputación de dos valores, 
+  $R_n = 2^{i\cdot BED}$ con $i \in \mathbb{Z}, i \geq 1$ y $-n^{-1} \pmod{BED}$, 
+  que es posible prescindir de la operación de división. 
+  Dichos valores dependen únicamente del módulo $n$, por lo que si se realizan muchas
+  operaciones con el mismo módulo, el coste computacional de su cálculo se ve compensado
+  por la ausencia de divisiones. 
+
+  Anteriormente no se ha especificado ningún valor para la $i$ que conforma
+  $R_n = 2^{i \cdot BED}$. Según \cite{handbook}\footnote{pág. 600}, es suficiente con que se verifique 
+  $R > n$. Ahora bien, considérese la longitud del módulo $n$ en la base de trabajo $B$ definida con anterioridad
+  como $k$. Es posible concluir entonces 
+  \begin{equation}
+  R_n = 2^{k \cdot BED} = B^{k} \Rightarrow i = k \label{eq:defRMont}
+  \end{equation}
+  Esto simplifica e incrementa el rendimiento de las operaciones,
+  tal como se indica en  \cite{handbook}\footnote{Fact 14.30 (ii), pág. 601}. Sin embargo, la limitación que esto
+  impone es la imposibilidad de utilizar un módulo $n$ par. De todas maneras, en los escenarios de aplicación más comunes
+  $n$ es primo.
+
+  Un concepto fundamental en esta discusión es el de \emph{dominio de Montgomery}.
+  \begin{definicion}[Dominio de Montgomery]
+  Se considera que $a \in \mathbb{Z}$ pertenece al \emph{dominio de Montgomery} para
+  un módulo $n$ si $a < n$ y $R_n | a$, esto es, si $a$ es múltiplo de $R_n$.
+  \end{definicion}
+  Las operaciones habituales de suma, resta, producto, división (como combinación de inversión más producto) 
+  en este dominio están bien definidas, como se expone en la sección \ref{opsZM}.
+
+
+  \subsubsection{Operaciones}
+  Las operaciones sobre $\mathbb{Z}M_n$ se dividen en dos grupos:
+  las orientadas al trabajo dentro del propio dominio, denominadas «específicas», 
+  y las que se corresponden con las operaciones habituales sobre $\mathbb{Z}$, 
+  denominadas «habituales», presentadas de cara al usuario programador.
+
+  Los detalles de implementación pueden encontrarse en el capítulo dedicado
+  al efecto, en la sección \ref{implZM_n}.
+
+  \paragraph{Específicas.}
+  \begin{definicion}[Multiplicación de Montgomery]\label{def:multMont}
+  Sea $R_n$ tal como se define en la ecuación \eqref{eq:defRMont}, $x,y \in \mathbb{Z}$. 
+  Se define la función \texttt{MultMon} como
+  \[
+    \mathtt{MultMon}(x,y,n) = x \cdot y \cdot R^{-1} \pmod{n}
+  \]
+  \end{definicion}
+
+
+  \begin{definicion}[Inversa de Montgomery (\cite{kaliski})]\label{def:invMont}
+  \[
+    \mathtt{InvMon}(a,n) = a^{-1} \cdot R \pmod{n}
+  \]
+  \end{definicion}
+
+
+  Koç y Savas ( \cite{montInvRev} ) ampliaron el
+  concepto, en especial con una «nueva inversa de Montgomery»:
+  \begin{definicion}[Inversa de Montgomery (\cite{montInvRev})]\label{nuevaMontInv}
+  Sea $R_n$ tal como se define en la ecuación \eqref{eq:defRMont}, $a \in \mathbb{Z}$. 
+  \[
+    \mathtt{NuevaInvMon}(a \cdot R,n) = a^{-1} \cdot R \pmod{n}
+  \]
+  \end{definicion}
+  Es decir,este último método obtiene la inversa de un número dado en el
+  dominio de Montgomery, manteniéndose también el resultado en dicho dominio.
+
+  \paragraph{Habituales.}\label{opsZM}
+  A continuación se definen las operaciones básicas sobre este tipo 
+  de enteros modulares en el dominio de Montgomery, así como la conversión
+  hacia y desde $\mathbb{Z}$ ó $\mathbb{Z}_n$.
+
+  En lo sucesivo se asume que los operandos comparten el mismo módulo
+  $n$.
+
+  \subparagraph{Suma y resta} 
+  Sean $x,y \in \mathbb{Z}_n$,
+  $0 \le xR, yR < n  \Rightarrow  xR + yR = (x+y)R \leq 2n-2$
+  con lo que si la suma es mayor que $n$, bastará con restar $n$ a ésta , a lo sumo una vez.
+
+  Para la resta, el razonamiento es análogo, salvo que en este caso, el módulo habrá de
+  sumarse si $(x-y)R < 0$, aunque a lo sumo tan solo dos veces.
+
+ \subparagraph{Producto} 
+  Utilizando la multiplicación de Montgomery (véase la definición \ref{def:multMont}),
+  se obtiene el producto de dos elementos del dominio de Montgomery, resultando 
+  en su producto también en éste, de la siguiente manera:
+  $\mathtt{MultMon}( xR, yR ) = xR \cdot yR \cdot R^{-1} = xyR^2 \cdot R^{-1} = xyR$
+
+  \subparagraph{Cálculo de la inversa}
+  Aplicar $\mathtt{NuevaInvMon}$ directamente (véase la definición \ref{nuevaMontInv}).
+  \subparagraph{División}
+    La división se realiza mediante las operaciones de inversión y producto: 
+    $ (aR / bR ) = \mathtt{MultMon}( aR, b^{-1}R ) = aR \cdot b^{-1}R \cdot R^{-1} = ab^{-1}R $
+ 
+ \subparagraph{Conversión desde $\mathbb{Z}$ a $\mathbb{Z}M_n$}
+  Si el entero a convertir verifica $a \geq n$, se realizar  previamente una reducción módulo $n$.
+  Dado $0 \leq a < n$ , $\mathtt{MultMon}( a, R^2, n ) = a R^2 R^{-1} \pmod{n}  = a \cdot R \pmod{n}$
+
+  \subparagraph{Conversión desde $\mathbb{Z}M_n$ a $\mathbb{Z}$}
+   Dado $0 \leq aR < n$ , $\mathtt{MultMon}( aR, 1, n ) = a R \cdot 1 \cdot R^{-1} \pmod{n} = a \pmod{n}$
+   Nótese que el entero $a$ resultante se devuelve reducido módulo $n$, con lo que encajaría también 
+   dentro de $\mathbb{Z}_n$ sin necesidad de una nueva reducción modular.
+
+
+  \subsubsection{Aplicaciones}
+  El utilizar este tipo hace que trabajar en $\mathbb{Z}_n$ sea mucho más rápido.
+  Esto es debido a que, como se ha mencionado anteriormente, 
+  no se realizan divisiones --el «algoritmo básico»\footnote{
+  la división \emph{no} es una operación básica como erróneamente 
+  suele considerarse. Tan solo la suma y el producto (para las estructuras
+  algebraicas donde tuviera lugar) lo son.}
+   computacionalmente
+  más costoso. Asimismo, el cálculo del elemento inverso a uno dado
+  no requiere del uso del algoritmo extendido de Euclides 
+  (véase \cite{miproyecto}\footnote{sección 5.5.2, pág. 64}),
+  también computacionalmente costoso. 
+
+  Ahora bien, la creación y conversión desde/hacia los enteros habituales es costosa. 
+  Resulta conveniente mantenerse en el dominio de Montgomery durante el mayor número de
+  operaciones posibles. Determinados algoritmos se prestan a esto: aquellos en los que
+  el módulo de trabajo es común a un cierto número de operaciones, donde se utilicen
+  frecuentemente exponenciaciones e inversiones. Dos ejemplos de algoritmos tales son
+  el mecanismo de firma digital DSA (\cite{schneier}\footnote{sección 20.1, pág. 483}) 
+  y el mecanismo de firma y cifrado ElGamal (\cite{schneier}\footnote{sección 19.6, pág. 476}).
+
+  %TODO
+  %En la sección \ref{ejZM_n} se recoge una comparativa de la implementación de estos métodos 
+  %mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
+
+
+\section{Reales}
+  %TODO
+
+  \subsection{Cálculo de la raíz cuadrada}\label{tipos:sqrt}
+  La función $\sqrt{A}$, puede definirse como las raíces de la función $f(x) = x^2 - A$. Esto lleva a pensar
+  inmediatamente en la utilización de un método iterativo para el cálculo de raíces. Por ejemplo, el conocido
   método de Newton --descrito por ejemplo en \cite{recipes,calculoburgos}\footnote{sección 9.4, pág. 366; sección 092, pág. 
   258, resp.}--, lo que nos llevaría a la siguiente formulación:
   \begin{eqnarray}
@@ -133,178 +341,36 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
   Véase la sección \ref{impl:sqrt} para detalles específicos de la implementación.
 
   \subsection{Funciones trascendentes}
+    Se define como \emph{transcendente} toda función no algebraica. En otras palabras,
+    que no puede expresarse en términos algebraicos. Su denominación deriva del hecho
+      de «trascender» al Álgebra.
 
+      Se han incorporado a la biblioteca métodos para el cálculo de las siguientes
+      funciones trascendentes.
+    \begin{description}
+      \item[Exponencial.] Operación representada usualmente como $exp(x) = e^x$, siendo 
+       $e$ la base de los logaritmos neperianos. Esta funcion, antiguamente denominada como
+       «la e-función de Euler» (\cite{oxfordmath}\footnote{pág. 51}), tiene el siguiente valor:
+       $exp(1) = e = 1 + 1 + \frac{1}{2!} + \frac{1}{3!} + \cdots \approx 2.7182\ldots$. 
+       Esta constante $e$ encierra muchas otras sorpresas, siendo básica en el estudio 
+       de cuerpo de los número complejos. Se combina con otras dos célebres constantes en la
+       conocida y sorprendente, a primera vista, expresión $e^{i \pi} = -1$.
+      \item[Logaritmo neperiano.] Operación inversa a la exponencial, para $y = \ln{(x)}$,
+        se verifica $e^y = x$. Nótese que el cálculo del logaritmo en otra base $b$
+          distinta de $e$ se reduce a: $\log_b{(x)} = \ln{(x)} / \ln{(b)}$.
+      \item[Funciones trigonométricas.] Es decir, las funciones seno y coseno, así como las
+      derivadas de éstas, como la tangente. 
+    \end{description}
 
-%Enteros modulares, Z\_n
-%Enteros modulares con modulo primo, Z\_p
+    \subsubsection{Cálculo de $\pi$}
+      El cálculo de la proporción entre la longitud y diámetro de la circunferencia, más
+      conocida como $\pi$, es un cálculo clásico utilizado habitualmente como prueba
+      ya sea de rendimiento o de correcto funcionamiento por parte de bibliotecas o paquetes
+      de cálculo numérico. En el caso que nos ocupa no se ha pretendido realizar una implementación
+      que vaya a batir marcas de rendimiento, sino más bien implementar uno mismo uno de los muchos
+      métodos disponibles para el cálculo de una de las constante más famosas.
 
-\section{Enteros modulares en el dominio de Montgomery}
-Nombrados como $\mathbb{Z}M\_n$, son un tipo de entero modular, siendo
-su módulo reductor $n$. Su particularidad estriba en que ninguna de sus
-operaciones requiere el uso de la división, excepto en el caso de potencias
-de la base de trabajo, operación que se realiza mediante desplazamientos.
-  
-Hasta donde se tiene constancia, se trata de un tipo de dato original
-de esta biblioteca: no se tiene conocimiento de su implementación en otras bibliotecas
-similares. 
-
-\subsection{Preliminares}
-Una conocida forma de exponenciación modular se basa en el método de
-multiplicación/reducción de Montgomery (\cite{montgomeryOrig}). 
-El método de reducción/multiplicación se encontraba ya incorporado en
-la antigua versión de la biblioteca (véase \cite{miproyecto}, sección 5.5.3),
-utilizándose precisamente para la exponenciación modular. 
-
-A lo largo de esta sección se utilizará la nomenclatura introducida en \cite{miproyecto},
-sección 5.2, para los siguientes conceptos: $B$ representa la base con la que la máquina trabaja
-internamente de forma óptima, en la que se representan los tipos de datos básicos \texttt{Digit}.
-El número de bits de esta base se denominará $BED$: bits en \texttt{Digit}. La implementación actual
-soporta valores de $BED$ de $32$ y $64$.
-
-Es mediante la precomputación de dos valores, 
-$R_n = 2^{i\cdot BED}$ con $i \in \mathbb{Z}, i \geq 1$ y $-n^{-1} \pmod{BED}$, 
-que es posible prescindir de la operación de división. 
-Dichos valores dependen únicamente del módulo $n$, por lo que si se realizan muchas
-operaciones con el mismo módulo, el coste computacional de su cálculo se ve compensado
-por la ausencia de divisiones. 
-
-Anteriormente no se ha especificado ningún valor para la $i$ que conforma
-$R_n = 2^{i \cdot BED}$. Según \cite{handbook}\footnote{pág. 600}, es suficiente con que se verifique 
-$R > n$. Ahora bien, considérese la longitud del módulo $n$ en la base de trabajo $B$ definida con anterioridad
-como $k$. Es posible concluir entonces 
-\begin{equation}
-R_n = 2^{k \cdot BED} = B^{k} \Rightarrow i = k \label{eq:defRMont}
-\end{equation}
-Esto simplifica e incrementa el rendimiento de las operaciones,
-tal como se indica en  \cite{handbook}\footnote{Fact 14.30 (ii), pág. 601}. Sin embargo, la limitación que esto
-impone es la imposibilidad de utilizar un módulo $n$ par. De todas maneras, en los escenarios de aplicación más comunes
-$n$ es primo.
-
-Un concepto fundamental en esta discusión es el de \emph{dominio de Montgomery}.
-\begin{definicion}[Dominio de Montgomery]
-Se considera que $a \in \mathbb{Z}$ pertenece al \emph{dominio de Montgomery} para
-un módulo $n$ si $a < n$ y $R_n | a$, esto es, si $a$ es múltiplo de $R_n$.
-\end{definicion}
-Las operaciones habituales de suma, resta, producto, división (como combinación de inversión más producto) 
-en este dominio están bien definidas, como se expone en la sección \ref{opsZM}.
-
-
-\subsection{Operaciones}
-Las operaciones sobre $\mathbb{Z}M_n$ se dividen en dos grupos:
-las orientadas al trabajo dentro del propio dominio, denominadas «específicas», 
-y las que se corresponden con las operaciones habituales sobre $\mathbb{Z}$, 
-denominadas «habituales», presentadas de cara al usuario programador.
-
-Los detalles de implementación pueden encontrarse en el capítulo dedicado
-al efecto, en la sección \ref{implZM_n}.
-
-\subsubsection{Específicas}
-\begin{definicion}[Multiplicación de Montgomery]\label{def:multMont}
-Sea $R_n$ tal como se define en la ecuación \eqref{eq:defRMont}, $x,y \in \mathbb{Z}$. 
-Se define la función \texttt{MultMon} como
-\[
-  \mathtt{MultMon}(x,y,n) = x \cdot y \cdot R^{-1} \pmod{n}
-\]
-\end{definicion}
-
-
-\begin{definicion}[Inversa de Montgomery (\cite{kaliski})]
-\[
-  \mathtt{InvMon}(a,n) = a^{-1} \cdot R \pmod{n}
-\]
-\end{definicion}
-
-
-Koç y Savas ( \cite{montInvRev} ) ampliaron el
-concepto, en especial con una «nueva inversa de Montgomery»:
-\begin{definicion}[Inversa de Montgomery (\cite{montInvRev})]\label{nuevaMontInv}
-Sea $R_n$ tal como se define en la ecuación \eqref{eq:defRMont}, $a \in \mathbb{Z}$. 
-\[
-  \mathtt{NuevaInvMon}(a \cdot R,n) = a^{-1} \cdot R \pmod{n}
-\]
-\end{definicion}
-Es decir,este último método obtiene la inversa de un número dado en el
-dominio de Montgomery, manteniéndose también el resultado en dicho dominio.
-
-\subsubsection{Habituales}\label{opsZM}
-A continuación se definen las operaciones básicas sobre este tipo 
-de enteros modulares en el dominio de Montgomery, así como la conversión
-hacia y desde $\mathbb{Z}$ ó $\mathbb{Z}_n$.
-
-En lo sucesivo se asume que los operandos comparten el mismo módulo
-$n$.
-
-  \paragraph{Suma y resta} 
-  Sean $x,y \in \mathbb{Z}_n$,
-  $0 \le xR, yR < n  \Rightarrow  xR + yR = (x+y)R \leq 2n-2$
-  con lo que si la suma es mayor que $n$, bastará con restar $n$ a ésta , a lo sumo una vez.
-
-  Para la resta, el razonamiento es análogo, salvo que en este caso, el módulo habrá de
-  sumarse si $(x-y)R < 0$, aunque a lo sumo tan solo dos veces.
-
- \paragraph{Producto} 
-  Utilizando la multiplicación de Montgomery (véase la definición \ref{def:multMont}),
-  se obtiene el producto de dos elementos del dominio de Montgomery, resultando 
-  en su producto también en éste, de la siguiente manera:
-  $\mathtt{MultMon}( xR, yR ) = xR \cdot yR \cdot R^{-1} = xyR^2 \cdot R^{-1} = xyR$
-
-  \paragraph{Cálculo de la inversa}
-  Aplicar $\mathtt{NuevaInvMon}$ directamente (véase la definición \ref{nuevaMontInv}).
-  \paragraph{División}
-    La división se realiza mediante las operaciones de inversión y producto: 
-    $ (aR / bR ) = \mathtt{MultMon}( aR, b^{-1}R ) = aR \cdot b^{-1}R \cdot R^{-1} = ab^{-1}R $
- 
- \paragraph{Conversión desde $\mathbb{Z}$ a $\mathbb{Z}M_n$}
-  Si el entero a convertir verifica $a \geq n$, se realizar  previamente una reducción módulo $n$.
-  Dado $0 \leq a < n$ , $\mathtt{MultMon}( a, R^2, n ) = a R^2 R^{-1} \pmod{n}  = a \cdot R \pmod{n}$
-
-  \paragraph{Conversión desde $\mathbb{Z}M_n$ a $\mathbb{Z}$}
-   Dado $0 \leq aR < n$ , $\mathtt{MultMon}( aR, 1, n ) = a R \cdot 1 \cdot R^{-1} \pmod{n} = a \pmod{n}$
-   Nótese que el entero $a$ resultante se devuelve reducido módulo $n$, con lo que encajaría también 
-   dentro de $\mathbb{Z}_n$ sin necesidad de una nueva reducción modular.
-
-
-\subsection{Aplicaciones}
-El utilizar este tipo hace que trabajar en $\mathbb{Z}_n$ sea mucho más rápido.
-Esto es debido a que, como se ha mencionado anteriormente, 
-no se realizan divisiones --el «algoritmo básico»\footnote{
-la división \emph{no} es una operación básica como erroneamente 
-suele considerarse. Tan solo la suma y el producto (para las estructuras
-algebraicas donde tuviera lugar) lo son.}
- computacionalmente
-más costoso. Asimismo, el cálculo del elemento inverso a uno dado
-no requiere del uso del algoritmo extendido de Euclides 
-(véase \cite{miproyecto}\footnote{sección 5.5.2, pág. 64}),
-también computacionalmente costoso. 
-
-Ahora bien, la creación y conversión desde/hacia los enteros habituales es costosa. 
-Resulta conveniente mantenerse en el dominio de Montgomery durante el mayor número de
-operaciones posibles. Determinados algoritmos se prestan a esto: aquellos en los que
-el módulo de trabajo es común a un cierto número de operaciones, donde se utilicen
-frecuentemente exponenciaciones e inversiones. Dos ejemplos de algoritmos tales son
-el mecanismo de firma digital DSA (\cite{schneier}\footnote{sección 20.1, pág. 483}) 
-y el mecanismo de firma y cifrado ElGamal (\cite{schneier}\footnote{sección 19.6, pág. 476}).
-
-En la sección \ref{ejZM_n} se recoge una comparativa de la implementación de estos métodos 
-mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
-
-
-
-%
-%Polinomios
-%  Sobre Z
-%  Sobre R
-%  Sobre Z\_p 
-%
-%
-%Matrices
-%  Sobre Z
-%  Sobre R
-%  Sobre GFx
-%
-%Vectores
-
-
+      
 
 \section{Polinomios}\index{tipos!Polinomios}\label{tipos:polinomios}
   En \cite{knuth}\footnote{pág. 418} se define polinomio como:
@@ -343,14 +409,14 @@ mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
   \end{observacion}
 
   \subsection{Operaciones básicas sobre polinomios en \texttt{S}}
-  \paragraph{Suma y resta} La suma (resp. resta) en polinomios sobre un sistema \texttt{S} se define como la suma (resp. resta) 
+  \subsubsection{Suma y resta} La suma (resp. resta) en polinomios sobre un sistema \texttt{S} se define como la suma (resp. resta) 
     sobre \texttt{S} de coeficientes de potencias iguales de $x$ (asumiendo sin pérdida de generalidad que $n > m$): 
       \begin{eqnarray}
       (u_nx^n + \cdots + u_1x + u_0) + (v_mx^m + \cdots + v_1x+v_0)  ={}  \nonumber\\
         {} = u_nx^n + \cdots + (u_m+v_m)x^m + \cdots + (u_1+v_1)x + u_0+v_0 
       \end{eqnarray}
 
-  \paragraph{Producto} El producto se define de la siguiente manera:
+  \subsubsection{Producto} El producto se define de la siguiente manera:
       \begin{equation}
       (u_nx^n + \cdots + u_1x + u_0)(v_mx^m + \cdots + v_1x+v_0) = w_{n+m}x^{n+m} + \cdots + w_0
       \end{equation}
@@ -365,7 +431,7 @@ mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
       (véase \cite{miproyecto}\footnote{pág. 50}) y su paralelización, son directamente 
       aplicables también a este caso.
 
-  \paragraph{División}
+  \subsubsection{División}
   \cite{knuth} dedica toda una sección --la 4.6.1, pág. 420-- al análisis de la división de polinomios.
   En general, al igual que para el producto, dos polinomios se dividen esencialmente del mismo modo
   que dos elementos de $\mathbb{Z}$, siempre y cuando \texttt{S} sea un \emph{cuerpo}. Formalmente,
@@ -383,8 +449,10 @@ mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
   \end{eqnarray}
 
  \subsection{Máximo común divisor}\label{gcdPoly}
+  %TODO
 
    \subsubsection{Con \texttt{S} un cuerpo}
+    %TODO
 
 
    \subsubsection{Con \texttt{S} un dominio de factorización única}
@@ -417,6 +485,7 @@ mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
       polinomios necesaria para implementar este método se expone a continuación.
 
     \paragraph{Pseudo-división de polinomios con \texttt{S} un dominio de factorización única}
+    %TODO
 
 
   \subsection{Evaluación}\label{tipos:evaluacionPoly}
@@ -436,14 +505,118 @@ mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
     se muestra de que forma es posible paralelizarlo.
 
 
-\section{Matrices}
+  \subsection{Instancias concretas}
+      %  Sobre Z
+      %  Sobre R
+      %  Sobre Z\_p 
+
+
+\section{Matrices}\index{tipos!Matrices}\label{tipos:matrices}
 %TODO
   \subsection{Instancias concretas}
-
+    La clase modelando las matrices, \texttt{Matrix<T>}, comparte el carácter genérico
+    de los polinomios, tanto en cuanto se toma a \texttt{T} como el tipo de sus elementos. 
+    Sin embargo, por comodidad, se han implementado clases concretas representando las 
+    particularizaciones más habituales. Se insiste en que esto es tan solo un atajo: la implementación
+    de los diferentes métodos que operan sobre las matrices son genéricos, compartidos por todas las 
+    instanciaciones del tipo de plantilla \texttt{T}. Las particularizaciones consideradas han sido:
+    matrices sobre $\mathbb{Z}$, matrices sobre $\mathbb{R}$, matrices sobre $\mathbb{Z}_n$ y matrices sobre $\GF$. 
+    En los dos últimos casos, la instanciación de estas matrices requiere que se le sea proporcionado al constructor
+    en cuestión el valor de $n$ y el generador del cuerpo finito, respectivamente. 
+    
   \subsection{Operaciones}
+    En este punto se describen operaciones propias del \emph{anillo} formado por $\mathcal{M}_{n}$; esto es, 
+    las matrices cuadradas.
+
+    \subsubsection{Suma y resta}
+    La suma (resp. resta) de matrices sobre un sistema \texttt{T} se define como la suma (resp. resta) 
+    sobre \texttt{T} de los elementos situados en la misma fila y columna (para la suma): 
+\[
+\left( \begin{array}{cc}
+      a_{11}+b_{11} & a_{12} + b_{12} \\
+      a_{21}+b_{21} & a_{22} + b_{22}
+\end{array} \right)
+=
+\left( \begin{array}{cc}
+      a_{11} & a_{12} \\
+      a_{21} & a_{22}
+\end{array} \right)
++
+\left( \begin{array}{cc}
+      b_{11} & b_{12} \\
+      b_{21} & b_{22}
+\end{array} \right)
+\]
+
+
+    \subsubsection{Producto}
+      La operación «estrella», ha sido objeto de mucho estudio con el fin de reducir su complejidad
+      de $O(n^3)$, la del algoritmo fruto de la implementación directa de su definición:
+      %TODO
+\[
+\left( \begin{array}{cc}
+      a_{11}+b_{11} & a_{12} + b_{12} \\
+      a_{21}+b_{21} & a_{22} + b_{22}
+\end{array} \right)
+=
+\left( \begin{array}{cc}
+      a_{11} & a_{12} \\
+      a_{21} & a_{22}
+\end{array} \right)
++
+\left( \begin{array}{cc}
+      b_{11} & b_{12} \\
+      b_{21} & b_{22}
+\end{array} \right)
+\]
+
+      Una de estas estratégias, ideada por Strassen, %TODO: referencia, nombre completo
+      ha sido incorporadas en la biblioteca. Obtiene una complejidad de $O(n^{\lg_2{(7)}})$.
+
+    \subsubsection{División}
+      De la forma habitual, la división se define como el producto por la inversa. Dado que
+      no toda matriz posee invesa, la división arrastra las mismas restricciones que la inversión.
+
     \subsubsection{Triangularización}
     \subsubsection{Resolución de sistemas de ecuaciones}
     \subsubsection{Inversión}
+      Dado el categorización de $\mathcal{M}_{n}$ como anillo, la existencia de inversa para el producto
+      \emph{no} se garantiza para toda matriz. Sin embargo, es un resultado básico en álgebra que si 
+      el rango de la matriz es igual al número de filas/columnas de ésta, dicha matriz es invertible. 
+      Sin embargo, lo que habitualmente no se tiene en cuenta es si la operación de inversión resulta
+      cerrada. Es decir, supóngase una matriz cuadrada sobre los enteros tal que su rango verifica ser
+      igual a su número de filas/columnas. ¿Está todo elemento de su matriz inversa también en $\mathbb{Z}$?
+      Es fácil comprobar que no:
+\[
+    A = 
+\left( 
+    \begin{array}{cc}
+      1 & 2 \\
+      3 & 4      
+    \end{array} 
+\right)
+    ; \quad
+    A^{-1} = 
+\left( 
+    \begin{array}{cc}
+      -2  &    1 \\
+      3/2 & -1/2      
+    \end{array} 
+\right)
+\]
+      
+      Pese a que para existen matrices sobre $\mathbb{Z}$ cuya inversa 
+      tiene asimismo todos sus elementos en $\mathbb{Z}$, no es ha incorporado esta
+      funcionalidad a la biblioteca\footnote{un estudio acerca de este tipo de matrices se
+      realiza en %TODO.
+      }. 
+      Esto se debe a que durante el proceso de inversión 
+      implementado (véase sección \ref{impl:inversaMatrices}), se requiere la inversión 
+      de los elementos de la matriz. Nótese que siempre es posible la conversión temporal de una 
+      matriz de enteros a una matriz de reales, realizar su inversa y truncar los elementos de esta
+      de vuelta al dominio de los reales. 
+
+
     \subsubsection{Determinante}
 
       \begin{definicion}[Determinante]\label{def:determinante}
@@ -463,9 +636,11 @@ mediante datos en $\mathbb{Z}_n$ y $\mathbb{Z}M_n$.
       utilizados en la biblioteca se muestran en la sección \ref{impl:determinante}
      
             
+\section{Vectores}
+%TODO
 
-
- \section{Cuerpos finitos}\label{cuerposFinitos}
-  %TODO
+\section{Cuerpos finitos, $\GF$}\label{cuerposFinitos}
+  
   \subsection{Elementos de un cuerpos finitos}
+    
 

@@ -1,14 +1,16 @@
-\chapter{Paralelismo en la biblioteca}
+\chapter{Paralelismo en la biblioteca}\label{chap:par}
 
 \begin{flushright}
   \begin{minipage}[t]{13cm}
     \begin{flushright}
       \begin{quote}
         \emph{
-          Right now I'm having amnesia and déjà vu at the same time.
+          So these processor manufacturers all have these nice new multi-core CPUs
+           but...what's going on to get all the applications to start exploiting this? The
+           magic parallelization fairy?
         }
         \begin{flushright}
-          \textbf{\textemdash Stephen Wright (en paralelo).}
+          \textbf{\textemdash Grupo de noticias \texttt{comp.arch}, Nov. 2005}
         \end{flushright}
       \end{quote}
     \end{flushright}
@@ -17,11 +19,39 @@
 
 \bigskip
 
+
+%\begin{flushright}
+%  \begin{minipage}[t]{13cm}
+%    \begin{flushright}
+%      \begin{quote}
+%        \emph{
+%          Right now I'm having amnesia and déjà vu at the same time.
+%        }
+%        \begin{flushright}
+%          \textbf{\textemdash Stephen Wright (en paralelo).}
+%        \end{flushright}
+%      \end{quote}
+%    \end{flushright}
+%  \end{minipage}
+%\end{flushright}
+
+
 \begin{center}{\line(1,0){325}}\end{center}
 
 %--------------------------------------------------------%
 
 \section{Introducción}
+  Por desgracia, la respuesta a la cita que encabeza este capítulo es «no». No 
+  hay ningún hada del paralelismo que vaya a hacer que los --aún hoy mayoría-- 
+  programas secuenciales mágicamente aprovechen las múltiples unidades de ejecución 
+  de los ubicuos procesadores multinúcleo. Por contra, recae en la comunidad, tanto
+  académica como no, la revisión y en muchos casos reescritura de todos aquellos 
+  algoritmos susceptibles de ser paralelizados, con el fin de efectivamente 
+  conseguir aprovechar las prestaciones que ofrecen esta nueva tendencia en
+  el mundo de la computación. Esto es tanto más así en los algoritmos para
+  el trabajo en Matemáticas
+
+  \bigskip
 
   Se ha hecho énfasis en la paralelización de los métodos básicos sobre los 
   que la mayoría de las rutinas de más alto nivel se apoyan. Por varios motivos:
@@ -59,42 +89,176 @@
 
 
 
-
+\section{Producto de enteros}\label{par:karatsubaZ}
 
 
 \section{Potenciación modular}
+  El cálculo de $x = b^e \pmod{m}$ es básico en criptografía. Métodos tales como el RSA se apoyan en esta
+  operación. Desafortunadamente, la naturaleza del enfoque secuencial, basado en la mayoría de los casos
+  en variantes del método de exponenciación binaria. Tal es el caso de la anterior
+  versión de esta biblioteca: véase \cite{miproyecto}, sección 5.5.3, pág. 64. Es fácil observar cómo este
+  método impone una cadena de dependencias que da al traste con la paralelización del algoritmo de forma
+  más o menos directa. Se hace necesario por tanto basarse en algún otro principio.
+
   \subsection{Dos hilos y $\mathbb{Z}M_n$}
-  \cite{modexpmont}
-  \subsection{Mi método}
+  Curiosamente, dada la importancia de la operación, no parece existir en el momento de elaborar esta memoria 
+  demasiada bibliografía al respecto. Una excepción es \cite{modexpmont}, donde se expone un método basado en
+  dividir la exponenciación en dos: un proceso trabaja sobre la base original; el otro sobre la inversa modular
+  de la base. Los detalles concretos del método pueden consultarse en la anterior referencia bibliográfica. 
+
+  Adolece sin embargo de lo siguiente:
+  \begin{itemize}
+    \item Requiere el cálculo de la inversa modular. Esta es una operación costosa.
+    \item Se limita a la mínima expresión de paralelismo: dos procesos.
+  \end{itemize}
+
+  Como forma de mitigar el hecho de requerir la inversa modular, \cite{modexpmont} sugiere el uso 
+  de la inversa de Montgomery, concepto introducido en la definición \ref{def:invMont}, página \pageref{def:invMont}.
+
+  En la biblioteca este método ha sido implementado, utilizando enteros modulares en el dominio de Montgomery 
+  --sección \ref{sec:zm}--, en la clase \texttt{TwoThreadedModularExp}.
+
+  \subsection{El método de la casa}
+  Debido a que el anterior método dejaba que desear, sobre todo en cuanto a escalabilidad, se ha
+   tratado de aportar un granito de arena mediante una estrategia desarrollada de forma original.
+
+    Considerando la exponenciación como $x = b^e \pmod{m}$, sea $l = bitLength(e)$ la longitud
+    en bits del exponente y $k = \lfloor \frac{l}{\# hilos} \rfloor$ el número de bits
+    por elemento de una (equi)partición de $e$. Las partes son nombradas $s_0, \ldots, s_{k-1}$,
+    tal como se muestra en la figura \ref{fig:miModExp}.
+
+   \begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.65\textwidth,keepaspectratio]{expMiModExp} 
+    \caption{Particionado del exponente}\label{fig:miModExp}
+  \end{figure}
+
+  Así pues, es posible definir:
+  \begin{eqnarray}
+    b^e & = & b^{s_0 + 2^k s_1 + 2^{2k} s_2 + \cdots + 2^{(k-1)k} s_{k-1} } = \nonumber \\
+        & = & b^{s_0} \times (b^{2^k})^{s_1} \times \ldots \times (b^{2^{(k-1)^k}})^{s_{k-1}} \label{eq:miExp}
+  \end{eqnarray}
+  Lo interesante de esta formulación es que cada factor de \eqref{eq:miExp} puede ser calculado
+  de forma independiente. 
+
+  Es preciso resaltar algunos detalles: 
+  \begin{itemize}
+    \item El exponente del  último factor de la ecuación \eqref{eq:miExp} tiene el mismo número de bits
+    que el exponente $e$ original.
+    \item El «ajuste de los exponentes» necesario en todos los $s_i$ excepto para $s_0$ puede realizarse
+    mediante desplazamientos de bits.
+    \item El algoritmo paralelo sigue requiriendo el uso de algún método secuencial para la exponenciación
+    de los diferentes componentes individuales. Esto en realidad aporta flexibilidad al método.
+  \end{itemize}
+  El primer punto anterior puede hacer pensar que este proceso es un remedio peor que la propia enfermedad. Pero sin 
+ embargo es posible sacar ventaja basándose en la especial estructura de los exponentes para los diferentes $s_i$. 
+
+ \subsubsection{Análisis de complejidad}
+  Sea $T(e)$ el tiempo requerido para un exponente $e$, $t = bitLength(e)$ y $wt = \textrm{nº de unos en } e$. 
+  Utilizando un enfoque secuencial basado en el método de exponenciación binaria, \cite{handbook}\footnote{sección 14.6.1}
+  analiza que es necesario el cálculo de $t$ cuadrados y $wt$ productos. Dado que ambas operaciones están en $O(n^2)$, 
+  $T(e) = t O(n^2) + wt O(n^2) = (wt + t)O(n^2)$.
+
+  Para la versión paralela dada por la ecuación \eqref{eq:miExp}, 
+  \[
+    T(e) = \sum^{k-1}_{i=0}\left( T(s_i) \right) + T_m
+  \]
+  donde $T_m$ representa el tiempo requerido para el cálculo de productorio que combina el resultado
+  de las exponenciaciones individuales sobre los $s_i$.
+  
+  Cada una de las partes $s_i$ supone 
+  $T(s_i) = (wt_i + t_i)O(n^2)$, con $wt_i \approx wt/k$ y $t_i = (t/k)i$. Como se ha indicado anteriormente,
+  el peor caso se da cuando $i=k$, y el exponente para $s_{k-1}$ tiene el mismo número de bits que $e$, es decir, $t_{k-1} = t$:
+  $T(s_{k-1}) = (wt_{k-1} + t)O(n^2) = \underbrace{wt_{k-1}O(n^2)}_{< wt O(n^2)} + t O(n^2) \Rightarrow T(s_{k-1}) < T(e)$.
+  Para cualquier otro $i < k-1$, se cumple asimismo $T(s_i) < T(e)$. 
+
+  El último punto por analizar el término $T_m$. Éste se encuentra en $O(n^{1.58})$ si, tal como es el caso, el producto
+  de enteros se implementa mediante el método de Karatsuba (véase \cite{miproyecto}\footnote{pág. 50}). 
+  
+  La complejidad para la versión paralela del algoritmo es por tanto asintóticamente menor que la versión secuencial,
+  tanto en cuanto todos los procesos individuales que conforman la versión paralela lo son, y $T_m$ aporta una complejidad
+  menor a $O(n^2)$. 
+
+  Desafortunadamente, en el plano práctico y debido principalmente a que no nos ha sido posible tener acceso a equipos
+  con más de dos unidades de ejecución, en las pruebas se han obtenido tiempos por debajo de la versión secuencial. Sería de esperar
+  que con un mayor número de unidades de ejecución, el mayor grado de paralelismo compensase las constantes ocultas que hacen
+  que aún no podamos batir a la versión secuencial.
+
 
 \section{Vectores}
   \subsection{Producto escalar}
 
 \section{Matrices}
   \subsection{Producto}
-  \subsection{Descomposición $LU$}
+  \subsection{Descomposición $LU$}\label{par:lu}
+ 
+     Se ha utilizado el de Doolittle para la descomposición $LU$. Se presenta
+     su versión en pseudocódigo en el listado \ref{alg:doolittle}. 
+
+    \begin{algorithm}
+      \caption{Algoritmo de Doolittle}\label{alg:doolittle}
+      \begin{algorithmic}[1]
+        \Procedure{Doolittle}{Matriz $M \in \mathcal{M}_{n \times n}$}
+        \State $sign \gets 1$
+        \For{$i \in \{0, \ldots, n-1\}$}
+          \State $p_i = i$ \Comment Inicializar el vector de permutaciones
+        \EndFor
+        \For{$k \in \{0, \ldots, n-2\}$}
+          \If{$M_{kk} = 0$}
+            \State $rowPivot \gets$ \textsc{pivot(}$i$\textsc{)} 
+            \If{$rowPivot = 0$} \Comment{No se ha podido pivotar}
+              \State \textbf{Return} $0$ \Comment{Matriz singular}
+            \EndIf
+            \State $sign \gets -sign$ \Comment{Se ha permutado una fila}
+            \State $p_k \leftrightarrow p_{rowPivot}$ \Comment{Registrar la permutación de filas}
+          \EndIf
+          \State \texttt{\#pragma omp parallel for} \label{algdoo:omp}
+          \For{$i \in \{k+1,\ldots,n-1\}$}
+            \State $M_{ik} \gets M_{ik} / M_{kk}$
+            \For{$j \in \{k+1,\ldots,n-1\}$}
+              \State $M_{i,j} \gets M_{i,j} - (M_{i,k}*M_{k,j}) $
+            \EndFor %for j
+          \EndFor %for i
+        \EndFor %for k
+        \State \textbf{Return } $(sign, p)$
+        \EndProcedure
+      \end{algorithmic}
+    \end{algorithm}
+
+    La justificación de las directivas OpenMP en la línea \ref{algdoo:omp} derivan del 
+    examen del patrón de acceso a los datos representado en la figura \ref{fig:accDoo}. 
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.85\textwidth,keepaspectratio]{patronAccesosDoolittle} 
+      \caption{Patrón accesos Doolittle}\label{fig:accDoo}
+    \end{figure}
+    En ésta se aprecia cómo para cada $k$, cada fila (variable $i$) es procesada
+    de forma independiente a las demás. Los datos ajenos a la propia fila $i$ 
+    que ésta necesita son de lectura, y no se modifican dentro del bucle que itera
+    sobre $i$. No es posible paralelizar sobre $k$ ya que en este caso sí existe
+    una cadena de dependencias. Por ejemplo, sobre los elementos de la diagonal. 
+
+
   \subsection{Inversión}
   \subsection{Transposición}
   \subsection{Determinante}
     \subsubsection{Algoritmo de Gauss-Bareiss}\label{para:bareiss}
-    Descrito en la sección \ref{impl:bareiss}. Si se representa el patrón de accesos derivado 
-    de su algoritmo secuencial (algoritmo \ref{alg:bareiss}), no es difícil derivar una división
-    en tareas basada en la secuencia de patrones de diseño 
-    (data decomposition/order tasks -> geom. decomposition -> loop paralelism)
-    de \cite{parpatterns}. En la figura \ref{fig:accBar} 
-    se muestra el patrón de accesos para el algoritmo.  Los elementos de color verde
-    indican accesos de \emph{lectura}, mientras que los de color rojo indican también \emph{escritura}.
+      Descrito en la sección \ref{impl:bareiss}. Si se representa el patrón de accesos derivado 
+      de su algoritmo secuencial (algoritmo \ref{alg:bareiss}), no es difícil derivar una división
+      en tareas basada en la secuencia de patrones de diseño representada en la figura \ref{fig:patternDecissionTree}
+      de la página \pageref{fig:patternDecissionTree}. En la figura \ref{fig:accBar} 
+      se muestra dicho patrón de accesos para el algoritmo.  
 
-   \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.95\textwidth,keepaspectratio]{patronAccesosBarreis} 
-    \caption{Patrón accesos Gauss-Bareiss}\label{fig:accBar}
-  \end{figure}
+      \begin{figure}[h]
+       \centering
+       \includegraphics[width=0.85\textwidth,keepaspectratio]{patronAccesosBarreis} 
+       \caption{Patrón accesos Gauss-Bareiss}\label{fig:accBar}
+      \end{figure}
 
-  De este patrón de acceso se deriva una paralelización organizada por el acceso a los datos y
-  con una enumeración lineal. Por tanto el patrón estructural más indicado parece ser una descomposición
-  geométrica sobre las filas, siguiendo el recorrido de $k$. A nivel de estructura de soporte, el patrón de 
-  paralelismo de bucle se ajusta perfectamente: %FIXME
+      De este patrón de acceso se deriva una paralelización organizada por el acceso a los datos y
+      con una enumeración lineal. Por tanto el patrón estructural más indicado parece ser una descomposición
+      geométrica sobre las filas, siguiendo el recorrido de $k$. A nivel de estructura de soporte, el patrón de 
+      paralelismo de bucle se ajusta perfectamente: %FIXME
 
       \begin{algorithm}
         \caption{Algoritmo de Gauss-Bareiss}\label{alg:bareiss}
@@ -104,8 +268,7 @@
           \For{$i \in \{0, \ldots, n-2\}$}
             \State $p \gets M_{i,i}$
             \If{$p = 0$}
-              \If{$ \neg \mathrm{pivot(}$i$\mathrm{)} $} 
-                \Statex \Comment{Si \textrm{pivot} es falso, no se ha podido pivotar}
+              \If{$ \neg $\textsc{pivot(}$i$\textsc{)} } \Comment{Si \textrm{pivot} es falso, no se ha podido pivotar}
                 \State \textbf{Return} $0$ \Comment{Matriz singular}
               \EndIf
               \State $sign \gets -sign$ \Comment{Se ha permutado una fila}

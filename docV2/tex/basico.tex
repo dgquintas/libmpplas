@@ -1,15 +1,14 @@
-% EXPOSICION DE CONCEPTOS BASICOS
-\chapter{Conceptos básicos}
+\chapter{Descripción general}
 
 \begin{flushright}
   \begin{minipage}[t]{13cm}
     \begin{flushright}
       \begin{quote}
         \emph{
-          Basic research is what I am doing when I don't know what I am doing.
+          Toda generalización es falsa.
         }
         \begin{flushright}
-          \textbf{\textemdash Wernher von Braun}
+          \textbf{\textemdash Anónimo}
         \end{flushright}
       \end{quote}
     \end{flushright}
@@ -17,6 +16,22 @@
 \end{flushright}
 
 \bigskip
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+          People who like quotations love meaningless generalizations.
+        }
+        \begin{flushright}
+          \textbf{\textemdash Graham Greene}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
 
 \begin{center}{\line(1,0){325}}\end{center}
 
@@ -30,7 +45,7 @@
     \paragraph{Perfilado}
       
 
-    \subsubsection{La CPU escalar}
+    \subsubsection{La CPU escalar}\label{basic:cpu}
 
     \subsubsection{La CPU SIMD}\label{basico:cpusimd}
     Existe un tipo de paralelismo que ha estado disponible en procesadores de consumo
@@ -122,7 +137,7 @@ propensa a errores, sino también \emph{poco elegante}. La idea
 es siempre que la máquina trabaje por nosotros, no al contrario. Por si esto fuera poco, la presencia de datos
 estáticos da al traste con las aspiraciones de ejecución concurrente de la biblioteca mediante hilos. 
 
-Comparese el código mostrado en el listado \ref{lst:antiguoRepFuncs} con el mostrado en el siguiente listado \ref{lst:nuevoRepFuncs}:
+Compárese el código mostrado en el listado \ref{lst:antiguoRepFuncs} con el mostrado en el siguiente listado \ref{lst:nuevoRepFuncs}:
 \begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Utilizando el \textbf{nuevo} repositorio de funciones, label=lst:nuevoRepFuncs]
 (...)
 mpplas::MethodsFactory& funcs(MethodsFactory::getReference());
@@ -142,6 +157,8 @@ n = primes->getInteger(600);
 Ambas porciones de código son semánticamente equivalentes. Sin embargo:
 \begin{itemize}
 \item El repositorio, denominado ahora \texttt{MethodsFactory}, es ahora un \texttt{Singleton} (véase sección \ref{sec:singleton}). 
+Esto lidia con los problemas de concurrencia mencionados anteriormente, haciendo que sí sea seguro utilizar esta versión del repositorio
+en un entorno concurrente.
 \item Se trabaja con punteros a los tipos que representan el concepto \emph{abstracto} a realizar: generar primos, obtener números
 pseudo-aleatorios, etc. en vez de con los tipos que en última instancia implementan dichos conceptos.
 \item El repositorio consiste \emph{únicamente} de dos métodos: \texttt{getFunc} y \texttt{setFunc}. El mecanismo

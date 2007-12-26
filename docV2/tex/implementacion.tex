@@ -41,27 +41,380 @@
 
 %--------------------------------------------------------%
 \section{Introducción}
+  En teoría, dice la frase, no hay diferencia entre teoría y práctica. En la práctica, sí la hay.
+  A lo largo de los capítulos anteriores, principalmente en el dedicado a las tecnologías utilizadas,
+  se han descrito una serie de enfoques. Estas descripciones han sido intencionalmente abstractas, sin
+  entrar en los detalles de su implementación. Se pretende suplir esta carencia en el presente capítulo. 
+  Aunque se incluyen fragmentos de código, se ha tratado de mantener el número de estos bajo control. La 
+  referencia última en detalles de implementación siempre es el propio código fuente.
  
 
-\section{Elementos generados dinámicamente}
-  \subsection{La clase \texttt{SystemInfo}}
-    \subsubsection{Configuración de la compilación}
-    \subsubsection{La clase \texttt{CpuInfo }}
+\section{Elementos generados dinámicamente}\label{impl:dynamic}
+
+    \subsection{Configuración de la compilación}
+      El fichero \texttt{CompilationConfig.h} es generado durante el proceso de compilación
+      mediante la función \texttt{dumpConfigToCpp} en Python contenida dentro del propio fichero \texttt{src/sources/SConstruct} 
+      procesador por SCons. Otra muestra más de la versatilidad que ofrece esta herramienta, descrita en la sección 
+      \ref{tech:scons}.
+
 
   \subsection{Mecanismo de perfilado basado en AOP}\label{impl:aop}
+%    En la anterior versión de la biblioteca, LibNumth, ya se incorporaba soporte de perfilado
+%    por parte de la biblioteca para el conteo de las operaciones de la CPU Virtual (véase 
+%    \cite{miproyecto}, sección 5.2.1). Sin embargo, este mecanismo 
 
-    \subsubsection{Preprocesando con Python}
-
-  \subsection{Cliente de MPPLab}
-    \ref{boostrapping}
+    \subsubsection{Preprocesando con Python}\label{impl:prepopython}
 
 
-\section{Asegurando la coherencia algebraica}
+  \subsection{El compilador como calculadora}\label{impl:templatemp}
+    En esta sección se ilustra uno de los usos más oscuros, por llamarlo de 
+    alguna manera, del mecanismo de  plantillas de C++: la metaprogramación de plantillas.
+    Esta técnica es normalmente relegada al plano de las curiosidades pero que como se verá a continuación
+    puede tener también una utilidad práctica. Definamos primero el problema antes de desvelar la solución:
+
+    Dentro de la colección de constantes presentes en la biblioteca, utilizadas tanto por motivos de rendimiento
+    como para poder implementar métodos de forma genérica, se encuentra \texttt{MAX\_BASE10\_POWER\_DIGIT}. 
+    Como su propio nombre indica, aunque no lo parezca, representa la máxima potencia de $10$ representable mediante
+    el tipo de dato básico \texttt{Digit}. Por ejemplo, si \texttt{Digit} tiene una longitud de $32$ bits, esto
+    se corresponde a $10^9$, ya que $\lfloor \lg_{10}( 2^{32} ) \rfloor = 9$. El exponente de $10$ en cuestión 
+    --que en el ejemplo anterior se corresponde a $9$--, se encuentra almacenado en otra constante, 
+    \texttt{MAX\_EXP10\_CIFRA}. Bien, pues si se tienen todos los ingredientes --la base $10$ y el exponente
+    $9$--, ¿qué impide asignar este valor a \texttt{MAX\_BASE10\_POWER\_DIGIT}? El hecho de que estas constantes
+    son tipos \texttt{static const}: no sólo son constantes, sino que su valor debe fijarse \emph{en tiempo 
+    de compilación}. Esto hace posible su utilización en comprobaciones estáticas (ver sección \ref{tech:staticasserts}), y 
+    la optimización de las mismas ya que basta una única instancia compartida por todo la biblioteca.
+    Recapitulando, se necesita una manera de obtener en tiempo de compilación el valor de una potencia de $10$. 
+    Métodos clásicos como el uso de la función de la biblioteca estándar \texttt{pow} no son válidos en este
+    contexto. Una solución pasaría por utilizar el preprocesador de C para asignar a \texttt{MAX\_BASE10\_POWER\_DIGIT} un valor 
+    basado en los bits para \texttt{Digit} que defina la arquitectura para la que se está compilando la
+    biblioteca. Pero este enfoque es poco flexible y aún menos elegante. Por otra parte siempre es agradable 
+    encontrar un uso práctico a una técnica que parecería que no tiene. Se va a calcular una potencia entera 
+    mediante el uso del mecanismo de plantillas de C++. Para esto, se ha utilizado lo expuesto en \cite{c++templates}
+    \footnote{pág. 302}. El código implementando esta funcionalidad se muestra en el listado \ref{lst:pow}.
+
+    \lstset{escapeinside={(*@}{@*)}}
+    \begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Cálculo de una potencia entera en tiempo de compilación, label=lst:pow]
+    template<Digit B, Digit N>
+      class CTPow {
+        public:
+          enum { result = B * CTPow<B,N-1>::result }; (*@\label{algpow:1}@*)
+      };
+
+    template<Digit B>     
+      class CTPow<B,1>{ (*@\label{algpow:2}@*)
+        public:
+          enum { result = B } ;  (*@\label{algpow:3}@*)
+      };
+    \end{lstlisting}
+
+    Sin entrar en demasiados detalles, ya que se insiste en que esta es una técnica un tanto esotérica aparta del uso
+    habitual de las plantillas de C++, el anterior código funciona en base a que en la línea \ref{algpow:1} se utiliza
+    el dato \texttt{result} dentro de la instanciación de la plantilla \texttt{CTPow<B,N-1}, el cual será multiplicado
+    por el parámetro de plantilla \texttt{B}, que hace las veces de base de la exponenciación. Esto 
+    fuerza al compilador a instanciar dicha versión de la plantilla, recursivamente. Este proceso continúa hasta alcanzar
+    el caso base de la recursión, el cual se define mediante la especialización parcial de la plantilla en la línea
+    \ref{algpow:2} para el caso en el que \texttt{N} es $1$. Tal caso base representaría $B^1 = B$, lo que justifica
+    la asignación de \texttt{B} a \texttt{result} en la línea \ref{algpow:3}. Así pues, para un requerimiento arbitrario
+    del dato \texttt{CTPow<B,N>::result}, se desencadena por parte del compilador el cálculo 
+    $result = \underbrace{B \times B \times \dots \times B}_{N \textrm{ veces}} = B^N$.
+
+    Para completar este punto, la solución al problema planteado inicialmente para el cálculo del valor
+    de la constante \texttt{MAX\_BASE10\_POWER\_DIGIT} se muestra a continuación en el listado \ref{lst:powEj}.
+    \begin{lstlisting}[captionpos=b,basicstyle=\scriptsize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Ejemplo de cálculo de una potencia entera en tiempo de compilación, label=lst:powEj]
+    static const Digit MAX_BASE10_POWER_DIGIT = Utils::CTPow<10, MAX_EXP10_CIFRA>::result;
+    \end{lstlisting}
+
+  \subsection{Origen de una excepción}\label{impl:except}
+    ¿Cómo se consigue que de forma automática se incorpore el nombre del fichero y el número de línea 
+    desde la que se lanza una excepción? En esta ocasión es posible valerse de una herramienta estándar
+    del lenguaje: el preprocesador de C. Éste define una serie de identificadores especiales predefinidos, 
+    enumerados en \cite{c}\footnote{apéndice A, pág. 258}, de los cuales dos resultan útiles para este cometido:
+    \begin{description}
+      \item[\_\_LINE\_\_] Constante decimal que contiene el número de línea dentro del archivo donde se utiliza.
+      \item[\_\_FILE\_\_] Cadena de caracteres conteniendo el nombre del archivo donde se utiliza.
+    \end{description}
+
+    Estos dos identificadores se integran dentro de la macro, también de preprocesador, siguiente:
+\begin{lstlisting}[captionpos=b,basicstyle=\scriptsize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Generando información de origen, label=lst:gentrace]
+#define GEN_TRACE_INFO_OSS(oss) \
+  oss << '(' << __FILE__ << ':' << __LINE__ << ')'
+\end{lstlisting}
+
+  En esta macro, \texttt{oss} se corresponde con un objeto de tipo \texttt{std::ostringstream}, al cual se añade
+  la información de «archivo:línea». Su utilización se ilustra a continuación, por ejemplo para el caso en el que
+  la definición textual de una matriz es incorrecta:
+
+\begin{lstlisting}[captionpos=b,basicstyle=\scriptsize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Ejemplo de uso de GEN\_TRACE\_INFO\_OSS, label=lst:gentraceEj]
+(...)
+if( columnsRead > columnsIni ){
+  std::ostringstream oss;
+  oss << "Inconsistent number of columns";
+  GEN_TRACE_INFO_OSS(oss);
+  throw Errors::Sintactic(oss.str());
+}
+(...)
+\end{lstlisting}
+
+\section{La clase \texttt{CpuInfo}}\label{impl:cpuinfo}
+% - uso de ensamblador y polimorfismo para las versiones de esta clase para 
+% las distintas cpu's soportadas. y version generic
+
+
+\section{Asegurando la coherencia algebraica}\label{categorizacionAlgebraica}
+  En la figura \ref{fig:categoriasAlgebraicas} se muestra la jerarquía de clases que
+  modelan las categorías algebraicas consideradas, junto con sus métodos (estáticos) asociados.  
+  \begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\textwidth,keepaspectratio]{categoriasAlgebraicas} 
+    \caption{Categorías algebraicas}\label{fig:categoriasAlgebraicas}
+  \end{figure}
+  Cuando un tipo de dato de la biblioteca (es decir, un hijo de \texttt{MPPDataType}) se
+  encasilla dentro de esta jerarquía, sobre dicho tipo (representado mediante el parámetro 
+  de plantilla \texttt{T}) se realizan una serie de comprobaciones, diseñadas para verificar
+  que efectivamente dicho tipo cumple las condiciones impuestas por la categoría 
+  algebraica a la que aspira pertenecer. Esta serie de comprobaciones se realizan por medio
+  de \emph{asertos}. Un ejemplo correspondiente a la categoría de grupo --\texttt{Group.h}-- se
+  reproduce en el listado \ref{lst:ejAssertsGroup}
+
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=STATIC\_ASSERT, label=lst:ejAssertsGroup]
+~Group() {
+  STATIC_ASSERT( ValidateRequirements() );
+}
+(...)
+static bool ValidateRequirements() {
+  T (T::*getAddInverse)() const = &(T::getAddInverse) ;
+  const T& (*getAddIdentity)() = &(T::getAddIdentity) ;
+  const T& (*getGroupGenerator)() = &(T::getGroupGenerator) ;
+
+  return true;
+}
+\end{lstlisting}
+
+  Se aprecia como dentro del método estático \texttt{ValidateRequirements} se verifica que el tipo \texttt{T} 
+  cumple con las propiedades requeridas para un grupo. Comprobaciones similares, descritas textualmente en
+  la figura \ref{fig:categoriasAlgebraicas}, se realizan para los anillos --\texttt{Ring.h}-- y los cuerpos
+  --\texttt{Field.h}.
+
+  Los tipos de la biblioteca susceptibles de ser categorizados --más adelante se verá la utilidad de esto-- dentro
+  de estas familias algebraicas simplemente han de heredar de la clase adecuada. Por ejemplo, los enteros módulo
+  un primo representan un cuerpo. Se indica este hecho, en código, de la siguiente manera:
+
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Inclusión de $\mathbb{Z}_p$ como cuerpo]
+(...)
+  class Z_p : public Z_n, public Field<Z_p> 
+(...)
+\end{lstlisting}
+
+  La categoría algebraica a la que pertenecen los distintos tipos de la biblioteca se representa en la figura
+  \ref{fig:categorizacionAlgebraica} mediante un código de colores: el color de fondo de cada recuadro de tipo
+  se corresponde con el color de fondo de su categoría en la figura \ref{fig:categoriasAlgebraicas}.
+
+  \begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\textwidth,keepaspectratio]{categorizacionAlgebraica} 
+    \caption{Categorización algebraica}\label{fig:categorizacionAlgebraica}
+  \end{figure}
+
+  Las matrices no encajan dentro de ninguna categoría, ya que tan solo las matrices cuadradas son
+  susceptibles de ser invertidas y por tanto aspirar a formar un anillo (su producto no es conmutativo, por lo que
+  tampoco podrían ser un cuerpo). Crear un tipo \textit{ex profeso} para representar matrices cuadradas limitaría
+  en exceso la flexibilidad del tipo matriz. En cualquier caso, la categorización algebraica resulta útil precisamente
+  para las comprobaciones de los tipos de plantilla al utilizar polinomios y matrices; es decir, a la hora de definir
+  el tipo de los coeficientes/elementos, respectivamente. Por tanto, no sería posible con la actual implementación
+  definir estructuras tales como «polinomios sobre matrices». Sin embargo, sí es posible definir, por ejemplo,
+  una «matriz de polinomios sobre los enteros».
+
 %comprobaciones estáticas de carácter algebraico de parámetros de templates
 %en la particularización de estructuras genericas
 
 
 \section{El repositorio de funciones}\label{impl:nuevoRepdeFuncs}
+El repositorio de funciones implementado posee dos características fundamentales de las que se 
+derivan las particularidades de su implementación:
+\begin{description}
+  \item[Uso de \textit{autowiring}.] Para ofrecer un 
+  interfaz homogéneo basado únicamente en dos métodos genéricos, \texttt{getFunc} y \texttt{setFunc}.
+  \item[Singleton \emph{modificable}.] Esto implica que existe una única copia por 
+  programa universalmente accesible. Dado que \emph{sí} puede ser modificada, se han de 
+  tomar medidas de cara a garantizar el correcto acceso a la misma, tanto desde el punto 
+  de vista de la programación concurrente como paralela.
+\end{description}
+
+  Como consecuencia del primer punto, es posible ofrecer un interfaz como el que se muestra
+  en el listado \ref{lst:methodsfactory}.
+\begin{lstlisting}[captionpos=b,basicstyle=\scriptsize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Interfaz público del repositorio, label=lst:methodsfactory]
+class MethodsFactory : public SingletonMixIn<MethodsFactory> {
+  public:
+    template<typename T> void setFunc(T* const m);
+    template<typename T> void getFunc(T* &m) ;
+    (...)
+};
+\end{lstlisting}
+  Un ejemplo del repositorio en acción se da en el listado \ref{lst:nuevoRepFuncs}, en la sección \ref{basico:nuevoRepdeFuncs},
+  el cual se reproduce a continuación por comodidad:
+
+\lstset{escapeinside={(*@}{@*)}}
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Utilizando el \textbf{nuevo} repositorio de funciones, label=lst:nuevoRepFuncs2]
+    (...)
+    mpplas::MethodsFactory& funcs(MethodsFactory::getReference());
+    mpplas::RandomFast* rnd;
+    mpplas::PrimeGen* primes;
+
+    mpplas::RandomFast* newRnd = new mpplas::CongruentGen();
+    funcs.setFunc(newRnd);  (*@\label{algmf:1}@*)
+
+    funcs.getFunc(rnd);
+    rnd->setSeed(mpplas::Z("323658476"));
+
+    funcs.getFunc(primes);
+    n = primes->getInteger(600);
+    (...)
+\end{lstlisting}
+
+  Lo que este código ilustra es la «plasticidad» de los métodos \texttt{getFunc} y \texttt{setFunc} para
+  trabajar con cualquier tipo de dato que derive de \texttt{AbstractMethod}. La implementación 
+  concreta adecuada para el puntero genérico a un método es devuelta en éste gracias al citado mecanismo
+  de \textit{autowiring}. Lo mismo se aplica, tan solo a la inversa, en el establecimiento de una implementación
+  concreta de un método, como en la línea \ref{algmf:1}. 
+
+
+  \subsection{Uso de \textit{autowiring}}
+    Descrito de manera genérica en la sección \ref{sec:autowiring}, permite la implementación
+    de métodos altamente genéricos: capaces de lidiar con un amplio abanico
+    de tipos de datos. A continuación se describe, en términos concretos, cómo se consigue este
+    comportamiento.
+
+    \subsubsection{El método \texttt{getFunc}}
+      Cuando este método es invocado, se le proporciona como argumento un puntero al tipo de plantilla \texttt{T}. 
+      Esto es, un puntero a un tipo representando una clase de método: generador de primos, cálculo del máximo común
+      divisor, etc. Ser representante de una clase de método impone dos restricciones:
+      \begin{enumerate}
+        \item Heredar de \texttt{AbstractMethod}.
+        \item Definir el alias de tipo (vía \texttt{typedef}) \texttt{DFL} para la implementación por omisión
+        del método.
+      \end{enumerate}
+      Sin embargo, estas son restricciones semánticas impuestas por la idiosincrasia particular
+      de la biblioteca. Por tanto, también será responsabilidad de ésta el hacerlas cumplir. 
+      
+      Garantizar el cumplimiento de la primera condición es posible, incluso en tiempo de compilación, 
+      mediante el uso de mecanismos para la comprobación en tiempo de compilación
+      (véase en concreto \ref{sec:musthavebase}): el uso de la sentencia 
+        \texttt{Constraints::must\_have\_base<T,AbstractMethod>()} tendrá este efecto. 
+      Respecto a la segunda, es necesario profundizar más en el funcionamiento del repositorio para 
+      entender cómo también se fuerza su cumplimiento, aunque en esta ocasión el compilador sin necesidad
+      de ninguna triquiñuela se encargará. Se prosigue pues a describir el funcionamiento interno
+      del repositorio cuando se trata de recuperar una determinada implementación para un método.
+
+      En la figura \ref{fig:getFunc} se muestra el diagrama de flujo correspondiente a este método.
+
+      \begin{figure}[h]
+      \centering
+      \includegraphics[width=1.0\textwidth,keepaspectratio]{flowchartgetfunc} 
+      \caption{Funcionamiento de \texttt{getFunc}}\label{fig:getFunc}
+      \end{figure}
+
+      Los puntos clave del proceso han sido numerados. 
+      \begin{description}
+        \item[Punto $1$, identificación del tipo.] Mediante el uso del operador \texttt{typeid} 
+              (\cite{c++}\footnote{sección 15.4.4, pág. 437}) se obtiene una representación
+              textual \emph{única} de un tipo. Esta representación no suele estar diseñada para
+              ser leída por un usuario humano, pero el mero hecho de que se garantice su unicidad
+              la convierte en una forma unívoca para identificar tipos.
+        \item[Punto $2$, instanciación de implementación por omisión.] Cuando el usuario no ha
+        definido explícitamente una implementación concreta para una clase de métodos, la primera 
+        vez que se solicita una implementación, ésta ha de ser instanciada. Tal como se ha indicado
+        anteriormente, toda clase de métodos ha de definir un tipo \texttt{DFL} «apuntando» a la
+        clase que se tomará como implementación por omisión. Es en este punto donde se utiliza,
+        de la forma ilustrada en la figura. Asimismo, es también de esta manera como se garantiza
+        la segunda condición anteriormente citada, ya que de no encontrarse definido este alias de
+        tipo \texttt{DFL}, el compilador no encontraría sentido a una sentencia del tipo
+        \texttt{new T::DFL()}. 
+        \item[Punto $3$, recuperando la implementación.] Una vez se tiene el nombre --representación textual--
+        del tipo que representa la clase de métodos para la cual se desea obtener la implementación, 
+        ésta se recupera de una tabla de instancias interna que mantiene el repositorio. De nuevo,
+        el poder utilizar la representación textual de un tipo tal como es devuelta por \texttt{typeid} se
+        debe a las garantías de que es única, y por tanto puede se utilizada como índice de una tabla. 
+   \end{description}
+
+    \subsubsection{El método \texttt{setFunc}}
+      Este método es más sencillo: además de una comprobación análoga a la realizada en el caso
+      de \texttt{getFunc} relativa a que el tipo de plantilla \texttt{T} herede de \texttt{AbstractMethod},
+      se ejecutan tan solo las siguientes líneas:
+
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Núcleo del método \texttt{setFunc}]
+const std::string name(typeid(T).name());
+_methods[name] = m;
+\end{lstlisting}
+
+      Es decir, se obtiene el índice de la tabla de instancias --la representación textual de la clase de métodos--, y se 
+      utiliza éste para encajar la instancia \texttt{m} dada.
+
+  \subsection{Protección de secciones críticas}
+    En los puntos anteriores se ha obviado toda consideración relativa a la ejecución concurrente o paralela
+    y la necesaria protección del repositorio dado su carácter de estructura estática globalmente accesible
+    y modificable. 
+
+    Se distingue entre concurrencia y paralelismo (véase \ref{basico:concurryparallel} 
+    para la diferencia entre estos dos términos) ya que pueden darse todas las combinaciones
+    al ejecutar la biblioteca:
+    \begin{description}
+      \item[Concurrencia y paralelismo.] Biblioteca compilada con soporte OpenMP (paralelismo) y
+      siendo utilizada por un programa concurrente (por ejemplo, el servidor de la aplicación MPPLab, \ref{mpplab:server}).
+      \item[Sólo concurrencia.] Biblioteca compilada sin soporte OpenMP pero utilizada 
+      por un programa concurrente. 
+      \item[Sólo paralelismo.] Biblioteca compilada con soporte OpenMP utilizada por un programa secuencial.
+      \item[Ni concurrencia ni paralelismo.] Biblioteca compilada sin soporte OpenMP y utilizada por un programa secuencial.
+    \end{description}
+
+    El primer paso es identificar las secciones críticas: aquellas sentencias en las que se accede a algún
+    recurso compartido el cual no debe ser accedido concurrentemente por más de un hilo (definición \ref{def:seccioncritica},
+        sección \ref{par:seccioncritica}). El recurso compartido en este caso es la estructura de datos
+    en la cual se almacenan las instancias. Por tanto, prácticamente todas las sentencias
+    de los métodos \texttt{getFunc} y \texttt{setFunc} tal como han sido descritos hasta ahora conformarían 
+    la sección crítica. El aspecto en código de estos métodos se muestra a continuación en el listado \ref{lst:getysetfuncs}.
+
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=,label=lst:getysetfuncs]
+template<typename T>
+void MethodsFactory::getFunc(T* &m) {
+  Constraints::must_have_base<T,AbstractMethod>();
+  #pragma omp critical 
+  {
+    pthread_mutex_lock( &_mutex);
+    _get(m);
+    pthread_mutex_unlock( &_mutex);
+  }
+  return;
+}
+template<typename T>
+void MethodsFactory::setFunc(T* const m){
+  Constraints::must_have_base<T,AbstractMethod>();
+  #pragma omp critical 
+  {
+    pthread_mutex_lock( &_mutex);
+    _set(m);
+    pthread_mutex_unlock( &_mutex);
+  }
+  return;
+}
+\end{lstlisting}
+
+    Los métodos privados \texttt{\_get()} y \texttt{\_set()} conforman la sección crítica en cada caso, y en ellos
+    es aceptable suponer el cumplimiento de la propiedad de exclusión mutua, y por consiguiente acceder al recurso
+    compartido en cuestión. 
+
+    \subsubsection{Sección crítica: protocolos de entrada/salida}
+      Tanto para \texttt{getFunc} como para \texttt{setFunc}, se tienen unos protocolos 
+      de entrada y salida comunes. Sin embargo estos constan de dos componentes diferenciadas, 
+      fruto del punto de vista del que actúan. Nótese que el incorporar ambas medidas no es redundante,
+      ya que es posible tener un programa concurrente utilizando asimismo OpenMP.
+      \paragraph{Desde la concurrencia}
+        Si el programa que utiliza la biblioteca es de naturaleza concurrente, tal como el servidor
+        de la aplicación MPPLab, se utiliza un lock de la biblioteca pthreads para asegurar la exclusión
+        mutua. 
+      \paragraph{Desde el paralelismo}
+        Desde el punto de vista de OpenMP, la exclusión mutua se garantiza mediante la directiva 
+        \texttt{critical}, de nombre bastante ilustrativo. 
+
 
 \section{La CPU SIMD}
 Descrita en la sección \ref{basico:cpusimd}, esta CPU virtual consigue trabajar
@@ -167,87 +520,66 @@ Estas operaciones dependen de los métodos de la CPU SIMD, que implementa las sig
 
   
 
-\section{Suplantación de identidad}
-- mock openmp
+%\section{Suplantación de identidad}
+%%TODO
+%- mock openmp
 
 
-\section{El mundo de los $64$ bits}
+\section{El mundo de los $64$ bits}\label{impl:64bits}
+  Otra de las novedades respecto a LibNumth  es el soporte de sistemas de $64$ bits.
+  A la hora de incorporar este soporte, se comprobó cómo las decisiones de diseño en cuanto a portabilidad
+  tomadas entonces fueron acertadas --véase \cite{miproyecto}, sección 4.1 en la página 36--. 
+
+  En general, los únicos pasos necesarios para esta portabilidad a $64$ bits fueron la reescritura de las
+  rutinas en ensamblador de la CPU virtual (véase sección \ref{basic:cpu}) y la definición de los tipos
+  \texttt{Digit} y \texttt{SignedDigit} como de $64$ bits. Debido a la estricta estructuración en capas 
+  y el uso intensivo de la programación genérica, no realizando asunciones en los tamaños de los tipos 
+  ni imponiendo restricciones más allá de las impuestas por los modelos abstractos de las diversas capas.
+
+
+  Los beneficios derivados del uso de una arquitectura basada en un tamaño de tipo base de $64$ bits son,
+  sobre el papel:
+  \begin{itemize}
+    \item La cantidad de datos procesados por ciclo de reloj se duplican.
+    \item En el caso del paso a la arquitectura Intel-64/x86-64 desde la arquitectura IA-32, 
+        ocho nuevos registros de propósito general se encuentran disponibles, lo cual hace posible
+        mantener más datos locales en registros sin necesidad de recurrir a la pila. Asimismo, será posible
+        pasar los parámetros de determinadas funciones mediante registros, en vez de mediante su apilado.
+    \item El bus de una arquitectura de $64$ bits es más ancho y rápido. Esto hace posible un flujo de datos más
+    abundante entre las unidades de ejecución y las cachés.
+   \item La memoria direccionable aumenta considerablemente. De la máxima cantidad de memoria direccionable en IA-32, 
+   $4$ gigabytes , se pasa a $512$ \emph{terabytes} por proceso, al menos para la versión 2.6 del kernel de Linux 
+   (\cite{procedgcc}). Esto no marca una diferencia a día de hoy, pero en algún momento han de darse esta clase de
+   pasos que motivan las evoluciones posteriores.
+  \end{itemize}
+
+  En términos prácticos, la figura \ref{fig:32vs64} se compara el tiempo requerido para el cálculo de la
+  exponenciación modular para una base y módulo de $10000$ bits, elevados a un exponente de un número variable
+  de bits. Los tiempos o tamaños absolutos no son relevantes en este caso. Sí lo es la diferencia entre estos
+  tiempos: cuando la biblioteca se compila con soporte de $64$ bits, se obtiene un rendimiento entre $4.85$ y $4.65$
+  veces mejor que para $32$ bits sobre nuestro equipo de desarrollo, descrito en \ref{sistemaHard}. Esta proporción prácticamente 
+  constante se representa también en la gráfica. 
+  \begin{figure}[h]
+    \centering
+    \includegraphics[angle=270,width=1.0\textwidth,keepaspectratio]{32vs64} 
+    \caption{$32$ bits vs. $64$ bits en el cálculo de la exponenciación modular}\label{fig:32vs64}
+  \end{figure}
+
+
 
 %\section{El maestro compilador}
 %- scons
 
 \section{Implementación de tipos}
-  \subsection{Categorización algebraica}\label{categorizacionAlgebraica}
-  En la figura \ref{fig:categoriasAlgebraicas} se muestra la jerarquía de clases que
-  modelan las categorías algebraicas consideradas, junto con sus métodos (estáticos) asociados.  
-  \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.95\textwidth,keepaspectratio]{categoriasAlgebraicas} 
-    \caption{Categorías algebraicas}\label{fig:categoriasAlgebraicas}
-  \end{figure}
-  Cuando un tipo de dato de la biblioteca (es decir, un hijo de \texttt{MPPDataType}) se
-  encasilla dentro de esta jerarquía, sobre dicho tipo (representado mediante el parámetro 
-  de plantilla \texttt{T}) se realizan una serie de comprobaciones, diseñadas para verificar
-  que efectivamente dicho tipo cumple las condiciones impuestas por la categoría 
-  algebraica a la que aspira pertenecer. Esta serie de comprobaciones se realizan por medio
-  de \emph{asertos}. Un ejemplo correspondiente a la categoría de grupo --\texttt{Group.h}-- se
-  reproduce en el listado \ref{lst:ejAssertsGroup}
 
-\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=STATIC\_ASSERT, label=lst:ejAssertsGroup]
-~Group() {
-  STATIC_ASSERT( ValidateRequirements() );
-}
-(...)
-static bool ValidateRequirements() {
-  T (T::*getAddInverse)() const = &(T::getAddInverse) ;
-  const T& (*getAddIdentity)() = &(T::getAddIdentity) ;
-  const T& (*getGroupGenerator)() = &(T::getGroupGenerator) ;
-
-  return true;
-}
-\end{lstlisting}
-
-  Se aprecia como dentro del método estático \texttt{ValidateRequirements} se verifica que el tipo \texttt{T} 
-  cumple con las propiedades requeridas para un grupo. Comprobaciones similares, descritas textualmente en
-  la figura \ref{fig:categoriasAlgebraicas}, se realizan para los anillos --\texttt{Ring.h}-- y los cuerpos
-  --\texttt{Field.h}.
-
-  Los tipos de la biblioteca susceptibles de ser categorizados --más adelante se verá la utilidad de esto-- dentro
-  de estas familias algebraicas simplemente han de heredar de la clase adecuada. Por ejemplo, los enteros módulo
-  un primo representan un cuerpo. Se indica este hecho, en código, de la siguiente manera:
-
-\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Inclusión de $\mathbb{Z}_p$ como cuerpo]
-(...)
-  class Z_p : public Z_n, public Field<Z_p> 
-(...)
-\end{lstlisting}
-
-  La categoría algebraica a la que pertenecen los distintos tipos de la biblioteca se representa en la figura
-  \ref{fig:categorizacionAlgebraica} mediante un código de colores: el color de fondo de cada recuadro de tipo
-  se corresponde con el color de fondo de su categoría en la figura \ref{fig:categoriasAlgebraicas}.
-
-  \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.95\textwidth,keepaspectratio]{categorizacionAlgebraica} 
-    \caption{Categorización algebraica}\label{fig:categorizacionAlgebraica}
-  \end{figure}
-
-  Las matrices no encajan dentro de ninguna categoría, ya que tan solo las matrices cuadradas son
-  susceptibles de ser invertidas y por tanto aspirar a formar un anillo (su producto no es conmutativo, por lo que
-  tampoco podrían ser un cuerpo). Crear un tipo \textit{ex profeso} para representar matrices cuadradas limitaría
-  en exceso la flexibilidad del tipo matriz. En cualquier caso, la categorización algebraica resulta útil precisamente
-  para las comprobaciones de los tipos de plantilla al utilizar polinomios y matrices; es decir, a la hora de definir
-  el tipo de los coeficientes/elementos, respectivamente. Por tanto, no sería posible con la actual implementación
-  definir estructuras tales como «polinomios sobre matrices». Sin embargo, sí es posible definir, por ejemplo,
-  una «matriz de polinomios sobre los enteros» 
 
   \subsection{Reales} \label{impl:reales}
     La implementación del tipo \texttt{mpplas::R} representando números en $\mathbb{R}$ con una precisión
     arbitraria se describe en \cite{miproyecto}\footnote{sección 5.4, pág. 56}. Sobre esta base se ha 
     ampliado el abanico de operaciones disponibles.
-    \subsubsection{Cálculo de la raiz cuadrada} \label{impl:sqrt}
+    \subsubsection{Cálculo de la raíz cuadrada} \label{impl:sqrt}
       El método implementado se describe en la sección \ref{tipos:sqrt}. Se corresponde con un método iterativo
-      con un orden de convergencia cuádruple ilustrado en la ecuacion \eqref{eq:sqrtFinal} de dicha sección, que
+      con un orden de convergencia cuádruple ilustrado en la ecuación \eqref{eq:sqrtFinal} de dicha sección, que
       por comodidad se reproduce de nuevo a continuación:
 
         \begin{equation}
@@ -260,7 +592,7 @@ static bool ValidateRequirements() {
         \end{equation}
 
       En general, la implementación de este tipo de métodos iterativos no esconde muchos secretos. Sin embargo
-      hay algunos aspectos dignos de mención en esta implementación que reflejan algunas estretegias de optimización
+      hay algunos aspectos dignos de mención en esta implementación que reflejan algunas estrategias de optimización
       interesantes.
 
 \lstset{escapeinside={(*@}{@*)}}
@@ -294,7 +626,7 @@ while(true){
 return xn;
 \end{lstlisting}
 
-   En los siguientes puntos, las líneas mencionadas se refieren siempre al listado \ref{alg:sqrt}.
+   En los siguientes puntos, las líneas mencionadas se refieren siempre al listado \ref{lst:sqrt}.
 
       \paragraph{Reutilización de datos \texttt{static const}.}
       Una forma de explotación de las \textit{lookup-tables} (\cite{agnerc++}\footnote{sección 13.1, pág. 113}) es 
@@ -304,15 +636,15 @@ return xn;
       \ref{sec:thread-safety}. Estas dos propiedades hacen que el compilador sea capaz de optimizar más agresivamente
       estos datos, con el consecuente incremento en rendimiento. En el caso que nos ocupa, las líneas
       \ref{algsqrt:staticconstini}--\ref{algsqrt:staticconstend} explotan esta técnica. La cadena de dependencias
-      que se establece entre ellas no es problemática dado que todos los datos comparten el caracter \texttt{static const}.
+      que se establece entre ellas no es problemática dado que todos los datos comparten el carácter \texttt{static const}.
 
       \paragraph{Cálculo de $x_0$.} En todo proceso iterativo es importante contar con un buen punto inicial $x_0$,
       en especial en el método de Newton y similares este punto $x_0$ determina la convergencia del método. La pregunta
       es, ¿cómo obtener una buena aproximación inicial para un real arbitrario? Sería ideal poder utilizar las rutinas
       nativas del sistema --en este caso la función estándar \texttt{sqrt} de la librería de C-- sobre una versión 
-      truncada del real de la biblioteca en cuestión. El problema se translada pues a como el actual \texttt{mpplas::R} 
+      truncada del real de la biblioteca en cuestión. El problema se traslada pues a como el actual \texttt{mpplas::R} 
       en formato \texttt{double} nativo. Dado que se cuenta con una función para obtener una representación
-      textual del real de la biblioteca, podría pensarse en utilizarla conjuntamente con la función estándard de C \texttt{atof}.
+      textual del real de la biblioteca, podría pensarse en utilizarla conjuntamente con la función estándar de C \texttt{atof}.
       Este enfoque resultaría muy poco eficiente, ya que dicha transformación textual a base $10$ es costosa y por 
       su propia construcción no es posible limitarla a solamente algunas de sus cifras más significativas. 
 
@@ -335,7 +667,7 @@ return xn;
       encuentra implementada de forma paralela (véase \ref{tipos:evaluacionPoly}). 
 
       \paragraph{Condición de parada.}
-        ¿Cuándo deterner el proceso iterativo? En el momento en el que se tuvieran tantos dígitos exactos como 
+        ¿Cuándo detener el proceso iterativo? En el momento en el que se tuvieran tantos dígitos exactos como 
         interesase. Si no se cuenta con el valor correcto --ya que es éste precisamente el que se está calculando--, 
         ¿cómo saber cuándo se han obtenido dichos dígitos? En realidad, tales preguntas sólo son tales desde un punto
         de vista puramente teórico. Sin embargo en la práctica siempre se cuenta con un límite en la precisión de trabajo, 
@@ -347,16 +679,56 @@ return xn;
   
       \subsubsection{Funciones trascendentes} \label{impl:trascendentes}
 
+        \paragraph{Cálculo del logaritmo.}
+          \begin{observacion}\label{obsLog}
+            Si $x \in \mathbb{R}$, existe un $n \in \mathbb{N}$ tal que
+            $2^{n-1} < x \leq 2^n$. Entonces, si $y = x/2^n$, se verifica
+            que $0 < y \leq 1$
+          \end{observacion}
+
+          En base a la observación \ref{obsLog}, el cálculo de $x \in
+          \mathbb{R}$ se reduciría a (utilizando los símbolos de dicha
+          observación):
+          \[
+            \log{(x)} = \log{(y \times 2^n)} = \log{(y)} + n \cdot \log{(2)}
+          \]
+          Las ventajas que de esta forma de calcula el logaritmo se
+          desprenden son claras: por una parte, el cálculo de $\log(2)$ (también denominada
+          ``La constante logarítmica'', véase \cite{log2}) es un problema
+          ampliamente tratado y existen métodos de gran eficiencia para su cálculo. 
+          Más adelante se tratará este punto en más profundidad.
+          Por otra parte, al cumplirse $0 < y \leq 1$, el cálculo de
+          $\log{(y)}$ puede realizarse satisfactoriamente y con relativa
+          efectividad utilizando la expansión de MacLaurin
+          para la función logaritmo.
+
+
+        \paragraph{La constante $\pi$.} Se ha utilizado el conocido método de Machin. %TODO
+
   \subsection{Enteros $\mathbb{Z}M_n$}\label{implZM_n}
 
   \subsection{Polinomios}\label{impl:polinomios}
-%    totalmente genericos
+    \subsubsection{Carácter genérico}
+    %TODO
     \subsubsection{Verificando el carácter de \texttt{S}}
-%      tiene que ser como ser como mínimo anillo conmutativo con unidad. Verificaciones estáticas
+      El parámetro de plantilla \texttt{S} debe ser, por definición --véase la observación \ref{obs:caracterS}--,
+      un anillo conmutativo con identidad. Esto se comprueba en tiempo de compilación gracias 
+      a la técnica de comprobaciones estáticas expuesta en la sección \ref{tech:staticasserts}:
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Comprobación estática de \texttt{S}, label=lst:checkS1]
+Constraints::must_have_base<S, Ring<S> > dummy1 __attribute__ ((__unused__));
+STATIC_ASSERT( S::multCommutative );
+\end{lstlisting}
+La primera línea del anterior listado utiliza la técnica de comprobación de herencia para asegurarse de que \texttt{S} es efectivamente
+un anilla. Una vez que se sabe que \texttt{S} es efectivamente un anillo, la segunda línea verifica que éste cumple la propiedad de ser
+conmutativo.
 
-%      El requerir que \texttt{S} sea un tipo de la biblioteca responde simplemente a que en la posterior
-%      implementación de los métodos, se depende de las características comunes de los tipos de la biblioteca.
-
+Asimismo, se requiere que \texttt{S} sea un tipo de la biblioteca; es decir, que herede de \texttt{MPPDataType}. La razón
+es la habitual necesidad de poder asumir la presencia de métodos los métodos generales exportados por los tipos de la
+biblioteca y analizados en la sección \ref{tipos:mppdatatype}:
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Comprobación estática de \texttt{S} (II), label=lst:checkS2]
+Constraints::must_have_base<S, MPPDataType > dummy2 __attribute__ ((__unused__));
+\end{lstlisting}
+      
     \subsubsection{Aritmética sobre polinomios}
       \paragraph{Suma y resta}
       \paragraph{Producto}
@@ -377,11 +749,57 @@ return xn;
     \subsubsection{Elementos de un cuerpo finito}
 
 
-  \subsection{Matrices}
-
+  \subsection{Matrices}\label{impl:matrices}
+    \subsubsection{Carácter genérico}
+      %TODO
+    \subsubsection{Producto}\label{impl:producto}
+      %TODO
+      - strassen -> winegrad
     \subsubsection{Descomposición $LU$}\label{sec:lu}
+      Para la implementación de la descomposición $LU$ se ha utilizado el algoritmo de Doolittle, el cual
+      presenta propiedades muy ventajosas para su paralelización, la cual se analiza en la sección \ref{par:lu}.
+
+      La descomposición se realiza sobre la propia matriz, resultando una matriz que «combina» las descomposiciones
+      $L$ y $U$ de la siguiente forma:
+      \[
+        \mathbf{L} =
+         \left( 
+             \begin{array}{cccc}
+               1      & 0      & \ldots & 0     \\
+               l_{21} & 1      & \ldots & 0     \\
+               \vdots & \vdots & \ddots & \vdots \\
+               l_{n1} & l_{n2} & \ldots & 1 
+             \end{array} 
+         \right)
+         ; \quad
+        \mathbf{U} =
+         \left( 
+             \begin{array}{cccc}
+               u_{11} & u_{12} & \ldots & u_{1n} \\
+               0      & u_{22} & \ldots & u_{2n} \\
+               \vdots & \vdots & \ddots & \vdots \\
+               0      &   0    & \ldots & u_{nn} 
+             \end{array} 
+         \right)
+         \leadsto
+         \left( 
+             \begin{array}{cccc}
+               u_{11} & u_{12} & \ldots & u_{1n} \\
+               l_{21} & u_{22} & \ldots & u_{2n} \\
+               \vdots & \vdots & \ddots & \vdots \\
+               l_{n1} & l_{n2} & \ldots & u_{nn} 
+             \end{array} 
+         \right)
+      \]
+      
+      La sobreescritura de la diagonal de $L$ no supone un problema, ya que ésta siempre está compuesta
+      únicamente de unidades.
+
+      La implementación en sí del método es sencilla, y resulta una reescritura con los símbolos adecuados
+      de C++ del algoritmo en pseudocódigo \ref{alg:doolittle} en la página \pageref{alg:doolittle}.
+
     
-    \subsubsection{Inversión}
+    \subsubsection{Inversión}\label{impl:inversaMatrices}
 
     \subsubsection{Cálculo del determinante}\label{impl:determinante}
       El cálculo del determinante resulta trivial una vez que se ha triangularizado 
@@ -418,42 +836,14 @@ return xn;
       una estrategia que no conlleve divisiones --es decir, inversiones.
 
       \paragraph{Cálculo de determinante sin divisiones: Gauss-Bareiss} \label{impl:bareiss}
-      \cite{bareiss2}
-      \cite{bookbareiss}\footnote{sección 10.2}
-      \cite{cohen}\footnote{algoritmo 2.2.6, pág. 52}
-      
-      \begin{algorithm}
-        \caption{Algoritmo de Gauss-Bareiss}\label{alg:bareiss}
-        \begin{algorithmic}[1]
-          \Procedure{Gauss-Bareiss}{Matriz $M \in \mathcal{M}_{n \times n}$}
-          \State $sign \gets 1$
-          \For{$i \in \{0, \ldots, n-2\}$}
-            \State $p \gets M_{i,i}$
-            \If{$p = 0$}
-              \If{$ \neg \mathrm{pivot(}$i$\mathrm{)} $} 
-                \Statex \Comment{Si \textrm{pivot} es falso, no se ha podido pivotar}
-                \State \textbf{Return} $0$ \Comment{Matriz singular}
-              \EndIf
-              \State $sign \gets -sign$ \Comment{Se ha permutado una fila}
-              \State $p \gets M_{i,i}$ \Comment{$M_{i,i} \neq 0$}
-            \EndIf
-            \For{$j \in \{i+1,\ldots,n-1\}$}
-              \For{$k \in \{i+1,\ldots,n-1\}$}
-                \State $M_{j,k} \gets M_{j,k} * p - M_{j,i}*M_{i,k}$
-                \If{ $i > 0$ }
-                  \State $M_{j,k} \gets M_{j,k} / M_{i-1,i-1}$ \Comment{Esta división \emph{siempre} es exacta}
-                \EndIf
-              \EndFor %for k
-            \EndFor %for j
-          \EndFor %for i
+        \cite{bareiss2}
+        \cite{bookbareiss}\footnote{sección 10.2}
+        \cite{cohen}\footnote{algoritmo 2.2.6, pág. 52}
+        
+        \ref{alg:bareiss} en la página \pageref{para:bareiss}
 
-          \State \textbf{Return } $sign * M_{n-1,n-1}$
-          \EndProcedure
-        \end{algorithmic}
-      \end{algorithm}
-
-      Éste es uno de los métodos paralelizados en la biblioteca. Para más detalles, véase la sección
-      \ref{para:bareiss}.
+        Éste es uno de los métodos paralelizados en la biblioteca. Para más detalles, véase la sección
+        \ref{para:bareiss}.
 
     \subsubsection{Especializaciones}
       \paragraph{\texttt{MatrixZ}}

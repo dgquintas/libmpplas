@@ -709,6 +709,10 @@ class MZ(Variable): #matrix Z
   def getDimensions(self):
     return _mzDims(self)
 
+  def getDeterminant(self):
+    return _mzDet(self)
+
+
   def getSubMatrix(self, rangeRows=(0,1,), rangeCols=(0,1,)):
     if isinstance(rangeRows, int):
       rows = [rangeRows,1,-1]
@@ -801,6 +805,10 @@ class MR(Variable): #matrix R
 
   def getDimensions(self):
     return _mrDims(self)
+
+  def getDeterminant(self):
+    return _mrDet(self)
+
  
   def getSubMatrix(self, rangeRows=(0,1,), rangeCols=(0,1,)):
     if isinstance(rangeRows, int):
@@ -887,6 +895,10 @@ class MGFx(Variable): #matrix GFx
 
   def getDimensions(self):
     return _mgfxDims(self)
+
+  def getDeterminant(self):
+    return _mgfxDet(self)
+
  
   def getSubMatrix(self, rangeRows=(0,1,), rangeCols=(0,1,)):
     if isinstance(rangeRows, int):
@@ -979,6 +991,10 @@ class MZn(Variable): #matrix Zn
 
   def getDimensions(self):
     return _mz_nDims(self)
+
+  def getDeterminant(self):
+    return _mz_nDet(self)
+
  
   def getSubMatrix(self, rangeRows=(0,1,), rangeCols=(0,1,)):
     if isinstance(rangeRows, int):

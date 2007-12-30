@@ -596,6 +596,65 @@ class MatrixGetDimensionsMethod : public xmlrpc_c::method {
 
 
 
+class MatrixGetDeterminantMethod : public xmlrpc_c::method {
+  public:
+
+    MatrixGetDeterminantMethod() {
+      this->_signature = "s:is";
+      this->_help = "Gets the determinant of the given matrix";
+    }
+
+    void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value *   const  retvalP) {
+
+      const int clientId(paramList.getInt(0));
+      const std::string varId1(paramList.getString(1));
+
+      paramList.verifyEnd(2);
+
+      mpplas::MPPDataType* const mat( table.get(clientId, varId1) );
+
+      mpplas::MatrixZ* matrixZ; 
+      mpplas::MatrixZ_n* matrixZ_n; 
+      mpplas::MatrixR* matrixR; 
+      mpplas::MatrixGFx* matrixGFx; 
+
+      try {
+        matrixZ = dynamic_cast<mpplas::MatrixZ*>(mat);
+        if( matrixZ ){
+          const std::string varId = table.set(clientId, new mpplas::Z( matrixZ->getDeterminant() ), "Z");
+          *retvalP = xmlrpc_c::value_string( varId );
+          return;
+        }
+        matrixZ_n = dynamic_cast<mpplas::MatrixZ_n*>(mat);
+        if( matrixZ_n ){
+          const std::string varId = table.set(clientId, new mpplas::Z_n( matrixZ_n->getDeterminant() ), "Zn");
+          *retvalP = xmlrpc_c::value_string( varId );
+          return;
+        }
+        matrixR = dynamic_cast<mpplas::MatrixR*>(mat);
+        if( matrixR ){
+          const std::string varId = table.set(clientId, new mpplas::R( matrixR->getDeterminant() ), "R");
+          *retvalP = xmlrpc_c::value_string( varId );
+          return;
+        }
+        matrixGFx = dynamic_cast<mpplas::MatrixGFx*>(mat);
+        if( matrixGFx ){ 
+          const std::string varId = table.set(clientId, new mpplas::GFx( matrixGFx->getDeterminant() ), "GFx");
+          *retvalP = xmlrpc_c::value_string( varId );
+
+          return;
+        }
+
+      } catch( const std::exception &e ){
+        throw girerr::error( e.what() );
+      }
+
+    }
+
+};
+
+
+
 
 
 
@@ -3101,7 +3160,7 @@ class GenPrimeMethod : public xmlrpc_c::method {
     }
 
   private:
-    mpplas::GenPrimos* primes;
+    mpplas::PrimeGen* primes;
 };
 
 class GenBoundedPrimeMethod : public xmlrpc_c::method {
@@ -3134,7 +3193,7 @@ class GenBoundedPrimeMethod : public xmlrpc_c::method {
     }
 
   private:
-    mpplas::GenPrimos* primes;
+    mpplas::PrimeGen* primes;
 };
 
 
@@ -3166,7 +3225,7 @@ class GenStrongPrimeMethod : public xmlrpc_c::method {
     }
 
   private:
-    mpplas::GenPrimos* primes;
+    mpplas::PrimeGen* primes;
 };
 
 
@@ -3189,7 +3248,7 @@ class PrimeTestMethod : public xmlrpc_c::method {
       try{
         const mpplas::Z op( *((mpplas::Z*)table.get(clientId, varId)));
 
-        *retvalP = xmlrpc_c::value_boolean( primeTest->esPrimo( op ) );
+        *retvalP = xmlrpc_c::value_boolean( primeTest->isPrime( op ) );
       }
       catch(const std::exception& e){
         throw(girerr::error(e.what()));
@@ -3198,7 +3257,7 @@ class PrimeTestMethod : public xmlrpc_c::method {
     }
 
   private:
-    mpplas::TestPrimoProb* primeTest;
+    mpplas::PrimeTest* primeTest;
 };
 
 /***********************************************
@@ -3774,6 +3833,7 @@ int main(int const, const char ** const) {
     myRegistry.addMethod("_mzTranspose", new MZTransposeMethod);
     myRegistry.addMethod("_mzSlice", new MatrixSlicingMethod);
     myRegistry.addMethod("_mzDims", new MatrixGetDimensionsMethod);
+    myRegistry.addMethod("_mzDet", new MatrixGetDeterminantMethod);
     myRegistry.addMethod("_mzAppendByRows", new MatrixRowAppendingMethod);
     myRegistry.addMethod("_mzAppendByColumns", new MatrixColumnAppendingMethod);
 
@@ -3790,6 +3850,7 @@ int main(int const, const char ** const) {
     myRegistry.addMethod("_mrTranspose", new MRTransposeMethod);
     myRegistry.addMethod("_mrSlice", new MatrixSlicingMethod);
     myRegistry.addMethod("_mrDims", new MatrixGetDimensionsMethod);
+    myRegistry.addMethod("_mrDet", new MatrixGetDeterminantMethod);
     myRegistry.addMethod("_mrAppendByRows", new MatrixRowAppendingMethod);
     myRegistry.addMethod("_mrAppendByColumns", new MatrixColumnAppendingMethod);
 
@@ -3807,6 +3868,7 @@ int main(int const, const char ** const) {
     myRegistry.addMethod("_mz_nTranspose", new MZ_nTransposeMethod);
     myRegistry.addMethod("_mz_nSlice", new MatrixSlicingMethod);
     myRegistry.addMethod("_mz_nDims", new MatrixGetDimensionsMethod);
+    myRegistry.addMethod("_mz_nDet", new MatrixGetDeterminantMethod);
     myRegistry.addMethod("_mz_nAppendByRows", new MatrixRowAppendingMethod);
     myRegistry.addMethod("_mz_nAppendByColumns", new MatrixColumnAppendingMethod);
 
@@ -3823,6 +3885,7 @@ int main(int const, const char ** const) {
     myRegistry.addMethod("_mgfxGetElement", new MatrixGetElementMethod);
     myRegistry.addMethod("_mgfxTranspose", new MGFxTransposeMethod);
     myRegistry.addMethod("_mgfxSlice", new MatrixSlicingMethod);
+    myRegistry.addMethod("_mgfxDet", new MatrixGetDeterminantMethod);
     myRegistry.addMethod("_mgfxDims", new MatrixGetDimensionsMethod);
     myRegistry.addMethod("_mgfxAppendByRows", new MatrixRowAppendingMethod);
     myRegistry.addMethod("_mgfxAppendByColumns", new MatrixColumnAppendingMethod);

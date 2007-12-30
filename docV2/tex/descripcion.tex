@@ -50,7 +50,7 @@
     \end{figure}
 
   \subsection{Los procesadores virtuales}
-    La biblioteca utiliza una serie de lo que se ha denominado «procesadores virtuales»: 
+    La biblioteca utiliza una serie de «procesadores virtuales»: 
     colecciones de rutinas especializadas en el tratamiento de una clase concreta de datos,
     de forma jerárquica. Esta modularidad favorece la portabilidad y la ampliación de los
     sistemas soportados de forma nativa. De hecho, esto se ha demostrado, desde la introducción
@@ -61,7 +61,8 @@
   
     \subsubsection{La CPU vectorial}\label{basic:cpuvectorial}
       Descrita ya en \cite{miproyecto}\footnote{pág. 38}, aglutina las rutinas encargadas
-      de operar sobre vectores de \texttt{Digit}s. No existe aún concepto de signo.
+      de operar sobre vectores de \texttt{Digit}s. A este nivel no está
+      presente aún el concepto de signo. 
 
     \subsubsection{La CPU básica}\label{basic:cpu}
       Con sus implementaciones en ensamblador para las arquitecturas nativas soportadas, así como
@@ -76,7 +77,8 @@
        Existe un tipo de paralelismo que ha estado disponible en procesadores de consumo
        desde hace más de una década, cuando en $1997$ Intel introdujo el juego de instrucciones 
        MMX en su familia de procesadores Pentium\footnote{\url{ http://www.intel.com/design/intarch/mmx/mmx.htm }}.
-       Este tipo de paralelismo, denominado por las siglas SIMD\footnote{instrucción única múltiples datos, por sus siglas en inglés}, 
+       Este tipo de paralelismo, denominado por las siglas SIMD\footnote{instrucción única múltiples datos, por sus siglas en inglés. 
+        Véase sección \ref{flynn}}, 
        se expone en la sección \ref{flynn}. Resumiendo, se trata de aplicar una única instrucción a un conjunto de datos «en bloque».
        Compárese la figura \ref{fig:sinSIMD} con la figura \ref{fig:conSIMD}. En la primera, los datos son tratados secuencialmente de
        una manera que podría denominarse «horizontal». Por contra, en la segunda, se aplica la operación en cuestión simultáneamente
@@ -121,9 +123,10 @@
 
 
     \subsubsection{Perfilado}
+      %TODO
 
   \subsection{Repositorio de funciones}\label{basico:nuevoRepdeFuncs}
-    Ya en LibNumth exploramos la utilización de lo que se denominó «repositorio de funciones»
+    Ya en LibNumth se exploró la utilización de lo que se denominó «repositorio de funciones»
     (véase \cite{miproyecto}\footnote{secciones 5.6 y 4.2.3}). La idea era y sigue siendo
     «hacer extensible la colección de funciones \emph{sin necesidad de recompilación} por parte del usuario,
     y además de forma sencilla». La implementación de este mecanismo en dicha versión de la biblioteca
@@ -151,7 +154,7 @@
     que representaba el repositorio. 
     \item Para obtener un número primo, el programador debía recordar que el método
     \texttt{genPrimos} era el indicado para obtener un puntero a una instancia generadora de primos. 
-    \item Incluso aunque se pretendía seguir un patrón de nombrado, éste resultaba deficiente.
+    \item Aunque se pretendía seguir un patrón de nombrado, éste resultaba deficiente.
     \item El repositorio, instancia de la clase \texttt{Funciones}, podía instanciarse de forma arbitraria, pese a que
     conceptualmente el repositorio ha de ser único durante toda la ejecución del programa. Este escollo se salvaba
     haciendo que las instancias de las funciones contenidas en él fueran \texttt{static}. Este simple hecho choca frontalmente
@@ -237,7 +240,7 @@
     cual se está ejecutando la biblioteca. La biblioteca en sí utiliza algunos de los datos
     descritos a continuación a la hora de, por ejemplo, comprobar si los mecanismos de perfilado
     están activados, examinar el número de hilos que están siendo utilizados en un momento dado, etc. 
-    Se ha procurado que los datos proporcionados tengan un formato fácilmente utilizable tanto como por la
+    Se ha procurado que los datos proporcionados tengan un formato fácilmente utilizable tanto por la
     biblioteca en sí, como por un usuario humano: allí donde se utilizan descripciones textuales, éstas
     siguen un formato fijo. 
 
@@ -249,7 +252,7 @@
       \item El máximo número de hilos que utilizará la biblioteca durante la
       ejecución de métodos paralelizados.
       \item Nivel de optimización (la \texttt{x} en el argumento \texttt{-Ox} pasado al compilador).
-      \item Arquitectura para la cual se ha compilado la biblioteca. Esta no tiene por que correspoder 
+      \item Arquitectura para la cual se ha compilado la biblioteca. Ésta no tiene por que correspoder 
       necesariamente con la arquitectura del sistema donde se está utilizando la biblioteca (caso de
           una compilacion para $32$ bits sobre un sistema x86-64).
       \item Soporte de depuración (uso de \texttt{-g} al compilar).
@@ -269,7 +272,7 @@
     resultan aún más útiles, ya que en principio el usuario no tiene por qué saber en que sistema
     remoto se está ejecutando el servidor, es decir, la biblioteca. Los datos proporcionados resultan
     en situaciones como esta inestimables, ya que son imprescindibles a la hora de interpretar resultados
-    de rendimiento o de disponibilidad de mecanismos (paralelismo, perfilado...).
+    de rendimiento o de disponibilidad de mecanismos (paralelismo, perfilado, ...).
 
     \subsubsection{Información de la CPU: \texttt{CPUInfo}}
       La clase \texttt{CPUInfo} aglutina información relativa a la CPU física del sistema. Si la 
@@ -279,7 +282,7 @@
       utilizados para recabar información sobre la CPU física recurren a métodos específicos en el lenguaje
       ensamblador de la CPU en particular. Véase la sección \ref{impl:cpuinfo}.
 
-      Este clase proporciona la siguiente información:
+      Esta clase proporciona la siguiente información:
       \begin{itemize}
         \item Tamaño de las cachés de nivel L1, L2 y L3 (si está presente).
         \item Modelo de la CPU. Por ejemplo, «Intel(R) Core(TM)2 Duo CPU     E6750  @ 2.66GHz».
@@ -308,24 +311,26 @@
       \paragraph{Perfilado con OpenMP y anidamiento.} Es importante destacar una peculiaridad
       de OpenMP --al menos en su versión 2.5--: si durante la ejecución de una porción de código
       paralelizada se encuentra otra directiva OpenMP que crearía un nuevo grupo de hilos, 
-      pueden abordarse la situación de dos maneras: creando efectivamente dicho nuevo grupo 
+      puede abordarse la situación de dos maneras: creando efectivamente dicho nuevo grupo 
       de la misma manera que se haría de no estar ya inmersos en una sección paralelizada o
       serializando dicha sección y ejecutándola secuencialmente con sólo un hilo, siendo
       este hilo ejecutor aquel del grupo original que primero se encontró con la directiva 
       anidada. Hasta aquí ningún problema. Esta cuestión está contemplada por el estándar y 
       se describe en \cite{openmpstandard} \footnote{sección 1.3, pág. 10}. Salvo que se esté
-      utilizando un sistema con numeras unidades de ejecución, la segunda opción es la utilizada:
+      utilizando un sistema con numerosas unidades de ejecución, la segunda opción es la utilizada:
       que las secciones paralelas anidadas sean ejecutadas secuencialmente. El escenario típico
       en el que se encuentran secciones paralelas anidadas es en las llamadas recursivas dentro
       de métodos paralelizados. Ejemplo, el método de Karatsuba en paralelo (sección \ref{par:karatsubaZ}).
       
 
-      El problema resulta cuando se tiene en cuenta lo siguiente, referido a la función \texttt{omp\_get\_thread\_num()}
-      utilizada para inspeccionar el identificador del hilo ejecutandose (\cite{openmpstandard}):
+      El problema surge cuando se tiene en cuenta lo siguiente (\cite{openmpstandard}):
       \begin{quote}
         If called [\texttt{omp\_get\_thread\_num()}] fromwithin a nested parallel region that is 
         serialized, this function returns $0$.
       \end{quote}
+      La función \texttt{omp\_get\_thread\_num()} es
+      utilizada para inspeccionar el identificador del hilo en ejecución en un
+      momento dado.
       Es decir, por ejemplo en el caso de la multiplicación de enteros, donde tal como se ha indicado
       se utiliza un enfoque paralelo \emph{y} recursivo, el conteo de instrucciones será correcto 
       \emph{en total}, pero no así el desglose: las operaciones tras el primer paso recursivo serán
@@ -385,13 +390,13 @@ comprobaciones extra (de límites y asertos) activados, perfilado activado
 y OpenMP desactivado. Esta es una configuración habitual durante el desarrollo
 ya que facilita la depuración.
 \begin{verbatim}
-scons -D all enableDebug=1 enableRelease=0 optLevel=0 enableAOPProf=1 enableOpenmp=0
+scons all enableDebug=1 enableRelease=0 optLevel=0 enableAOPProf=1 enableOpenmp=0
 \end{verbatim}
 
 Para un rendimiento máximo, se desactivan las comprobaciones extras y el perfilado;
 se utiliza el máximo nivel de optimización así como las optimizaciones extra:
 \begin{verbatim}
-scons -D all enableRelease=1 optLevel=3 enableAOPProf=0 enableExtraOpt=1
+scons all enableRelease=1 optLevel=3 enableAOPProf=0 enableExtraOpt=1
 \end{verbatim}
 
 Es posible especificar el compilador a utilizar mediante la variable de entorno \texttt{CXX},
@@ -402,4 +407,7 @@ CXX="icpc" scons -D all
 
 Especificación de la arquitectura. Por ejemplo, compilar una versión de $32$ bits de la biblioteca
 en un sistema de $64$ bits:
-%TODO
+\begin{verbatim}
+scons all arch=x86
+\end{verbatim}
+

@@ -48,11 +48,11 @@
   quien suscribe, David García Quintas. La dirección también repite, de mano de
   Policarpo Abascal Fuentes y Jorge Jiménez Meana. El haber podido volver a trabajar
   con ellos, sobre el mismo campo en más profundidad así como en otros nuevos, ha sido una suerte,
-  y con el presente trabajo aspiramos no sólo a completar el anterior Proyecto, sino a utilizar éste
+  y con el presente trabajo aspiramos no sólo a completar el anterior Proyecto, sino también a utilizarlo
   como referente y punto de partida para de esta forma poder desarrollar nuestras ideas sabiéndonos
   conocedores --y creadores-- del total del trabajo.
 
-  Esta base, la biblioteca LibNumTh, ha sido modificada en numerosos puntos, llegando a fundirse
+  Esta base, la biblioteca LibNumth, ha sido modificada en numerosos puntos, llegando a fundirse
   indistinguiblemente con las mejoras y novedades. El resultado es el presente trabajo, bautizado
   como LibMPPLAS. A lo largo de esta introducción se pormenorizarán estas mejoras y novedades.
 
@@ -89,14 +89,17 @@
   tres veces menor del esperado de haberse mantenido la anterior tendencia. Las principales causas se resumen en:
   \begin{description}
   \item[La barrera energética] (\textit{Power wall}) Se ha pasado de considerar al precio de transistores como
-  factor limitante, mientras la energía consumida por estos no tenía importancia, a la situación inversa: alimentar
+  factor limitante, cuando la energía consumida por estos no tenía importancia, a la situación inversa: alimentar
   y sobre todo \emph{refrigerar} centros de cálculo es considerablemente más caro que la inversión en equipos. En muchas
   ocasiones resulta incluso imposible ampliar este tipo de instalaciones no ya por falta de espacio, sino por la imposibilidad
   física de disipar todo el calor residual generado por los equipos.
-  \item[La barrera de la memoria] (\textit{Memory wall}) Mientras que 
+  \item[La barrera de la memoria] (\textit{Memory wall}) En el pasado, las operaciones aritméticas tales como el producto
+  eran lentas comparadas con las instrucciones de lectura/escritura en memoria. Sin embargo, hoy día el cuello
+  de botella se encuentra en estas últimas instrucciones de acceso a memoria, siendo las operaciones aritmético-lógicas
+  hasta un orden de magnitud más rapidas.
   \item[La barrera a nivel de instrucciones] (\textit{ILP\footnote{Instruction Level Parallelism} wall}) En los últimos 
   años tecnologías tales como la ejecución fuera de orden, la predicción de saltos, la ejecución especulativa de instrucciones, etc.
-  han sido las responsables de haber ayudado a seguir cumpliendo la Ley de Moore. Sin embargo la innovación en estos campos
+  han sido las responsables de haber ayudado a que se siguiera cumpliendo la Ley de Moore. Sin embargo la innovación en estos campos
   parece estar en declive.
   \end{description}
 
@@ -117,9 +120,9 @@
   esto se traduzca en un incremento lineal --o próximo a éste-- dependerá ya del nivel de paralelización de la arquitectura, software
   del sistema y programas de usuario subyacentes, no ya sólo del hardware.
  
-  Dado que el numero método de incremento del rendimiento pasa a ser la explotación del paralelismo en vez de una mayor
+  Dado que el número método de incremento del rendimiento pasa a ser la explotación del paralelismo en vez de una mayor
   frecuencia de reloj, cualquier mejora obtenida fruto de la paralelización debe tenerse muy en cuenta. 
-  En la línea del refrán que encabeza este punto, el rey basado en el aumento
+  En la línea del refrán que encabeza este punto, el «rey» basado en el aumento
   de la frecuencia de reloj o la microarquitectura monoprocesador ha muerto. Se
   da paso presto al nuevo rey del paralelismo. Y al igual que en las situaciones históricas donde realmente se instauraba
   un nuevo monarca, es momento propicio para cambios (\cite{landscape}, conclusiones):
@@ -140,7 +143,7 @@
   de almacenamiento de $\approx 10^{31}$ bits --es decir, $1.25$ millones de yottabytes, $1250$ billones de petabyes.
   A la vista de estas cifras concluye que si la variante de la Ley de Moore relativa al rendimiento se mantuviese, 
   se tardaría «solamente» $250$ años en compensar los $40$ ordenes de magnitud que separan los ordenadores actuales de
-  esos máximos teóricos. Parece un cierto indicador de que la Lay de Moore tiene los días contados.
+  tales máximos teóricos. Parece un cierto indicador de que la Lay de Moore tiene los días contados.
   
 
 
@@ -148,7 +151,7 @@
   \subsection{Características a destacar}
 
   Pero no sólo es el uso de paralelismo lo que caracteriza a esta biblioteca. Varias tecnologías y enfoques
-  novedosos han sido aplicados también: comprobaciones en tiempo de compilación para asegurar la coherencia
+  novedosos han sido aplicados también: comprobaciones en tiempo de compilación, verificación de la coherencia
   algebraica de los tipos, el reciente paradigma de la «programación orientada a aspectos» (AOP), \textit{mock
     objects} que suplantan funcionalidades cuando éstas no se encuentran disponibles para homogeneizar el código,
    patrones de diseño tales como los \textit{mix-ins}, etc. Los pormenores de las tecnologías utilizadas se exponen
@@ -170,9 +173,9 @@
       \item Excepciones propias integradas dentro de la jerarquía estándar de C++ para el tratamiento de errores,
             con la incorporación de mecanismos para facilitar la identificación del lanzador de las mismas --sección \ref{controlDeErrores}--.
       \item Repositorio de implementaciones de métodos posibilitando que el usuario aporte su propia implementación
-            de los mismos.
-      \item Uso de tecnologías SIMD si estas están disponibles.
-      \item Soporte de múltiples arquitecturas, incluyendo de $64$ bits.
+            de los mismos --sección \ref{basico:nuevoRepdeFuncs}--.
+      \item Uso de tecnologías SIMD si estas están disponibles --sección \ref{basico:cpusimd}--.
+      \item Soporte de múltiples arquitecturas, incluyendo de $64$ bits --sección \ref{impl:64bits}--.
       \item Utilización del API OpenMP para la paralelización --capítulo \ref{chap:par}--.
       \item Utilización del API pthreads para garantizar la correcta ejecución de la biblioteca en programas concurrentes,
       no necesariamente paralelos.
@@ -219,18 +222,20 @@
             \item Algoritmos de potenciación.
             \item Cálculo de funciones trascendentes: exponencial,
                   logaritmo, funciones trigonométricas, cálculo de la constante $\pi$.
-            \item Extracción de la raíz.
+            \item Extracción de la raíz cuadrada.
         \end{itemize}
  
         \item Polinomios.
+        \begin{itemize}
           \item Cálculo del máximo común divisor.
           \begin{itemize}
             \item Sobre $\mathbb{Z}$.
             \item Sobre $\mathbb{R}$.
-            \item Sobre $\mathbb{Z_n}$.
-            \item Sobre $\mathbb{Z_p}$.
+            \item Sobre $\mathbb{Z}_n$.
+            \item Sobre $\mathbb{Z}_p$.
             \item En general, sobre cualquier tipo implementando \texttt{mpplas::Ring}.
           \end{itemize}
+        \end{itemize}
 
         \item Cuerpos finitos/extensiones de cuerpos $\GF(p^n)$.
         \begin{itemize}
@@ -242,6 +247,7 @@
         \end{itemize}
 
         \item Matrices.
+        \begin{itemize}
           \item Cálculo del determinante, tanto sobre matrices sobre un cuerpo como sobre un anillo.
           \item Resolución de sistemas de ecuaciones.
           \item Cálculo de la inversa.
@@ -249,16 +255,12 @@
           \begin{itemize}
             \item Sobre $\mathbb{Z}$.
             \item Sobre $\mathbb{R}$.
-            \item Sobre $\mathbb{Z_n}$.
-            \item Sobre elementos de un cuerpo finito $\GF$.
+            \item Sobre $\mathbb{Z}_n$.
+            \item Sobre elementos de un cuerpo finito $\GF{(p^n)}$.
             \item En general, sobre cualquier tipo implementando \texttt{mpplas::Group}.
           \end{itemize}
+        \end{itemize}
       \end{itemize}
-
-
-
-
-
 
 
 \section{El sistema de desarrollo}\label{sistemaDeDesarrollo}
@@ -279,7 +281,8 @@
       principal en el desarrollo. Los distintos programas y versiones
       de bibliotecas fundamentales del sistema han sido:
       \begin{description}
-        \item[Bibliotecas del sistema.]  Implementación GNU de la biblioteca de C, versión 2.5.
+        \item[Bibliotecas del sistema.]  Implementación GNU de la biblioteca de C 
+          (incluye POSIX Threads), versión 2.5 
         \item[Compiladores.] Nombres y versiones de los compiladores soportados.
         \begin{description}
           \item[GCC] Compilador GNU Compiler Collection, en dos diferentes variedades: con soporte
@@ -302,6 +305,7 @@
         \begin{description}
           \item[VIM.] Versión 7.0, para la escritura del código y la documentación. 
           No se ha utilizado ningún tipo de entorno para la creación del código.
+          \item[Valgrind.] Para el perfilado de los métodos y verificar la no existencia de fugas de memoria.
           \item[Subversion.] Versión 1.4.3, para el control de versiones.
           \item[SCons.] Versión 0.96.93, para el control del proceso de compilación.
         \end{description}
@@ -333,7 +337,8 @@
       rodea a este tipo de proyectos, etc. No menos importante resulta que su código fuente esté disponible 
       para su estudio. Esto, que pudiera ser tachado de banal, no lo es en absoluto: ya en la memoria 
       correspondiente a LibNumth (\cite{miproyecto}) se apunta cómo se estudió el código de proyectos como 
-      NTL (\url{http://www.shoup.net/ntl/}), Pari (\url{http://pari.math.u-bordeaux.fr/}) o GMP (\url{http://gmplib.org/}). 
+      NTL\footnote{\url{http://www.shoup.net/ntl/}}, Pari \footnote{\url{http://pari.math.u-bordeaux.fr/}} 
+      o GMP \footnote{\url{http://gmplib.org/}}. 
       
       Por último, pero no por ellos menos importante, no debe descuidarse la vertiente filosófica de que,
       si a lo que se aspira es a la creación de conocimiento en pos de la Ciencia, éste ha de ser libre,
@@ -341,7 +346,8 @@
       se analiza la problemática derivada del uso de software matemático de carácter propietario sus repercusiones.
       En este artículo se cita a su vez a Joachim Neubüser:
       \begin{quote}
-      (...) with this situation two of the most basic rules of conduct in mathematics 
+      (...) with this situation [el uso de software matemático de carácter propietario] 
+      two of the most basic rules of conduct in mathematics 
       are violated: In mathematics information is passed on free of charge and everything 
       is laid open for checking.
       \end{quote}
@@ -372,5 +378,5 @@
   no es necesario un proceso de instalación propiamente dicho. Es posible descargarlos de \url{http://www.aspectc.org}.
   \subsection{QTUnit} Implementación del concepto de pruebas unitarias --sección \ref{testunits}--, se encuentra
   disponible en \url{http://www.uwyn.com/projects/qtunit/download.html}.
-  \subsection{libpari} Extensa biblioteca para el trabajo con Teoría de Números, álgebra y cálculo numérico, se ha 
+  \subsection{libpari} Extensa biblioteca para el trabajo con Teoría de Números, Álgebra y Cálculo Numérico, se ha 
   utilizado a modo de «oráculo» en las baterías de pruebas --sección \ref{tech:oraculo}--.

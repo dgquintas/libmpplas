@@ -78,9 +78,9 @@
   \subsubsection{Especificación del paralelismo}
     Desgraciadamente, no existe una sintaxis universalmente aceptada para la especificación
     de algoritmos paralelos. No será en esta memoria donde se contribuya a empeorar aún más esta
-    situación, sino que nos ceñiremos a la sintaxis del la tecnología utilizada para la obtención
+    situación, sino que nos ceñiremos a la de la tecnología utilizada para la obtención
     de paralelismo en nuestros métodos, OpenMP. Esto conlleva que el lector habrá de estar al menos
-    parcialmente familiarizado con la sintaxis de este interfaz. Afortunadamente, no se trata de una
+    parcialmente familiarizado con la sintaxis de este interfaz. Afortunadamente, se trata de una
     familia de métodos bastante reducida y de fácil interpretación. Para una introducción de apenas
     veinte páginas --pero ya suficiente para la comprensión del código aquí incluido--, véase 
     el apéndice A de \cite{parpatterns}. En cualquier caso, en la opinión del autor, la mayoría de 
@@ -90,11 +90,92 @@
 
 
 \section{Producto de enteros}\label{par:karatsubaZ}
+  La paralelización del método de Karatsuba para la multiplicación
+  de enteros resulta sencilla: se muestra a 
+ continuación la formulación de este método.
+  
+  \begin{equation}\label{eq:multiplicacionKaratsuba}
+    X \times Y = x_1y_1(B^2 + B) + (x_1-x_0)(y_0-y_1)B + x_0y_0(B+1)
+  \end{equation}
+   resultando $x_0$ y $x_1$ de la división en partes iguales --baja y alta resp.-- de $x$ (razonamiento
+   análogo para $y$). 
+
+   Los sumandos de la expresión \eqref{eq:multiplicacionKaratsuba} anterior conforman tres tareas
+   totalmente independientes entre sí, siendo por tanto \emph{embarazosamente paralelizable}.
+
+   El muestra el método resultante en el algoritmo \ref{alg:karatsuba}, en el cual se distinguen las 
+   tres secciones correspondientes a los tres sumandos de la expresión \eqref{eq:multiplicacionKaratsuba}.
+  \begin{itemize}
+    \item Líneas \ref{algkar:1Ini}--\ref{algkar:1End} para el cálculo de $S_{11}$ y $S_{12}$.
+    \item Líneas \ref{algkar:2Ini}--\ref{algkar:2End} para el cálculo de $S_{2}$.
+    \item Líneas \ref{algkar:3Ini}--\ref{algkar:3End} para el cálculo de $S_{31}$ y $S_{32}$.
+  \end{itemize}
+
+  \begin{algorithm} 
+  \caption{Multiplicación Karatsuba} \label{alg:karatsuba}
+  \begin{algorithmic}[1] 
+    \Procedure{Karatsuba}{entero $X$, entero $Y$}
+    \State $m \gets \lfloor \frac{\log_2{X}}{2} \rfloor$
+    \If{$m > UMBRAL$}
+      \State $x_0 \gets X \bmod 2^{m}$
+      \State $x_1 \gets \lfloor \frac{X}{2^{m}} \rfloor $
+      \State $y_0 \gets Y \bmod 2^{m}$
+      \State $y_1 \gets \lfloor \frac{Y}{2^{m}} \rfloor $
+      \State
+      \State \texttt{\#pragma omp parallel sections} \label{algkar:omp0}
+      \State \texttt{\#pragma omp section} \label{algkar:omp1}
+      \State $P_1 \gets Karatsuba(x_1, y_1)$ \label{algkar:1Ini}
+      \State $S_{11} \gets P_1 \times B^2$
+      \State $S_{12} \gets P_1 \times B$  \label{algkar:1End}
+      \State
+      \State \texttt{\#pragma omp section} \label{algkar:omp2}
+      \State $P_2 \gets Karatsuba((x_1 - y_0),(y_0 - y_1))$  \label{algkar:2Ini}
+      \State $S_{2} \gets P_2 \times B$ \label{algkar:2End}
+      \State
+      \State \texttt{\#pragma omp section} \label{algkar:omp3}
+      \State $P_3 \gets Karatsuba(x_0, y_0)$  \label{algkar:3Ini}
+      \State $S_{31} \gets P_3 \times B$
+      \State $S_{32} \gets P_3$ \label{algkar:3End}
+      \State
+      \State $resultado = (S_11 + S_12) + S_2 + (S_31 + S_32)$
+    \Else
+      \State Multiplicación clásica
+    \EndIf
+    \EndProcedure
+  \end{algorithmic}
+  \end{algorithm}
+
+  \subsection{Comparativa}
+    En las figura \ref{fig:karatsuba} se compara la multiplicación de enteros
+    mediante los métodos secuencial y paralelo. 
+  \begin{figure}[h]
+    \centering
+    \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{karatsuba} 
+    \caption{Comparativa producto enteros}\label{fig:karatsuba}
+  \end{figure}
+    El ratio entre el tiempo empleado
+    por el método paralelo y el empleado por el secuencial se representa en
+    \ref{fig:propKaratsuba}, junto con su «suavizado» (aproximación) mediante
+    una curva de Bézier.
+  \begin{figure}[h]
+    \centering
+    \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{propKaratsuba} 
+    \caption{Comparativa producto enteros (proporción)}\label{fig:propKaratsuba}
+  \end{figure}
+  Tal como se puede observar, la proporción está siempre por debajo de $1$, por lo que
+  el método parelelo resulta ventajoso para todo valor. Nótese que el método de Karatsuba
+  se emplea únicamente a partir de factores de una cierto tamaño (véase \cite{miproyecto}),
+  lo cual explica este hecho. Asimismo, el ratio parece tender a $0.7$, es decir, una 
+  ganancia del $30\%$ y una eficiencia de $\approx 0.15$. Debe tenerse en cuenta que el número
+  de unidades de procesamiento del sistema en el que se han realizado las mediciones es de dos, mientras
+  que el número de tareas es de tres: nos encontramos limitados por nuestro sistema físico.
+  %TODO
+
 
 
 \section{Potenciación modular}
   El cálculo de $x = b^e \pmod{m}$ es básico en criptografía. Métodos tales como el RSA se apoyan en esta
-  operación. Desafortunadamente, la naturaleza del enfoque secuencial, basado en la mayoría de los casos
+  operación. Desafortunadamente, el enfoque secuencial está basado en la mayoría de los casos
   en variantes del método de exponenciación binaria. Tal es el caso de la anterior
   versión de esta biblioteca: véase \cite{miproyecto}, sección 5.5.3, pág. 64. Es fácil observar cómo este
   método impone una cadena de dependencias que da al traste con la paralelización del algoritmo de forma
@@ -119,8 +200,8 @@
   --sección \ref{sec:zm}--, en la clase \texttt{TwoThreadedModularExp}.
 
   \subsection{El método de la casa}
-  Debido a que el anterior método dejaba que desear, sobre todo en cuanto a escalabilidad, se ha
-   tratado de aportar un granito de arena mediante una estrategia desarrollada de forma original.
+  Debido a que el anterior método dejaba que desear, sobre todo en cuanto a escalabilidad, se hemos
+   tratado de aportar nuestro granito de arena mediante una estrategia desarrollada de forma original.
 
     Considerando la exponenciación como $x = b^e \pmod{m}$, sea $l = bitLength(e)$ la longitud
     en bits del exponente y $k = \lfloor \frac{l}{\# hilos} \rfloor$ el número de bits
@@ -138,12 +219,12 @@
     b^e & = & b^{s_0 + 2^k s_1 + 2^{2k} s_2 + \cdots + 2^{(k-1)k} s_{k-1} } = \nonumber \\
         & = & b^{s_0} \times (b^{2^k})^{s_1} \times \ldots \times (b^{2^{(k-1)^k}})^{s_{k-1}} \label{eq:miExp}
   \end{eqnarray}
-  Lo interesante de esta formulación es que cada factor de \eqref{eq:miExp} puede ser calculado
+  Lo interesante de esta formulación es que cada factor de la expresión \eqref{eq:miExp} puede ser calculado
   de forma independiente. 
 
   Es preciso resaltar algunos detalles: 
   \begin{itemize}
-    \item El exponente del  último factor de la ecuación \eqref{eq:miExp} tiene el mismo número de bits
+    \item El exponente del  último factor de la expresión \eqref{eq:miExp} tiene el mismo número de bits
     que el exponente $e$ original.
     \item El «ajuste de los exponentes» necesario en todos los $s_i$ excepto para $s_0$ puede realizarse
     mediante desplazamientos de bits.
@@ -154,12 +235,12 @@
  embargo es posible sacar ventaja basándose en la especial estructura de los exponentes para los diferentes $s_i$. 
 
  \subsubsection{Análisis de complejidad}
-  Sea $T(e)$ el tiempo requerido para un exponente $e$, $t = bitLength(e)$ y $wt = \textrm{nº de unos en } e$. 
+  Sea $T(e)$ el tiempo requerido para un exponente $e$, $t = bitLength(e)$ y $wt = \textrm{número de unos en } e$. 
   Utilizando un enfoque secuencial basado en el método de exponenciación binaria, \cite{handbook}\footnote{sección 14.6.1}
   analiza que es necesario el cálculo de $t$ cuadrados y $wt$ productos. Dado que ambas operaciones están en $O(n^2)$, 
   $T(e) = t O(n^2) + wt O(n^2) = (wt + t)O(n^2)$.
 
-  Para la versión paralela dada por la ecuación \eqref{eq:miExp}, 
+  Para la versión paralela dada por la expresión \eqref{eq:miExp}, 
   \[
     T(e) = \sum^{k-1}_{i=0}\left( T(s_i) \right) + T_m
   \]
@@ -172,7 +253,7 @@
   $T(s_{k-1}) = (wt_{k-1} + t)O(n^2) = \underbrace{wt_{k-1}O(n^2)}_{< wt O(n^2)} + t O(n^2) \Rightarrow T(s_{k-1}) < T(e)$.
   Para cualquier otro $i < k-1$, se cumple asimismo $T(s_i) < T(e)$. 
 
-  El último punto por analizar el término $T_m$. Éste se encuentra en $O(n^{1.58})$ si, tal como es el caso, el producto
+  El último punto por analizar es el término $T_m$. Éste se encuentra en $O(n^{1.58})$ si, tal como es el caso, el producto
   de enteros se implementa mediante el método de Karatsuba (véase \cite{miproyecto}\footnote{pág. 50}). 
   
   La complejidad para la versión paralela del algoritmo es por tanto asintóticamente menor que la versión secuencial,
@@ -189,10 +270,24 @@
   \subsection{Producto escalar}
 
 \section{Matrices}
-  \subsection{Producto}
+  \subsection{Producto}\label{par:matprod}
+    \begin{figure}[h]
+      \centering
+      \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{productoMat} 
+      \caption{Comparativa producto matricial }\label{fig:prodMat}
+    \end{figure}
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{propProdMat} 
+      \caption{Comparativa producto matricial (proporción)}\label{fig:propProdMat}
+    \end{figure}
+
+
+
   \subsection{Descomposición $LU$}\label{par:lu}
  
-     Se ha utilizado el de Doolittle para la descomposición $LU$. Se presenta
+     Se ha utilizado el método de Doolittle para la descomposición $LU$. Se presenta
      su versión en pseudocódigo en el listado \ref{alg:doolittle}. 
 
     \begin{algorithm}
@@ -238,10 +333,38 @@
     sobre $i$. No es posible paralelizar sobre $k$ ya que en este caso sí existe
     una cadena de dependencias. Por ejemplo, sobre los elementos de la diagonal. 
 
+    \begin{figure}[h]
+      \centering
+      \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{solveMat} 
+      \caption{Comparativa resolución de sistemas }\label{fig:solveMat}
+    \end{figure}
 
+    \begin{figure}[h]
+      \centering
+      \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{propSolveMat} 
+      \caption{Comparativa resolución de sistemas (proporción)}\label{fig:propSolveMat}
+    \end{figure}
   \subsection{Inversión}
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{inversionMat} 
+      \caption{Comparativa inversión matricial }\label{fig:invMat}
+    \end{figure}
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{propInvMat} 
+      \caption{Comparativa inversión matricial (proporción)}\label{fig:propInvMat}
+    \end{figure}
+
+
   \subsection{Transposición}
+
+
   \subsection{Determinante}
+    \subsubsection{Cálculo basado en la descomposición $LU$}\label{para:detViaLU}
+      %TODO
     \subsubsection{Algoritmo de Gauss-Bareiss}\label{para:bareiss}
       Descrito en la sección \ref{impl:bareiss}. Si se representa el patrón de accesos derivado 
       de su algoritmo secuencial (algoritmo \ref{alg:bareiss}), no es difícil derivar una división

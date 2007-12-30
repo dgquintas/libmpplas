@@ -33,7 +33,7 @@
   técnicas que no son fácilmente aplicables al desarrollo de una
   biblioteca.
 
-  En términos más concretos, se buscaba el proporcionar una manera de
+  En términos más concretos, se busca el proporcionar una manera de
   interactuar con los métodos ofrecidos por la biblioteca sin necesidad de
   bajar al nivel del código. Si bien para una explotación exhaustiva de todos
   los mecanismos de la misma se hace necesario utilizarla realmente como
@@ -131,7 +131,7 @@
         nivel cliente-servidor es independiente de las demás.
 
       \subsubsection{Multihilo}
-        Si se pretende soportar que varios clientes puedan operar de forma concurrente e 
+        Si se desea que varios clientes puedan operar de forma concurrente e 
         independiente, es necesario soportar de alguna forma la ejecución multihilo. 
         El protocolo XML-RPC descansa sobre el conocido HTTP, con lo que un servidor 
         XML-RPC no es más que un servidor HTTP ampliado: toda la gestión del tráfico 
@@ -160,7 +160,7 @@
     \end{figure}
 
     El mecanismo implementado se representa en la figura \ref{fig:runtimeData}. En ésta
-    se representa a \textit{grosso modo} el modo de funcionamiento de este almacén 
+    se representa a \textit{grosso modo} el funcionamiento de este almacén 
     de datos dinámicos: a cada cliente conectado al servidor se le asigna un identificador
     de cliente (\texttt{clientId}) único. Mediante este identificador, se posibilita que 
     los clientes inserten y recuperen sus datos. El almacén de datos asigna un identificador
@@ -188,7 +188,7 @@
   }
 \end{lstlisting}
 
-  En la línea \ref{alg:acquire}, se asegura la sección crítica con un  \textit{lock} de \textit{pthreads}, que se libera
+  En la línea \ref{alg:acquire}, se asegura la sección crítica con un  \textit{candado} de \textit{pthreads}, que se libera
   al final de la misma, en la línea \ref{alg:release}.
 
 
@@ -200,7 +200,7 @@
     impide al cliente dejar que el resultado se pierda: no es necesario 
     asignar siempre un resultado a una variable. 
     
-    Dándole la vuelta a la cuestión: ¿qué \emph{sí} debe conservarse,al
+    Dándole la vuelta a la cuestión: ¿qué \emph{sí} debe conservarse, al
     menos hasta la desconexión del cliente? Aquellas instancias
     asociadas a una variable. Es decir, no debe darse el caso de una
     variable cuyos datos, los datos a los que apunta, no existan. Dado
@@ -209,7 +209,7 @@
     variables a conservar. El resto de identificadores y sus instancias
     asociadas serán eliminados y los recursos que utilizasen,
     liberados. Esto se corresponde con una de las formas más sencillas
-    de recolección de basura, (A COMPLETAR CON LAS REFERENCIAS).
+    de recolección de basura.
     Afortunadamente, cubre nuestras necesidades satisfactoriamente. 
 
     El campo de los recolectores de basura es amplio y complejo, y su
@@ -219,7 +219,7 @@
     En el momento de redactar estas líneas, la inclusión de recolectores
     de basura está incluida dentro del borrador de la nueva revisión del
     lenguaje C++,
-    C++0x\footnote{\url{http://www.open-std.org/jtc1/sc22/wg21/}}
+    C++0x\footnote{\url{http://www.open-std.org/jtc1/sc22/wg21/}}.
       
 
   \subsection{\emph{Un} cliente}\label{cliente}
@@ -227,10 +227,7 @@
     casual: dada la versatilidad del protocolo XML-RPC, servidor y
     cliente están completamente desacoplados. Por tanto, la presente
     implementación es tan solo una de las posibles que podrían
-    utilizarse para «dialogar» con el servidor. De hecho, como apoyo a 
-    estas afirmaciones, se describe en el punto \ref{otroCliente} una
-    pequeña -su objetivo es tan solo ilustrar este punto- implementación
-    de un cliente alternativo realizada en JavaScript.
+    utilizarse para «dialogar» con el servidor. 
 
     En la figura \ref{fig:client} se muestra la estructura del cliente.
     \begin{figure}[h]
@@ -314,7 +311,7 @@
         \begin{quote}
         If there are more positional arguments than there are formal parameter
         slots, a TypeError exception is raised, unless a formal parameter using
-        the syntax "*identifier" is present; in this case, that formal
+        the syntax ``*identifier'' is present; in this case, that formal
         parameter receives a tuple containing the excess positional arguments
         (or an empty tuple if there were no excess positional arguments).
         \end{quote}
@@ -324,7 +321,7 @@
         tantos argumentos.
         
       \paragraph{¿Cómo manejar los resultados de los métodos?}
-        De nuevo, la declaración generica de los métodos priva de toda 
+        De nuevo, la declaración genérica de los métodos priva de toda 
         consideración particular. El problema ahora es cómo interpretar los datos
         devueltos por los diferentes métodos. Es más, si el dato devuelto es un 
         tipo de los expustos anteriormente en el punto \ref{servidor:caracteristicas},
@@ -363,7 +360,7 @@ path =
 
     \subsubsection{Trazado de gráficas}
       Mediante la integración de las rutinas ofrecidas por el paquete \texttt{matplotlib}, resulta
-      posible el trazado de gráficas siguiendo la sintaxis del conocido paquete de cálculo simbólico
+      posible el trazado de gráficas según la sintaxis del conocido paquete de cálculo simbólico
       MatLab. En la sección \ref{mpplab:ejs} se ilustra con ejemplos esta funcionalidad. 
 
     \subsubsection{Actualización automática.}
@@ -373,7 +370,7 @@ path =
       Su funcionamiento se basa en comparar el fichero que contiene el grueso de la implementación 
       del cliente, \texttt{Client.py}, en el sistema local con otra versión, presuntamente la más
       reciente, almacenada en el servidor. Esta comparación utiliza una \emph{función resumen} 
-      --en concreto MD5-- para evitar comparar este fichero de forma íntegra. Si se 
+      --en concreto MD5-- para evitar comparar íntegramente este fichero. Si se 
       detecta una discrepancia en los resultados de esta función resumen, se asume que es debido a
       que la implementación almacenada en el servidor ha sido sustituida con una versión más reciente.
       En tal caso, se informa al usuario, y si éste desea actualizarse, 
@@ -381,8 +378,8 @@ path =
       el cliente, se estará utilizando la versión actualizada.
       
     \subsubsection{Multihilo.}
-      Esto no resulta más que un reflejo de ser a su vez multihilo el servidor. La
-      manera de explotar esta característica se expone en la sección \ref{runInParallel}.
+      Esto es un reflejo de que el servidor sea también multihilo. La
+      explotación de esta característica se expone en la sección \ref{runInParallel}.
 
       Internamente, el cliente se apoya en una abstracción, dada por la clase \texttt{ThreadRunner} 
       tal como aparece en la figura \ref{fig:client}. Esta clase hereda de la clase \texttt{thread.Thread}
@@ -393,8 +390,8 @@ path =
     \subsubsection{Modelando el servidor}
       Como se puede observar en la figura \ref{fig:client}, existe una capa encargada
       de aislar al cliente de los entresijos de la comunicación con el servidor. Dicha
-      capa se encuentra implementada mediante en el fichero  \texttt{RPCServer.py} y hace
-      uso de la técnica de los mix-ins (sección \ref{tech:mixins}) y el patrón singleton (sección \ref{sec:singleton})
+      capa se encuentra implementada en el fichero  \texttt{RPCServer.py} y hace
+      uso de la técnica de los mixins (sección \ref{tech:mixins}) y el patrón singleton (sección \ref{sec:singleton})
       en el contexto del lenguaje Python. 
 
 
@@ -406,7 +403,7 @@ path =
     parecer que complicase la utilización del cliente, por
     tener que lidiar con este lenguaje; por contra, la sencilla e
     intuitiva sintaxis del mismo minimiza este efecto. De haber
-    implementado lenguaje propio para el cliente, su sintaxis no habría 
+    implementado un lenguaje propio para el cliente, su sintaxis no habría 
     podido ser mucho más simple, y casi con toda seguridad mucho menos
     potente. 
 
@@ -417,9 +414,9 @@ path =
       \paragraph{Consideraciones generales}
         Ciertos aspectos pueden chocar a primera vista, o ser considerados como errores, aunque en ocasiones
         su uso pueda resultar ventajoso. Sirva de ejemplo, la copia de variables:
-        tal como se ha expuesto en \ref{arquitectura}, el cliente trabaja con \emph{referencias} a las instancias
-        de los datos almacenados en el servidor. Cuando en el interfaz Python del cliente, se ejecuta una asignación
-        \texttt{var1 = var2}, lo que se asigna a \texttt{var1} en realidad es tal referencia, con lo cual \texttt{var1}
+        tal como se ha expuesto en la sección \ref{arquitectura}, el cliente trabaja con \emph{referencias} a las instancias
+        de los datos almacenados en el servidor. Cuando en el interfaz cliente, se ejecuta una asignación
+        \texttt{var1 = var2}, lo que se asigna a \texttt{var1} es en realidad tal referencia, con lo cual \texttt{var1}
         y \texttt{var2} harían referencia a la misma variable. Cualquier modificación \textit{in situ} del dato 
         apuntado sería visible a través tanto de \texttt{var1} como de \texttt{var2}.
 
@@ -504,7 +501,7 @@ path =
 1
 \end{verbatim}
 
-       \paragraph{R} Representa un real de precisión arbitraria. Su utilización es muy similar al tipo de dato para 
+       \paragraph{R} Representa un real de precisión arbitraria. Su utilización es muy similar a la del tipo de dato para 
        enteros, con la salvedad de poder controlar tanto el número de bits utilizados para manejar su precisión interna
        como cuantos dígitos en base $10$ son mostrados:
 \begin{verbatim}
@@ -530,7 +527,7 @@ path =
        \begin{description}
         \item[\texttt{getInverse()}] Devuelve la inversa del elemento sobre el que se aplica el método.
         \item[\texttt{getPBRString()}] Devuelve una cadena de caracteres representado el polinomio correspondiente
-        al elemento sobre el que se aplica.
+        al elemento sobre el que se aplica. Las siglas «PBR» se corresponden al término «Polynomial Basis Representation».
         \item[\texttt{setValue(z)}] Asigna al elemento sobre el que se aplica el método el valor del entero $z$ argumento
         dentro del cuerpo finito.
         \end{description}
@@ -584,12 +581,12 @@ path =
 \subparagraph{Obtención a submatrices.}
  La operación de acceso a una submatriz opera de la siguiente manera:
   \begin{description}
-    \item[\texttt{getSubMatrix(rows=(inicio,paso,fin), cols=(inicio,paso,fin))}] Devuelve la submatriz formada por 
-    las filas/columnas especificadas por $inicio$, $paso$ y $fin$. Ambas filas/columnas
+    \item[\texttt{getSubMatrix(rows=(ini,paso,fin), cols=(ini,paso,fin))}] Devuelve la submatriz formada por 
+    las filas/columnas especificadas por \texttt{ini}, \texttt{paso} y \texttt{fin}. Ambas filas/columnas
     del interval son \emph{incluidas}. 
     
-    Es posible omitir estos parámetros, pero «manteniendo el orden»; es decir, es posible omitir $fin$ y $paso$, pero no
-    es posible omitir $paso$ y especificar $fin$. Los valores dados a estos tres parametros por omisión son $0$, $1$ y 
+    Es posible omitir estos parámetros, pero «manteniendo el orden»; es decir, es posible omitir \texttt{fin} y \texttt{paso}, pero no
+    es posible omitir \texttt{paso} y especificar \texttt{fin}. Los valores dados a estos tres parametros por omisión son $0$, $1$ y 
     «hasta el final», respectivamente.
   \end{description}
 \begin{verbatim}
@@ -659,7 +656,7 @@ Así como es posible seleccionar submatrices de una matriz dada, resulta también 
 el poder crear una nueva matriz a partir de la concatenación, por filas o columnas, de otras
 matrices. En este caso sólo se consideran filas o columnas contiguas. De todas formas, siempre
 resulta posible, mediante la adecuada combinación de las operaciones de concatenación, de replicar
-este comportamiento para filas o columnas no contiguas. Véanse algunos ejemplos
+este comportamiento para filas o columnas no contiguas. Véanse algunos ejemplos:
 \begin{verbatim}
 >>> m1 = MZ("[1 2; 3 4]")
 >>> m2 = MZ("[8 9 ;5 2; 5 7; 2 1]")
@@ -740,14 +737,15 @@ sentencias se evaluan de derecha a izquierda:
 El funcionamiento del método \texttt{appendByRows} es análogo pero orientado
 a filas.
 
-       \paragraph{MGFx} Representa una matriz sobre el un cuerpo finito dado. La particularidad de este tipo de 
-       matrices radica en que llevan asociado un cuerpo finito. De otro modo, podría darse el caso de que un elemento
+       \paragraph{MGFx} Representa una matriz sobre elementos de un cuerpo finito dado. La particularidad de este tipo de 
+       matrices radica en que llevan asociado un cuerpo finito, al cual pertenecen los elementos anteriormente referidos. 
+       De otro modo, podría darse el caso de que un elemento
        de la matriz fuese miembro de un cuerpo finito distinto al de los demás, resultando en una estructura carente
-       de todo sentido matemático. Algunos métodos no disponibles para matrices de enteros se encuentran disponibles:
+       de todo sentido matemático. Se encuentran disponibles algunos métodos no disponibles para matrices de enteros: 
        \begin{description}
         \item[\texttt{getInverse()}] Devuelve la matriz inversa de la matriz sobre la que se aplica el método.
         \item[\texttt{getTranspose()}] Devuelve la transpuesta de la matriz sobre la que se aplica el método.
-        \item[\texttt{solveFor(b)}] Espera un vector columna $b$ y devuelve el vector columna $y$ tal que $M \times y = b$, 
+        \item[\texttt{solveFor(b)}] Espera un vector columna $b$ y devuelve el vector columna $y$ tal que $My = b$, 
         siendo $M$ la matriz sobre la que se aplica el método.
         \end{description}
 
@@ -786,9 +784,8 @@ a filas.
 
        \paragraph{MR} Representa una matriz sobre el cuerpo de los reales. Los ejemplos anteriores para matrices
        sobre enteros son directamente aplicables a matrices sobre reales, con la salvedad, claro esta, de que 
-       allí donde se utilice un tipo entero, habría de utilizarse un real. Asimismo, los métodos
-
-       Sin embargo, el repertorio se completa con los tres métodos anteriormente descritos para matrices sobre 
+       allí donde se utilice un tipo entero, habría de utilizarse un real. 
+       El repertorio se completa con los tres métodos anteriormente descritos para matrices sobre 
        cuerpos finitos. Su funcionamiento es análogo para matrices sobre reales.
 
        \paragraph{MZn} Matriz sobre enteros modulares $\mathbb{Z}_n$. El módulo $n$ es arbitrario. Si 
@@ -876,7 +873,7 @@ non-invertible element;
     Las funciones \texttt{gcd}\footnote{«GCD» es la abreviatura
       habitual de este método en la bibliografía en inglés: \textit{Greatest Common Divisor}} 
       y \texttt{gcdext} se corresponden, respectivamente, con el cálculo de únicamente
-    el máximo común divisor de dos enteros dados y, en añadidura, los coeficientes $s$ y $t$ verificando 
+    el máximo común divisor de dos enteros dados y los coeficientes $s$ y $t$ verificando 
     $gcd(a,b) = a\cdot s + b \cdot t$. Estos coeficientes son también conocidos como los coeficientes de 
     Bézout.
 
@@ -1032,11 +1029,11 @@ True
         \item Python ofrece dos tipos de entrecomillado: las comillas simples «'» y las comillas dobles «"». Esto
         resulta útil por ejemplo cuando, ya dentro de una cadena de caracteres, es necesario utilizar otra, como 
         al definir el contenido de la matriz. 
-        \item Si en la cadena a ejecutar hay más de una sentencia, éstas se separarán mediante puntos y coma.
+        \item Si en la cadena a ejecutar hay más de una sentencia, éstas se separarán mediante punto y coma.
         \item Además de la lista conteniendo las instrucciones a ejecutar, el segundo argumento es un entero, que 
         indica el número de hilos ejecutores a utilizar. Si el número de elementos de la lista es mayor que este
-        número de hilos, los elementos de la lista se irán procesando según vayan quedando libres los hilos ejecutores.
-        El orden de ejecución no es predecible a priori. Sin embargo, los resultados se devuelven en orden.
+        número de hilos, los elementos se irán procesando según vayan quedando hilos ejecutores libres.
+        El orden de ejecución no es predecible \textit{a priori}. Sin embargo, los resultados se devuelven en orden.
       \end{itemize}
 
 
@@ -1062,15 +1059,15 @@ result = m.getInverse()
 
 
     \subsubsection{Mecanismo de perfilado}
-    En el cliente se encuentran disponibles los mecanismos de conteo de tiempo e instrucciones de la libraría, siempre que ésta
+    En el cliente se encuentran disponibles los mecanismos de conteo de tiempo e instrucciones de la biblioteca, siempre que ésta
     haya sido compilada con soporte de perfilado. Las funciones relacionadas con este mecanismo son:
     \begin{description}
        \item{\texttt{resetProf}} Pone a cero los contadores de instrucciones. 
        Normalmente invocada como instrucción precedente a la primera
        a considerar en la toma de datos.
         \item{\texttt{getProfRes}}: Devuelve una lista con los contadores de instrucciones para cada hilo. Nótese
-        que en este contexto, «hilo» se refiere a hilos utilizados por la biblioteca, no ejecuciones simultáneas de 
-        instrucciones por parte del cliente (véase \ref{runInParallel}).
+        que en este contexto, «hilo» se refiere a hilos utilizados por la biblioteca, no a ejecuciones simultáneas de 
+        instrucciones por parte del cliente (véase la sección \ref{runInParallel}).
        \item{\texttt{startProfClock}} Inicia la toma de tiempo.
        \item{\texttt{stopProfClock}}  Detiene la toma de tiempo y devuelve como resultado el tiempo transcurrido desde el
        comienzo de dicha toma.
@@ -1105,7 +1102,7 @@ result = m.getInverse()
        \subsubsection{Ejemplos} \label{mpplab:ejs}
 \paragraph{$\pi$ de Euler} 
 
-Lorem ipsum\newline
+%TODO
 
 \begin{lstlisting}[captionpos=b,basicstyle=\small,frame=shadowbox,rulesepcolor=\color{black},language=python,caption=$\pi$ de Euler] 
 from matplotlib.pylab import *
@@ -1146,7 +1143,8 @@ legend()
   \end{figure}
 
 \paragraph{RSA y paralelismo}
-Lorem ipsum\newline
+%TODO
+
 \begin{lstlisting}[captionpos=b,basicstyle=\small,frame=shadowbox,rulesepcolor=\color{black},language=python,caption=$\pi$ de Euler] 
 from Client import *
 def getKeyPair(keySize):
@@ -1176,7 +1174,8 @@ def decypher(key, cyphertext):
 
 
 \paragraph{Generadores y $\pi$}
-Lorem ipsum\newline
+%TODO
+
 \begin{lstlisting}[captionpos=b,basicstyle=\small,frame=shadowbox,rulesepcolor=\color{black},language=python,caption=$\pi$ de Euler] 
 from Client import *
 
@@ -1209,9 +1208,3 @@ def firstn(g, n):
 
 
 
-\section{Evaluación}
-
-
-\section{Conclusiones}
- 
-  

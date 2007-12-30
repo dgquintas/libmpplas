@@ -48,7 +48,7 @@ visión general de sus interrelaciones.
     \caption{Tipos de la biblioteca}\label{fig:jerarquiaTipos}
   \end{figure}
 Los tipos denominados compuestos, las matrices y los polinomios, reciben un tipo
-como argumento de plantilla: el tipo de sus componentes. Este concepto de tipo de
+como argumento de plantilla: el tipo de sus elementos. Este concepto de tipo de
 plantilla es, claro está, propio de C++, no de la biblioteca. Sin embargo, como se
 expone en detalle en \ref{categorizacionAlgebraica}, se han incorporado mecanismos 
 para asegurar que la coherencia matemática se mantiene. También en dicha sección, 
@@ -57,8 +57,8 @@ para cada tipo se ha modelado su categoría algebraica.
 
 Respecto a LibNumth, la familia de tipos disponibles ha aumentado cuantitativa y cualitativamente.
 No sólo se han añadido tipos completamente nuevos, sino que se han refinado los ya presentes. Por ejemplo,
-el cuerpo $Z_p$ que antes podía modelarse únicamente mediante $Z_n$ con un $n$ primo, ahora cuenta
-con tipo propio, lo que permite sacar partido de sus características particulares como cuerpo: $Z_n$ sólo
+el cuerpo $\mathbb{Z}_p$ que antes podía modelarse únicamente mediante $\mathbb{Z}_n$ con un $n$ primo, ahora cuenta
+con tipo propio, lo que permite sacar partido de sus características particulares como cuerpo: $\mathbb{Z}_n$ sólo
 puede ser considerado como anillo si no se imponen restricciones sobre el módulo $n$.
 
 
@@ -97,7 +97,7 @@ que «HR» corresponde a «\textit{Human Readable}»: la idea es devolver una repres
 a un usuario \emph{humano}\footnote{«usuario humano» \emph{no} es una redundancia: bien podría ser otro programa el usuario 
 encargado de interpretar un resultado devuelto por la biblioteca}. En algunos casos la representación será la misma que la devuelta
 por \texttt{toString()} --tal como en el caso de los enteros--, mientras que en otros será diferente --para las matrices, 
-por poner un caso.
+por poner un caso--.
 
 \bigskip
 
@@ -130,7 +130,7 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
     partido de los mecanismos de categorización algebraica de la misma. 
 
   \subsection{Enteros modulares en el dominio de Montgomery}\label{sec:zm}
-  Nombrados como $\mathbb{Z}M\_n$, son un tipo de entero modular, siendo
+  Nombrados como $\mathbb{Z}M_n$, son un tipo de entero modular, siendo
   su módulo reductor $n$. Su particularidad estriba en que ninguna de sus
   operaciones requiere el uso de la división, excepto en el caso de potencias
   de la base de trabajo, operación que se realiza mediante desplazamientos.
@@ -142,7 +142,7 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
   \subsubsection{Preliminares}
   Una conocida forma de exponenciación modular se basa en el método de
   multiplicación/reducción de Montgomery (\cite{montgomeryOrig}). 
-  El método de reducción/multiplicación se encontraba ya incorporado en
+  El método de reducción-multiplicación se encontraba ya incorporado en
   la antigua versión de la biblioteca (véase \cite{miproyecto}, sección 5.5.3),
   utilizándose precisamente para la exponenciación modular. 
 
@@ -152,14 +152,14 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
   El número de bits de esta base se denominará $BED$: bits en \texttt{Digit}. La implementación actual
   soporta valores de $BED$ de $32$ y $64$.
 
-  Es mediante la precomputación de dos valores, 
-  $R_n = 2^{i\cdot BED}$ con $i \in \mathbb{Z}, i \geq 1$ y $-n^{-1} \pmod{BED}$, 
-  que es posible prescindir de la operación de división. 
+  Mediante la precomputación de dos valores, 
+  $R_n = 2^{i\cdot BED} \mid i \in \mathbb{Z}, i \geq 1$ y $-n^{-1} \pmod{BED}$, 
+  resulta posible prescindir de la operación de división. 
   Dichos valores dependen únicamente del módulo $n$, por lo que si se realizan muchas
   operaciones con el mismo módulo, el coste computacional de su cálculo se ve compensado
   por la ausencia de divisiones. 
 
-  Anteriormente no se ha especificado ningún valor para la $i$ que conforma
+  Anteriormente no se ha especificado ningún valor para la $i$ en
   $R_n = 2^{i \cdot BED}$. Según \cite{handbook}\footnote{pág. 600}, es suficiente con que se verifique 
   $R > n$. Ahora bien, considérese la longitud del módulo $n$ en la base de trabajo $B$ definida con anterioridad
   como $k$. Es posible concluir entonces 
@@ -191,7 +191,7 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
 
   \paragraph{Específicas.}
   \begin{definicion}[Multiplicación de Montgomery]\label{def:multMont}
-  Sea $R_n$ tal como se define en la ecuación \eqref{eq:defRMont}, $x,y \in \mathbb{Z}$. 
+  Sea $R_n$ tal como se define en la expresión \eqref{eq:defRMont}, $x,y \in \mathbb{Z}$. 
   Se define la función \texttt{MultMon} como
   \[
     \mathtt{MultMon}(x,y,n) = x \cdot y \cdot R^{-1} \pmod{n}
@@ -206,10 +206,10 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
   \end{definicion}
 
 
-  Koç y Savas ( \cite{montInvRev} ) ampliaron el
+  Koç y Savas (\cite{montInvRev}) ampliaron el
   concepto, en especial con una «nueva inversa de Montgomery»:
   \begin{definicion}[Inversa de Montgomery (\cite{montInvRev})]\label{nuevaMontInv}
-  Sea $R_n$ tal como se define en la ecuación \eqref{eq:defRMont}, $a \in \mathbb{Z}$. 
+  Sea $R_n$ tal como se define en la expresión \eqref{eq:defRMont}, $a \in \mathbb{Z}$. 
   \[
     \mathtt{NuevaInvMon}(a \cdot R,n) = a^{-1} \cdot R \pmod{n}
   \]
@@ -228,10 +228,10 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
   \subparagraph{Suma y resta} 
   Sean $x,y \in \mathbb{Z}_n$,
   $0 \le xR, yR < n  \Rightarrow  xR + yR = (x+y)R \leq 2n-2$
-  con lo que si la suma es mayor que $n$, bastará con restar $n$ a ésta , a lo sumo una vez.
+  con lo que si la suma es mayor que $n$, bastará con restar $n$ a ésta a lo sumo una vez.
 
   Para la resta, el razonamiento es análogo, salvo que en este caso, el módulo habrá de
-  sumarse si $(x-y)R < 0$, aunque a lo sumo tan solo dos veces.
+  sumarse si $(x-y)R < 0$, a lo sumo dos veces.
 
  \subparagraph{Producto} 
   Utilizando la multiplicación de Montgomery (véase la definición \ref{def:multMont}),
@@ -290,7 +290,7 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
   método de Newton --descrito por ejemplo en \cite{recipes,calculoburgos}\footnote{sección 9.4, pág. 366; sección 092, pág. 
   258, resp.}--, lo que nos llevaría a la siguiente formulación:
   \begin{eqnarray}
-   x_{n+1} & = & x_n - \frac{f(x_n)}{f'(x_n)} = \\
+   x_{n+1} & = & x_n - \frac{f(x_n)}{f'(x_n)} =  \nonumber \\
            & = & \frac{1}{2} \left( x_n + \frac{A}{x_n}  \right) \label{newtonDiv}
   \end{eqnarray}
   
@@ -306,7 +306,7 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
   \end{equation}
 
   Como se ha dicho, esta iteración converge a $1/\sqrt{A}$. Multiplicando este valor por $A$, se 
-  obtiene el deseado valor de $\sqrt{A}$, como es sencillo de demostrar tras unas simples manipulaciones
+  obtiene el deseado valor de $\sqrt{A}$, como es sencillo demostrar tras unas simples manipulaciones
   algebraicas: $ (1 / \sqrt{x}) \equiv (\sqrt{x} / (\sqrt{x})^2) = \sqrt{x}/x$, por lo que
   $(\sqrt{x}/x)x = \sqrt{x}$.
 
@@ -324,9 +324,9 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
   x_{n+1} = x_n - \frac{x_n}{16}(1-Ax^2_n)(-19 + 16Ax^2_n - 5A^2 x^4_n) \label{newton4}
   \end{equation}
 
-  Si se comparan las ecuaciones \eqref{newton3} y \eqref{newton4}, vemos como la segunda
+  Si se comparan las expresiones \eqref{newton3} y \eqref{newton4}, vemos como la segunda
   resulta computacionalmente más sencilla de evaluar dado el menor order del polinomio
-  que contiene, aun manteniendo su orden de convergencia. Reformulando:
+  que contiene, aún manteniendo su orden de convergencia. Reformulando:
 
   \begin{equation}
   \left\{ 
@@ -424,7 +424,7 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
       \begin{equation}
       w_k = u_0v_k + u_1v_{k-1} + \cdots + u_{k-1}v_1 + u_kv_0
       \end{equation}
-      considerándose $u_i$ o $v_j$ iguales a $0$ cuando $i > j$ o $j > s$.
+      considerándose $u_i$ o $v_j$ iguales a $0$ cuando $i > j$ ó $j > s$.
       Es decir, de la misma forma que para $\mathbb{Z}$ pero sin acarreos, ya que no existe relación
       entre coeficientes vecinos. Esto conlleva que las optimizaciones
       realizadas sobre la multiplicación de enteros, tales como el método de Karatsuba 
@@ -439,7 +439,7 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
   sobre un cuerpo y verificando $v_n \neq 0$ y $m \geq n \geq 0$, existe un polinomio cociente $q(x)$ 
   y un polinomio resto $r(x)$ tales que:
   \begin{equation}
-    u(x) = q(x) \cdot v(x) + r(x)  \qquad grado(r) < grado(v)
+    u(x) = q(x) \cdot v(x) + r(x)  \qquad \mathrm{grado}(r) < \mathrm{grado}(v)
   \end{equation}
 
   $q(x)$ y $r(x)$ toman la siguiente forma:
@@ -468,7 +468,7 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
                 \footnote{un elemento con inversa. Es decir, un elemento $u$ tal que $\exists v \in S$ tal que
                           $uv = 1$}
          o tiene una representación única como producto de \emph{primos}
-        \footnote{un elemento \emph{no} unitario $p$ tal que la ecuación $p = qr$ se cumple sólo si o bien $q$ o $r$ es una unidad}.
+        \footnote{un elemento \emph{no} unitario $p$ tal que la expresión $p = qr$ se cumple sólo si o bien $q$ o $r$ es una unidad}.
         \end{itemize}
       \end{definicion}
 
@@ -495,7 +495,7 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
     forma un polinomio será ejecutado de forma sumarísima». En esa obra se encuentra, en su sección 5.3, pág. 179
     un interesante análisis de la evaluación de polinomios.
 
-    La conocida \emph{regla de Horner} evalúa un polinomio de grado $n$ tal como el dado en \eqref{poly} 
+    La conocida \emph{regla de Horner} evalúa un polinomio de grado $n$ tal como el dado en la expresión \eqref{poly} 
     en $n$ productos y $n$ sumas:
     \begin{equation}
       u(x_0) = u_0 + x_0(u_1 + x_0(u_2 + \cdots + x_0(u_n) \cdots )) \label{horner}
@@ -522,10 +522,10 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
     instanciaciones del tipo de plantilla \texttt{T}. Las particularizaciones consideradas han sido:
     matrices sobre $\mathbb{Z}$, matrices sobre $\mathbb{R}$, matrices sobre $\mathbb{Z}_n$ y matrices sobre $\GF$. 
     En los dos últimos casos, la instanciación de estas matrices requiere que se le sea proporcionado al constructor
-    en cuestión el valor de $n$ y el generador del cuerpo finito, respectivamente. 
+    en cuestión el valor de $n$ o el generador del cuerpo finito, respectivamente. 
     
   \subsection{Operaciones}
-    En este punto se describen operaciones propias del \emph{anillo} formado por $\mathcal{M}_{n}$; esto es, 
+    En este punto se describen operaciones propias del \emph{anillo} formado por $\mathcal{M}_{n,n}$; esto es, 
     las matrices cuadradas.
 
     \subsubsection{Suma y resta}
@@ -548,42 +548,53 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
 \end{array} \right)
 \]
 
+    Es fácil observar que para cada elemento, la operación de suma es totalmente independiente
+    de las demás, conformando una división en tareas \emph{embarazosamente paralela}\index{paralelo!embarazosamente --}.
 
     \subsubsection{Producto}
       La operación «estrella», ha sido objeto de mucho estudio con el fin de reducir su complejidad
-      de $O(n^3)$, la del algoritmo fruto de la implementación directa de su definición:
-      %TODO
-\[
-\left( \begin{array}{cc}
-      a_{11}+b_{11} & a_{12} + b_{12} \\
-      a_{21}+b_{21} & a_{22} + b_{22}
-\end{array} \right)
-=
-\left( \begin{array}{cc}
-      a_{11} & a_{12} \\
-      a_{21} & a_{22}
-\end{array} \right)
-+
-\left( \begin{array}{cc}
-      b_{11} & b_{12} \\
-      b_{21} & b_{22}
-\end{array} \right)
-\]
+      de $O(n^3)$, la del algoritmo fruto de la implementación directa de su definición. Sea 
+      $\mathbf{A} \in \mathcal{M}_{m,n}$ y $\mathbf{B} \in \mathcal{M}_{n,k}$. Su producto resulta en una
+      matriz $\mathbf{AB} \in \mathcal{M}_{m,k}$:
+      \begin{equation}
+        (\mathbf{AB})_{ij} = \sum_{r=1}^n a_{ir}b_{rj} = a_{i1}b_{1j} + a_{i2}b_{2j} + \cdots + a_{in}b_{nj}. \label{eq:matprod}
+      \end{equation}
+      para $1 \le i \le m$ y $1 \le j \le k$.
 
-      Una de estas estratégias, ideada por Strassen, %TODO: referencia, nombre completo
-      ha sido incorporadas en la biblioteca. Obtiene una complejidad de $O(n^{\lg_2{(7)}})$.
+      Una de las estratégias que reducen la cota de complejidad cúbica fue ideada por Volker Strassen en 
+      $1969$ (\cite{strassenorig}), siendo conocida habitualmente como el método de Strassen. 
+      La mejora puede parecer pequeña, $O(n^{\lg_2{(7)}}) \approx O(n^{2.8})$, pero para tamaños de matriz suficientemente grandes,
+      resulta ventajoso. Obtiene esta ventaja de sustituir operaciones de multiplicación por sumas --el mismo
+      principio que utilizó Karatsuba para la multiplicación de enteros, \cite{miproyecto}\footnote{}--.
+      Una variante
+      de este método, presentada por Shmuel Winograd en $1980$ (\cite{strassenmult}), reduce el número de
+      sumas del método original de Strassen, a la vez que maniene el número de multiplicaciones. 
+      Esta es la versión que ha sido incorporadas a la biblioteca. 
+      Además de estos métodos, el producto de matrices también ha sido parelelizado. Véase la sección \ref{par:matprod}.
+
+      Una técnica habitual en la implementación del producto de matrices para bibliotecas matemáticas
+      de alto rendimiento es la explotación de la jerarquía de memoria: la caché resulta mucho más rápida
+      que la memoria convencional, por lo que si es posible dividir las matrices en bloques tales que todos
+      los datos estén almacenados en la caché, el incremento de rendimiento es muy notable. Véase 
+      \cite{bloques,emmerald,sciencematrix}. Sin embargo, no ha sido posible utilizar este enfoque en la 
+      biblioteca debido a que no es posible estimar \textit{a priori} una cota del tamaño de las matrices, y
+      por tanto tampoco de sus bloques: los elementos de las matrices poseen un tamaño arbitrario. Por contra,
+      las bibliotecas para cálculo numérico habituales, utilizan tipos básicos --\texttt{float} o \texttt{double}--
+      los cuales tienen un tamaño máximo preestablecido.
 
     \subsubsection{División}
       De la forma habitual, la división se define como el producto por la inversa. Dado que
       no toda matriz posee invesa, la división arrastra las mismas restricciones que la inversión.
 
     \subsubsection{Triangularización}
+      %TODO
     \subsubsection{Resolución de sistemas de ecuaciones}
+      %TODO
     \subsubsection{Inversión}
-      Dado el categorización de $\mathcal{M}_{n}$ como anillo, la existencia de inversa para el producto
-      \emph{no} se garantiza para toda matriz. Sin embargo, es un resultado básico en álgebra que si 
+      Dada la categorización de $\mathcal{M}_{n,n}$ como anillo, la existencia de inversa para el operador  producto
+      \emph{no} se garantiza. Sin embargo, es un resultado básico en álgebra que si 
       el rango de la matriz es igual al número de filas/columnas de ésta, dicha matriz es invertible. 
-      Sin embargo, lo que habitualmente no se tiene en cuenta es si la operación de inversión resulta
+      Lo que habitualmente no se tiene en cuenta es si la operación de inversión resulta
       cerrada. Es decir, supóngase una matriz cuadrada sobre los enteros tal que su rango verifica ser
       igual a su número de filas/columnas. ¿Está todo elemento de su matriz inversa también en $\mathbb{Z}$?
       Es fácil comprobar que no:
@@ -605,36 +616,54 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
 \right)
 \]
       
-      Pese a que para existen matrices sobre $\mathbb{Z}$ cuya inversa 
-      tiene asimismo todos sus elementos en $\mathbb{Z}$, no es ha incorporado esta
+      Pese a que existen matrices sobre $\mathbb{Z}$ cuya inversa 
+      tiene asimismo todos sus elementos en $\mathbb{Z}$, no se ha incorporado esta
       funcionalidad a la biblioteca\footnote{un estudio acerca de este tipo de matrices se
-      realiza en %TODO.
-      }. 
+      realiza en \cite{intinv}}. 
       Esto se debe a que durante el proceso de inversión 
       implementado (véase sección \ref{impl:inversaMatrices}), se requiere la inversión 
       de los elementos de la matriz. Nótese que siempre es posible la conversión temporal de una 
       matriz de enteros a una matriz de reales, realizar su inversa y truncar los elementos de esta
-      de vuelta al dominio de los reales. 
+      de vuelta al dominio de los enteros. 
 
 
     \subsubsection{Determinante}
 
-      \begin{definicion}[Determinante]\label{def:determinante}
-      Sea $A = \mathcal{M}_n$ una matriz cuadrada de tamaño $n \times n$. 
-      Es posible definir su  determinante como (fórmula de Leibniz):
-      \begin{equation}
-        \det(A) = \sum_{\sigma \in S_n} \sgn(\sigma) \prod_{i=1}^n A_{i,\sigma(i)}. \label{eq:determinante}
-      \end{equation}
-      con $S_n$ el grupo de permutaciones de $n$ elementos. El sumatorio
-      contempla por tanto todas las permutaciones $\sigma$ de la secuencia $\{1,2,\ldots,n\}$.
-      $\sgn(\sigma)$ se corresponde a la signatura de la permutación $\sigma$: $+1$ si
-      $\sigma$ es una permutación par y $-1$ si es impar.
+      Pueden presentarse los determinantes como objetos matemáticos útiles en el análisis
+      y resolución de sistemas de ecuaciones lineales: según la conocida regla de Cramer, 
+      un sistema de ecuaciones lineales no homonogéneo posee solución única si y solo si 
+      el determinante de la matriz asociada al sistema no distinto de cero.
+
+      \begin{teorema}
+        Sea $\mathcal{M}_{n,n}(\mathbb{K})$ el conjunto de todas las matrices sobre $\mathbb{K}$.
+        Existe una única función 
+        \[
+         f: \mathcal{M}_{n,n}(\mathbb{K}) \longrightarrow \mathbb{K}
+        \]
+        tal que cumple las siguientes propiedades:
+        \begin{itemize}
+          \item $f$ es multilinear alternada respecto a las columnas: $f$ es lineal para cada columna 
+          y cualquier permutación de las mismas provoca que su signo cambie.
+          \item $f(I) = 1$, siendo $I$ la matriz identidad.
+        \end{itemize}
+      \end{teorema}
+
+      No se demuestra aquí el teorema anterior, pero la llamada fórmula de Leibniz define tal función $f$:
+      \begin{definicion}[Determinante (fórmula de Leibniz)]\label{def:determinante}
+        Sea $A = \mathcal{M}_{n,n}$ una matriz cuadrada. 
+        Es posible definir su  determinante como (fórmula de Leibniz):
+        \begin{equation}
+          \det(A) = \sum_{\sigma \in S_n} \sgn(\sigma) \prod_{i=1}^n A_{i,\sigma(i)}. \label{eq:determinante}
+        \end{equation}
+        con $S_n$ el grupo de permutaciones de $n$ elementos. El sumatorio
+        contempla por tanto todas las permutaciones $\sigma$ de la secuencia $\{1,2,\ldots,n\}$.
+        $\sgn(\sigma)$ se corresponde a la signatura de la permutación $\sigma$: $+1$ si
+        $\sigma$ es una permutación par y $-1$ si es impar.
       \end{definicion}
 
-      Nótese que el número de sumandos según la ecuación \eqref{eq:determinante} es $n!$, 
+      Nótese que el número de sumandos según la expresión \eqref{eq:determinante} es $n!$, 
       lo cual hace que no sea útil para el cálculo práctico del determinante. Detalles de los métodos
       utilizados en la biblioteca se muestran en la sección \ref{impl:determinante}
-     
             
 \section{Vectores}
 %TODO

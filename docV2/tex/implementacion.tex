@@ -69,15 +69,15 @@
   \subsection{El compilador como calculadora}\label{impl:templatemp}
     En esta sección se ilustra uno de los usos más oscuros, por llamarlo de 
     alguna manera, del mecanismo de  plantillas de C++: la metaprogramación de plantillas.
-    Esta técnica es normalmente relegada al plano de las curiosidades pero que como se verá a continuación
+    Esta técnica es normalmente relegada al plano de las curiosidades pero como se verá a continuación
     puede tener también una utilidad práctica. Definamos primero el problema antes de desvelar la solución:
 
     Dentro de la colección de constantes presentes en la biblioteca, utilizadas tanto por motivos de rendimiento
     como para poder implementar métodos de forma genérica, se encuentra \texttt{MAX\_BASE10\_POWER\_DIGIT}. 
-    Como su propio nombre indica, aunque no lo parezca, representa la máxima potencia de $10$ representable mediante
-    el tipo de dato básico \texttt{Digit}. Por ejemplo, si \texttt{Digit} tiene una longitud de $32$ bits, esto
-    se corresponde a $10^9$, ya que $\lfloor \lg_{10}( 2^{32} ) \rfloor = 9$. El exponente de $10$ en cuestión 
-    --que en el ejemplo anterior se corresponde a $9$--, se encuentra almacenado en otra constante, 
+    Como su propio nombre indica, aunque no lo parezca, se corresponde con la máxima potencia de $10$ representable mediante
+    el tipo de dato básico \texttt{Digit}. Por ejemplo, si \texttt{Digit} tiene una longitud de $32$ bits, 
+    se correspondá a $10^9$, ya que $\lfloor \lg_{10}( 2^{32} ) \rfloor = 9$. Este exponente de $10$ en cuestión 
+    se encuentra almacenado en otra constante, 
     \texttt{MAX\_EXP10\_CIFRA}. Bien, pues si se tienen todos los ingredientes --la base $10$ y el exponente
     $9$--, ¿qué impide asignar este valor a \texttt{MAX\_BASE10\_POWER\_DIGIT}? El hecho de que estas constantes
     son tipos \texttt{static const}: no sólo son constantes, sino que su valor debe fijarse \emph{en tiempo 
@@ -87,8 +87,8 @@
     Métodos clásicos como el uso de la función de la biblioteca estándar \texttt{pow} no son válidos en este
     contexto. Una solución pasaría por utilizar el preprocesador de C para asignar a \texttt{MAX\_BASE10\_POWER\_DIGIT} un valor 
     basado en los bits para \texttt{Digit} que defina la arquitectura para la que se está compilando la
-    biblioteca. Pero este enfoque es poco flexible y aún menos elegante. Por otra parte siempre es agradable 
-    encontrar un uso práctico a una técnica que parecería que no tiene. Se va a calcular una potencia entera 
+    biblioteca. Pero este enfoque es poco flexible y aún menos elegante. Por otra parte, siempre es agradable 
+    encontrar un uso práctico a una técnica que parecería no tener. Se va a calcular una potencia entera 
     mediante el uso del mecanismo de plantillas de C++. Para esto, se ha utilizado lo expuesto en \cite{c++templates}
     \footnote{pág. 302}. El código implementando esta funcionalidad se muestra en el listado \ref{lst:pow}.
 
@@ -107,13 +107,13 @@
       };
     \end{lstlisting}
 
-    Sin entrar en demasiados detalles, ya que se insiste en que esta es una técnica un tanto esotérica aparta del uso
+    Sin entrar en demasiados detalles, ya que se insiste en que esta es una técnica un tanto esotérica apartada del uso
     habitual de las plantillas de C++, el anterior código funciona en base a que en la línea \ref{algpow:1} se utiliza
-    el dato \texttt{result} dentro de la instanciación de la plantilla \texttt{CTPow<B,N-1}, el cual será multiplicado
+    el dato \texttt{result} dentro de la instanciación de la plantilla \texttt{CTPow<B,N-1>}, el cual será multiplicado
     por el parámetro de plantilla \texttt{B}, que hace las veces de base de la exponenciación. Esto 
     fuerza al compilador a instanciar dicha versión de la plantilla, recursivamente. Este proceso continúa hasta alcanzar
     el caso base de la recursión, el cual se define mediante la especialización parcial de la plantilla en la línea
-    \ref{algpow:2} para el caso en el que \texttt{N} es $1$. Tal caso base representaría $B^1 = B$, lo que justifica
+    \ref{algpow:2} para el caso \texttt{N} $ = 1$. Tal caso base representaría $B^1 = B$, lo que justifica
     la asignación de \texttt{B} a \texttt{result} en la línea \ref{algpow:3}. Así pues, para un requerimiento arbitrario
     del dato \texttt{CTPow<B,N>::result}, se desencadena por parte del compilador el cálculo 
     $result = \underbrace{B \times B \times \dots \times B}_{N \textrm{ veces}} = B^N$.
@@ -193,7 +193,7 @@ static bool ValidateRequirements() {
   Se aprecia como dentro del método estático \texttt{ValidateRequirements} se verifica que el tipo \texttt{T} 
   cumple con las propiedades requeridas para un grupo. Comprobaciones similares, descritas textualmente en
   la figura \ref{fig:categoriasAlgebraicas}, se realizan para los anillos --\texttt{Ring.h}-- y los cuerpos
-  --\texttt{Field.h}.
+  --\texttt{Field.h}--.
 
   Los tipos de la biblioteca susceptibles de ser categorizados --más adelante se verá la utilidad de esto-- dentro
   de estas familias algebraicas simplemente han de heredar de la clase adecuada. Por ejemplo, los enteros módulo
@@ -216,7 +216,8 @@ static bool ValidateRequirements() {
   \end{figure}
 
   Las matrices no encajan dentro de ninguna categoría, ya que tan solo las matrices cuadradas son
-  susceptibles de ser invertidas y por tanto aspirar a formar un anillo (su producto no es conmutativo, por lo que
+  susceptibles de formar un anillo (su producto no es conmutativo ni se garantiza la existencia
+  de inversa para todo elemento distinto de cero, por lo que
   tampoco podrían ser un cuerpo). Crear un tipo \textit{ex profeso} para representar matrices cuadradas limitaría
   en exceso la flexibilidad del tipo matriz. En cualquier caso, la categorización algebraica resulta útil precisamente
   para las comprobaciones de los tipos de plantilla al utilizar polinomios y matrices; es decir, a la hora de definir
@@ -294,15 +295,15 @@ class MethodsFactory : public SingletonMixIn<MethodsFactory> {
         del método.
       \end{enumerate}
       Sin embargo, estas son restricciones semánticas impuestas por la idiosincrasia particular
-      de la biblioteca. Por tanto, también será responsabilidad de ésta el hacerlas cumplir. 
+      de la biblioteca. Por tanto, también será responsabilidad de ésta el hacer que se cumplan.
       
-      Garantizar el cumplimiento de la primera condición es posible, incluso en tiempo de compilación, 
+      Garantizar el cumplimiento de la primera condición es posible 
       mediante el uso de mecanismos para la comprobación en tiempo de compilación
       (véase en concreto \ref{sec:musthavebase}): el uso de la sentencia 
         \texttt{Constraints::must\_have\_base<T,AbstractMethod>()} tendrá este efecto. 
       Respecto a la segunda, es necesario profundizar más en el funcionamiento del repositorio para 
-      entender cómo también se fuerza su cumplimiento, aunque en esta ocasión el compilador sin necesidad
-      de ninguna triquiñuela se encargará. Se prosigue pues a describir el funcionamiento interno
+      entender cómo también se fuerza su cumplimiento, aunque en esta ocasión se encargará el compilador sin necesidad
+      de ninguna triquiñuela. Se prosigue pues a describir el funcionamiento interno
       del repositorio cuando se trata de recuperar una determinada implementación para un método.
 
       En la figura \ref{fig:getFunc} se muestra el diagrama de flujo correspondiente a este método.
@@ -318,8 +319,8 @@ class MethodsFactory : public SingletonMixIn<MethodsFactory> {
         \item[Punto $1$, identificación del tipo.] Mediante el uso del operador \texttt{typeid} 
               (\cite{c++}\footnote{sección 15.4.4, pág. 437}) se obtiene una representación
               textual \emph{única} de un tipo. Esta representación no suele estar diseñada para
-              ser leída por un usuario humano, pero el mero hecho de que se garantice su unicidad
-              la convierte en una forma unívoca para identificar tipos.
+              ser leída por un usuario humano, pero su unicidad
+              la convierte en una forma unívoca de identificación de tipos.
         \item[Punto $2$, instanciación de implementación por omisión.] Cuando el usuario no ha
         definido explícitamente una implementación concreta para una clase de métodos, la primera 
         vez que se solicita una implementación, ésta ha de ser instanciada. Tal como se ha indicado
@@ -359,7 +360,7 @@ _methods[name] = m;
     al ejecutar la biblioteca:
     \begin{description}
       \item[Concurrencia y paralelismo.] Biblioteca compilada con soporte OpenMP (paralelismo) y
-      siendo utilizada por un programa concurrente (por ejemplo, el servidor de la aplicación MPPLab, \ref{mpplab:server}).
+      siendo utilizada por un programa concurrente (por ejemplo, el servidor de la aplicación MPPLab, sección \ref{mpplab:server}).
       \item[Sólo concurrencia.] Biblioteca compilada sin soporte OpenMP pero utilizada 
       por un programa concurrente. 
       \item[Sólo paralelismo.] Biblioteca compilada con soporte OpenMP utilizada por un programa secuencial.
@@ -368,7 +369,7 @@ _methods[name] = m;
 
     El primer paso es identificar las secciones críticas: aquellas sentencias en las que se accede a algún
     recurso compartido el cual no debe ser accedido concurrentemente por más de un hilo (definición \ref{def:seccioncritica},
-        sección \ref{par:seccioncritica}). El recurso compartido en este caso es la estructura de datos
+     en la página \pageref{def:seccioncritica}). El recurso compartido en este caso es la estructura de datos
     en la cual se almacenan las instancias. Por tanto, prácticamente todas las sentencias
     de los métodos \texttt{getFunc} y \texttt{setFunc} tal como han sido descritos hasta ahora conformarían 
     la sección crítica. El aspecto en código de estos métodos se muestra a continuación en el listado \ref{lst:getysetfuncs}.
@@ -377,23 +378,17 @@ _methods[name] = m;
 template<typename T>
 void MethodsFactory::getFunc(T* &m) {
   Constraints::must_have_base<T,AbstractMethod>();
-  #pragma omp critical 
-  {
-    pthread_mutex_lock( &_mutex);
-    _get(m);
-    pthread_mutex_unlock( &_mutex);
-  }
+  pthread_mutex_lock( &_mutex);
+  _get(m);
+  pthread_mutex_unlock( &_mutex);
   return;
 }
 template<typename T>
 void MethodsFactory::setFunc(T* const m){
   Constraints::must_have_base<T,AbstractMethod>();
-  #pragma omp critical 
-  {
-    pthread_mutex_lock( &_mutex);
-    _set(m);
-    pthread_mutex_unlock( &_mutex);
-  }
+  pthread_mutex_lock( &_mutex);
+  _set(m);
+  pthread_mutex_unlock( &_mutex);
   return;
 }
 \end{lstlisting}
@@ -404,16 +399,15 @@ void MethodsFactory::setFunc(T* const m){
 
     \subsubsection{Sección crítica: protocolos de entrada/salida}
       Tanto para \texttt{getFunc} como para \texttt{setFunc}, se tienen unos protocolos 
-      de entrada y salida comunes. Sin embargo estos constan de dos componentes diferenciadas, 
-      fruto del punto de vista del que actúan. Nótese que el incorporar ambas medidas no es redundante,
-      ya que es posible tener un programa concurrente utilizando asimismo OpenMP.
-      \paragraph{Desde la concurrencia}
+      de entrada y salida comunes.  
+     \paragraph{Desde la concurrencia}
         Si el programa que utiliza la biblioteca es de naturaleza concurrente, tal como el servidor
-        de la aplicación MPPLab, se utiliza un lock de la biblioteca pthreads para asegurar la exclusión
+        de la aplicación MPPLab, se utiliza un candado de la biblioteca pthreads para asegurar la exclusión
         mutua. 
       \paragraph{Desde el paralelismo}
-        Desde el punto de vista de OpenMP, la exclusión mutua se garantiza mediante la directiva 
-        \texttt{critical}, de nombre bastante ilustrativo. 
+        Desde el punto de vista de OpenMP, la exclusión mutua se garantiza también gracias a estos candados:
+        pthreads se encuentra en un nivel inferior a OpenMP, y de hecho, OpenMP recurre internamente a pthreads 
+        en los sistemas de desarrollo utilizados.
 
 
 \section{La CPU SIMD}
@@ -484,14 +478,14 @@ Estas operaciones dependen de los métodos de la CPU SIMD, que implementa las sig
   \item[Unpack] Convierte desde un \texttt{SIMDDigit} a un vector de tipos básicos.
  \end{description}
 
- Nótese que cuando se opera con SIMDDigits, se asume que los operandos albergan
+ Nótese que cuando se opera con \texttt{SIMDDigit}s, se asume que los operandos albergan
  el mismo tipo de datos básicos.
- De no ser así, el resultado que se obtenga es indefinido, ya que por cuestiones de rendimiento a 
+ De no ser así, el resultado que se obtiene es indefinido, ya que por cuestiones de rendimiento a 
  este nivel no se realizan este tipo de comprobaciones.
 
 
 \subsection{El problema del alineamiento}
-  A causa de como el subsistema de memoria maneja los datos a y desde la memoria principal,
+  A causa del modo en el que el subsistema de memoria maneja los datos a y desde la memoria principal,
   pasando por varios niveles de cachés, resulta siempre ventajoso desde el punto de vista del 
   rendimiento alinear los datos en \emph{direcciones de memoria múltiplo del tamaño del tipo 
   en cuestión} (véase \cite{intelOpt, agnerc++}\footnote{sección 3.6.3, pág. 3-47; sección 8.5, pág. 78 resp.}). 
@@ -532,8 +526,8 @@ Estas operaciones dependen de los métodos de la CPU SIMD, que implementa las sig
 
   En general, los únicos pasos necesarios para esta portabilidad a $64$ bits fueron la reescritura de las
   rutinas en ensamblador de la CPU virtual (véase sección \ref{basic:cpu}) y la definición de los tipos
-  \texttt{Digit} y \texttt{SignedDigit} como de $64$ bits. Debido a la estricta estructuración en capas 
-  y el uso intensivo de la programación genérica, no realizando asunciones en los tamaños de los tipos 
+  \texttt{Digit} y \texttt{SignedDigit} como de $64$ bits. Esto ha sido posible gracias a la estricta estructuración en capas 
+  y al uso intensivo de la programación genérica, no realizando asunciones en los tamaños de los tipos 
   ni imponiendo restricciones más allá de las impuestas por los modelos abstractos de las diversas capas.
 
 
@@ -579,7 +573,7 @@ Estas operaciones dependen de los métodos de la CPU SIMD, que implementa las sig
     ampliado el abanico de operaciones disponibles.
     \subsubsection{Cálculo de la raíz cuadrada} \label{impl:sqrt}
       El método implementado se describe en la sección \ref{tipos:sqrt}. Se corresponde con un método iterativo
-      con un orden de convergencia cuádruple ilustrado en la ecuación \eqref{eq:sqrtFinal} de dicha sección, que
+      con un orden de convergencia cuádruple ilustrado en la expresión \eqref{eq:sqrtFinal} de dicha sección, que
       por comodidad se reproduce de nuevo a continuación:
 
         \begin{equation}
@@ -633,22 +627,22 @@ return xn;
       (re)utilizar datos \texttt{static} y \texttt{const}. Estos son creados una única vez, durante la etapa
       de inicialización estática del programa --la cual es ejecutada incluso antes que la función \texttt{main}--, y
       no pueden ser modificados, por lo que no incurren en una violación de la \textit{thread-safety} (véase sección 
-      \ref{sec:thread-safety}. Estas dos propiedades hacen que el compilador sea capaz de optimizar más agresivamente
+      \ref{sec:thread-safety}). Estas dos propiedades hacen que el compilador sea capaz de optimizar más agresivamente
       estos datos, con el consecuente incremento en rendimiento. En el caso que nos ocupa, las líneas
       \ref{algsqrt:staticconstini}--\ref{algsqrt:staticconstend} explotan esta técnica. La cadena de dependencias
       que se establece entre ellas no es problemática dado que todos los datos comparten el carácter \texttt{static const}.
 
-      \paragraph{Cálculo de $x_0$.} En todo proceso iterativo es importante contar con un buen punto inicial $x_0$,
-      en especial en el método de Newton y similares este punto $x_0$ determina la convergencia del método. La pregunta
+      \paragraph{Cálculo de $x_0$.} En todo proceso iterativo es importante contar con un buen punto inicial $x_0$.
+      En especial en el método de Newton y similares, este punto $x_0$ determina la convergencia del método. La pregunta
       es, ¿cómo obtener una buena aproximación inicial para un real arbitrario? Sería ideal poder utilizar las rutinas
       nativas del sistema --en este caso la función estándar \texttt{sqrt} de la librería de C-- sobre una versión 
-      truncada del real de la biblioteca en cuestión. El problema se traslada pues a como el actual \texttt{mpplas::R} 
-      en formato \texttt{double} nativo. Dado que se cuenta con una función para obtener una representación
+      truncada del real de la biblioteca en cuestión. El problema se traslada pues a cómo convertir el actual \texttt{mpplas::R} 
+      al formato \texttt{double} nativo. Dado que se cuenta con una función para obtener una representación
       textual del real de la biblioteca, podría pensarse en utilizarla conjuntamente con la función estándar de C \texttt{atof}.
       Este enfoque resultaría muy poco eficiente, ya que dicha transformación textual a base $10$ es costosa y por 
       su propia construcción no es posible limitarla a solamente algunas de sus cifras más significativas. 
 
-      La solución adoptada requiere de que cada instancia de \texttt{mpplas::R} mantenga un \texttt{double} asociado
+      La solución adoptada requiere que cada instancia de \texttt{mpplas::R} mantenga un \texttt{double} asociado
       a sí misma, de tal forma que con cada operación sobre dicha instancia, se actualice también esta aproximación.
       Dado que las operaciones que modifican el dato no son numerosas, no supone ningún trastorno. Asimismo, el coste
       de estas operaciones sobre el tipo nativo es despreciable. El cálculo de $x_0$ dependerá ahora de la aplicación
@@ -656,7 +650,7 @@ return xn;
       en la línea \ref{algsqrt:x0}.
 
 
-      \paragraph{Evaluación del polinomio.} El polinomio contenido en la formulación de $x_{n+1}$ en la ecuación \eqref{eq:sqrtFinalBis},
+      \paragraph{Evaluación del polinomio.} El polinomio contenido en la formulación de $x_{n+1}$ en la expresión \eqref{eq:sqrtFinalBis},
       $x_n + \frac{x_n}{16} \left(  8h_n + 6h^2_n +5h^3_n \right)$ 
       resulta en $ x_n + x_n \left(  \frac{8}{16}h_n + \frac{6}{16}h^2_n + \frac{5}{16}h^3_n\right)$. En base 
       a que en la implementación es posible prescindir de $h_n$ como valor independiente, utilizando el propio $x_n$ temporalmente,
@@ -671,13 +665,17 @@ return xn;
         interesase. Si no se cuenta con el valor correcto --ya que es éste precisamente el que se está calculando--, 
         ¿cómo saber cuándo se han obtenido dichos dígitos? En realidad, tales preguntas sólo son tales desde un punto
         de vista puramente teórico. Sin embargo en la práctica siempre se cuenta con un límite en la precisión de trabajo, 
-        aunque dicho límite pueda ser fijado a un valor arbitrario. Por tanto, «tantos dígitos exactos como interesase»
-        pasa a ser «tantos dígitos exactos como precisión se esté considerando». La si la iteración $i$-ésima ha producido
-        un $x_n$ con tantos o más dígitos como la precisión considerada, no tiene sentido proceder con la iteración $(i+1)$-ésima.
+        aunque dicho límite pueda ser fijado a un valor arbitrario. Así pues, «tantos dígitos exactos como interesase»
+        pasa a ser «tantos dígitos exactos como precisión se esté considerando». Si la iteración $i$-ésima ha producido
+        un $x_n$ con tantos (o más) dígitos como la precisión considerada, no tiene sentido proceder con la iteración $(i+1)$-ésima.
         Se estará en esa situación cuando se cumpla la condición reflejada en la línea \ref{algsqrt:parada}: $x_n = x_{n-1}$.
   
   
       \subsubsection{Funciones trascendentes} \label{impl:trascendentes}
+        Debido a la naturaleza trascendente de estas funciones, no existen expresiones «cerradas» en términos de 
+        números\footnote{se dice que un número es algebraico si es raíz de un polinomio no nulo con coeficientes en $\mathbb{Q}$} o 
+        funciones algebraicas. Por ello, es común recurrir a formulaciones basadas en series infinitas que van aproximandose
+        a la función en cuestión.
 
         \paragraph{Cálculo del logaritmo.}
           \begin{observacion}\label{obsLog}
@@ -690,20 +688,25 @@ return xn;
           \mathbb{R}$ se reduciría a (utilizando los símbolos de dicha
           observación):
           \[
-            \log{(x)} = \log{(y \times 2^n)} = \log{(y)} + n \cdot \log{(2)}
+            \ln{(x)} = \ln{(y \cdot 2^n)} = \ln{(y)} + n \cdot \ln{(2)}
           \]
           Las ventajas que de esta forma de calcula el logaritmo se
-          desprenden son claras: por una parte, el cálculo de $\log(2)$ (también denominada
-          ``La constante logarítmica'', véase \cite{log2}) es un problema
+          desprenden son claras: por una parte, el cálculo de $\ln(2)$ (también denominada
+          como «constante logarítmica», véase \cite{log2}) es un problema
           ampliamente tratado y existen métodos de gran eficiencia para su cálculo. 
-          Más adelante se tratará este punto en más profundidad.
           Por otra parte, al cumplirse $0 < y \leq 1$, el cálculo de
-          $\log{(y)}$ puede realizarse satisfactoriamente y con relativa
-          efectividad utilizando la expansión de MacLaurin
-          para la función logaritmo.
+          $\ln{(y)}$ puede realizarse satisfactoriamente y con relativa
+          eficiencia utilizando la expansión de MacLaurin para la función logaritmo.
 
 
-        \paragraph{La constante $\pi$.} Se ha utilizado el conocido método de Machin. %TODO
+        \paragraph{La constante $\pi$.} Existen multitud de métodos para el cálculo de $\pi$ (véanse por ejemplo
+        \cite{pimw, pigourdon}). En este caso se ha recurrido a un enfoque clásico, no demasiado brillante en términos
+        de rendimiento, pero efectivo aún así, que además permite comprobar la correcta implementación de otras funciones
+        trascendentes, como se aprecia a continuación:
+        \[
+            \frac{\pi}{4} = 4 \, \arctan \frac{1}{5} - \arctan \frac{1}{239}
+        \]
+        Esta formulación es conocida como fórmula de John Machin.
 
   \subsection{Enteros $\mathbb{Z}M_n$}\label{implZM_n}
 
@@ -719,7 +722,7 @@ Constraints::must_have_base<S, Ring<S> > dummy1 __attribute__ ((__unused__));
 STATIC_ASSERT( S::multCommutative );
 \end{lstlisting}
 La primera línea del anterior listado utiliza la técnica de comprobación de herencia para asegurarse de que \texttt{S} es efectivamente
-un anilla. Una vez que se sabe que \texttt{S} es efectivamente un anillo, la segunda línea verifica que éste cumple la propiedad de ser
+un anillo. Una vez se sabe que \texttt{S} es efectivamente un anillo, la segunda línea verifica que éste cumple la propiedad de ser
 conmutativo.
 
 Asimismo, se requiere que \texttt{S} sea un tipo de la biblioteca; es decir, que herede de \texttt{MPPDataType}. La razón
@@ -795,18 +798,18 @@ Constraints::must_have_base<S, MPPDataType > dummy2 __attribute__ ((__unused__))
       La sobreescritura de la diagonal de $L$ no supone un problema, ya que ésta siempre está compuesta
       únicamente de unidades.
 
-      La implementación en sí del método es sencilla, y resulta una reescritura con los símbolos adecuados
-      de C++ del algoritmo en pseudocódigo \ref{alg:doolittle} en la página \pageref{alg:doolittle}.
+      La implementación en sí del método es sencilla, y resulta de una reescritura con los símbolos adecuados
+      de C++ del algoritmo en pseudocódigo \ref{alg:doolittle} de la página \pageref{alg:doolittle}.
 
     
     \subsubsection{Inversión}\label{impl:inversaMatrices}
 
     \subsubsection{Cálculo del determinante}\label{impl:determinante}
       El cálculo del determinante resulta trivial una vez que se ha triangularizado 
-      la matriz cuyo determinante se desea obtener. Es trivial comprobar que el 
+      la matriz cuyo determinante se desea obtener. Es fácil comprobar que el 
       determinante de una matriz triangular --superior o inferior-- es igual al producto
       de los elementos de su diagonal (véase la definición de determinante: \ref{def:determinante}).
-      Asimismo, si se tiene en cuenta que $det(AB) = det(A) det(B)$ para $A,B \in \mathcal{M}_n$ 
+      Asimismo, dado que $det(AB) = det(A) det(B)$ para $A,B \in \mathcal{M}_{n,n}$ 
       (véase \cite{algebraburgos}\footnote{sección 4.4, pág. 85}), si se cuenta con la descomposición
       $LU$ de la matriz, el cálculo de su determinante se reduce al producto de los elementos de la 
       matriz triangular superior $U$:
@@ -824,18 +827,19 @@ Constraints::must_have_base<S, MPPDataType > dummy2 __attribute__ ((__unused__))
 
       El cálculo del determinante se reduce por tanto a una operación
       de complejidad lineal en $n$, \emph{dada la descomposición de $A$}. Es decir, la eficiencia y posibilidad 
-      de utilización de la ecuación \eqref{eq:detA_detU} en la práctica depende no sólo del coste de la 
+      de utilización de la expresión \eqref{eq:detA_detU} en la práctica depende no sólo del coste de la 
       descomposición de $A$ sino también de la \emph{posibilidad} de realizarla. Como se ha visto en el punto 
-      \ref{sec:lu}, es requisito la existencia de inversa para elementos arbitrarios del conjunto sobre el cual
+      \ref{sec:lu}, es requisito la existencia de inversa para elementos arbitrarios de la estructura algebraica sobre la cual
       se encuentre definida la matriz. El caso que viene inmediatamente a la cabeza como ejemplo de \emph{no} 
       posibilidad de utilización es por tanto el de $\mathbb{Z}$, donde tan solo $1$ y $-1$ tienen inversa... algo
       que ciertamente no parece suficiente\footnote{salvo que alguien pretenda el calculo de la inversa de la matriz
-      identidad. En cuyo caso el problema realmente sería de dicho alguien.}. Sin embargo, a la vista de la definición
-      dada en \ref{def:determinante} por la ecuación \eqref{eq:determinante}, sí es posible calcular desde un punto
+      identidad. En cuyo caso el problema realmente lo tendría dicho alguien.}. Sin embargo, a la vista de la definición
+      \eqref{eq:determinante} en la página \pageref{def:determinante}, sí es posible calcular desde un punto
       de vista teórico el determinante de matrices sobre anillos, tal como $\mathbb{Z}$. Hace falta tan solo aplicar
-      una estrategia que no conlleve divisiones --es decir, inversiones.
+      una estrategia que no conlleve divisiones --es decir, inversiones--.
 
       \paragraph{Cálculo de determinante sin divisiones: Gauss-Bareiss} \label{impl:bareiss}
+        %TODO
         \cite{bareiss2}
         \cite{bookbareiss}\footnote{sección 10.2}
         \cite{cohen}\footnote{algoritmo 2.2.6, pág. 52}

@@ -166,7 +166,7 @@
   el método parelelo resulta ventajoso para todo valor. Nótese que el método de Karatsuba
   se emplea únicamente a partir de factores de una cierto tamaño (véase \cite{miproyecto}),
   lo cual explica este hecho. Asimismo, el ratio parece tender a $0.7$, es decir, una 
-  ganancia del $30\%$ y una eficiencia de $\approx 0.15$. Debe tenerse en cuenta que el número
+  ganancia de $1/0.7 \approx 1.43$ y una eficiencia de $1.43 / 2 \approx 0.715$. Debe tenerse en cuenta que el número
   de unidades de procesamiento del sistema en el que se han realizado las mediciones es de dos, mientras
   que el número de tareas es de tres: nos encontramos limitados por nuestro sistema físico.
   %TODO
@@ -271,6 +271,9 @@
 
 \section{Matrices}
   \subsection{Producto}\label{par:matprod}
+
+  \subsubsection{Comparativa}
+
     \begin{figure}[h]
       \centering
       \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{productoMat} 
@@ -333,6 +336,7 @@
     sobre $i$. No es posible paralelizar sobre $k$ ya que en este caso sí existe
     una cadena de dependencias. Por ejemplo, sobre los elementos de la diagonal. 
 
+  \subsubsection{Comparativa}
     \begin{figure}[h]
       \centering
       \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{solveMat} 
@@ -346,6 +350,7 @@
     \end{figure}
   \subsection{Inversión}
 
+  \subsubsection{Comparativa}
     \begin{figure}[h]
       \centering
       \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{inversionMat} 
@@ -359,12 +364,8 @@
     \end{figure}
 
 
-  \subsection{Transposición}
-
 
   \subsection{Determinante}
-    \subsubsection{Cálculo basado en la descomposición $LU$}\label{para:detViaLU}
-      %TODO
     \subsubsection{Algoritmo de Gauss-Bareiss}\label{para:bareiss}
       Descrito en la sección \ref{impl:bareiss}. Si se representa el patrón de accesos derivado 
       de su algoritmo secuencial (algoritmo \ref{alg:bareiss}), no es difícil derivar una división
@@ -381,7 +382,7 @@
       De este patrón de acceso se deriva una paralelización organizada por el acceso a los datos y
       con una enumeración lineal. Por tanto el patrón estructural más indicado parece ser una descomposición
       geométrica sobre las filas, siguiendo el recorrido de $k$. A nivel de estructura de soporte, el patrón de 
-      paralelismo de bucle se ajusta perfectamente: %FIXME
+      paralelismo de bucle se ajusta perfectamente: 
 
       \begin{algorithm}
         \caption{Algoritmo de Gauss-Bareiss}\label{alg:bareiss}
@@ -414,19 +415,82 @@
         \end{algorithmic}
       \end{algorithm}
 
+    \paragraph{Comparativa}
+
+      \begin{figure}[h]
+        \centering
+        \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{barreis} 
+        \caption{Comparativa Gauss-Bareiss}\label{fig:bareiss}
+      \end{figure}
+
+      \begin{figure}[h]
+        \centering
+        \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{propBarreis} 
+        \caption{Comparativa Gauss-Bareiss (proporción)}\label{fig:propBarreis}
+      \end{figure}
 
 
-  \subsection{Operaciones de carácter vectorial}
+%  \subsection{Operaciones de carácter vectorial}
     % sumas, restas, prod por escalares
 
 \section{Cálculo de \textit{reducciones}}
+  \subsection{Máximo común divisor de una colección de enteros}
 
 
-\section{Polinomios}
-  \subsection{Producto}
-  \subsection{Operaciones de carácter vectorial}
-    % sumas, restas, prod por escalares
-  \subsection{Evaluación}\label{parallel:evalPoly}
-    \cite{dorn}
+\section{Evaluación de polinomios}\label{parallel:evalPoly}
+%  \subsection{Operaciones de carácter vectorial}
+%    % sumas, restas, prod por escalares
+  La evaluación de polinomios por medio de la regla de Horner, formulada en la sección \ref{tipos:evaluacionPoly}, 
+  parece presentar una cadena de dependencias insalvables de cara a la paralelización del método. Sin embargo, ya 
+  W. S. Dorn en $1962$ (\cite{dorn}) presenta una generalización de la regla de Horner que permite, en teoría, la 
+  evaluación de un polinomio de forma paralela sobre $k$ unidades de procesamiento. Este mismo método es también 
+  citado por \cite{knuth}\footnote{sección 4.6.4, pág. 487}. En la práctica, el método general no es práctico, pero sí
+  lo son las particularizaciones de orden $2$, $3$ y $4$, en lo que a nosotros nos concierne: es más, el sistema
+  de desarrollo cuenta únicamente con dos unidades de ejecución, por lo que el siguiente análisis se centra en el
+  desarrollo de Horner de orden $2$. 
+
+  Recuérdese como se obtiene la regla de Horner clásica, dada en la página \pageref{horner}: sea $u(x) = u_n x^n + \cdots + u_1 x + u_0$.
+  Dividiendo $u(x)$ entre $x-x_0$, $u(x) = (x-x_0)q(x)+r(x)$. Dado que el grado del polinomio resto $\mathrm{grado}(r(x)) < 1$,
+  $r(x)$ será una constante. Asimismo, $u(x_0) = 0 \cdot q(x_0) + r = r$. Si se examina detenidamente, se observa
+  que este es el principio en el que se sostiene la regla de Horner. 
+  
+  En general, si se divide $u(x)$ entre $f(x)$, 
+  se obtiene $u(x) = f(x)q(x) + r(x)$, y si $f(x_0) = 0$, se cumple $u(x_0) = r(x_0)$. Si se toma $f(x) = x^2 - x^2_0$, 
+  se obtiene la regla de Horner «de segundo grado»:
+  \begin{eqnarray}
+    u(x) & = & \nonumber \\
+         & = & \left( \ldots(u_{2 \lfloor n/2 \rfloor} x^2 + u_{2 \lfloor n/2 \rfloor - 2})x^2 + \cdots \right) u_0 +  \\ \label{eq:polyeval1}
+         & + & \left( (\ldots (u_{2\lceil n/2 \rceil-1} x^2 + u_{2\lceil n/2 \rceil -3})x^2 + \cdots )x^2 + u_1 \right) x \label{eq:polyeval2}
+  \end{eqnarray}
+  El número de multiplicaciones y sumas es el mismo que para la formulación original. Ahora bien, los sumandos
+  \eqref{eq:polyeval1} y \eqref{eq:polyeval2} en la anterior expresión son \emph{independientes}. Es posible
+  computarlos por separado, y de ahí se obtiene el paralelismo. Además, la carga computacional de ambos es prácticamente
+  la misma, por lo que se espera un buen comportamiento en cuanto a la distribución de carga.
+
+  Para el lector interesado, la regla de Horner de orden $k$-ésimo se obtiene con un polinomio $f(x) = x^k - x^k_0$. Para
+  más detalles, véanse las referencias bibliográficas referidas al inicio de este punto.
+
+  \subsection{Comparativa}
+    En la figura \ref{fig:polypar} se muestra una comparativa de tiempos de ejecución para la evaluación
+    de varios polinomios, en paralelo y secuencialmente. 
+    \begin{figure}[h]
+      \centering
+      \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{poly} 
+      \caption{Comparativa evaluación polinomio}\label{fig:polypar}
+    \end{figure}
+    Independientemente de la comparativa, resulta curioso observar los picos que se producen para ciertos
+    grados del polinomio. Este comportamiento, aunque atenuado, se aprecia también para el cálculo en paralelo. 
+    Aunque se desconoce su razón concreta, es posible que tenga que ver con la política particular de gestión de cachés del
+    procesador.
+
+    Para facilitar la comparativa, se presenta en la figura \ref{fig:propPoly} la proporción paralelo-secuencial para
+    este método.
+    \begin{figure}[h]
+      \centering
+      \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{propPoly} 
+      \caption{Comparativa evaluación polinomio (proporción)}\label{fig:propPoly}
+    \end{figure}
+    Se aprecia una tendencia hacia $\approx 0.55$, lo que da una ganancia de $1/0.55 \approx 1.82$;
+    y una eficiencia de $1.82 / 2 = 0.91$, lo cual es muy buen resultado.
 
 

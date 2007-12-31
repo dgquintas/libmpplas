@@ -496,7 +496,7 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
     un interesante análisis de la evaluación de polinomios.
 
     La conocida \emph{regla de Horner} evalúa un polinomio de grado $n$ tal como el dado en la expresión \eqref{poly} 
-    en $n$ productos y $n$ sumas:
+    en $n$ productos y $n$ sumas sin necesidad de almacenar resultados intermedios:
     \begin{equation}
       u(x_0) = u_0 + x_0(u_1 + x_0(u_2 + \cdots + x_0(u_n) \cdots )) \label{horner}
     \end{equation}

@@ -18,18 +18,18 @@
 
 namespace mpplas 
 {
-  template<typename T>
-    class Vector : public Matrix<T>
+  template<typename T, typename Alloc = std::allocator<T> >
+    class Vector : public Matrix<T, Alloc>
   {
     public:
       Vector();
       Vector(const int size);
       Vector(const int size, const T& ini);
-      Vector(const Vector<T>& rhs); /**< Copy constructor */
-      Vector(const std::vector<T>& rhs); /**< Constructor from a std::vector */
+      Vector(const Vector<T, Alloc>& rhs); /**< Copy constructor */
+      Vector(const std::vector<T, Alloc>& rhs); /**< Constructor from a std::vector */
       Vector(const std::string &); /**< Parsing contructor from a textual representation */
 
-      Vector<T>& operator=(const Vector<T>& rhs);
+      Vector<T, Alloc>& operator=(const Vector<T, Alloc>& rhs);
 
 
 
@@ -45,9 +45,9 @@ namespace mpplas
        *
        *   @return The tranposed vector.
        */
-      Vector<T>& transpose();
-      Vector<T>& cross(const Vector<T>&);
-      T dot(const Vector<T>& rhs);
+      Vector<T, Alloc>& transpose();
+      Vector<T, Alloc>& cross(const Vector<T, Alloc>&);
+      T dot(const Vector<T, Alloc>& rhs);
 //      Vector<T>& normalize();
       R norm(const int p = 2);
 
@@ -65,8 +65,8 @@ namespace mpplas
        * @return A reference to the input stream @a in
        *
        */
-      template<typename U> friend std::istream& operator>>(std::istream& in, 
-          Vector<U>& v) ;
+      template<typename U, typename V> friend std::istream& operator>>(std::istream& in, 
+          Vector<U, V>& v) ;
 
 
   };
@@ -79,11 +79,11 @@ namespace mpplas
    *
    * @return The transposed version of @a src.
    */
-  template<typename T> Vector<T> transpose( Vector<T> src ); 
-//  template<typename T> Vector<T> normalize( Vector<T> src );
-  template<typename T> R norm( Vector<T> src, const int p = 2 );
-  template<typename T> T dot( Vector<T> lhs, const Vector<T>& rhs);
-  template<typename T> Vector<T> cross( Vector<T> lhs, const Vector<T>& rhs);
+  template<typename T, typename Alloc> Vector<T, Alloc> transpose( Vector<T, Alloc> src ); 
+//  template<typename T> Vector<T, Alloc> normalize( Vector<T, Alloc> src );
+  template<typename T, typename Alloc> R norm( Vector<T, Alloc> src, const int p = 2 );
+  template<typename T, typename Alloc> T dot( Vector<T, Alloc> lhs, const Vector<T, Alloc>& rhs);
+  template<typename T, typename Alloc> Vector<T, Alloc> cross( Vector<T, Alloc> lhs, const Vector<T, Alloc>& rhs);
 
 #include "VectorImpl.h"
 }

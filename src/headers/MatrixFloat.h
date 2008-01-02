@@ -57,6 +57,11 @@ namespace mpplas
 
   MatrixFloat operator-(MatrixFloat m); /**< Unary negation, sign inversion */
 
+  MatrixFloat operator+(MatrixFloat lhs, const MatrixFloat& rhs);
+  MatrixFloat operator-(MatrixFloat lhs, const MatrixFloat& rhs);
+  MatrixFloat operator*(MatrixFloat lhs, const MatrixFloat& rhs);
+  MatrixFloat operator/(MatrixFloat lhs, const MatrixFloat& rhs);
+
 
 }
 

@@ -17,9 +17,9 @@ namespace mpplas{
     : _p(p), value(0)
   {
     if( p != 0){
-      TestPrimoProb *testPrimes;
+      PrimeTest *testPrimes;
       MethodsFactory::getReference().getFunc(testPrimes);
-      assert( testPrimes->esPrimo(p) ); //TODO: throw exception
+      assert( testPrimes->isPrime(p) ); //TODO: throw exception
     }
   }
 
@@ -27,9 +27,9 @@ namespace mpplas{
     : _p(p), value(n)
   {
     if( p != 0){
-      TestPrimoProb *testPrimes;
+      PrimeTest *testPrimes;
       MethodsFactory::getReference().getFunc(testPrimes);
-      assert( testPrimes->esPrimo(p) ); //TODO: throw exception
+      assert( testPrimes->isPrime(p) ); //TODO: throw exception
       value %= p;
     }
   }

@@ -22,7 +22,7 @@ namespace mpplas{
 
   /** Basic data type. 
    *
-   * It represents the base considered for Z, and will be the 
+   * It represents the base considered for @a mpplas::Z, and will be the 
    * type used wherever a positive (machine-width) integer is needed.
    */
 #if ARCHBITS == 64
@@ -63,6 +63,7 @@ typedef __m128 float4xSIMD_t;
 typedef __m128d double2xSIMD_t;
 typedef __m128i int8xSIMD_t;
 
+
 template<typename T>
 class SIMDtoBasicTypes;
 
@@ -87,6 +88,10 @@ class SIMDtoBasicTypes<int8xSIMD_t>{
 
   namespace BasicCPU{
 
+    /** BasicCPU operations. 
+     *
+     * Used in profiling to map every BasicCPU 
+     * operation with a unique integer. */
     enum OpsEnum { 
       ADD = 0, ADDX, 
       SUB, SUBX, 

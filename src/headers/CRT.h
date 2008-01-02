@@ -12,23 +12,17 @@ namespace mpplas{
   
   class CRTGarner;
 
-  /** Interfaz para implementaciones para el cálculo del Teorema del
-   * Resto Chino (CRT de sus siglas en inglés).
-   *
-   * Clase base para algoritmos que implementen el Teorema del Resto
-   * Chino.
-   * 
-   */
+  /**  Chinese Remainder Theory interface. */
   class CRT : public AbstractMethod {
     public:
-      /** Cálculo del Teorema del Resto Chino.
+      /** Calculation of the Chinese Remainder Theorem.
        *
-       * @param y Vector de enteros representando las partes derechas
-       * de las congruencias a satisfacer.
-       * @param m Vector de módulos de las congruencias. 
+       * @param y a vector of mpplas::Z representing the right side of the 
+       * congruencies.
+       * @param m a vector containing the moduli of the congruences.
        *
-       * @return Entero que satisfaga \f$ x \equiv y_i \pmod{m_i}\f$
-       * para cada \f$i\f$ de los vectores @a y y @a m.
+       * @return the mpplas::Z satisfying \f$ x \equiv y_i \pmod{m_i}\f$
+       * for each \f$i\f$ of the vectors @a y and @a m.
        * */
       virtual Z crt(MiVec<Z> y, MiVec<Z> m) = 0;
 
@@ -38,13 +32,13 @@ namespace mpplas{
   };
 
 
-  /* IMPLEMENTACIONES */
+  /* IMPLEMENTATIONS */
 
-   /** Algoritmo de Garnet para el Teorema del Resto Chino.
+   /** Garnet algorithm for the Chinese Remainder Theorem.
    *
-   * Descrito en Handbook of Applied Cryptography, algoritmo 14.71
+   * Described in Handbook of Applied Cryptography, algorithm 14.71
    * 
-   * @note Es el método que la librería utiliza por omisión.
+   * @note This is the library's default implementation for the CRT.
    */
   class CRTGarner : public CRT
   {

@@ -29,12 +29,12 @@ filesStr = """
     Rx.cpp
     Seedbank.cpp
     SimbolosLegendre.cpp
-    SIMDDigit.cpp
     SystemInfo.cpp
     Trascendentes.cpp
     Utils.cpp
-    VectorZ.cpp
-    VectorR.cpp
+    VectorFloat.cpp
+    VectorDouble.cpp
+    VectorInt.cpp
     Z.cpp
     Z_n.cpp
     Z_p.cpp

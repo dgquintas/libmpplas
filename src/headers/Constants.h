@@ -12,16 +12,10 @@
 #include "BasicTypedefs.h"
 #include "Utils.h"
 
-
 namespace mpplas{
-
-
   
-  /** Espacio de nombres contenedor de las constantes utilizadas a lo
-   * largo de la librería. */
+  /** Constants used throughout the library */
   namespace Constants{
-
-
     
 #ifdef ARCH_x86
     static const char* const ARCH_STRING = "x86";

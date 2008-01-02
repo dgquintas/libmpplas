@@ -30,6 +30,12 @@
 
 namespace mpplas {
 
+  /** Generic matrix type. 
+   *
+   * @param T the type of the elements of the matrix.
+   * @param Alloc the allocator to use to allocate memory space for the matrix data.
+   *
+   * */
   template<typename T, typename Alloc = std::allocator<T> >
     class Matrix : public MPPDataType {
       public:

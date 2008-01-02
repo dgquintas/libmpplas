@@ -18,21 +18,19 @@ namespace mpplas{
   class SqrtNewton;
 
 
-  /** Interfaz para la exponencial ( e^x ) en los reales.
+  /** Exponential function.
    *
-   * Clase base para métodos de exponencial de reales (esto es,
-   * \f$ e^x \f$, con \f$ e \f$ la base de los logaritmos naturales) */
+   * Base class for the methods implementing the exponential function, 
+   * \f$ e^x \f$, being \f$ e \f$ the base of the natural logarithms. */
   class Exponencial : public AbstractMethod {
     public:
-      /** Exponenciación (\f$ e^x \f$) en los reales 
+      /** Exponential funcion, \f$ e^x \f$.
        *
-       * Este método devuelve el real resultado de la exponencial
-       * real al exponente @a x de la base \f$ e \f$ de los logaritmos
-       * naturales.
+       * Exponentiation of the constant \f$ e \f$ to the @a x power.
        *
-       * @param x El exponente de \f$ e^x \f$.
+       * @param x the exponent in \f$ e^x \f$.
        *
-       * @return El entero resultado de la exponencial.
+       * @return the exponential for @a x.
        * */
       virtual R exponencial(const R& x) = 0;
 
@@ -50,37 +48,37 @@ namespace mpplas{
       typedef LnTaylor DFL;
   };
 
-  class Seno: public AbstractMethod {
+  class Sin: public AbstractMethod {
     public:
       virtual R seno(const R& x) = 0;
 
-      virtual ~Seno(){}
+      virtual ~Sin(){}
   
       typedef SenFase DFL;
   };
 
-  class Coseno: public AbstractMethod {
+  class Cos: public AbstractMethod {
     public:
       virtual R coseno(const R& x) = 0;
 
-      virtual ~Coseno(){}
+      virtual ~Cos(){}
   
       typedef CosTaylor DFL;
   };
  
-  class Tangente: public AbstractMethod {
+  class Tan: public AbstractMethod {
     public:
       virtual R tangente(const R& x) = 0;
 
-      virtual ~Tangente(){}
+      virtual ~Tan(){}
   
   };
 
-  class ArcoTangente: public AbstractMethod {
+  class ArcTan: public AbstractMethod {
     public:
       virtual R arcotangente(const R& x) = 0;
 
-      virtual ~ArcoTangente(){}
+      virtual ~ArcTan(){}
       typedef ATanTaylor DFL;
   };
  
@@ -136,7 +134,6 @@ namespace mpplas{
    *  
    *  
    */
-
   class LnTaylor : public Ln {
     public: 
       virtual R ln(const R& x);
@@ -155,7 +152,7 @@ namespace mpplas{
    * se calcula el seno en base al coseno.
    *
    * */
-  class SenFase : public Seno {
+  class SenFase : public Sin {
     public: 
       virtual R seno(const R& x);
 
@@ -164,7 +161,7 @@ namespace mpplas{
   
 
   /**            */
-  class CosTaylor : public Coseno {
+  class CosTaylor : public Cos {
     public: 
       virtual R coseno(const R& x);
 
@@ -172,7 +169,7 @@ namespace mpplas{
 
     
    /**            */
-  class ATanTaylor : public ArcoTangente {
+  class ATanTaylor : public ArcTan {
     public: 
       virtual R arcotangente(const R& x);
 

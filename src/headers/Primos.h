@@ -14,116 +14,103 @@ namespace mpplas{
   class RabinMiller;
   class TMersenneLucasLehmer;
   
-  /** Interfaz para tests probabilísticos de primalidad (tests de
-   * composición).
+  /** Probabilistic primality testing.
    *
-   * Clase base para algoritmos que implementen tests de composición.
+   * Base class for methods implementing composition tests.
    * 
    */
-  class TestPrimoProb : public AbstractMethod {
+  class PrimeTest : public AbstractMethod {
     public:
-      /** Determinación de primalidad.
+      /** Primality test.
        *
-       * @param entero Entero a comprobar.
-       * @param testigo Puntero a entero que de ser distinto de NULL,
-       * contendrá un testigo de la composición del entero a
-       * comprobar (base que demuestra la composición, véase teoría). 
-       * Si el entero a comprobar resulta ser primo, será 0. 
+       * @param integer integer to test for primality.
+       * @param witness pointer to an integer that will contain a witness for the 
+       *        @a integer composition. If @a integer is prime, it will be zero.
        *
-       * @return true si @a entero es primo.\n
-       *         false si es compuesto.
+       * @return true if @a integer is prime. false otherwise
        */
-      virtual bool esPrimo(const Z& entero, Z* testigo=NULL) = 0;
-      /** Establecer el número de iteraciones.
+      virtual bool isPrime(const Z& integer, Z* witness=NULL) = 0;
+      /** Number of iterations.
        *
        * Forzar el número de iteraciones del método probabilístico en
        * cuestión. 
+       * Set the number of iterations for the probabilistic test.
        *
-       * @param iteraciones El número de iteraciones que el tests de
-       * composición habrá de considerar.
+       * @param iterations number of iterations for the composition test to perform.
        *
-       * @note Este método no debería ser utilizado más que cuando
-       * realmente se quiera forzar un comportamiento determinado, ya
-       * que el número de iteraciones óptimo se determina
-       * automáticamente. Véase teoría.
+       * @note This method should rarely be used. The optimal number
+       * of iterations is determined automatically at runtime.
        */
-      virtual void ponerIteraciones(int iteraciones) = 0;
+      virtual void setIterations(int iterations) = 0;
 
-      virtual ~TestPrimoProb(){}
+      virtual ~PrimeTest(){}
 
 
       typedef RabinMiller DFL;
   };
  
-  /** Interfaz para tests de primalidad para primos de Mersenne.
+  /** Primality tests for Mersenne primes.
    *
-   * Clase base para algoritmos que implementen tests de primalidad
-   * para primos de Mersenne (números de la forma \f$2^{p} -1\f$).
-   * 
+   *
+   * Base class for methods implementing primality tests for Mersenne numbers
+   * (number of the form \f$2^{p} -1\f$).
    */
-  class TestPrimoMersenne : public AbstractMethod {
+  class MersennePrimeTest : public AbstractMethod {
     public:
-      /** Determinación de primalidad para primos de Mersenne.
+      /** Mersenne numbers primality test.
        *
-       * Se comprueba si el número \f$2^{p}-1\f$ es primo.
+       * It is checked whether \f$2^{p}-1\f$ is prime.
        * 
-       * @param p Exponente (ha de ser primo) a utilizar.
+       * @param p exponent to consider (must be prime itself).
        *
-       * @return true si @a entero es primo.\n
-       *         false si es compuesto.
+       * @return true if  \f$2^{p}-1\f$ is prime. false otherwise.
        */
-      virtual bool esPrimo(const SignedDigit p) = 0;
+      virtual bool isPrime(const SignedDigit p) = 0;
 
-      virtual ~TestPrimoMersenne(){}
+      virtual ~MersennePrimeTest(){}
 
       typedef TMersenneLucasLehmer DFL;
   };
  
-  /** Interfaz la generación de primos.
+  /** Prime number generator.
    *
-   * Clase base para algoritmos que implementen métodos de generación
-   * de primos.
-   * 
+   * Base class for methods implementing prime number generators.
    */
-  class GenPrimos : public AbstractMethod {
+  class PrimeGen : public AbstractMethod {
     public:
 
-      GenPrimos();
+      PrimeGen();
 
       /** Prime number generation.
        *
-       * Se genera un primo de aproximadamente @a bits bits.
+       * Generates a prime number of approximately @a bits bits.
        * 
-       * @param bits Bits del primo a generar.
-       * @return El primo generado.
+       * @param bits bitlength of the generated prime.
+       * @return the generated prime.
        */
       virtual Z getPrime(const int bits) const;
 
-      /** Generación del primer primos posterior a uno dado.
+      /** Generation of the next prime after a given number.
        *
-       * Se genera el primer primo mayor que el entero @a comienzo.
-       * 
-       * @param comienzo Entero a partir del cual comenzar la búsqueda
-       * del primo.
-       * @return El primer primo mayor que @a comienzo.
+       * @param from integer from which to begin searching.
+       * @return the first prime grater than @a from.
        */
       virtual Z getPrime(Z from) const;
 
-      /** Generación de primo fuerte.
+      /** Strong prime generation.
        *
-       * Se genera un primo fuerte de aproximadamente @a bits bits.
+       * A strong prime of approximately @a bits bits is generated.
        * 
-       * @param bits Bits del primo a generar.
-       * @return El primo fuerte generado.
+       * @param bits bitlength of the strong prime.
+       * @return the strong prime generated.
        */
       virtual Z getPrimeStrong(const int bits) const ;
 
-      virtual ~GenPrimos(){}
+      virtual ~PrimeGen(){}
 
       virtual void setRandomSeed(const Z& seed) const; 
 
-
-      typedef GenPrimos DFL;
+      typedef PrimeGen DFL;
 
     private:
       RandomFast* _rnd;
@@ -131,21 +118,21 @@ namespace mpplas{
 
 
   /* IMPLEMENTACIONES */
-  /** Test de composición de Rabin-Miller.
+  /** Rabin-Miller composition test.
    *
-   * Descrito en Handbook of Applied Cryptography, algoritmo 4.24\n
-   * Applied Cryptography, página 259\n
-   * A Course ini Computational Algebraic Number Theory, algoritmo
+   * Described in Handbook of Applied Cryptography, algorithm 4.24\n
+   * Applied Cryptography, page 259\n
+   * A Course ini Computational Algebraic Number Theory, algorithm
    * 8.2.2\n
    * 
-   * @note Es el método que la librería utiliza por omisión.
+   * @note This is the library's default method for prime testing.
    */
-  class RabinMiller : public TestPrimoProb {
+  class RabinMiller : public PrimeTest {
     public:
       RabinMiller();
       
-      virtual bool esPrimo(const Z& entero, Z* testigo=NULL);
-      virtual void ponerIteraciones(int iteraciones);
+      virtual bool isPrime(const Z& entero, Z* testigo=NULL);
+      virtual void setIterations(int iteraciones);
 
       virtual ~RabinMiller(){}
       
@@ -153,16 +140,15 @@ namespace mpplas{
       int iteraciones_;
   };
   
-   /** Test de primalidad para primos de Mersenne de Lucas-Lehmer.
+   /** Lucas-Lehmer primality test for Mersenne numbers.
    *
-   * Descrito en Handbook of Applied Cryptography, algoritmo 4.37
+   * Described in Handbook of Applied Cryptography, algorithm 4.37
    * 
-   * @note Es el método que la librería utiliza por omisión.
+   * @note This is the library's default method for Mersenne number primality testing.
    */
-  class TMersenneLucasLehmer : public TestPrimoMersenne
-  {
+  class TMersenneLucasLehmer : public MersennePrimeTest {
     public:
-      virtual bool esPrimo(const SignedDigit p) ;
+      virtual bool isPrime(const SignedDigit p) ;
 
       virtual ~TMersenneLucasLehmer(){}
   };

@@ -275,7 +275,7 @@ namespace mpplas{
     //1º, encontrar 2 primos p y q de Blum ( p = 3 (mod 4) <=>
     // (-1/p) == -1 
     MethodsFactory *funcs = MethodsFactory::getInstance();
-    GenPrimos* gprimos; funcs->getFunc(gprimos);
+    PrimeGen* gprimos; funcs->getFunc(gprimos);
 //    SimboloLegendre* slegendre = funcs->simboloLegendre();
     RandomFast* rnd; funcs->getFunc(rnd);
  

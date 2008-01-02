@@ -4,33 +4,33 @@
 //   IMPLEMENTATION
 //////////////////////////////////////////
 
-  template<typename T>
-  Vector<T>::Vector()
-: Matrix<T>()
+  template<typename T, typename Alloc>
+  Vector<T, Alloc>::Vector()
+: Matrix<T, Alloc>()
 {}
-  template<typename T>
-  Vector<T>::Vector(const int size)
-: Matrix<T>(1,size)
+  template<typename T, typename Alloc>
+  Vector<T, Alloc>::Vector(const int size)
+: Matrix<T, Alloc>(1,size)
 {}
-  template<typename T>
-  Vector<T>::Vector(const int size, const T& ini)
-: Matrix<T>(1, size)
+  template<typename T, typename Alloc>
+  Vector<T, Alloc>::Vector(const int size, const T& ini)
+: Matrix<T, Alloc>(1, size)
 {
   this->setAll(ini);
 }
 
-  template<typename T>
-  Vector<T>::Vector(const Vector<T>& rhs)
-: Matrix<T>(rhs)
+  template<typename T, typename Alloc>
+  Vector<T, Alloc>::Vector(const Vector<T, Alloc>& rhs)
+: Matrix<T, Alloc>(rhs)
 {}
 
-  template<typename T>
-  Vector<T>::Vector(const std::vector<T>& rhs)
-: Matrix<T>(rhs, Dimensions(1, rhs.size() ))
+  template<typename T, typename Alloc>
+  Vector<T, Alloc>::Vector(const std::vector<T, Alloc>& rhs)
+: Matrix<T, Alloc>(rhs, Dimensions(1, rhs.size() ))
 {}
 
-  template<typename T>
-Vector<T>::Vector(const std::string& str)
+  template<typename T, typename Alloc>
+Vector<T, Alloc>::Vector(const std::string& str)
 {
   std::istringstream inStream(str);
   operator>>(inStream,*this);
@@ -39,73 +39,73 @@ Vector<T>::Vector(const std::string& str)
 
 
 
-template<typename T>
-std::istream& operator>>(std::istream& in, Vector<T>& v) {
+//template<typename T, typename Alloc>
+//std::istream& operator>>(std::istream& in, Vector<T, Alloc>& v) {
+//
+//  v._reset();
+//
+//  char c;
+//  int numColsRead(0);
+//
+//  in >> c;
+//  if( !in.good() || c != '[' ){
+//    throw Errors::InvalidSymbol(std::string(1,c));
+//  }
+//
+//  T valueRead;
+//
+//  while( in >> valueRead ){
+//    v._data.push_back(valueRead);
+//    numColsRead++;
+//    in >> std::ws >> c;
+//    if( c != ']' ){
+//      in.putback(c); 
+//    }
+//    else{ //reached the final ]
+//      break; 
+//    }
+//  }
+//
+//  if( in.fail() ){
+//    throw Errors::InvalidSymbol(std::string(1,c));
+//  }
+//
+//  v._dims.setBoth(1,numColsRead);
+//  return in;
+//
+//}
 
-  v._reset();
 
-  char c;
-  int numColsRead(0);
-
-  in >> c;
-  if( !in.good() || c != '[' ){
-    throw Errors::InvalidSymbol(std::string(1,c));
-  }
-
-  T valueRead;
-
-  while( in >> valueRead ){
-    v._data.push_back(valueRead);
-    numColsRead++;
-    in >> std::ws >> c;
-    if( c != ']' ){
-      in.putback(c); 
-    }
-    else{ //reached the final ]
-      break; 
-    }
-  }
-
-  if( in.fail() ){
-    throw Errors::InvalidSymbol(std::string(1,c));
-  }
-
-  v._dims.setBoth(1,numColsRead);
-  return in;
-
-}
-
-
-template<typename T>
-Vector<T>& Vector<T>::operator=(const Vector<T>& rhs){
-  Matrix<T>::operator=(rhs);
+template<typename T, typename Alloc>
+Vector<T, Alloc>& Vector<T, Alloc>::operator=(const Vector<T, Alloc>& rhs){
+  Matrix<T, Alloc>::operator=(rhs);
   return *this;
 }
 
 
 
-template<typename T>
-Vector<T>& Vector<T>::transpose(){
+template<typename T, typename Alloc>
+Vector<T, Alloc>& Vector<T, Alloc>::transpose(){
   this->_dims.swap();
 
   return *this;
 }
 
-//template<typename T>
-//Vector<T>& Vector<T>::normalize(){
+//template<typename T, typename Alloc>
+//Vector<T, Alloc>& Vector<T, Alloc>::normalize(){
 //  return *this; //TODO
 //}
 
 
-template<typename T>
-R Vector<T>::norm(const int p){
+template<typename T, typename Alloc>
+R Vector<T, Alloc>::norm(const int p){
   
   return T(); //TODO
 }
 
 
-template<typename T>
-Vector<T>& Vector<T>::cross(const Vector<T>& rhs){
+template<typename T, typename Alloc>
+Vector<T, Alloc>& Vector<T, Alloc>::cross(const Vector<T, Alloc>& rhs){
   //both vectors should have three dimensions
   if( this->getSize() != 3 || rhs.getSize() != 3 ){
     std::ostringstream oss;
@@ -116,7 +116,7 @@ Vector<T>& Vector<T>::cross(const Vector<T>& rhs){
   //it is not worth making this parallel, as the we will always have 
   //a fixed (and small) number of operations
 
-  const Vector<T> thisCopy(*this);
+  const Vector<T, Alloc> thisCopy(*this);
 
   (*this)(0) = (thisCopy(1) * rhs(2)) - (thisCopy(2) * rhs(1));
   (*this)(1) = (thisCopy(2) * rhs(0)) - (thisCopy(0) * rhs(2));
@@ -125,8 +125,8 @@ Vector<T>& Vector<T>::cross(const Vector<T>& rhs){
   return *this;
 }
 
-template<typename T>
-T Vector<T>::dot( const Vector<T>& rhs) {
+template<typename T, typename Alloc>
+T Vector<T, Alloc>::dot( const Vector<T, Alloc>& rhs) {
   //both vectors should have the same length
   const size_t length = this->getSize();
   if( length != rhs.getSize() ){
@@ -155,28 +155,28 @@ T Vector<T>::dot( const Vector<T>& rhs) {
 //  Non-modifying versions
 /////////////////////////////////////////
 
-template<typename T>
-Vector<T> transpose( Vector<T> src ){
+template<typename T, typename Alloc>
+Vector<T, Alloc> transpose( Vector<T, Alloc> src ){
   return src.transpose();
 }
 
-template<typename T>
-T dot( Vector<T> lhs, const Vector<T>& rhs ){
+template<typename T, typename Alloc>
+T dot( Vector<T, Alloc> lhs, const Vector<T, Alloc>& rhs ){
   return lhs.dot(rhs);
 }
 
-template<typename T>
-Vector<T> cross( Vector<T> lhs, const Vector<T>& rhs ){
+template<typename T, typename Alloc>
+Vector<T, Alloc> cross( Vector<T, Alloc> lhs, const Vector<T, Alloc>& rhs ){
   return lhs.cross(rhs);
 }
 
-//template<typename T>
-//Vector<T> normalize( Vector<T> src ){
+//template<typename T, typename Alloc>
+//Vector<T, Alloc> normalize( Vector<T, Alloc> src ){
 //  return src.normalize();
 //}
 
-template<typename T>
-R norm( Vector<T> src ){
+template<typename T, typename Alloc>
+R norm( Vector<T, Alloc> src ){
   return src.norm();
 }
 

@@ -19,7 +19,7 @@ namespace mpplas{
     : iteraciones_(5)
   {}
 
-  bool RabinMiller::esPrimo(const Z& p, Z* testigo) 
+  bool RabinMiller::isPrime(const Z& p, Z* testigo) 
   {
     MethodsFactory* const funcs = MethodsFactory::getInstance();
     RandomFast* rnd; funcs->getFunc(rnd);
@@ -179,14 +179,14 @@ namespace mpplas{
     }
   }
 
-  void RabinMiller::ponerIteraciones(int iteraciones)
+  void RabinMiller::setIterations(int iteraciones)
   {
       iteraciones_ = iteraciones;
   }
   
 
 
-  bool TMersenneLucasLehmer::esPrimo(const SignedDigit p) 
+  bool TMersenneLucasLehmer::isPrime(const SignedDigit p) 
   {
     /*
     Lucas_Lehmer_Test(p):
@@ -201,8 +201,8 @@ namespace mpplas{
     MethodsFactory *funcs = MethodsFactory::getInstance();
     RedModularALaMersenne* redmodmers; funcs->getFunc(redmodmers);
 
-    TestPrimoProb *primTest; funcs->getFunc(primTest);
-    if( !primTest->esPrimo(Z(p)) )
+    PrimeTest *primTest; funcs->getFunc(primTest);
+    if( !primTest->isPrime(Z(p)) )
       return false;
     
     Z s((Digit)4);
@@ -221,16 +221,16 @@ namespace mpplas{
 
 ////////////////////////////////////////////////
 
-  GenPrimos::GenPrimos(){
+  PrimeGen::PrimeGen(){
     MethodsFactory::getInstance()->getFunc(_rnd);
   }
 
-  void GenPrimos::setRandomSeed(const Z& seed) const {
+  void PrimeGen::setRandomSeed(const Z& seed) const {
     _rnd->setSeed(seed);
   }
 
 
-  Z GenPrimos::getPrime(const int bits) const {
+  Z PrimeGen::getPrime(const int bits) const {
 
     Z n(_rnd->getInteger(bits));
 
@@ -256,9 +256,9 @@ namespace mpplas{
 
   }
 
-  Z GenPrimos::getPrime(Z from) const {
+  Z PrimeGen::getPrime(Z from) const {
     MethodsFactory* const funcs = MethodsFactory::getInstance();
-    TestPrimoProb* test; funcs->getFunc(test);
+    PrimeTest* test; funcs->getFunc(test);
 
     //caso especial
     if( from == (Digit)2 ){
@@ -317,21 +317,21 @@ namespace mpplas{
       iteraciones = 30;
     }
 
-    test->ponerIteraciones(iteraciones);
-    while( !test->esPrimo(from) ){
+    test->setIterations(iteraciones);
+    while( !test->isPrime(from) ){
       from += (Digit)2;
     }
     
-    //aquí, esPrimo(from) == true
+    //aquí, isPrime(from) == true
 
     return from;
 
   }
 
 
-  Z GenPrimos::getPrimeStrong(const int bits) const {
+  Z PrimeGen::getPrimeStrong(const int bits) const {
     MethodsFactory* const funcs = MethodsFactory::getInstance();
-    TestPrimoProb* testPrim; funcs->getFunc(testPrim);
+    PrimeTest* testPrim; funcs->getFunc(testPrim);
     
     const Z s(getPrime( bits/2 ));
     Z t(getPrime( (bits/2) - 2 ));
@@ -341,7 +341,7 @@ namespace mpplas{
     r++;
     t <<= 1;
 
-    while( !testPrim->esPrimo(r) ){
+    while( !testPrim->isPrime(r) ){
       r += t; //este "t" es el doble del "t" inicial
     }
 
@@ -353,7 +353,7 @@ namespace mpplas{
     
     Z dosRS = r*s; dosRS <<= 1;
     Z p(p0); p += dosRS;
-    while( !testPrim->esPrimo(p) ){
+    while( !testPrim->isPrime(p) ){
       p += dosRS;
     }
 

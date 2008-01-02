@@ -11,6 +11,9 @@
 #include <iostream>
 
 namespace mpplas{
+
+  class GFDigit;
+
   class Digit_px : public Polynomial<Digit_p> , public Field<Digit_px> {
     public:
       Digit_px(const Digit p);
@@ -25,6 +28,7 @@ namespace mpplas{
 
       static Digit_px gcd(Digit_px u, Digit_px v, Digit_px* const s = NULL, Digit_px* const t = NULL);
 
+      typedef mpplas::GFDigit GF;
       /* Ring, Group and Field methods */
       static const Digit_px ZERO;
       static const Digit_px ONE;

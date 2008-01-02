@@ -63,6 +63,25 @@ namespace mpplas
     return out;
   }
 
+  MatrixFloat operator+(MatrixFloat lhs, const MatrixFloat& rhs){
+    lhs += rhs;
+    return lhs;
+  }
+  MatrixFloat operator-(MatrixFloat lhs, const MatrixFloat& rhs){
+    lhs -= rhs;
+    return lhs;
+  }
+  MatrixFloat operator*(MatrixFloat lhs, const MatrixFloat& rhs){
+    lhs *= rhs;
+    return lhs;
+  }
+  MatrixFloat operator/(MatrixFloat lhs, const MatrixFloat& rhs){
+    lhs /= rhs;
+    return lhs;
+  }
+
+
+
 }
   
 

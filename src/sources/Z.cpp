@@ -1428,7 +1428,7 @@ namespace mpplas{
     //cohen p 42
     Z p,q;
     Z a;
-    TestPrimoProb* primTest; 
+    PrimeTest* primTest; 
     MethodsFactory::getReference().getFunc(primTest);
     
     if( this->isEven() ){
@@ -1437,7 +1437,7 @@ namespace mpplas{
     else{
       q = (*this);
       while(true){
-        if(primTest->esPrimo(q, &a)){
+        if(primTest->isPrime(q, &a)){
           p = q;
           break;
         }

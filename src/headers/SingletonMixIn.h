@@ -29,12 +29,8 @@ namespace mpplas{
          * @return A pointer to the singleton instance.
          */
         static T* getInstance(){
-          T* ptr;
-#pragma omp critical
-          {
-            ptr = (_getInstanceAutoPtr()).get(); 
-            assert( ptr != 0 );
-          }
+          T* const ptr = (_getInstanceAutoPtr()).get(); 
+          assert( ptr != 0 );
           return ptr;
         }
         

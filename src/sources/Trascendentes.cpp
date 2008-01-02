@@ -171,7 +171,7 @@ namespace mpplas{
     piMedios >>= 1;
 
     //FIXME: esto es una mierda que te cagas de ineficiente
-    Coseno* cos; funcs->getFunc(cos);
+    Cos* cos; funcs->getFunc(cos);
     return cos->coseno(piMedios - x);
   }
     
@@ -247,7 +247,7 @@ namespace mpplas{
     
     R result; 
     MethodsFactory *funcs = MethodsFactory::getInstance();
-    ArcoTangente *arctan; funcs->getFunc(arctan);
+    ArcTan *arctan; funcs->getFunc(arctan);
     int precisionVieja=0;
     if( prec ){
       precisionVieja = R::precision();

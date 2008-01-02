@@ -24,10 +24,10 @@ namespace mpplas{
   Z_p::Z_p(const Z& mod, const bool checkPrimality )throw(Errors::PrimeRequired)
     : Z_n(mod) {
       if ( (!mod.isZero()) && checkPrimality) {
-        TestPrimoProb* primeTest;
+        PrimeTest* primeTest;
         MethodsFactory::getReference().getFunc(primeTest);
 
-        if( !primeTest->esPrimo( mod ) ){
+        if( !primeTest->isPrime( mod ) ){
           throw Errors::PrimeRequired();
         }
       }
@@ -36,10 +36,10 @@ namespace mpplas{
   Z_p::Z_p( const Z& num, const Z& mod, const bool reduce,const bool checkPrimality )throw(Errors::PrimeRequired)
     : Z_n(num, mod, reduce) {
       if( checkPrimality ){
-        TestPrimoProb* primeTest;
+        PrimeTest* primeTest;
         MethodsFactory::getReference().getFunc(primeTest);
 
-        if( !primeTest->esPrimo( mod ) ){
+        if( !primeTest->isPrime( mod ) ){
           throw Errors::PrimeRequired();
         }
       }
@@ -50,10 +50,10 @@ namespace mpplas{
  
   Z_p::Z_p( const Z_n& src ) throw(Errors::PrimeRequired)
     : Z_n(src) {
-      TestPrimoProb* primeTest;
+      PrimeTest* primeTest;
       MethodsFactory::getReference().getFunc(primeTest);
 
-      if( !primeTest->esPrimo( src.getMod() ) ){
+      if( !primeTest->isPrime( src.getMod() ) ){
         throw Errors::PrimeRequired("Non prime modulus for Z_p");
       }
     }

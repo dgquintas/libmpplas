@@ -39,7 +39,7 @@
 
   
 \section{Estructura general de la biblioteca}
-  Siguiendo la filosofía de la antigua biblioteca LibNumth, se ha matenido el diseño jerárquico en capas,
+  Siguiendo la filosofía de la antigua biblioteca LibNumth, se ha mantenido el diseño jerárquico en capas,
   como se muestra en la figura \ref{fig:estructuraGeneral}. Téngase en cuenta que, en pos de la claridad, no 
   todas las relaciones entre los diferentes elementos individuales se representan.
 
@@ -121,9 +121,6 @@
       \end{itemize}
       Los detalles de la implementación y una descripción más pormenorizada se dan en la sección \ref{simddigit}.
 
-
-    \subsubsection{Perfilado}
-      %TODO
 
   \subsection{Repositorio de funciones}\label{basico:nuevoRepdeFuncs}
     Ya en LibNumth se exploró la utilización de lo que se denominó «repositorio de funciones»
@@ -208,7 +205,7 @@
       automática.
     \end{itemize}
 
-    El segundo de estos puntos se desgrana a continuacion.
+    El segundo de estos puntos se desgrana a continuación.
     \subsubsection{Identificando al lanzador}
       Por cuestiones de rendimiento, C++ no guarda trazas de ejecución, como por ejemplo
       si hace Java o Python (téngase en cuenta que estos son lenguajes interpretados, o en 
@@ -241,7 +238,9 @@
     descritos a continuación a la hora de, por ejemplo, comprobar si los mecanismos de perfilado
     están activados, examinar el número de hilos que están siendo utilizados en un momento dado, etc. 
     Se ha procurado que los datos proporcionados tengan un formato fácilmente utilizable tanto por la
-    biblioteca en sí, como por un usuario humano: allí donde se utilizan descripciones textuales, éstas
+    biblioteca en sí, como por un usuario \emph{humano}\footnote{«usuario humano» \emph{no} es una redundancia: 
+    bien podría ser otro programa el usuario 
+    encargado de interpretar un resultado devuelto por la biblioteca}: allí donde se utilizan descripciones textuales, éstas
     siguen un formato fijo. 
 
     \begin{itemize}
@@ -252,9 +251,9 @@
       \item El máximo número de hilos que utilizará la biblioteca durante la
       ejecución de métodos paralelizados.
       \item Nivel de optimización (la \texttt{x} en el argumento \texttt{-Ox} pasado al compilador).
-      \item Arquitectura para la cual se ha compilado la biblioteca. Ésta no tiene por que correspoder 
+      \item Arquitectura para la cual se ha compilado la biblioteca. Ésta no tiene por qué correspoder 
       necesariamente con la arquitectura del sistema donde se está utilizando la biblioteca (caso de
-          una compilacion para $32$ bits sobre un sistema x86-64).
+          una compilación para $32$ bits sobre un sistema x86-64).
       \item Soporte de depuración (uso de \texttt{-g} al compilar).
       \item Mecanismo de perfilado de la biblioteca activado.
       \item Uso de OpenMP.
@@ -262,19 +261,19 @@
           activadas.
       \item Número de revisión según el sistema de control de versiones.
       \item Tipo de rutinas SIMD para las cuales se ha compilado la biblioteca. 
-      \item Línea de comando utilizada en para invocar el compilador sobre los distintos ficheros fuente. 
+      \item Línea de comando utilizada para invocar el compilador sobre los distintos ficheros fuente. 
       Aglutina en su forma «cruda» la mayoría de los anteriores parámetros.
       \item Fecha de compilado de la biblioteca, de la forma «Dec 12 2007».
       \item Hora de compilado de la biblioteca, de la forma «15:13:34».
     \end{itemize}
 
     En aplicaciones tales como MPPLab, descrita en el capítulo \ref{chap:mpplab}, estos datos
-    resultan aún más útiles, ya que en principio el usuario no tiene por qué saber en que sistema
+    resultan aún más útiles, ya que en principio el usuario no tiene por qué saber en qué sistema
     remoto se está ejecutando el servidor, es decir, la biblioteca. Los datos proporcionados resultan
-    en situaciones como esta inestimables, ya que son imprescindibles a la hora de interpretar resultados
+    en situaciones como ésta inestimables, ya que son imprescindibles a la hora de interpretar resultados
     de rendimiento o de disponibilidad de mecanismos (paralelismo, perfilado, ...).
 
-    \subsubsection{Información de la CPU: \texttt{CPUInfo}}
+    \subsubsection{Información de la CPU: \texttt{CPUInfo}}\label{desc:cpuinfo}
       La clase \texttt{CPUInfo} aglutina información relativa a la CPU física del sistema. Si la 
       biblioteca ha sido compilada utilizanado como arquitectura «generic», la información no se
       corresponderá con la CPU física sino con la CPU virtual de la biblioteca. Esto es así debido
@@ -288,7 +287,7 @@
         \item Modelo de la CPU. Por ejemplo, «Intel(R) Core(TM)2 Duo CPU     E6750  @ 2.66GHz».
         \item Arquitectura de la CPU. Por ejemplo, «x86\_64», «generic», etc.
         \item Tecnologías SIMD soportadas. Por ejemplo, «MMX», «SSE2», «SSSE3», etc.
-        \item Tamaño en bits de su tipo de trabajo básico (típicamente $32$ o $64$).
+        \item Tamaño en bits de su tipo de trabajo básico (típicamente $32$ ó $64$).
         \item Número de unidades de ejecución disponibles.
       \end{itemize}
 
@@ -301,11 +300,11 @@
   \subsection{Mecanismo de perfilado}
     En la anterior versión de la biblioteca, LibNumth, ya se incorporaba soporte de perfilado
     por parte de la biblioteca para el conteo de las operaciones de la CPU Virtual (véase 
-    \cite{miproyecto}, sección 5.2.1). En esta nueva versión, este soporte se mantiene, 
+    \cite{miproyecto}\footnote{sección 5.2.1}). En esta nueva versión, este soporte se mantiene, 
     con la incorporación de un desglose de operaciones por hilo, si la biblioteca ha sido
     compilada con soporte para OpenMP. Sin embargo, los entresijos de la implementación
     de este mecanismo han cambiando completamente: el código responsable del perfilado es 
-    generado automáticamente por medio de una técnica conocida como AOP (Aspect Oriented Programming).
+    generado automáticamente por medio de la programación orientada a aspectos.
     Estos detalles se recogen en la sección \ref{impl:aop}.
 
       \paragraph{Perfilado con OpenMP y anidamiento.} Es importante destacar una peculiaridad
@@ -335,14 +334,14 @@
       se utiliza un enfoque paralelo \emph{y} recursivo, el conteo de instrucciones será correcto 
       \emph{en total}, pero no así el desglose: las operaciones tras el primer paso recursivo serán
       asignadas al hilo con identificador $0$, es decir, al hilo maestro. Esto podría dar la falsa
-      impresión de que el método no está siendo ejecutando en paralelo si sólo se tiene en cuenta
+      impresión de que el método no está siendo ejecutado en paralelo si sólo se tiene en cuenta
       el desglose de operaciones por hilos.
 
       No existe una manera sencilla de sortear este problema. Si realmente se tiene interés en un 
       desglose preciso de las operaciones por hilos, es posible activar el soporte de creación de
       nuevos hilos incluso durante el anidamiento, lo cual por una parte podría repercutir en el 
-      rendimiento, pero arrojaría unos resultado de perfilados precisos. Para activar este soporte, 
-      véase \cite{openmpstandard}, secciones 3.2.9 y 4.4.
+      rendimiento, pero arrojaría unos resultados de perfilado precisos. Para activar este soporte, 
+      véase \cite{openmpstandard}\footnote{secciones 3.2.9 y 4.4}.
 
 
 
@@ -381,33 +380,65 @@ enableSIMD: Use the given SIMD kernel (if available) (auto|nosimd|sse|sse2)
     default: auto
 \end{verbatim}
 
-Gracias a SCons, aquí acaba el trabajo
+Gracias a SCons, aquí acaba el trabajo.
 
 A continuación se muestran algunos ejemplos de escenarios de compilación:
-
-Versión sin optimizaciones, con la generación de símbolos de depuración y 
+\begin{itemize}
+\item Versión sin optimizaciones, con la generación de símbolos de depuración y 
 comprobaciones extra (de límites y asertos) activados, perfilado activado
-y OpenMP desactivado. Esta es una configuración habitual durante el desarrollo
+y OpenMP desactivado. Ésta es una configuración habitual durante el desarrollo
 ya que facilita la depuración.
 \begin{verbatim}
-scons all enableDebug=1 enableRelease=0 optLevel=0 enableAOPProf=1 enableOpenmp=0
+scons all enableDebug=1 enableRelease=0 optLevel=0 enableAOPProf=1 
+          enableOpenmp=0
 \end{verbatim}
 
-Para un rendimiento máximo, se desactivan las comprobaciones extras y el perfilado;
+ \item Para un rendimiento máximo, se desactivan las comprobaciones extras y el perfilado;
 se utiliza el máximo nivel de optimización así como las optimizaciones extra:
 \begin{verbatim}
 scons all enableRelease=1 optLevel=3 enableAOPProf=0 enableExtraOpt=1
 \end{verbatim}
 
-Es posible especificar el compilador a utilizar mediante la variable de entorno \texttt{CXX},
+ \item Es posible especificar el compilador a utilizar mediante la variable de entorno \texttt{CXX},
 en este caso el compilador de Intel para C++, \texttt{icpc}:
 \begin{verbatim}
 CXX="icpc" scons -D all
 \end{verbatim}
 
-Especificación de la arquitectura. Por ejemplo, compilar una versión de $32$ bits de la biblioteca
+ \item Especificación de la arquitectura. Por ejemplo, compilar una versión de $32$ bits de la biblioteca
 en un sistema de $64$ bits:
 \begin{verbatim}
 scons all arch=x86
 \end{verbatim}
+\end{itemize}
+
+  \subsection{Compilando \emph{con} la biblioteca}
+    La utilización de la biblioteca en sí no tiene secretos más allá de la idiosincrasia particular
+    del uso de bibliotecas por parte del compilador. La única cuestión a tener presente es la dependencia
+    en la biblioteca PThread. Por ejemplo:
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},numbers=left,caption=Compilando con la biblioteca, label=lst:compConBib]
+g++ test.cpp -o test -L ../../../lib/ -lmpplas 
+    -I ../../headers/ -g -O3 -lpthread
+\end{lstlisting}
+
+    Si se está utilizando una versión de la biblioteca compilada con soporte OpenMP, la mayoría de los métodos
+    de la biblioteca utilizarán efectivamente la versión paralelizada. Sin embargo, y debido a limitaciones de
+    C++ (imposibilidad de separar declaración de definición en diferentes archivos si se utilizan plantillas), 
+    es posible que no todos los métodos sea paralelizados \emph{si el usuario no compila su programa con OpenMP activado}.
+    Es decir, en el caso del anterior programa \texttt{test}, compilado con la línea del listado \ref{lst:compConBib}, 
+    no todos los algoritmos habrían sido paralelizados --esto es particularmente cierto para las matrices y los polinomios--
+    aunque la versión de la biblioteca utilizada incorpore soporte de OpenMP. 
+
+    La solución pasa por indicar al compilador que utilice OpenMP también en la construcción del programa final:
+\lstset{emph={fopenmp},emphstyle=\underbar}
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},numbers=left,caption=Compilando con la biblioteca (II), label=lst:compConBib2]
+g++ test.cpp -o test -L ../../../lib/ -lmpplas 
+    -I ../../headers/ -g -O3 -lpthread -fopenmp
+\end{lstlisting}
+
+    En función del compilador, es posible que tratar de compilar un programa sin soporte OpenMP utilizando
+    bibliotecas \emph{sí} compiladas con el mismo genere errores en tiempo de ejecución. Tal es el caso del compilador ICC de
+    Intel. 
+
+    En resumen: mantener la coherencia en el uso de OpenMP entre biblioteca y programa final.
 

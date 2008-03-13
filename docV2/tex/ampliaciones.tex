@@ -17,21 +17,109 @@
   \end{minipage}
 \end{flushright}
 
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+          It is in the admission of ignorance and the admission of uncertainty that there
+            is a hope for the continuous motion of human beings in some direction that
+            doesn't get confined, permanently blocked, as it has so many times before in
+            various periods in the history of man.
+        }
+        \begin{flushright}
+          \textbf{\textemdash Richard P. Feynman}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
+
 \begin{center}{\line(1,0){325}}\end{center}
 
 %--------------------------------------------------------%
 
 \section{Posibles mejoras}
+  \subsection{Sobre los tipos de dato}
+    \subsubsection{Multiplicación entera vía FFT}
+    Multiplicación de enteros y/o polinomios utilizando la transformada
+    rápida de Fourier --\textit{Fast Fourier Transform}--. Este
+    método es extremadamente interesante de cara a la multiplicación de
+    enteros (muy) grandes, con una cota de complejidad $O(n \log(n))$, frente
+    la actual cota de la librería de $O(n^{\log_2(3)})$. Claro está, las
+    constantes ocultas son considerablemente mayores, siendo sólo
+    de interés para factores de muchas cifras. También resultaría aplicable
+    al producto de polinomios.
+
+    Es una método bastante documentado, siendo la referencia fundamental
+    \cite{knuth}\footnote{pp. 290--295, sección C}. En \cite{fft} se da
+    una descripción del método muy asequible, sin entrar en tantos
+    detalles como \cite{knuth}.
+
   \subsection{Mayor aprovechamiento de instrucciones SIMD}
-    En las operaciones con matrices.
+    Se ha invertido un considerable esfuerzo en la implementación de la CPU SIMD --sección \ref{basico:cpusimd}-- 
+    que en cierto modo no se ve correspondido en el uso que se le da a la misma por otras partes de la biblioteca.
+    Por ejemplo, las operaciones con matrices serían un candidato ideal para aprovechar esta tecnología, como extensión
+    bidimensional de los vectores. Sin embargo, esto complica considerablemente la implementación de operaciones tales como el producto,
+    razón por la cual no ha sido posible explorar este punto en mayor profundidad.
+
+    \subsubsection{Perfilado}
+       Debido a limitaciones en la herramienta utilizada para proveer de mecanismos de orientación 
+       a aspectos, aspectc++, no ha resultado posible incorporar las instrucciones de la CPU SIMD 
+       al proceso de perfilado de la biblioteca. 
+  \subsection{En la aplicación MPPLab}
+    \subsubsection{En el cliente}
+      El interfaz gráfico del cliente recurre internamente a la utilización de la función estándar de Python
+      \texttt{eval}, la cual adolece del inconveniente de no poder ser interrumpida en la actual implementación.
+      En el peor de los casos, esto implica que si el usuario cae en un bucle infinito, habrá de reiniciar el cliente.
+      Esto es claramente poco conveniente, y un diseño en el cual la ejecución de las sentencias introducidas por el usuario
+      fueran evaluadas en un hilo --a nivel de Python-- separado, podría resolver el problema. 
+    \subsubsection{En el servidor}
+      En relación con el punto referente al cliente, los mecanismos XML-RPC utilizados para exportar los métodos
+      de la biblioteca no contemplan su interrupción o cancelación en la actual implementación: debe esperarse a que
+      la biblioteca devuelva el control al servidor para que éste de por finalizada la llamada al método XML-RPC 
+      en cuestión. En la mayoría de las situaciones, esto no supone un problema. Sin embargo, si se trata de realizar
+      una operación --quizás por error-- que requiere un tiempo de cómputo desorbitado (por ejempolo, la 
+      factorización de un número muy grande), si resultaría interesante contar con la posibilidad de interrumpir el
+      proceso de forma que el usuario desde el cliente pudiera recuperar el control.
+
+  \subsection{Evaluación del paralelismo}
+    De haber tenido acceso a un sistema con un número de unidades de ejecución mayor, habría sido posible
+    aplicar la métrica de Karp-Flatt descrita en la sección \ref{sec:karpflatt}. De este modo, podría haberse
+    extraido más información acerca de la implementación de los métodos paralelos incorporados en la biblioteca.
 
 \section{Ampliaciones}
+  \subsection{Sistema de numeración modular}
+    Una forma de operar es hacerlo en un sistema de numeración que,
+    basado en el Teorema Chino de los Restos, se fundamenta en residuos
+    modulares. Esto tiene la ventaja de que la implementación de las
+    operaciones de suma y multiplicación estarían todas en
+    $O(n)$, lo cual resulta un enorme avance para la multiplicación y
+    sus operaciones derivadas (en especial, la potenciación).
+    Las desventajas incluyen la dificultad de establecer una relación de
+    orden entre los elementos de este sistema de numeración, el cálculo
+    de cocientes y la conversion desde-hacia este sistema (para esto
+    habría que utilizar un algoritmo que resolviese sistemas de
+    congruencias --aplicación del Teorema Chino de los restos-- como
+    el algoritmo de Garner incorporado en la biblioteca.)
+
+    Esta característica es interesante, pues, sólo hasta cierto punto,
+    dadas sus limitaciones según para qué cosas. Más información en
+    \cite{knuth}\footnote{pp. 268--276, sección 4.3.2} y
+    \cite{handbook}\footnote{pp. 611 y 612}.
+
   \subsection{Sobre Polinomios}
     \subsubsection{Factorización}
       Al igual que para la factorización de enteros, no se conoce
       un método que permita realizar esta operación en un tiempo razonable. Como es habitual
       en este contexto, «razonable» suele traducirse como «computable en tiempo polinomial».
-      %TODO
+
+      La factorización de polinomios sobre cuerpos finitos resulta particularmente interesante en
+      el campo de la Teoría de Códigos. Algoritmos como el de Berlekamp (\cite{berlekamp}) 
+      o Cantor-Zassenhaus (\cite{zassenhaus}) son veteranos en este campo, pero secuenciales. Merecería
+      la pena estudiar su posible adaptación al paradigma paralelo.
+
   \subsection{Sobre cuerpos finitos}
     En la implementación actual de los cuerpos finitos $\GF{(p^n)}$, 
     se modela $p$ como un entero de tipo \texttt{mpplas::Z}; es decir,
@@ -40,10 +128,91 @@
     finitos de la forma $\GF{(2^n)}$. En este caso, es posible explotar el carácter binario de los elementos.
     Por ejemplo, la suma se reduce a una operación o-exclusivo a nivel de bits. 
 
-    En cualquier caso, la presente biblioteca se centra entorno a tipos de precisión arbitraria, razón por la cual
+    En cualquier caso, la presente biblioteca se centra en torno a tipos de precisión arbitraria, razón por la cual
     esta característica tendría más cabida en otro tipo de biblioteca.
 
+    
+\section{Epígrafe}
+  \subsection{Conclusiones}
+ En todo momento durante la elaboración de este Proyecto, la pregunta recurrente ha sido qué características
+ debería poseer y cómo debería comportarse la biblioteca para que uno mismo se encontrase cómodo utilizándola. 
+ El desarrollo ha sido guiado, al igual que en el caso de su predecesora LibNumth, de manera fundamental por un 
+ ánimo resumido en la frase «Don't worry about anything... Go out and have a good time», atribuida al inimitable
+ R. P. Feynman: las modestas innovaciones realizadas son fruto de la aplicación de enfoques y tecnologías 
+ novedosas o poco usuales desde una óptica basada en disfrutar con lo que se está haciendo, podría decirse que incluso
+ «jugando» con las ideas.
+ Se ha llegado así a completar una biblioteca que incorpora conceptos conocidos y trillados como el trabajo con datos
+ de precisión arbitraria o métodos típicos de bibliotecas criptográficas pero con giros propios, tales como la categorización
+ algebraica, el repositorio de funciones o la programación orientada a aspectos. En busca de una manera accesible de explotar
+ los servicios ofrecidos por la biblioteca, se llega a la implementación de lo que se denominó como MPPLab. Marchando
+ de nuevo al son de hacer algo tanto desafiante intelectualmente como cumpliendo con el «que lo haga la máquina», surgen
+ ideas como la del \textit{bootstrapping}. En resumen, el autor se siente orgulloso de haber podido realizar el presente
+ trabajo disfrutando con cada paso. Y es una suerte, porque no hay mejor manera de trabajar.
 
-\section{Conclusiones}
-  
+
+ En el plano personal, es un paso adicional al dado hace años en la elaboración del Proyecto Final de Carrera para la Ingeniería Técnica. Se 
+ verifican las conclusiones vertidas entonces: lo aprendido durante la realización de aquel Proyecto resultó
+ inestimable a la hora de emprender este nuevo Proyecto. Por tanto, es de suponer que la experiencia --adquirida sobre todo
+ en base a los errores cometidos-- derivada de verse enfrentado de nuevo a la realización de una empresa de una cierta
+ envergadura, resulte no menos beneficioso de cara al futuro. 
+
+\subsection{Agradecimientos}
+  Aunque el discurso de «no habría sido posible sin» suene trillado, las particulares circunstancias que han rodeado 
+  el presente Proyecto durante la mayor parte de su desarrollo demuestran la extraordinaria disposición de los directores, 
+  Policarpo Abascal y Jorge Jiménez. Ambos consintieron en dirigirme (me tomo la licencia de abandonar «el autor»: no me
+  acostumbraré a hablar de mi mismo en tercera persona...) durante meses incluso cuando me encontraba 
+  en el extranjero, con el trabajo adicional de idas y venidas de correos electrónicos, y todo el abanico de dificultades debidas
+  a la distancia. De igual modo, el afable trato directo de tú a tú --desde los tiempos de la Ingeniería Técnica-- resulta
+  muy propicio para realizar un trabajo en las condiciones referidas en la conclusión: disfrutándolo. No ha sido esta vez por 
+  tanto una sorpresa, pero no por ello un ápice menos importante. Gracias, otra vez.
+
+  Es de ley agradecer también a Danilo Piparo, físico \textit{extraordinaire}, por la compañía y los empujones durante
+  aquellas tardes suizas en el \textit{pollaio}. 
+
+  Y por último pero no menos importante, a mi madre por aguantar mis humos durante los meses de vuelta en casa. 
+
+\bigskip
+\begin{flushright}
+  En Gijón, Enero del 2008.
+\end{flushright}
+
+
+
+\begin{center}{\line(1,0){325}}\end{center}
+
+ A estas alturas, no es un secreto para el lector el gusto del autor por el (ab)uso de citas, refranes y proverbios. Como también
+ se hizo en el anterior Proyecto, se concluye con unas últimas palabras prestadas:
+
+  \begin{flushright}
+    \begin{minipage}[t]{13cm}
+      \begin{flushright}
+        \begin{quote}
+          \emph{
+            Read, every day, something no one else is reading. Think, every day,
+            something no one else is thinking. Do, every day, something no one else would
+            be silly enough to do. It is bad for the mind to be always part of unanimity.
+          }
+          \begin{flushright}
+            \textbf{\textemdash Christopher Morley.}
+          \end{flushright}
+        \end{quote}
+      \end{flushright}
+    \end{minipage}
+  \end{flushright}
+
+
+\bigskip
+\bigskip
+\bigskip
+
+\begin{flushbottom}
+\begin{flushright}
+  $\mathcal{Q.E.F.}$
+\end{flushright}
+\end{flushbottom}
+
+
+
+
+
 

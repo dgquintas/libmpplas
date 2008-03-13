@@ -8,7 +8,6 @@
 \usepackage{amsmath}
 \usepackage{euler}
 \usepackage{a4wide}
-%\oddsidemargin 2.5cm
 \usepackage{subfigure}
 \usepackage{graphicx}
   \graphicspath{{figures/}}
@@ -52,28 +51,18 @@
 %\theoremprework{\bigskip\hrule}
 %\theorempostwork{\hrule\bigskip}
 \newtheorem{definicion}{Definición}[section]
+\newtheorem{ejemplo}{Ejemplo}[section]
 
-\theoremstyle{change}
-\theorembodyfont{\upshape}
-\theoremseparator{}
-\newtheorem{ejemplo}{Ejemplo}
+%\theoremstyle{change}
+%\theorembodyfont{\upshape}
+%\theoremseparator{}
+%\newtheorem{ejemplo}{Ejemplo}[section]
 
 \theoremstyle{nonumberplain}
 \theoremseparator{}
 \theoremprework{\relax}
 \theorempostwork{\relax}
 \newtheorem{demostracion}{Demostración}
-
- \newenvironment{lyxcode}
-   {\begin{list}{}{
-     \setlength{\rightmargin}{\leftmargin}
-     \setlength{\listparindent}{0pt}
-     \raggedright
-     \setlength{\itemsep}{0pt}
-     \setlength{\parsep}{0pt}
-     \normalfont\ttfamily}%
-    \item[]}
-   {\end{list}}
 
 \usepackage{type1cm}
 \usepackage{pstricks}
@@ -83,13 +72,14 @@
 \makeindex
 
 \pagestyle{headings}
-
+%\usepackage{geometry}
+%\geometry{tmargin=25mm,bmargin=25mm,lmargin=35mm,rmargin=15mm}
 %\renewcommand{\thefootnote}{\roman{footnote}}
 
 \author{David García Quintas}
 \title{Paralelismo en el Álgebra y la Teoría de Números: \\
 MultiPrecision Parallel Linear Algebra System}
-\date{\today}
+%\date{\today}
 
 \begin{document}
 
@@ -107,7 +97,7 @@ MultiPrecision Parallel Linear Algebra System}
         No estudio más que lo que me place;
         no ocupo mi espíritu sino en las ideas que me interesan.
         Estas serán útiles o inútiles para mi o para los demás.
-        El tiempo propiciara o no las circunstancias que me permitirán
+        El tiempo propiciará o no las circunstancias que me permitirán
         hacer de mis adquisiciones un empleo provechoso.
         En todo caso, habré tenido la inestimable ventaja de no contrariarme
         y de haber obedecido a mi pensamiento y mi carácter.
@@ -166,9 +156,7 @@ MultiPrecision Parallel Linear Algebra System}
 
 
 \tableofcontents
-%FIXME: reenable
 \listoffigures
-\listofalgorithms
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \include{prologo}
@@ -187,6 +175,6 @@ MultiPrecision Parallel Linear Algebra System}
 \bibliographystyle{IEEEtranSA}
 \bibliography{bibliografia}
 
-\printindex 
+%\printindex 
 
 \end{document}

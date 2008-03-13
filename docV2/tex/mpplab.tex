@@ -2,19 +2,39 @@
 
 \chapter{MPPLab: (una) ventana a la biblioteca}\label{chap:mpplab}
 
+
 \begin{flushright}
   \begin{minipage}[t]{13cm}
     \begin{flushright}
       \begin{quote}
         \emph{
+          Lo mejor para ser escuchados consiste en proporcionar ejemplos claros
         }
         \begin{flushright}
-          \textbf{\textemdash .}
+          \textbf{\textemdash Jean Rostand}
         \end{flushright}
       \end{quote}
     \end{flushright}
   \end{minipage}
 \end{flushright}
+
+\bigskip
+
+\begin{flushright}
+  \begin{minipage}[t]{13cm}
+    \begin{flushright}
+      \begin{quote}
+        \emph{
+          What I cannot create, I do not understand.
+        }
+        \begin{flushright}
+          \textbf{\textemdash Richard P. Feynman}
+        \end{flushright}
+      \end{quote}
+    \end{flushright}
+  \end{minipage}
+\end{flushright}
+
 
 \begin{center}{\line(1,0){325}}\end{center}
 
@@ -23,7 +43,7 @@
 
 \section{Motivación}
   Una biblioteca como la que concierne a este trabajo no es
-  algo fácil de apreciar a primera vista. Puede que, y ojala así sea,
+  algo fácil de apreciar a primera vista. Puede que, y ojalá así sea,
   quien se aventurase en la lectura de su código o concediese el beneficio
   de la duda tras la lectura de la presente memoria, pudiera hacerse una
   idea -para bien o para mal- de su valor. Sin embargo, no se pretende poner
@@ -33,7 +53,7 @@
   técnicas que no son fácilmente aplicables al desarrollo de una
   biblioteca.
 
-  En términos más concretos, se busca el proporcionar una manera de
+  En términos más concretos, se busca proporcionar una manera de
   interactuar con los métodos ofrecidos por la biblioteca sin necesidad de
   bajar al nivel del código. Si bien para una explotación exhaustiva de todos
   los mecanismos de la misma se hace necesario utilizarla realmente como
@@ -101,7 +121,7 @@
         correspondencia con estos, en cuanto a su definición, es prácticamente directa:
               \begin{description}
                 \item[Z:] Enteros de longitud arbitraria. Se corresponde a la clase \texttt{mpplas::Z}.
-                \item[Zn:]Enteros de modulares con módulo $n$ arbitrario. Se corresponde con \texttt{mpplas::Z\_n}.
+                \item[Zn:]Enteros modulares con módulo $n$ arbitrario. Se corresponde con \texttt{mpplas::Z\_n}.
                 \item[R:] Reales de precisión arbitraria. Correspondencia con \texttt{mpplas::R}.
                 \item[GF:]Cuerpos de Galois. Correspondencia con \texttt{mpplas::GF}.
                 \item[GFx:]Elementos de un cuerpo de Galois. Correspondencia con \texttt{mpplas::GFx}.
@@ -124,7 +144,7 @@
         del cliente, véase la sección \ref{boostrapping}}. Es decir, el propio servidor
         es capaz de dar información sobre qué métodos ofrece. El hecho de que el protocolo
         HTTP, sobre el que XML-RPC descansa, esté orientado a transacciones (véase \cite{stallings},
-          pp. 676 y siguientes, para una descripción de este protocolo), siendo estas \emph{independientes}
+          pp. 676 y siguientes, para una descripción de este protocolo), siendo éstas \emph{independientes}
         y no guardando ninguna información de estado en ellas, posibilita una gestión de errores más sencilla.
         Por ejemplo, si la comunicación entre cliente y servidor se ve interrumpida temporalmente, no es
         necesario restablecer ninguna conexión posteriormente, ya que cada una de las operaciones a
@@ -247,7 +267,7 @@
         \item Soporte para el trazado de gráficas.
         \item Multiplataforma.
         \item Actualizaciones automáticas.
-        \item Multihilo, pudiendo de ser explotado explícitamente por el usuario.
+        \item Multihilo, pudiendo ser explotado explícitamente por el usuario.
         \item Basado en el lenguaje Python: ofrece todas las
         funcionalidades de este lenguaje.
       \end{itemize}
@@ -255,12 +275,21 @@
     \subsubsection{Requisitos y ejecución}
       Para la correcta ejecución del cliente son necesarios una serie de paquetes adicionales:
       \begin{description}
+        \item[Python.] El propio entorno de ejecución. El desarrollo y las pruebas se han 
+        realizado sobre la versión 2.5 del mismo.
         \item[WxPython.] Proporciona un vínculo (\textit{binding}) con el API gráfico WxWidgets
         \footnote{\url{http://www.wxwidgets.org/}}, permitiendo presentar el interfaz del cliente
         de forma gráfica. Disponible en \url{http://www.wxpython.org/}.
         \item[matplotlib y numPy.] Paquetes necesarios para el trazado de gráficas. Disponibles en
         \url{http://matplotlib.sourceforge.net/} y \url{http://numpy.scipy.org/} respectivamente. 
       \end{description}
+
+      Para lanzar el cliente, basta con ejecutar mediante el intérprete de Python el fichero 
+      \texttt{MPPLab.pyw}. La manera de invocar dicho intérprete varía 
+      en función del sistema, tipo Windows o UNIX. En cualquier caso, si es invocado de forma
+      textual mediante una línea de comando, se admite como parámetro el fichero de configuración
+      a utilizar. De no proporcionarse ninguno, se utiliza \texttt{config.cfg}.
+      
 
 
     \subsubsection{\textit{Bootstrapping} y autoescritura.}\label{boostrapping}
@@ -291,7 +320,7 @@
       varios aspectos complejos en la práctica. Concretamente, se aprovecha la homogeneidad
       en la invocación de los métodos del servidor para extraer el «factor común» a la declaración
       de los mismos en el cliente. Este «factor común» se convierte en una plantilla de texto 
-      genérica, que es instanciada con el nombre y los datos concretos cada método, siendo
+      genérica, que es instanciada con el nombre y los datos concretos de cada método, siendo
       posteriormente incorporada por el cliente a sí mismo mediante \emph{en tiempo de ejecución}, 
       gracias a la sentencia \texttt{exec} de Python. Es por eso que se habla de
       \textit{bootstrapping}, porque el propio cliente es capaz de incorporar a
@@ -300,8 +329,8 @@
       
       Dos de los problemas concretos más importantes se analizan a continuación.
       \paragraph{¿Cómo manejar el paso de parámetros de forma genérica?}
-        No todos los métodos requieren el mismo número de parametros. Algunos siquiera
-        requieren parametros en absoluto. Sin embargo todos los métodos se están declarando,
+        No todos los métodos requieren el mismo número de parámetros. Algunos siquiera
+        requieren parámetros en absoluto. Sin embargo todos los métodos se están declarando,
         tal y como se ha descrito anteriormente, de la misma forma genérica. ¿Cómo
         mantener este carácter genérico a la vez que se permite la diversidad en 
         el número de parámetros de los métodos? Una vez más Python aporta la solución 
@@ -317,14 +346,14 @@
         \end{quote}
 
         Por tanto, si cada método creado mediante \textit{bootstrapping} se
-        declara utilizando esta sintaxis, podrá recibir un número arbitrario de 
-        tantos argumentos.
+        declara utilizando esta sintaxis, podrá recibir un número arbitrario 
+        de argumentos.
         
       \paragraph{¿Cómo manejar los resultados de los métodos?}
         De nuevo, la declaración genérica de los métodos priva de toda 
         consideración particular. El problema ahora es cómo interpretar los datos
         devueltos por los diferentes métodos. Es más, si el dato devuelto es un 
-        tipo de los expustos anteriormente en el punto \ref{servidor:caracteristicas},
+        tipo de los expuestos anteriormente en el punto \ref{servidor:caracteristicas},
         lo devuelto será su identificador dentro de la tabla de datos en tiempo 
         de ejecución que gestiona el servidor. Por supuesto, esto ha de ser transparente
         al usuario. Aquí se desvela la razón de anteponer el tipo de dato al identificador.
@@ -398,13 +427,12 @@ path =
     El resto de las características, ser multiplataforma y un
     superconjunto de Python, derivan de la base utilizada: la
     biblioteca WxPython\footnote{\url{http://www.wxpython.org/}}.
-    %TODO: completar un poco más.
     Las ventajas de utilizar Python como base son numerosas. Podría 
     parecer que complicase la utilización del cliente, por
     tener que lidiar con este lenguaje; por contra, la sencilla e
     intuitiva sintaxis del mismo minimiza este efecto. De haber
     implementado un lenguaje propio para el cliente, su sintaxis no habría 
-    podido ser mucho más simple, y casi con toda seguridad mucho menos
+    podido ser mucho más simple, y con toda seguridad mucho menos
     potente. 
 
       
@@ -462,6 +490,10 @@ path =
       En el ejemplo anterior, \texttt{var3} es creada mediante una llamada al constructor \texttt{MZ}, con lo que
       se crea una \emph{nueva instancia} de una matriz sobre los enteros, inicializada con los valores de \texttt{var1}.
 
+      \paragraph{Ejecutando el contenido de un fichero.} La función \texttt{runFile} permite la ejecución del contenido
+        del fichero cuyo nombre se le pasa como parámetro. Dicho fichero es ejecutado línea por línea del mismo modo que 
+        si éstas fueran introducidas manualmente por el usuario en el interfaz.
+
     \subsubsection{Tipos disponibles}
        \paragraph{Z} Representa un entero de precisión arbitraria. Para crear este tipo de dato, basta con 
        invocar a su constructor de la siguiente manera: 
@@ -488,7 +520,7 @@ path =
 \end{verbatim}
 
 
-       \paragraph{Zn} Representa un entero modular de precisión arbitraria. El constructor en este caso require
+       \paragraph{Zn} Representa un entero modular de precisión arbitraria. El constructor en este caso requiere
        de la presencia del módulo $n$. Asimismo, si dicho $n$ es primo, es posible utilizar métodos propios
        del trabajo sobre un cuerpo, tal como la inversión:
 \begin{verbatim}
@@ -526,7 +558,7 @@ path =
        en este tipo de dato son: 
        \begin{description}
         \item[\texttt{getInverse()}] Devuelve la inversa del elemento sobre el que se aplica el método.
-        \item[\texttt{getPBRString()}] Devuelve una cadena de caracteres representado el polinomio correspondiente
+        \item[\texttt{getPBRString()}] Devuelve una cadena de caracteres representando el polinomio correspondiente
         al elemento sobre el que se aplica. Las siglas «PBR» se corresponden al término «Polynomial Basis Representation».
         \item[\texttt{setValue(z)}] Asigna al elemento sobre el que se aplica el método el valor del entero $z$ argumento
         dentro del cuerpo finito.
@@ -558,35 +590,50 @@ path =
        \paragraph{MZ} Representa una matriz sobre el anillo de los enteros. Existen ciertos aspectos comunes
        a los tipos matriciales, tales como el acceso a los elementos, la información sobre las dimensiones 
        y la transposición.
-       Sin perdida de generalidad, véase el siguiente ejemplo para una matriz sobre los enteros:
+       Sin pérdida de generalidad, véase el siguiente ejemplo para una matriz sobre los enteros:
+       \begin{description}
+         \item[\texttt{getTranspose()}] Devuelve la transpuesta de la matriz sobre la que se aplica el método.
+         \item[\texttt{getDeterminant()}] Devuelve el determinante de la matriz sobre la que se aplica el método.
+       \end{description}
 \begin{verbatim}
->>> mat = MZ("[1231 47323213; -383485 124224]")
->>> print mat
+ >>> mat = MZ("[1231 47323213; -383485 124224]")
+ >>> print mat
 [     1231  47323213 ]
 [  -383485    124224 ]
 
->>> print mat[(0,0)]
+ >>> mat.getDeterminant()
+18147895257049
+ >>> print mat[(0,0)]
 1231
->>> mat[(0,0)] = Z('0')
->>> print mat
+ >>> mat[(0,0)] = Z('0')
+ >>> print mat
 [        0  47323213 ]
 [  -383485    124224 ]
->>> m = MZ("[ 1 2 3 ; 4 5 6 ; 7 8 9]")
->>> print m.getTranspose()
+
+ >>> m = MZ("[ 1 2 3 ; 4 5 6 ; 7 8 9]")
+ >>> print m
+[  1  2  3 ]
+[  4  5  6 ]
+[  7  8  9 ]
+
+ >>>m.getDeterminant()
+0
+ >>> print m.getTranspose()
 [  1  4  7 ]
 [  2  5  8 ]
 [  3  6  9 ]
+
 \end{verbatim}
 
-\subparagraph{Obtención a submatrices.}
+\subparagraph{Obtención de submatrices.}
  La operación de acceso a una submatriz opera de la siguiente manera:
   \begin{description}
     \item[\texttt{getSubMatrix(rows=(ini,paso,fin), cols=(ini,paso,fin))}] Devuelve la submatriz formada por 
     las filas/columnas especificadas por \texttt{ini}, \texttt{paso} y \texttt{fin}. Ambas filas/columnas
-    del interval son \emph{incluidas}. 
+    del intervalos son \emph{incluidas}. 
     
     Es posible omitir estos parámetros, pero «manteniendo el orden»; es decir, es posible omitir \texttt{fin} y \texttt{paso}, pero no
-    es posible omitir \texttt{paso} y especificar \texttt{fin}. Los valores dados a estos tres parametros por omisión son $0$, $1$ y 
+    es posible omitir \texttt{paso} y especificar \texttt{fin}. Los valores dados a estos tres parámetros por omisión son $0$, $1$ y 
     «hasta el final», respectivamente.
   \end{description}
 \begin{verbatim}
@@ -655,7 +702,7 @@ path =
 Así como es posible seleccionar submatrices de una matriz dada, resulta también útil
 el poder crear una nueva matriz a partir de la concatenación, por filas o columnas, de otras
 matrices. En este caso sólo se consideran filas o columnas contiguas. De todas formas, siempre
-resulta posible, mediante la adecuada combinación de las operaciones de concatenación, de replicar
+resulta posible, mediante la adecuada combinación de las operaciones de concatenación, replicar
 este comportamiento para filas o columnas no contiguas. Véanse algunos ejemplos:
 \begin{verbatim}
 >>> m1 = MZ("[1 2; 3 4]")
@@ -716,7 +763,7 @@ Como puede verse, la matriz se modifica.Si no se desea esto:
 [  2  1 ]
 \end{verbatim}
 Asimismo, es posible encadenar las operaciones. Nótese que este tipo de
-sentencias se evaluan de derecha a izquierda:
+sentencias se evalúan de derecha a izquierda:
 \begin{verbatim}
 >>> m1 = MZ("[1 2; 3 4]")
 >>> print m1.appendByColumns(m2).appendByColumns(m1)
@@ -744,7 +791,6 @@ a filas.
        de todo sentido matemático. Se encuentran disponibles algunos métodos no disponibles para matrices de enteros: 
        \begin{description}
         \item[\texttt{getInverse()}] Devuelve la matriz inversa de la matriz sobre la que se aplica el método.
-        \item[\texttt{getTranspose()}] Devuelve la transpuesta de la matriz sobre la que se aplica el método.
         \item[\texttt{solveFor(b)}] Espera un vector columna $b$ y devuelve el vector columna $y$ tal que $My = b$, 
         siendo $M$ la matriz sobre la que se aplica el método.
         \end{description}
@@ -783,7 +829,7 @@ a filas.
 \end{verbatim}
 
        \paragraph{MR} Representa una matriz sobre el cuerpo de los reales. Los ejemplos anteriores para matrices
-       sobre enteros son directamente aplicables a matrices sobre reales, con la salvedad, claro esta, de que 
+       sobre enteros son directamente aplicables a matrices sobre reales, con la salvedad, claro está, de que 
        allí donde se utilice un tipo entero, habría de utilizarse un real. 
        El repertorio se completa con los tres métodos anteriormente descritos para matrices sobre 
        cuerpos finitos. Su funcionamiento es análogo para matrices sobre reales.
@@ -847,7 +893,7 @@ non-invertible element;
     \paragraph{Teorema chino de los restos}
     Esta función, cuyo prototipo es \texttt{crt( listaCongruencias, listaModulos )}\footnote{«CRT» es la abreviatura
       habitual de este método en la bibliografía en inglés: \textit{Chinese Remainder Theorem}} devuelve un entero
-      congruente con cada entero de \texttt{listaCongruencias} modulo el entero correspondiente a la misma posición de 
+      congruente con cada entero de \texttt{listaCongruencias} módulo el entero correspondiente a la misma posición de 
       \texttt{listaModulos}. 
 
 \begin{verbatim}
@@ -931,7 +977,7 @@ True
       habitual de este método en la bibliografía en inglés: \textit{Least Common Multiple}}
       devuelve el mínimo común múltiplo de sus dos argumentos enteros.
 
-   \paragraph{Miscelanea}
+   \paragraph{Miscelánea}
    \begin{description}
    \item[\texttt{jacobiSymbol(a,n)}]: Devuelve el símbolo de Jacobi para los dos enteros pasados como argumentos.
    \item[\texttt{legendreSymbol(a,p)}]: Devuelve el símbolo de Legendre para los dos enteros pasados como argumentos.
@@ -1001,7 +1047,7 @@ True
       en el punto \ref{funciones}.
 
       La sintaxis de dicha función admite el uso tanto de una lista de cadenas de caracteres conteniendo las 
-      instrucciones a ejecutar o bien un descriptor de fichero abierto para lectura, del cual se irán obteniendo
+      instrucciones a ejecutar como de un descriptor de fichero abierto para lectura, del cual se irán obteniendo
       las instrucciones a ejecutar. Mediante ejemplos se ilustra de forma más clara:
 
 \begin{verbatim}
@@ -1028,7 +1074,7 @@ True
         \item Si se desea devolver algún resultado, éste debe ser asignado a una variable llamada \emph{\texttt{result}}.
         \item Python ofrece dos tipos de entrecomillado: las comillas simples «'» y las comillas dobles «"». Esto
         resulta útil por ejemplo cuando, ya dentro de una cadena de caracteres, es necesario utilizar otra, como 
-        al definir el contenido de la matriz. 
+        al definir el contenido de una matriz. 
         \item Si en la cadena a ejecutar hay más de una sentencia, éstas se separarán mediante punto y coma.
         \item Además de la lista conteniendo las instrucciones a ejecutar, el segundo argumento es un entero, que 
         indica el número de hilos ejecutores a utilizar. Si el número de elementos de la lista es mayor que este
@@ -1099,12 +1145,17 @@ result = m.getInverse()
 
 
        
-       \subsubsection{Ejemplos} \label{mpplab:ejs}
-\paragraph{$\pi$ de Euler} 
+\subsubsection{Ejemplos} \label{mpplab:ejs}
+  \paragraph{La función $\pi(n)$.} Esta función se define, para un entero $n$, como el número de primos menores o iguales
+  que $n$. En otras palabras, «cuenta primos». Debido a que se desconoce la distribución de los números primos --cuestión
+  relacionada con la mítica hipótesis de Riemann--, existen formulaciones que \emph{aproximan} su valor. La más sencilla
+  de estas aproximaciones resulta la dada por Gauss en el siglo XVIII, $\pi(n) \approx x / \ln(x)$.
+  Sin embargo, si se desea obtener su valor exacto, no queda más remedio que efectivamente contar primos.
 
-%TODO
+  En el listado \ref{lst:funcpi} se ilustra la utilización de los métodos de la biblioteca, conjuntamente con las funcionalidades
+  disponibles en el cliente de MPPLab, para el cálculo de esta función.
 
-\begin{lstlisting}[captionpos=b,basicstyle=\small,frame=shadowbox,rulesepcolor=\color{black},language=python,caption=$\pi$ de Euler] 
+\begin{lstlisting}[captionpos=b,basicstyle=\small,frame=shadowbox,rulesepcolor=\color{black},language=python,caption=$\pi$ de Euler,label=lst:funcpi] 
 from matplotlib.pylab import *
 from Client import *
 
@@ -1129,29 +1180,34 @@ for i in xrange(1,len(t1)):
         initialCount = piEulerResList[-1]) 
       )
 
-xlabel(r"$n$")
+xlabel(r"$n$")      (*@\label{algeuler:0}@*)
 ylabel(r"$\pi(n)$")
 plot(t1, piEulerResList, 'ro-', label=r"True pi(n)")
-plot(t1, t1/log(t1), 'bx-', label=r"n/log(n) approx.")
-legend()
+plot(t1, t1/log(t1), 'bx-', label=r"n/log(n) approx.") 
+legend() (*@\label{algeuler:1}@*)
 \end{lstlisting}
 
+  La particularidad de este ejemplo es el uso de los mecanismos de trazado de gráficas incorporadas
+  en el cliente. Esta funcionalidad se concentra en las líneas \ref{algeuler:0}--\ref{algeuler:1}, cuyos
+  resultados se representan en la figura \ref{fig:plotExResult}
   \begin{figure}[h!]
     \centering
     \includegraphics[width=0.85\textwidth,keepaspectratio]{plotExResult} 
     \caption{Gráfica resultado de la ejecución del ejemplo $\pi$ de Euler}\label{fig:plotExResult}
   \end{figure}
 
-\paragraph{RSA y paralelismo}
-%TODO
-
-\begin{lstlisting}[captionpos=b,basicstyle=\small,frame=shadowbox,rulesepcolor=\color{black},language=python,caption=$\pi$ de Euler] 
+  \paragraph{RSA y paralelismo.} El código presentado en el listado \ref{lst:rsampplab} ilustra un
+    escenario real en el que se explota la función \texttt{runInParallel}: la generación del par de primos
+    necesaria durante la creación de las claves pública y privada del algoritmo RSA. En concreto, se utiliza 
+    en las líneas \ref{algrsa:0}--\ref{algrsa:1}. El resto del código es asimismo un buen ejemplo de lo sencillo
+    que resulta la implementación del algoritmo RSA en el entorno MPPLab.
+\begin{lstlisting}[captionpos=b,basicstyle=\small,frame=shadowbox,rulesepcolor=\color{black},language=python,caption=RSA paralelo con MPPLab,label=lst:rsampplab] 
 from Client import *
 def getKeyPair(keySize):
   " Returns the pair (public, private) keys"
-  (p,q) = runInParallel(["result=getPrime(%d)" % keySize ]*2,
+  (p,q) = runInParallel(["result=getPrime(%d)" % keySize ]*2, (*@\label{algrsa:0}@*)
       2, 
-      "Generating prime pair (p,q)")
+      "Generating prime pair (p,q)")  (*@\label{algrsa:1}@*)
   n = p*q
   phi = (p-1)*(q-1)
   while True:
@@ -1171,14 +1227,51 @@ def decypher(key, cyphertext):
   n = key[1]
   return modExp(cyphertext,d,n)
 \end{lstlisting}
+Si se supone que el código del listado está contenido en \texttt{RSA.py}, se presenta a continuación un ejemplo 
+de uso --en el que se utiliza el mecanismo de módulos de Python, véase \cite{pythonref}\footnote{sección 6.12}--:
+\begin{verbatim}
+>>> import RSA
+>>> (privateKey, publicKey) = RSA.getKeyPair(64)
+>>> privateKey
+(454145867573780626450634936227269767, 891090725477588234798495840189752147)
+>>> cyphertext = RSA.cypher(publicKey, Z("12345"))
+>>> cyphertext
+197459952109445108444877291109778841
+>>> cleartext = RSA.decypher(privateKey, cyphertext)
+>>> cleartext
+12345
+\end{verbatim}
 
+  \paragraph{Generadores y $\pi$.}
+    Cambiando de tercio, se abandona el dominio de la Teoría de Números para dar paso a un ejemplo
+    relacionado con los números reales. 
 
-\paragraph{Generadores y $\pi$}
-%TODO
+    En este ejemplo explota una característica de Python muy interesante, sobre todo a la hora de
+    trabajar con métodos iterativos que van refinando su respuesta en iteraciones sucesivas: los generadores. 
+    Éste es un mecanismo propio del lenguaje el cual, por brevedad, no será descrito aquí en profundidad: 
+    véase \cite{pepgenerators} para más detalles. De forma muy resumida, un generador es una función capaz
+    de deternese en un punto arbitrario de su definición, devolver un valor, y posteriormente reanudar
+    su ejecución exactamente desde el mismo punto, y con el mismo estado, en el que se había detenido, como
+    si nada hubiera pasado. Entre otras muchas, la representación de series infinitas es una de sus aplicaciones.
+    Puede considerarse que un generador representa una «ventana» a una lista de valores infinita, sin necesidad
+    de almacenar dicha lista (por suerte, ya que es infinita) en ningún lugar. 
 
-\begin{lstlisting}[captionpos=b,basicstyle=\small,frame=shadowbox,rulesepcolor=\color{black},language=python,caption=$\pi$ de Euler] 
+    Por ejemplo, considérese la formula de Leibniz para el cálculo de la constante $\pi$:
+    \begin{equation}\label{eq:pileibniz}
+        \sum_{n=0}^{\infty} \frac{(-1)^{n}}{2n+1} = \frac{1}{1} - \frac{1}{3} + \frac{1}{5} - \frac{1}{7} + \frac{1}{9} - \cdots = \frac{\pi}{4}
+    \end{equation}
+    La codificación de esta fórmula se da en la función generador \texttt{pi\_series} del listado \ref{lst:pimpplab}. Cada vez que
+    se solicita un nuevo valor al generador, se procede con un elemento adicional de la anterior serie \eqref{eq:pileibniz}.
+    Yendo un paso más allá, es posible definir un nuevo generador sobre este generador, con el fin de acelerar la convergencia.
+    El siguiente método de aceleración de la convergencia se debe a Euler:
+    \[
+    S_{n+1} - \frac{(S_{n+1} - S_{n})^2}{S_{n-1} - 2S_n + S_{n+1}}
+    \]
+    donde $S_n$ representa el término $n$-ésimo de la serie original. Este acelerador
+    se implementa en la función generador \texttt{euler\_accelerator}.
+
+\begin{lstlisting}[captionpos=b,basicstyle=\small,frame=shadowbox,rulesepcolor=\color{black},language=python,caption=Generando la constante $\pi$,label=lst:pimpplab] 
 from Client import *
-
 def pi_series():
   sum = R('0')
   i = R('1.0')
@@ -1203,8 +1296,32 @@ def euler_accelerator(g):
 def firstn(g, n):
   for i in range(n):
     yield g.next()
-    
 \end{lstlisting}
 
-
+    Supóngase que el código dado en el listado \ref{lst:pimpplab} está contenido en un fichero de nombre
+    \texttt{piSeries.py}. A continuación se representa parte de una sesión en la cual se utiliza este código:
+\begin{verbatim}
+>>> runFile("piSeries.py")
+>>> g = pi_series()
+>>> gg = euler_accelerator(g)
+>>> list( firstn(gg, 15) )
+[3.16666666666666666667, 3.13333333333333333333, 3.14523809523809523810, 
+ 3.13968253968253968254, 3.14271284271284271284, 3.14088134088134088134, 
+ 3.14207181707181707182, 3.14125482360776478424, 3.14183961892940221114, 
+ 3.14140671849650177824, 3.14173609926066515109, 3.14147968900425489468, 
+ 3.14168318920775509818, 3.14151898559527562364, 3.14165339419742616127]
+>>> gg.next()
+3.14154198599778266751
+>>> gg.next()
+3.14163535667938864323
+>>> gg.next()
+3.14155633028457277473
+\end{verbatim}
+La sentencia \texttt{list( firstn(gg, 15) )} genera una lista formada por quince
+iteraciones del método acelerador de la convergencia. Nótese que tanto la variable
+\texttt{g} como \texttt{gg} son generadores, del algoritmo original \texttt{pi\_series}
+y del algoritmo acelerador de la convergencia \texttt{euler\_accelerator} respectivamente.
+Es por tanto posible utilizar los métodos propios de las instancias de estos objetos, como
+se ilustra en el resto de las sentencias. Internamente, los tipos de dato reales utilizados 
+son de la biblioteca, aunque se abstraiga de este detalle al usuario.
 

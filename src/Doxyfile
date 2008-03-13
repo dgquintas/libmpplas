@@ -4,11 +4,11 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 DOXYFILE_ENCODING      = UTF-8
-PROJECT_NAME           = "MultiPrecision Parallel Linear Algebra System (MPPLAS)   "
+PROJECT_NAME           = "MultiPrecision Parallel Linear Algebra System (MPPLAS)          "
 PROJECT_NUMBER         = 
 OUTPUT_DIRECTORY       = /home/dgquintas/libmpplas/trunk/docV2/html/
 CREATE_SUBDIRS         = YES
-OUTPUT_LANGUAGE        = English
+OUTPUT_LANGUAGE        = Spanish
 BRIEF_MEMBER_DESC      = YES
 REPEAT_BRIEF           = YES
 ABBREVIATE_BRIEF       = 
@@ -30,22 +30,22 @@ OPTIMIZE_OUTPUT_FOR_C  = NO
 OPTIMIZE_OUTPUT_JAVA   = NO
 BUILTIN_STL_SUPPORT    = YES
 CPP_CLI_SUPPORT        = NO
-DISTRIBUTE_GROUP_DOC   = NO
+DISTRIBUTE_GROUP_DOC   = YES
 SUBGROUPING            = YES
 #---------------------------------------------------------------------------
 # Build related configuration options
 #---------------------------------------------------------------------------
-EXTRACT_ALL            = NO
-EXTRACT_PRIVATE        = NO
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
 EXTRACT_STATIC         = YES
 EXTRACT_LOCAL_CLASSES  = YES
 EXTRACT_LOCAL_METHODS  = YES
 EXTRACT_ANON_NSPACES   = YES
 HIDE_UNDOC_MEMBERS     = YES
 HIDE_UNDOC_CLASSES     = YES
-HIDE_FRIEND_COMPOUNDS  = NO
-HIDE_IN_BODY_DOCS      = NO
-INTERNAL_DOCS          = NO
+HIDE_FRIEND_COMPOUNDS  = YES
+HIDE_IN_BODY_DOCS      = YES
+INTERNAL_DOCS          = YES
 CASE_SENSE_NAMES       = YES
 HIDE_SCOPE_NAMES       = NO
 SHOW_INCLUDE_FILES     = YES
@@ -70,7 +70,7 @@ WARNINGS               = YES
 WARN_IF_UNDOCUMENTED   = YES
 WARN_IF_DOC_ERROR      = YES
 WARN_NO_PARAMDOC       = NO
-WARN_FORMAT            = "$file:$line: $text   "
+WARN_FORMAT            = "$file:$line: $text          "
 WARN_LOGFILE           = 
 #---------------------------------------------------------------------------
 # configuration options related to the input files
@@ -78,7 +78,7 @@ WARN_LOGFILE           =
 INPUT                  = /home/dgquintas/libmpplas/trunk/src/headers/ \
                          /home/dgquintas/libmpplas/trunk/src/sources/ \
                          /home/dgquintas/libmpplas/trunk/src/sources/kernel/
-INPUT_ENCODING         = UTF-8
+INPUT_ENCODING         = ISO-8859-1
 FILE_PATTERNS          = *.cpp \
                          *.h
 RECURSIVE              = YES
@@ -114,7 +114,7 @@ IGNORE_PREFIX          =
 #---------------------------------------------------------------------------
 # configuration options related to the HTML output
 #---------------------------------------------------------------------------
-GENERATE_HTML          = YES
+GENERATE_HTML          = NO
 HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
 HTML_HEADER            = 
@@ -122,7 +122,7 @@ HTML_FOOTER            =
 HTML_STYLESHEET        = 
 HTML_ALIGN_MEMBERS     = YES
 GENERATE_HTMLHELP      = NO
-HTML_DYNAMIC_SECTIONS  = NO
+HTML_DYNAMIC_SECTIONS  = YES
 CHM_FILE               = 
 HHC_LOCATION           = 
 GENERATE_CHI           = NO
@@ -135,7 +135,7 @@ TREEVIEW_WIDTH         = 275
 #---------------------------------------------------------------------------
 # configuration options related to the LaTeX output
 #---------------------------------------------------------------------------
-GENERATE_LATEX         = NO
+GENERATE_LATEX         = YES
 LATEX_OUTPUT           = latex
 LATEX_CMD_NAME         = latex
 MAKEINDEX_CMD_NAME     = makeindex
@@ -217,10 +217,10 @@ TEMPLATE_RELATIONS     = YES
 INCLUDE_GRAPH          = YES
 INCLUDED_BY_GRAPH      = YES
 CALL_GRAPH             = YES
-CALLER_GRAPH           = NO
+CALLER_GRAPH           = YES
 GRAPHICAL_HIERARCHY    = YES
-DIRECTORY_GRAPH        = YES
-DOT_IMAGE_FORMAT       = jpg
+DIRECTORY_GRAPH        = NO
+DOT_IMAGE_FORMAT       = png
 DOT_PATH               = 
 DOTFILE_DIRS           = 
 DOT_GRAPH_MAX_NODES    = 50

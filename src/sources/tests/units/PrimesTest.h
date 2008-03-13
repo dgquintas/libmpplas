@@ -31,7 +31,7 @@ namespace com_uwyn_qtunit{
 
     private:
       RabinMiller _rm;
-      GenPrimos _primeGen;
+      PrimeGen _primeGen;
   };
 }
 #endif

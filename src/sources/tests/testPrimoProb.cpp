@@ -6,7 +6,7 @@ using namespace mpplas;
 
 int main()
 {
-  GenPrimos::DFL primesGen;
+  PrimeGen::DFL primesGen;
   
   primesGen.setRandomSeed(Z::ONE);
   Z prime(primesGen.leerPrimoProb(1024));

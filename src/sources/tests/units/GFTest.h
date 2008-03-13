@@ -44,7 +44,7 @@ namespace com_uwyn_qtunit{
       GF* gfIrred;
       GF* gfPrim;
       Random *rnd;
-      GenPrimos *primes;
+      PrimeGen *primes;
 
   };
 }

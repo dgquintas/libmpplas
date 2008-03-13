@@ -79,7 +79,8 @@ int main(int argc, char** argv){
 //  cout << m1 << endl;
 //  cout << m1.toString() << endl;
 //  cout << mr.toString() << endl;
-  std::cout << m1.getDeterminant() << std::endl;
+//  std::cout << m1.getDeterminant() << std::endl;
+    m1*m2;
 //  cout << m3 << endl;
 //  cout << m3.toString() << endl;
 //  cout << mr.toString() << endl;
@@ -98,7 +99,7 @@ int main(int argc, char** argv){
 //  cout << mr.toString() << endl;
 //  cout << mr.getDeterminant() << endl;
 //  cout <<  prof.getResults().getTotalOps() << endl;
-  cout <<  prof.stopClock()  << endl;
+  cout <<  prof.stopClock()  ;
   //
   //
   //

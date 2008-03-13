@@ -20,7 +20,7 @@ int main(){
   Profiling& prof( Profiling::getReference() );
 
   RandomFast* rnd;
-  GenPrimos* prime;
+  PrimeGen* prime;
   MethodsFactory::getReference().getFunc(rnd);
   MethodsFactory::getReference().getFunc(prime);
 

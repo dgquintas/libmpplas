@@ -65,7 +65,7 @@ void GCDTest::testGCDExtBinario(){
 
 void GCDTest::testGCDList(){
   MiVec<Z> list(brand(100,150));
-  GenPrimos *primes; MethodsFactory::getReference().getFunc(primes);
+  PrimeGen *primes; MethodsFactory::getReference().getFunc(primes);
   const Z aPrime( primes->getPrime(50) );
   const Z anotherPrime( primes->getPrime(25) );
   int i ;

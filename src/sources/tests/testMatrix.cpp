@@ -21,21 +21,32 @@ int main(){
   " 43   44   45   46  ]"
   );
 
+
+  MatrixZ mat2(
+  "[ 1    2    3    4 ;" 
+  "  8    9   10   11 ;"
+  " 43   44   45   46  ]"
+  );
+ 
+  MatrixZ mat3(
+  "[ 1    2   ;" 
+  "  8    9   ;"
+  " 15   16   ;"
+  " 22   23   ;"
+  " 29   30   ;"
+  " 36   37   ;"
+  " 43   44    ]"
+  );
+
+
+
+  cout << mat << endl;
+  cout << mat(Range(2,2,4), Range(1,2)) << endl;
+
+//  mat.appendByColumns(mat2);
+  mat.appendByRows(mat3).appendByRows(mat3);
+
   cout << mat << endl;
  
-  mat.transpose();
-  cout << mat << endl;
-  mat.transpose();
-  cout << mat << endl;
-
-  MatrixZ sqr( "[1 2 3; 4 5 6; 7 8 9]" );
-  cout << sqr << endl;
-  cout << transpose(sqr) << endl;
-  sqr.transpose();
-  cout << sqr << endl;
-
-
-
-
   return 0;
 }

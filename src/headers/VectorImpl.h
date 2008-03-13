@@ -39,41 +39,41 @@ Vector<T, Alloc>::Vector(const std::string& str)
 
 
 
-//template<typename T, typename Alloc>
-//std::istream& operator>>(std::istream& in, Vector<T, Alloc>& v) {
-//
-//  v._reset();
-//
-//  char c;
-//  int numColsRead(0);
-//
-//  in >> c;
-//  if( !in.good() || c != '[' ){
-//    throw Errors::InvalidSymbol(std::string(1,c));
-//  }
-//
-//  T valueRead;
-//
-//  while( in >> valueRead ){
-//    v._data.push_back(valueRead);
-//    numColsRead++;
-//    in >> std::ws >> c;
-//    if( c != ']' ){
-//      in.putback(c); 
-//    }
-//    else{ //reached the final ]
-//      break; 
-//    }
-//  }
-//
-//  if( in.fail() ){
-//    throw Errors::InvalidSymbol(std::string(1,c));
-//  }
-//
-//  v._dims.setBoth(1,numColsRead);
-//  return in;
-//
-//}
+template<typename T, typename Alloc>
+std::istream& operator>>(std::istream& in, Vector<T, Alloc>& v) {
+
+  v._reset();
+
+  char c;
+  int numColsRead(0);
+
+  in >> c;
+  if( !in.good() || c != '[' ){
+    throw Errors::InvalidSymbol(std::string(1,c));
+  }
+
+  T valueRead;
+
+  while( in >> valueRead ){
+    v._data.push_back(valueRead);
+    numColsRead++;
+    in >> std::ws >> c;
+    if( c != ']' ){
+      in.putback(c); 
+    }
+    else{ //reached the final ]
+      break; 
+    }
+  }
+
+  if( in.fail() ){
+    throw Errors::InvalidSymbol(std::string(1,c));
+  }
+
+  v._dims.setBoth(1,numColsRead);
+  return in;
+
+}
 
 
 template<typename T, typename Alloc>

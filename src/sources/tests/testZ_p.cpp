@@ -7,7 +7,7 @@
 int main(){
 
   mpplas::RandomFast::DFL rnd;
-  mpplas::GenPrimos::DFL genPrimes;
+  mpplas::PrimeGen::DFL genPrimes;
 
   const mpplas::Z n(4);
   const mpplas::Z p(5);
@@ -20,8 +20,9 @@ int main(){
 
   std::cout << std::endl;
   std::cout << mpplas::Z_p::getAddIdentity() << std::endl;
-  std::cout << mpplas::Z_p::ZERO << std::endl;
-  std::cout << mpplas::Z_p::ONE << std::endl;
+  std::cout << mpplas::Z_p::ZERO *zp<< std::endl;
+  std::cout << mpplas::Z_p::ONE *zp<< std::endl;
+  std::cout <<zp* mpplas::Z_p::ONE << std::endl;
   std::cout << mpplas::Z_p::getMultIdentity() << std::endl;
 
 

@@ -1,30 +1,26 @@
 #include "Z.h"
 #include "Factor.h"
-#include "Funciones.h"
+#include "Random.h"
+#include "MethodsFactory.h"
 #include <iostream>
 
 using namespace std;
-using namespace numth;
+using namespace mpplas;
 
 int main()
 {
   Z num;
-  CadenaAlgFactor fac;
-  Funciones funcs;
-  NumThRC4Gen rnd;
+  Random* rnd;
+  Factoriza* factor;
+  MethodsFactory::getReference().getFunc(rnd);
+  MethodsFactory::getReference().getFunc(factor);
 
-  rnd.ponerSemilla(Z::convertir("825432553543523423472852"));
-  for(size_t j = 0; j < 5; j++){
-    num = rnd.leerBits(70);  
-    cin >> num;    
+    num = rnd->getInteger(64);
     cout << num << endl;
-    MiVec<Z> facs = fac.factoriza(num);
-    if( facs.size() > 0 ){
-      for(size_t i=0; i < facs.size()-1; i++)
-        cout << facs[i] << " * " ;
-      cout << facs.back() << endl;
+    MiVec< pair<Z, int> > facs = factor->factorsWithExps(num);
+    for( int i = 0; i < facs.size(); i++){
+        cout << facs[i].first << " " << facs[i].second << endl ;
     }
-  }
 
   return 0;
 }

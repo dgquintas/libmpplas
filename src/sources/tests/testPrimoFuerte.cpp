@@ -16,8 +16,8 @@ int main()
   
   Funciones funcs;
   funcs.getRandomFast()->ponerSemilla(Z::convertir("1234"));
-  n = funcs.getGenPrimos()->leerPrimoFuerte(size);
-//  n = funcs.getGenPrimos()->leerPrimoProb(size);
+  n = funcs.getPrimeGen()->leerPrimoFuerte(size);
+//  n = funcs.getPrimeGen()->leerPrimoProb(size);
   cout << n << endl;
 
   return 0;

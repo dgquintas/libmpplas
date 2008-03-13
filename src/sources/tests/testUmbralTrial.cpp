@@ -13,7 +13,7 @@ int main()
   Z num;
   Trial fac;
   Funciones funcs;
-  GenPrimos rnd;
+  PrimeGen rnd;
 
   clock_t reloj;
   

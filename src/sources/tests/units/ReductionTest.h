@@ -41,7 +41,7 @@ namespace com_uwyn_qtunit{
     
       MethodsFactory* const _funcs;
       RandomFast *_rnd;
-      GenPrimos *_primeGen;
+      PrimeGen *_primeGen;
 
       Z _integer;
 

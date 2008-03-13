@@ -19,8 +19,9 @@ int main(){
 
   cout << mat << endl;
   cout << mat2 << endl;
-  mat += mat2;
-  cout << mat  << endl;
+  cout << mat + mat2  << endl;
+  cout << mat - mat2  << endl;
+  cout << mat * mat2  << endl;
 
 //  mat + mat2;
 

@@ -254,7 +254,7 @@ void Z_nTest::testProductWithSignedDigit(){
 
 void Z_nTest::testDivisionWithZ(){
   //make sure the modulus is prime (ie, invertible)
-  GenPrimos* genPrimos=0;
+  PrimeGen* genPrimos=0;
   funcs->getFunc(genPrimos);
   this->modulus = genPrimos->getPrime(128);  
   delete this->modularInteger; //get rid of the one set up by setUp()
@@ -296,7 +296,7 @@ void Z_nTest::testDivisionWithZThrows(){
 }
 void Z_nTest::testDivisionWithDigit(){
   //make sure the modulus is prime (ie, invertible)
-  GenPrimos* genPrimos=0;
+  PrimeGen* genPrimos=0;
   funcs->getFunc(genPrimos);
   this->modulus = genPrimos->getPrime(128);  
   delete this->modularInteger; //get rid of the one set up by setUp()
@@ -340,7 +340,7 @@ void Z_nTest::testDivisionWithDigitThrows(){
 }
 void Z_nTest::testDivisionWithSignedDigit(){
   //make sure the modulus is prime (ie, invertible)
-  GenPrimos* genPrimos=0;
+  PrimeGen* genPrimos=0;
   funcs->getFunc(genPrimos);
   this->modulus = genPrimos->getPrime(128);  
   delete this->modularInteger; //get rid of the one set up by setUp()
@@ -407,7 +407,7 @@ void Z_nTest::testExponentiationWithZ(){
 }
 void Z_nTest::testExponentiationWithDigit(){
   //make sure the modulus is coprime with the base
-    GenPrimos* genPrimos=0;
+    PrimeGen* genPrimos=0;
   funcs->getFunc(genPrimos);
   this->modulus = genPrimos->getPrime(128);
   delete this->modularInteger;
@@ -434,7 +434,7 @@ void Z_nTest::testExponentiationWithDigit(){
 }
 void Z_nTest::testExponentiationWithSignedDigit(){ 
   //make sure the modulus is coprime with the base
-   GenPrimos* genPrimos=0;
+   PrimeGen* genPrimos=0;
   funcs->getFunc(genPrimos);
 
   this->modulus = genPrimos->getPrime(128);

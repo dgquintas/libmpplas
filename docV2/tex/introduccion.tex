@@ -96,10 +96,10 @@
   \item[La barrera de la memoria] (\textit{Memory wall}) En el pasado, las operaciones aritméticas tales como el producto
   eran lentas comparadas con las instrucciones de lectura/escritura en memoria. Sin embargo, hoy día el cuello
   de botella se encuentra en estas últimas instrucciones de acceso a memoria, siendo las operaciones aritmético-lógicas
-  hasta un orden de magnitud más rapidas.
+  hasta un orden de magnitud más rápidas.
   \item[La barrera a nivel de instrucciones] (\textit{ILP\footnote{Instruction Level Parallelism} wall}) En los últimos 
   años tecnologías tales como la ejecución fuera de orden, la predicción de saltos, la ejecución especulativa de instrucciones, etc.
-  han sido las responsables de haber ayudado a que se siguiera cumpliendo la Ley de Moore. Sin embargo la innovación en estos campos
+  han sido las responsables de haber ayudado a que se siguiera cumpliendo la Ley de Moore. Sin embargo, la innovación en estos campos
   parece estar en declive.
   \end{description}
 
@@ -116,11 +116,11 @@
   Algo que reafirma cómo
   la industria se esfuerza por hacer que la observación de Moore se cumpla, y no al revés. Se juega también con el
   hecho de que la formulación original de Moore, referente al número de transistores, se cumple más fácilmente:
-  efectivamente el integrar un mayor número de núcleos en un único encapsulado implica el uso de más transistores. El que
-  esto se traduzca en un incremento lineal --o próximo a éste-- dependerá ya del nivel de paralelización de la arquitectura, software
-  del sistema y programas de usuario subyacentes, no ya sólo del hardware.
+  efectivamente, el integrar un mayor número de núcleos en un único encapsulado implica el uso de más transistores. El que
+  esto se traduzca en un incremento lineal --o próximo a éste-- dependerá del nivel de paralelización de la arquitectura, software
+  del sistema y programas de usuario subyacentes, no sólo del hardware.
  
-  Dado que el número método de incremento del rendimiento pasa a ser la explotación del paralelismo en vez de una mayor
+  Dado que el nuevo método de incremento del rendimiento pasa a ser la explotación del paralelismo en vez de una mayor
   frecuencia de reloj, cualquier mejora obtenida fruto de la paralelización debe tenerse muy en cuenta. 
   En la línea del refrán que encabeza este punto, el «rey» basado en el aumento
   de la frecuencia de reloj o la microarquitectura monoprocesador ha muerto. Se
@@ -140,7 +140,7 @@
   de gravitación universal $G$ y la constante reducida de Plank $\hbar$ en el marco definitivo de la computación cuántica. 
   Entre otras interesantes conclusiones está como, si se considera un ordenador de $1$ kg. y $1$ litro de volumen, 
   el número máximo --limite \emph{físico}-- de operaciones resulta ser de $5.4258 \times 10^{50}$, con una máxima capacidad
-  de almacenamiento de $\approx 10^{31}$ bits --es decir, $1.25$ millones de yottabytes, $1250$ billones de petabyes.
+  de almacenamiento de $\approx 10^{31}$ bits --es decir, $1250$ billones de petabtyes.
   A la vista de estas cifras concluye que si la variante de la Ley de Moore relativa al rendimiento se mantuviese, 
   se tardaría «solamente» $250$ años en compensar los $40$ ordenes de magnitud que separan los ordenadores actuales de
   tales máximos teóricos. Parece un cierto indicador de que la Lay de Moore tiene los días contados.
@@ -149,8 +149,7 @@
 
 
   \subsection{Características a destacar}
-
-  Pero no sólo es el uso de paralelismo lo que caracteriza a esta biblioteca. Varias tecnologías y enfoques
+  No sólo es el uso del paralelismo lo que caracteriza a esta biblioteca. Varias tecnologías y enfoques
   novedosos han sido aplicados también: comprobaciones en tiempo de compilación, verificación de la coherencia
   algebraica de los tipos, el reciente paradigma de la «programación orientada a aspectos» (AOP), \textit{mock
     objects} que suplantan funcionalidades cuando éstas no se encuentran disponibles para homogeneizar el código,
@@ -162,7 +161,7 @@
 
 
     \begin{itemize}
-      \item Comprobaciones estáticas en tiempo de compilación. Utilizadas por ejemplo para asegurar
+      \item Comprobaciones estáticas en tiempo de compilación. Utilizadas, por ejemplo, para asegurar
           la coherencia matemática en los tipos de datos. Ver \ref{tech:staticasserts}.
       \item Utilización de programación orientada a aspectos para la implementación de conceptos «transversales» 
             (\textit{cross-cutting concepts}). Se descifra el significado de una frase tan críptica como la anterior en 
@@ -174,14 +173,14 @@
             con la incorporación de mecanismos para facilitar la identificación del lanzador de las mismas --sección \ref{controlDeErrores}--.
       \item Repositorio de implementaciones de métodos posibilitando que el usuario aporte su propia implementación
             de los mismos --sección \ref{basico:nuevoRepdeFuncs}--.
-      \item Uso de tecnologías SIMD si estas están disponibles --sección \ref{basico:cpusimd}--.
+      \item Uso de tecnologías SIMD si éstas están disponibles --sección \ref{basico:cpusimd}--.
       \item Soporte de múltiples arquitecturas, incluyendo de $64$ bits --sección \ref{impl:64bits}--.
       \item Utilización del API OpenMP para la paralelización --capítulo \ref{chap:par}--.
       \item Utilización del API pthreads para garantizar la correcta ejecución de la biblioteca en programas concurrentes,
       no necesariamente paralelos.
     \end{itemize}
 
-   Resumiendo: es no sólo el interés por desarrollar un abanico relativamente amplio de métodos con los cuales resulte 
+   Resumiendo: no es sólo el interés por desarrollar un abanico relativamente amplio de métodos con los cuales resulte 
    cómodo trabajar --cuyo rendimiento no sea puntero pero sí competitivo--, sino también explorar nuevas técnicas y su aplicación
    práctica a problemas concretos. Es con esta experimentación original mediante la cual modestamente se espera 
    contribuir al eventual progreso de la computación científica.  
@@ -205,8 +204,12 @@
             \item Algoritmos de potenciación.
             \item Teorema Chino de los Restos (CRT).
           \end{itemize}
-          \item Aritmética modular, $\mathbb{Z}_n$, $\mathbb{Z}_p$ y $\mathbb{Z}M_n$
+          \item Aritmética modular.
           \begin{itemize}
+            \item $\mathbb{Z}_n$: enteros modulares con módulo arbitrario.
+            \item $\mathbb{Z}_p$: enteros modulares con módulo primo.
+            \item $\mathbb{Z}M_n$: los llamados enteros modulares de Montgomery, desarrollo
+            original para la biblioteca.
             \item Potenciación modular.
             \item Métodos especiales de reducción. 
             \item Cálculo de inversas.
@@ -228,6 +231,9 @@
         \item Polinomios.
         \begin{itemize}
           \item Cálculo del máximo común divisor.
+          \item Generación de polinomios irreducibles.
+          \item Pruebas de irreducibilidad.
+          \item Pruebas del carácter primitivo del polinomio.
           \begin{itemize}
             \item Sobre $\mathbb{Z}$.
             \item Sobre $\mathbb{R}$.
@@ -267,11 +273,13 @@
   \subsection{Sistemas hardware}\label{sistemaHard}
   \begin{description}
     \item[Intel Core 2 Duo E6750 CPU] 
-      Sistema multinúcleo en el que se han ejecutado tanto el desarrollo como las pruebas en paralelo. 
-      %TODO: completar
+      Sistema multinúcleo en el que se han ejecutado las pruebas en paralelo. 
+      Esta CPU posee $128$ kB de memoria caché de primer nivel y $4096$ kB de segundo nivel. Sin caché de tercer nivel.
+      Cuenta con $2$ gigabytes de memoria convencional. Su sistema operativo ha sido Scientific Linux 5.0.
     \item[Intel Pentium M Banias B1 CPU] 
       Sistema monoprocesador y principal plataforma de desarrollo. 
-      %TODO: completar
+      $32$ kB de caché de primer nivel y $1024$ kB de segundo nivel. Sin caché de tercer nivel. Cuenta con
+      $1.2$ gigabytes de memoria convencional. Su sistema operativo ha sido Ubuntu 7.04.
   \end{description}
 
   \subsection{Sistemas software}
@@ -282,7 +290,7 @@
       de bibliotecas fundamentales del sistema han sido:
       \begin{description}
         \item[Bibliotecas del sistema.]  Implementación GNU de la biblioteca de C 
-          (incluye POSIX Threads), versión 2.5 
+          (incluye POSIX Threads), versión 2.5. 
         \item[Compiladores.] Nombres y versiones de los compiladores soportados.
         \begin{description}
           \item[GCC] Compilador GNU Compiler Collection, en dos diferentes variedades: con soporte
@@ -340,10 +348,10 @@
       NTL\footnote{\url{http://www.shoup.net/ntl/}}, Pari \footnote{\url{http://pari.math.u-bordeaux.fr/}} 
       o GMP \footnote{\url{http://gmplib.org/}}. 
       
-      Por último, pero no por ellos menos importante, no debe descuidarse la vertiente filosófica de que,
+      Por último, pero no por ello menos importante, no debe descuidarse la vertiente filosófica de que,
       si a lo que se aspira es a la creación de conocimiento en pos de la Ciencia, éste ha de ser libre,
       por la propia naturaleza de la Ciencia. De hecho, en un reciente artículo, \cite{opensourcemathsw}, 
-      se analiza la problemática derivada del uso de software matemático de carácter propietario sus repercusiones.
+      se analiza la problemática derivada del uso de software matemático de carácter propietario y sus repercusiones.
       En este artículo se cita a su vez a Joachim Neubüser:
       \begin{quote}
       (...) with this situation [el uso de software matemático de carácter propietario] 
@@ -354,7 +362,7 @@
       Si, además, la defensa de la utilización de métodos propietarios se realiza 
       en el marco de métodos de seguridad informática, se estaría incurriendo
       en lo conocido como «seguridad a través de la ocultación» --\textit{security through obscurity}--,
-      ámpliamente analizado durante los últimos $30$ años: véase \cite{obscurity}.
+      ámpliamente analizado durante los últimos $30$ años, véase \cite{obscurity}.
 
       Si la no divulgación de resultados y/o métodos tiene un lugar, éste no puede ser el ámbito científico.
       

@@ -10,7 +10,7 @@ int main()
 {
   Funciones funcs;
   RandomFast* rnd = funcs.getRandomFast();
-  TestPrimoProb* test = funcs.testPrimoProb();
+  PrimeTest* test = funcs.testPrimoProb();
   GCD* gcd = funcs.getGCD();
   PotModular* potMod = funcs.getPotModular();
 

@@ -46,11 +46,7 @@
 
 %--------------------------------------------------------%
 
-\begin{figure}[h!]
-\centering
-\includegraphics[width=0.65\textwidth,keepaspectratio]{dilbert} 
-\caption{La terminología puede a veces resultar confusa...}
-\end{figure}
+
 
 \section{OpenMP}
 A la hora de seleccionar la tecnología que nos permitiera explotar el paralelismo de los sistemas
@@ -60,9 +56,9 @@ redujeron las opciones a dos, a saber: OpenMP y POSIX Threads. Ambas tecnologías
 medida extendidas y probadas. Sin embargo se orientan a extremos diferentes del espectro de desarrollo. 
 Mientras que PThreads --forma habitual de nombrar POSIX Threads-- requiere que la identificación de tareas, 
 su asignación a unidades de ejecución y la sincronización sean realizadas de forma explícita por el programador,
-el API de OpenMP abstrae de estos detalles. Por supuesto, esto resta cierta flexibilidad, pero dada la inherente
+el API de OpenMP abstrae al usuario de estos detalles. Por supuesto, esto resta cierta flexibilidad, pero dada la inherente
 complejidad de la programación paralela, esto es más una ventaja que un problema. Por añadidura, OpenMP se orienta
-al cálculo científico, mientras que PThreads pertenece tiene un alcance mucho más general; lo cual una vez más
+al cálculo científico, mientras que PThreads tiene un alcance mucho más general; lo cual una vez más
 resulta ventajoso en teoría pero contraproducente en la práctica. De hecho, OpenMP suele depender de PThreads --al
 menos en sistemas UNIX-- en su implementación, la cual es dependiente del compilador. En cierto modo, OpenMP
 otorga una mayor productividad al «llevar de la mano» al programador mediante su API basada en el 
@@ -70,7 +66,7 @@ modelo de programación \textit{fork/join} (\cite{openmpstandard}\footnote{secció
 es de especial utilidad a la hora de abordar problemas basados en el manejo de estructuras de tipo vector;
 o dicho de otra manera, datos que cuya forma más natural de ser procesados es iterativamente.
 Dos características más de OpenMP que decantan definitivamente la balanza son las que \cite{parpatterns}\footnote{
-apéndice A, pág. 253} denomina como \textit{equivalencia secuencial} y \textit{paralelismo secuencial}.
+apéndice A, pág. 253} denomina como \textit{equivalencia secuencial} y \textit{paralelismo incremental}.
 \begin{description}
 \item[Equivalencia secuencial.] Se dice que un programa es \textit{secuencialmente equivalente} cuando 
 sus resultados son los mismos\footnote{concepto de igualdad sujeto a cuestiones tales como la no asociatividad
@@ -94,9 +90,15 @@ MultiProcessors}, CMP --tales como los sistemas multicore, tan extendidos última
 el ancho de banda disponible entre los núcleos dentro de un mismo encapsulado es mucho mayor que la 
 disponible entre procesadores en un sistema SMP. De forma análoga, la latencia es mucho menor, hasta un orden 
 de magnitud, en el primer caso que en el segundo. Esto implica que \emph{no} debe pensarse en un sistema
-basado en CMP como un sistema SMP, pese a que esta es la situación actual en prácticamente todos los frentes. Las
+basado en CMP como un sistema SMP, pese a que ésta es la situación actual en prácticamente todos los frentes. Las
 diferentes características de los sistemas multicore brindan la oportunidad de desarrollar nuevos algoritmos que exploten
 estas diferencias.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.65\textwidth,keepaspectratio]{dilbert} 
+\caption{La terminología puede a veces resultar confusa...}
+\end{figure}
 
 \section{Comprobaciones en tiempo de compilación}\label{tech:staticasserts}
   Como reza el refranero, es mejor prevenir que curar. Por tanto, mejor que simplemente detectar el error
@@ -106,7 +108,7 @@ estas diferencias.
   sí es posible --incluso probable-- que aumente. Sin embargo, la compilación es un proceso puntual, frente a un número de ejecuciones
   arbitrario} y se detectarían incluso antes de que el propio programa tomase cuerpo.
 
-  Por otra parte, no es posible comprobar más que aquellas condiciones evaluables en tiempo de compilación. En otras palabras,
+  Por otra parte, no es posible comprobar más que aquellas condiciones evaluables en tiempo de compilación. Es decir,
   datos de carácter \emph{constante} y \emph{estático}. En código esto se traduce en valores declarados como \texttt{const static}, 
   o bien literales --que no dejan de ser asimismo un caso particular de éstos--.
 
@@ -137,7 +139,7 @@ estas diferencias.
       
   \subsection{Requiriendo métodos de un tipo de plantilla}\label{interfazSobreTemplate}
   Lo expuesto en este punto está basado en gran medida en lo expuesto en 
-    \cite{moreexceptional}, item 4. La idea es poder implementar una clase
+    \cite{moreexceptional}\footnote{item 4}. La idea es poder implementar una clase
     parametrizada sobre un tipo \texttt{T} tal que se pueda garantizar que este tipo \texttt{T}
     implemente un cierto interfaz. Pero ¿no realiza acaso esta comprobación el compilador
     sin necesidad de pasos adicionales? Sólo parcialmente.
@@ -193,12 +195,12 @@ estas diferencias.
   de $0$\footnote{C++ contribuyó con el tipo \texttt{bool} y sus dos valores \texttt{true} y \texttt{false} a clarificar este ámbito,
   pero siguen siendo válidos los viejos hábitos (y en este caso, necesarios)}.
 
-  ¿Interrumpe el código anterior la compilación en función de \texttt{ex}?. Sí: se consigue aprovechando la definición de 
+  ¿Interrumpe el código anterior la compilación en función de \texttt{ex}? Sí: se consigue aprovechando la definición de 
   vector estático por parte del estándar ANSI C (\cite{c}\footnote{sección A8.6.2, pág. 239}):
   \begin{quote}
-  Si la «expresión-constante» está presente, debe ser de tipo entero, y con valor mayor que $0$.
+  Si la «expresión-constante» está presente, debe ser de tipo entero y con valor mayor que $0$.
   \end{quote}
-  Por «expresión-constante» se refiere al tamaño que se asigna al vector estático en su 
+  El término «expresión-constante» se refiere al tamaño que se asigna al vector estático en su 
   declaración. Así pues, por lo expuesto en el punto \ref{enum:elQuizStaticAssert} de la enumeración precedente,
   si \texttt{ex} se evalúa como falso, se estaría declarando \texttt{ai} con tamaño $-1$\footnote{¿y por qué si la
   referencia del lenguaje cita $0$ como valor ya invalido, se utiliza $-1$? Debido a que, tal como indica \cite{imperfectc++},
@@ -214,7 +216,7 @@ estas diferencias.
   a raíz de que el bucle, al ser do-while, fuerza la entrada en su cuerpo al menos una vez. En este cuerpo, el \texttt{typedef}
   ha de evaluar el nuevo alias declarado: el vector estático en cuya dimensión reside el meollo de la cuestión.
 
-  Véase \cite{imperfectc++}\footnote{sección 1.4.8, pág. 25} para un enfoque de este método en más en profundidad.
+  Véase \cite{imperfectc++}\footnote{sección 1.4.8, pág. 25} para un enfoque de este método con más profundidad.
 
   \subsubsection{Aplicaciones}\label{aplicacionesStaticAssert}
   Sus usos principales son los mismos que se le darían al clásico \texttt{assert} en tiempo de compilación: comprobación
@@ -259,7 +261,7 @@ la evaluación del aserto estático.
   El siguiente método, cuya función es asegurarse de que una clase dada hereda de otra, se expone en 
   \cite{imperfectc++}\footnote{sección 1.2.1, pág. 5}. Su utilidad, una vez más, deriva del hecho de ser
   una comprobación \emph{en tiempo de compilación}. Su equivalente en tiempo de \emph{ejecución} sería 
-  la comprobación de que \texttt{dynamic\_cast< *Base >( instanciaDeriv )} no devuelve un valor nulo. Aun así,
+  la comprobación de que \texttt{dynamic\_cast< *Base >( instanciaDeriv )} no devuelve un valor nulo. Aún así,
   esta variante requiere una \emph{instancia} del tipo derivado, y en cualquier caso, su dominio de aplicación es 
   totalmente diferente: compilación vs. ejecución.
 
@@ -312,12 +314,12 @@ struct must_have_base{
   siquiera se superaría la etapa de compilación.
 
 \section{Programación orientada a aspectos (AOP)}\label{tech:aop}
-  Este relativamente novedoso paradígma es considerado por algunos como una evolución 
+  Este relativamente novedoso paradigma es considerado por algunos como una evolución 
   del mismo modo que la orientación a objetos supuso una evolución con respecto a la programación
   meramente estructurada. 
 
   Se puede considerar como una forma de preprocesado avanzada. Por ejemplo, es posible especificar
-  cosas como «para cada método cuyo nombre comiece con ``test'', añadirlo a la lista de métodos a ejecutar
+  cosas como «para cada método cuyo nombre comience con ``test'', añadirlo a la lista de métodos a ejecutar
   durante las pruebas». O bien «si se está ejecutando en modo de depuración, imprimir los valores de
   los argumentos de cada método ejecutado». Todo esto sin necesidad de modificar los métodos afectados: se 
   centraliza el tratamiento de «conceptos transversales». Los «conceptos» en los dos ejemplos anteriores serían 
@@ -392,14 +394,14 @@ struct must_have_base{
   El detalle más importante a observar es la sección crítica (allí donde se modifica el dato estático \texttt{\_instance}), que se 
   extiende de las líneas \ref{algsingleton:cs1} a \ref{algsingleton:cs2} del listado \ref{lst:singleton2}. 
   Por tanto, en un marco concurrente, debe asegurarse la
-  dicha sección exclusión mutua dentro de dicha sección crítica. Esto desemboca en el uso de \textit{candados}, de tal forma que cada vez
+  exclusión mutua dentro de dicha sección crítica. Esto desemboca en el uso de \textit{candados}, de tal forma que cada vez
   que se requiera acceder a la instancia en cuestión, se comprueba si no hay otro hilo ya en esa sección. Ahora bien, tras la instanciación
   inicial, la comprobación de que el punto \texttt{\_instance} no es nulo será siempre falsa, haciendo superfluas tanto dicha comprobación
   como el intento de adquirir el candado. Frente a esto se desarrolló otro patrón más complejo, bautizado como \textit{double-checked
     locking pattern} (\cite{dclp}), el cual evitaba estos problemas de una forma supuestamente thread-safe. O así se creía hasta que
   Scott Meyers y Andrei Alexandrescu desmontaron punto por punto los argumentos utilizados para garantizar esta seguridad en entornos
   concurrentes (\cite{singletonperils}). Resumiendo, quedan pues dos opciones: o se conserva el patrón singleton clásico con todas
-  sus comprobaciones extras y se asume la perdida de rendimiento «por necesidades del guión» o bien... volviendo atrás sobre nuestros pasos,
+  sus comprobaciones extras y se asume la pérdida de rendimiento «por necesidades del guión» o bien... volviendo atrás sobre nuestros pasos,
   échese otra ojeada al código del listado \ref{lst:singleton2}. ¿Qué motiva la aparición de la problemática sección crítica? El hecho 
   de estar creando la instancia singleton de forma \textit{lazy}. La justificación de --aún otro-- anglicismo aquí es debido al concepto
   de \textit{lazy initialization} (\cite{gof}\footnote{pág. 112}), que consiste en instanciar los objetos no en la fase de construcción, 
@@ -428,7 +430,7 @@ struct must_have_base{
 
     
 \section{\textit{Autowiring}}\label{sec:autowiring}
-    Detrás de otro vago termino anglosajón, se esconde la idea de asociar dos elementos automáticamente
+    Detrás de otro vago término anglosajón, se esconde la idea de asociar dos elementos automáticamente
     en base a su tipo\footnote{en este contexto, «wiring» se refiere a la operación que antiguamente los operadores
     de las centralitas telefónicas debían realizar manualmente a la hora de establecer una conexión telefónica. 
     Podría traducirse, burdamente, como «cablear».}.
@@ -526,7 +528,7 @@ struct must_have_base{
 
 
 \section{\textit{Mock/stub objects}}
-El concepto de \textit{mock object}\footnote{podría traducirse como «objecto simulado», aunque incluso en la
+El concepto de \textit{mock object}\footnote{podría traducirse como «objeto simulado», aunque incluso en la
   bibliografía en castellano se utiliza la expresión en inglés} se introduce en \cite{testdrivendevelopment}\footnote{capítulo 27}
   como un patrón útil dentro de las
   baterías de pruebas
@@ -542,7 +544,7 @@ El concepto de \textit{mock object}\footnote{podría traducirse como «objecto sim
   comprobar si el soporte para OpenMP está disponible. Sin embargo, el mantener un código tal resulta muy engorroso 
   y, desde un punto de vista estético, muy poco elegante. 
 
-  El punto clave hacia una mejor solución solución estriba en darse cuenta de que es posible \emph{imitar} el comportamiento
+  El punto clave hacia una mejor solución estriba en darse cuenta de que es posible \emph{imitar} el comportamiento
   de dichas rutinas cuando o bien el sistema no las soporta o se encuentran desactivadas: su comportamiento
   se correspondería a la situación en la que OpenMP sí estuviera disponible y el máximo número de hilos disponibles en
   todo momento fuera uno. De esta manera, cuando OpenMP se encontrase disponible, las llamadas a estas rutinas se 
@@ -587,11 +589,6 @@ El concepto de \textit{mock object}\footnote{podría traducirse como «objecto sim
 
 
 
-  \subsection{Mecanismo de perfilado basado en AOP}\label{tech:aop}
-%TODO
-    \subsubsection{Preprocesando con Python}
-%TODO
-
 \section{Para el desarrollo}
   
    El presente proyecto cuenta aproximadamente con $32000$ líneas
@@ -630,8 +627,6 @@ herramientas de uso habitual en proyectos de cierta envergadura.
     Tal herramienta ha sido en este caso SCons, \url{http://www.scons.org/}. Lo sencillo de su uso unido a la potencia
     que proporciona ha sido la razón para elegirla por encima de métodos más tradicionales como Make.
 
-    %TODO
-  
 
     \subsubsection{Autoajuste al entorno}
       Cada sistema tiene sus particularidades, y es deseable poder adaptarse a ellas con el fin de contar con un producto,
@@ -644,7 +639,7 @@ herramientas de uso habitual en proyectos de cierta envergadura.
         y \texttt{int32\_t} para arquitecturas de $32$ bits; \texttt{uint64\_t}y \texttt{int64\_t} para arquitecturas de 
         $64$ bits. Estos se corresponden con tipos sin y con signo respectivamente, de la longitud en bits indicada. 
         No son tipos estándar según ANSI C o C++, pero se recogen dentro de la nueva revisión del estándar C, \cite{c99},
-        en su sección 7.18.1.1. En el caso del compilador GCC, se soportan estos tipos desde la versión %TODO.
+        en su sección 7.18.1.1. 
         
         SCons verifica el soporte de estos tipos por parte del compilador, abortando la compilación en caso de
         no estar presentes.

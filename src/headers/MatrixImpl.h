@@ -1384,6 +1384,7 @@ namespace MatrixHelpers{
       const int n = m.getRows();
 
       T sum(m(0,0));
+      //forward
       for(int i = 0; i < n; i++){
         if(i == perm){
           sum.makeOne();
@@ -1397,15 +1398,16 @@ namespace MatrixHelpers{
         inv(i,currCol) = sum;
       }
       try{
-      inv(n-1,currCol) /= m(n-1,n-1);
-      for(int i = n-2; i >= 0; i--){
-        sum = inv(i,currCol);
-        for(int j = i+1; j < n; j++){
-          sum -=  m(i,j) * inv(j,currCol);
+        //backwards
+        inv(n-1,currCol) /= m(n-1,n-1);
+        for(int i = n-2; i >= 0; i--){
+          sum = inv(i,currCol);
+          for(int j = i+1; j < n; j++){
+            sum -=  m(i,j) * inv(j,currCol);
+          }
+          sum /= m(i,i);
+          inv(i,currCol) = sum;
         }
-        sum /= m(i,i);
-        inv(i,currCol) = sum;
-      }
       }
       catch( const Errors::DivisionByZero& e){
         throw Errors::NonInvertibleElement();

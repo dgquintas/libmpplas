@@ -22,7 +22,7 @@ void PrimesTest::tearDown(){
 
 void PrimesTest::testRabinMiller(){
   const Z prime( _primeGen.getPrime( brand(128,512) ) );
-  const bool res = _rm.esPrimo(prime) ;
+  const bool res = _rm.isPrime(prime) ;
   const GEN p = gp_read_str(const_cast<char*>(prime.toString().c_str()));
   long pariRes = isprime(p);
   qassertEquals( res, (bool)pariRes);

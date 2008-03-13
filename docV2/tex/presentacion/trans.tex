@@ -4,19 +4,24 @@
 
 \mode<presentation>
 {
-  \usetheme{PaloAlto}
+  \usetheme[hideothersubsections]{PaloAlto}
   \setbeamercovered{transparent}
 }
 
-
+\usepackage{pslatex} %utilizar fuentes postscript standard
 \usepackage[spanish]{babel}
 \usepackage[latin1]{inputenc}
-\usepackage{times}
-\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{subfigure}
+\newcommand{\GFX}[1]{ \mathrm{GF}\left(#1 \right) }
+\newcommand{\GF}{ \mathrm{GF} }
 
+\graphicspath{{../figures/}}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
 \title{La biblioteca MPPLAS}
 
-\subtitle{Paralelismo en el Álgebra y la Teoría de Números:
+\subtitle{Biblioteca de Álgebra Lineal y Teoría de Números optimizada para el procesamiento en paralelo:
  MultiPrecision Parallel Linear Algebra System}
 
 \author{David García Quintas}
@@ -25,13 +30,12 @@
 
 \pgfdeclareimage[width=1.5cm]{university-logo}{logo}
 \logo{\pgfuseimage{university-logo}}
-
 % Delete this, if you do not want the table of contents to pop up at
 % the beginning of each subsection:
 \AtBeginSubsection[]
 {
-  \begin{frame}<beamer>{Outline}
-    \tableofcontents[currentsection,currentsubsection]
+  \begin{frame}<beamer>{Índice}
+    \tableofcontents[currentsubsection]
   \end{frame}
 }
 
@@ -39,7 +43,7 @@
 % If you wish to uncover everything in a step-wise fashion, uncomment
 % the following command: 
 
-\beamerdefaultoverlayspecification{<+->}
+%\beamerdefaultoverlayspecification{<+->}
 
 \begin{document}
 
@@ -47,8 +51,21 @@
   \titlepage
 \end{frame}
 
-\begin{frame}{Outline}
-  \tableofcontents[pausesections]
+\part{Presentación}
+\frame{\partpage}
+
+\begin{frame}[label=preguntas]{Durante esta presentación...}
+  Se tratará de dar respuesta a las siguientes preguntas:
+  \begin{itemize}[<+->]
+    \item ¿Por \alert{qué}?
+    \item ¿Para \alert{qué}?
+    \item ¿\alert{Qué} hace?
+    \item ¿\alert{Cómo} lo hace?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Índice}
+  \tableofcontents[pausesections, hidesubsections]
 \end{frame}
 
 
@@ -69,118 +86,685 @@
 % - If you omit details that are vital to the proof/implementation,
 %   just say so once. Everybody will be happy with that.
 
-\section{Motivación}
+\section{Introducción}
+  \subsection{Motivación}
+%    \begin{frame}{Motivación}
+%      \begin{block}{¿Qué ha motivado este Proyecto?}
+%      \begin{itemize}[<+->]
+%        \item<1-> Integrar en un único producto de características dispersas
+%        o de uso engorroso (e.g. GF).
+%        \item<2-> Experimentar con enfoques y tecnologías novedosas.
+%        \item<3-|alert@4> Dar la bienvenida al «nuevo Rey».
+%      \end{itemize}
+%      \end{block}
+%    \end{frame}
 
-\subsection{Características básicas}
 
-\begin{frame}{Make Titles Informative. Use Uppercase Letters.}{Subtitles are optional.}
-  % - A title should summarize the slide in an understandable fashion
-  %   for anyone how does not follow everything on the slide itself.
+    { % brace to limit the scope of \setbeamertemplate 
+      \setbeamertemplate{navigation symbols}{}  % optionally hide naviation buttons 
+        \setbeamertemplate{background canvas}{\includegraphics 
+          [width=\paperwidth,height=\paperheight]{moore.pdf}} 
+        \begin{frame}[plain]
+          \begin{columns}
+          \begin{column}[l]{0.33\textwidth}
+          \end{column}
+          \begin{column}[r]{0.67\textwidth}
+          \begin{quote}
+          The complexity for minimum component \alert{costs} has increased at a rate of
+          roughly \alert{a factor of two per year} ... [Gordon Moore, \alert{1965}]
+          \end{quote}
+          \end{column}
+          \end{columns}
 
-  \begin{itemize}
-  \item
-    Use \texttt{itemize} a lot.
-  \item
-    Use very short sentences or short phrases.
-  \end{itemize}
-\end{frame}
+        \end{frame} 
+    } % closing brace
 
-\begin{frame}{Make Titles Informative.}
+%    \begin{frame}{Aquellos maravillosos años}
+%      \begin{block}{En otras (menos) palabras}
+%        Incremento periódico de rendimiento. \alarm{Se supone} que a mayor número de transistores,
+%        mayor potencia de cómputo.
+%      \end{block}
+%    \end{frame}
 
-  You can create overlays\dots
-  \begin{itemize}
-  \item using the \texttt{pause} command:
-    \begin{itemize}
-    \item
-      First item.
+    \begin{frame}[shrink]{Reinterpretando a Moore}
+      \begin{block}{Evolución del rendimiento $1978$-$2006$}
+      \begin{center}
+        \includegraphics[width=0.85\textwidth,keepaspectratio]{perfGraph.pdf}
+      \end{center}
+      \end{block}
+    \pause
+    \begin{description}
+      \item[$1986$--$2002$] Incremento anual del $52\%$. 
+      \item[$2002$--$2006$] Reducción del incremento por debajo del $20\%$.
+    \end{description}
+    \end{frame}
+    \begin{frame}{Reinterpretando a Moore}
+    \begin{alertblock}{La ley que no era tal}
+    En $2006$, el rendimiento es tres veces menor del esperado de haberse mantenido la anterior tendencia. 
+
+    \bigskip
+    \pause
+    Las limitaciones físicas impiden seguir obteniendo el rendimiento de la manera tradicional.
+    Se hace necesario un nuevo enfoque: \emph{múltiples núcleos}.
+    \end{alertblock}
+    \end{frame}
+
+    \begin{frame}{El Rey ha muerto. ¡Viva el Rey!}
+      ¿Qué supone la introducción a gran escala del paralelismo para los desarrolladores? 
+      \pause Un \alert{mayor esfuerzo}, pero también 
+      \alert{nuevas oportunidades}:
       \pause
-    \item    
-      Second item.
+      \begin{block}{The landscape of parallel computing, VV.AA. $2006$}
+      \begin{quote}
+        From a research perspective, however, this is an \alert{exciting opportunity}. \alert{Virtually any
+        change can be justified}: new programming languages, new instruction set architectures, 
+        new interconnection protocols, and so on.
+      \end{quote}
+      \end{block}
+      \pause
+      Nuestra respuesta a estas \alert{oportunidades} y fruto de nuestros \alert{esfuerzos} ha sido la biblioteca
+      MPPLAS desarrollada.
+
+    \end{frame}
+
+\section{La biblioteca}
+  \subsection{Estructura}
+    \begin{frame}[label=estructura]{Estructura de la biblioteca}
+      \begin{block}{Filosofía de trabajo en capas}
+      \begin{center}
+        \includegraphics[width=0.70\textwidth,keepaspectratio]{estructuraGeneral.pdf}
+      \end{center}
+      \end{block}
+    \end{frame}
+    \begin{frame}{Estructura de la biblioteca}
+      \begin{block}{Verificando las ventajas de este enfoque}
+        La adaptación de la CPU Básica desde la implementación x86 de $32$ bits presente
+        en la antecesora \texttt{libNumTh} de la biblioteca a los $64$ bits de x86-64 se
+        reduce a la \alert{reescritura de $10$ rutinas, resultando en menos de $25$ líneas de código.}
+      \end{block}
+    \end{frame}
+    \begin{frame}{Estructura de la biblioteca}
+      \begin{exampleblock}{Ejemplo: Exponenciación modular en $32$ y $64$ bits}
+            \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{32vs64} 
+        \bigskip
+        \pause
+          \\
+          Se incrementa el rendimiento entre $4.85$ y $4.65$ veces.
+        
+      \end{exampleblock}
+    \end{frame}
+
+  \subsection{Tipos soportados}
+    \begin{frame}[shrink]{Tipos soportados}
+      \begin{block}{Números enteros, $\mathbb{Z}$}
+        \begin{itemize}
+          \item Enteros de longitud arbitraria.
+          \item Aritmética general.
+          \item Generación de números aleatorios.
+          \item Operaciones orientadas hacia la Teoría de Números.
+          \begin{itemize}
+            \item Símbolos para Residuos Cuadráticos
+            (Legendre-Jacobi-Kronecker).
+            \item Rutinas para el cálculo del Máximo Común Divisor (GCD).
+            \item Rutinas para el cálculo del Mínimo Común Múltiplo (LCM).
+            \item Pruebas de primalidad.
+            \item Generación de primos.
+            \item Algoritmos de factorización.
+            \item Algoritmos de potenciación.
+            \item Teorema Chino de los Restos (CRT).
+          \end{itemize}
+        \end{itemize}
+      \end{block}
+    \end{frame}
+    \begin{frame}[shrink]{Tipos soportados}
+      \begin{block}{Aritmética modular}
+          \begin{itemize}
+            \item $\mathbb{Z}_n$: enteros modulares con módulo arbitrario.
+            \item $\mathbb{Z}_p$: enteros modulares con módulo primo.
+            \item $\mathbb{Z}M_n$: los llamados enteros modulares de Montgomery, desarrollo
+            original para la biblioteca.
+            \item Potenciación modular.
+            \item Métodos especiales de reducción. 
+            \item Cálculo de inversas.
+          \end{itemize}
+      \end{block}
+    \end{frame}
+    \begin{frame}[shrink]{Tipos soportados}
+      \begin{block}{Conjunto $\mathbb{R}$}
+        \begin{itemize}
+            \item Operaciones aritméticas habituales sobre $\mathbb{R}$.
+            \item Precisión (decimal) arbitraria.
+            \item Técnicas para un redondeo correcto.
+            \item Soporte de notación científica.
+            \item Algoritmos de potenciación.
+            \item Cálculo de funciones trascendentes: exponencial,
+                  logaritmo, funciones trigonométricas, cálculo de la constante $\pi$.
+            \item Extracción de la raíz cuadrada.
+        \end{itemize}
+      \end{block}
+    \end{frame}
+    
+    \begin{frame}[shrink]{Tipos soportados}
+      \begin{block}{Polinomios}
+       Sobre $\mathbb{Z}$, $\mathbb{R}$, $\mathbb{Z}_n$, $\mathbb{Z}_p$ y
+       en general, sobre cualquier \alert{anillo}.
+        \begin{itemize}
+          \item Cálculo del máximo común divisor.
+          \item Generación de polinomios irreducibles.
+          \item Pruebas de irreducibilidad.
+          \item Pruebas del carácter primitivo del polinomio.
+        \end{itemize}
+      \end{block}
+    \end{frame}
+    
+    \begin{frame}[shrink]{Tipos soportados}
+      \begin{block}{Cuerpos finitos/extensiones de cuerpos $\GF(p^n)$}
+        \begin{itemize}
+          \item Operaciones aritméticas habituales.
+          \item Cálculo del máximo común divisor.
+          \item Cálculo de los coeficientes de Bézout.
+          \item Generación de polinomios irreducibles.
+          \item Generación de polinomios primitivos.
+        \end{itemize}
+      \end{block}
+    \end{frame}
+
+    \begin{frame}[shrink]{Tipos soportados}
+      \begin{block}{Matrices}
+        Sobre $\mathbb{Z}$, $\mathbb{R}$, $\mathbb{Z}_n$, elementos de un cuerpo finito $\GF{(p^n)}$ 
+        y en general, sobre cualquier \alert{grupo}.
+        \begin{itemize}
+          \item Cálculo del determinante, tanto sobre matrices sobre un cuerpo como sobre un anillo.
+          \item Resolución de sistemas de ecuaciones.
+          \item Cálculo de la inversa.
+          \item Transposición.
+        \end{itemize}
+      \end{block}
+    \end{frame}
+
+
+  \subsection{Características}
+    \begin{frame}<1>[label=caracteristicas]{Características de la biblioteca}
+    \begin{block}{Características de la biblioteca}
+    \begin{itemize}[<+-|alert@+>]
+      \item Programación genérica (e.g. matrices y polinomios). %1
+      \item Comprobaciones estáticas en tiempo de compilación.  % 2
+      \item Programación orientada a aspectos. % 3
+      \item Generación dinámica de código. % 4
+      \item Mecanismo de excepciones con facilidades de «trazado». % 5
+      \item Repositorio de implementaciones con \texttt{autowiring}. % 6
+      \item Uso de tecnologías SIMD (e.g. SSE, SSE2) % 7
+      \item Soporte de múltiples arquitecturas, incluyendo de $64$ bits. % 8
+      \item Utilización de OpenMP para la paralelización. % 9 
     \end{itemize}
-  \item
-    using overlay specifications:
-    \begin{itemize}
-    \item<3->
-      First item.
-    \item<4->
-      Second item.
-    \end{itemize}
-  \item
-    using the general \texttt{uncover} command:
-    \begin{itemize}
-      \uncover<5->{\item
-        First item.}
-      \uncover<6->{\item
-        Second item.}
-    \end{itemize}
-  \end{itemize}
-\end{frame}
+    \end{block}
+    \end{frame}
 
-
-\subsection{Previous Work}
-
-\begin{frame}{Make Titles Informative.}
-\end{frame}
-
-\begin{frame}{Make Titles Informative.}
-\end{frame}
-
-
-
-\section{Our Results}
-
-\subsection{Main Results}
-
-\begin{frame}{Make Titles Informative.}
-\end{frame}
-
-\begin{frame}{Make Titles Informative.}
-\end{frame}
-
-\begin{frame}{Make Titles Informative.}
-\end{frame}
-
-
-\subsection{Basic Ideas for Implementation}
-
-\begin{frame}{Make Titles Informative.}
-\end{frame}
-
-\begin{frame}{Make Titles Informative.}
-\end{frame}
-
-\begin{frame}{Make Titles Informative.}
-\end{frame}
-
-
-
-\section*{Summary}
-
-\begin{frame}{Summary}
-
-  % Keep the summary *very short*.
-  \begin{itemize}
-  \item
-    The \alert{first main message} of your talk in one or two lines.
-  \item
-    The \alert{second main message} of your talk in one or two lines.
-  \item
-    Perhaps a \alert{third message}, but not more than that.
-  \end{itemize}
+\begin{frame}[fragile]
+\frametitle{Programación genérica}
+  \begin{block}{Una implementación para controlarlos a todos...}
+    Tanto polinomios como matrices, tipos parametrizados, comparten una \alert{implementación 
+    única} para todas sus instancias particulares $\Rightarrow$ \emph{programación genérica}.
+  \end{block}
+\pause
+\begin{exampleblock}{La «implementación» de un tipo concreto: $\mathbb{Z}_p[X]$}
+\begin{lstlisting}[basicstyle=\tiny,language=C++]
+(...)
+  class Z_px : public Polynomial<Z_p> , public Field<Z_px> {
+    public:
+      Z_px(const Z& p);
+      Z_px(const Z_px& src);
+      Z_px(const Polynomial<Z_p>& src);
+      Z_px(const std::string& str, const Z& p);
+      Z_px(const std::vector<Z_p>& coeffs, const Z& p);
+      Z_px(const Z_p& coeff, const int exp, const Z& p);
+      Z_px(const Z& coeff, const int exp, const Z& p);
   
-  % The following outlook is optional.
-  \vskip0pt plus.5fill
-  \begin{itemize}
-  \item
-    Outlook
-    \begin{itemize}
-    \item
-      Something you haven't solved.
-    \item
-      Something else you haven't solved.
-    \end{itemize}
-  \end{itemize}
+      /** Assignment operator */
+      Z_px& operator=(const Z_px& src);
+(...)
+  };
+\end{lstlisting}
+\end{exampleblock}
+
 \end{frame}
+
+
+    \againframe<2>{caracteristicas}
+    \begin{frame}{Comprobaciones estáticas en tiempo de compilación.}
+      \begin{block}{Su uso principal}
+        Garantizar la construcción de tipos \emph{coherentes} no sólo desde el punto de vista
+        computacional, sino también desde el punto de vista \emph{matemático}. 
+      \end{block}
+      
+      \medskip
+
+      \pause
+      \includegraphics[width=0.80\textwidth,keepaspectratio]<2>{categoriasAlgebraicas}
+      
+    \end{frame} 
+    \begin{frame}{Comprobaciones estáticas en tiempo de compilación.}
+      \begin{block}{Categorización algebraica de los tipos}
+      \includegraphics[width=0.95\textwidth,keepaspectratio]{categorizacionAlgebraica}
+      \end{block}
+    \end{frame} 
+
+    \againframe<3-7>{caracteristicas}
+%    \begin{frame}{\textit{Autowiring}}
+%      \begin{block}{\textit{Autowiring}}
+%       Proviene de la operación que antiguamente los operadores
+%       de las centralitas telefónicas debían realizar manualmente a la hora de establecer una conexión telefónica.
+%      \end{block}
+%      \medskip
+%      \visible<2->{
+%      \includegraphics[width=0.30\textwidth,keepaspectratio]{autowiring1}
+%      }
+%      \visible<3->{
+%      \hspace{15mm}
+%      \includegraphics[width=0.50\textwidth,keepaspectratio]{autowiring2} 
+%      }
+%    \end{frame}
+%
+%    \begin{frame}{\textit{Autowiring}}
+%      \begin{block}{El \alert{nuevo} repositorio de funciones}
+%      \begin{itemize}[<+->]
+%        \item Ofrece un interfaz homogéneo basado en el uso del \textit{autowiring}.
+%        \item Instancia un \textit{singleton} \alert{modificable} $ \Rightarrow $ tener que garantizar exclusión mútua.
+%      \end{itemize}
+%      \end{block}
+%      
+%      \medskip
+%
+%      \begin{exampleblock}<3->{Para \texttt{getFunc(res)}}
+%      \visible<3->{
+%      \begin{center}
+%        \includegraphics[width=0.90\textwidth,keepaspectratio]{flowchartgetfunc.pdf}
+%      \end{center}
+%      }
+%      \end{exampleblock}
+%    \end{frame} \againframe<7>[<+-|alert@+>]{caracteristicas}
+
+\begin{frame}{Tecnologías SIMD}
+\begin{block}{Sin uso de SIMD}
+\begin{center}
+  \includegraphics[height=0.25\textheight,keepaspectratio]<1->{sinSIMD.pdf}
+\end{center}
+\end{block}
+\pause
+\begin{block}{Usando SIMD}
+\begin{center}
+  \includegraphics[height=0.25\textheight,keepaspectratio]<2>{conSIMD.pdf}
+\end{center}
+\end{block}
+\end{frame}
+
+\againframe{estructura}
+
+\begin{frame}[fragile]
+\frametitle{Tecnologías SIMD}
+\begin{block}{El tipo \texttt{SIMDDigit<T>}}
+Tipo parametrizado \texttt{SIMDDigit<T>} con especializaciones para
+\texttt{T} = \{\texttt{float}, \texttt{double}, \texttt{int16\_t}\}.
+\end{block}
+\pause
+\begin{exampleblock}{CPU SIMD}
+Esto permite la implementación de una CPU SIMD genérica: 
+\begin{lstlisting}[basicstyle=\tiny,language=C++]
+namespace SIMDCPU {
+  (...)
+  template<typename SIMDTYPE>
+      inline void Mul(SIMDDigit<SIMDTYPE>& out, 
+          const SIMDDigit<SIMDTYPE>& arg1, 
+          const SIMDDigit<SIMDTYPE>& arg2);
+  (...)
+  template<typename SIMDTYPE>
+      inline void Pack(SIMDDigit<SIMDTYPE>& out,
+         const typename SIMDDigit<SIMDTYPE>::BasicType* const src);
+  template<typename SIMDTYPE>
+      inline void Unpack(typename SIMDDigit<SIMDTYPE>::BasicType* const out, 
+          const SIMDDigit<SIMDTYPE>& src);
+}
+\end{lstlisting}
+
+\end{exampleblock}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Implementaciones particulares para la CPU SIMD}
+
+\begin{exampleblock}{Genérica}
+\begin{lstlisting}[basicstyle=\tiny,language=C++]
+    template<typename T>
+      inline void Mul(SIMDDigit<T>& out,const SIMDDigit<T>& arg1, 
+          const SIMDDigit<T>& arg2){
+        typedef typename SIMDDigit<T>::BasicType BasicType;
+        const BasicType* const a( (const BasicType* const) (&(arg1.data)) );
+        const BasicType* const b( (const BasicType* const) (&(arg2.data)) );
+        BasicType* const c( (BasicType* const) (&(out.data)) );
+        for(int i=0; i < getElementsPerSIMDDigit<T>(); i++){
+          c[i] = a[i] * b[i]; }
+      }
+\end{lstlisting}     
+
+\end{exampleblock}
+
+
+\begin{exampleblock}{SSE2}
+
+\begin{lstlisting}[basicstyle=\scriptsize,language=C++]
+template<>
+ inline void Mul<int8xSIMD_t>(SIMDDigit<int8xSIMD_t>& out,
+     const SIMDDigit<int8xSIMD_t>& arg1, 
+     const SIMDDigit<int8xSIMD_t>& arg2){
+        out.data = _mm_mullo_epi16(arg1.data, arg2.data);
+ }
+\end{lstlisting}     
+
+\end{exampleblock}
+
+
+\end{frame}  
+\againframe<8-9>{caracteristicas}
+
+\subsection{Un ejemplo: RSA}
+\begin{frame}[fragile]
+\frametitle{Ejemplo de código}
+\begin{exampleblock}{Algoritmo RSA utilizando la biblioteca}
+\begin{lstlisting}[basicstyle=\tiny,language=C++]
+MethodsFactory* const funcs = MethodsFactory::getInstance();
+RandomFast* genRandom; PrimeGen* genPrimos;
+funcs->getFunc(genRandom); funcs->getFunc(genPrimos);
+Z p,q,n,phi; 
+int tamPrimos = 512; //por ejemplo
+
+p = genPrimos->getPrime(tamPrimos);
+q = genPrimos->getPrime(tamPrimos);
+
+n = p*q;
+phi = (p-(Digit)1)*(q-(Digit)1);
+
+Z e, d;  
+
+//se busca una clave de encriptacion coprima con phi, como define
+//el algoritmo
+GCD<Z>* gcd; funcs->getFunc(gcd);
+Exponentiation<Z_n>* potMod; funcs->getFunc(potMod);
+do{
+  e = genRandom->getIntegerBounded(n);
+} while( !(gcd->gcd(e,phi).isOne()) );
+
+//y la clave de descifrado, la inversa de "e" modulo "phi"
+d = potMod->inverse(e,phi);
+\end{lstlisting}
+
+\end{exampleblock}
+\end{frame}
+
+ \begin{frame}[fragile]
+\frametitle{Ejemplo de código}
+\begin{exampleblock}{Algoritmo RSA utilizando la biblioteca (y II)}
+\begin{lstlisting}[basicstyle=\tiny,language=C++]
+// "m" representa el texto a cifrar
+Z m;
+m.leerBytes(sourceString.begin(), sourceString.end());
+
+// se cifra con la exponenciacion modular 
+Z_n c(m,n);
+potMod->exponentiation(&c,e);
+
+Z_n mdesc(c,n);
+potMod->exponentiation(&mdesc,d);
+//mdesc contiene el mensaje original
+\end{lstlisting}
+
+\end{exampleblock}
+\end{frame}
+ 
+
+\section{Paralelismo}
+  \subsection{Obteniendo paralelismo}
+    \begin{frame}<1>[label=paralelismo]
+      \frametitle{En los métodos de la biblioteca}
+      \begin{block}{Obtención de paralelismo}
+      \begin{itemize}[<+-|alert@+>]
+        \item Adaptación del método secuencial.
+        \item Reescritura del método (e.g. exponenciación modular).
+      \end{itemize}
+      \end{block}
+    \end{frame}
+
+
+\begin{frame}[fragile, label=seq]
+\frametitle{Paralelización de método secuencial}
+
+\begin{exampleblock}{Algoritmo secuencial: método de Doolittle para la desc. $LU$}
+\begin{lstlisting}[basicstyle=\tiny,language=C++]
+        for(int k=0; k<rows-1; k++) {
+          if( a(k,k).isZero() ){
+            const int rowPivot(_pivot(a,k));
+            if( rowPivot == 0 ){
+              std::ostringstream oss;
+              GEN_TRACE_INFO_OSS(oss);
+              throw Errors::NonInvertibleElement(oss.str());
+            }
+            std::swap(p[k],p[rowPivot]);
+            sgn *= -1;
+          }
+
+          for (int i=k+1; i<rows; i++) {
+            a(i,k) /= a(k,k);
+
+            for (int j=k+1; j<cols; j++){ 
+              a(i,j) -= a(i,k)*a(k,j);
+            }
+          }
+        }
+\end{lstlisting}
+
+\end{exampleblock}
+\hyperlink{par}{\beamergotobutton{Paralelo}}
+\end{frame}
+
+    \begin{frame}[shrink]
+    \frametitle{Paralelización de método secuencial}
+    \begin{exampleblock}{Análisis del patrón de acceso}
+      \begin{center}
+      \includegraphics[height=0.75\textheight,keepaspectratio]{patronAccesosDoolittle.pdf}
+      \end{center}
+    \end{exampleblock}
+    \begin{block}{En el análisis se observa...}
+    Para cada $k$, cada fila (variable $i$) es procesada
+    independiente de las demás.  
+    \end{block}
+    \end{frame}
+
+\begin{frame}[fragile, label=par]
+\frametitle{Paralelización de método secuencial}
+\begin{exampleblock}{¡Tachán!}
+\begin{lstlisting}[basicstyle=\tiny,language=C++]
+        for(int k=0; k<rows-1; k++) {
+          if( a(k,k).isZero() ){
+            const int rowPivot(_pivot(a,k));
+            if( rowPivot == 0 ){
+              std::ostringstream oss;
+              GEN_TRACE_INFO_OSS(oss);
+              throw Errors::NonInvertibleElement(oss.str());
+            }
+            std::swap(p[k],p[rowPivot]);
+            sgn *= -1;
+          }
+#pragma omp parallel for schedule(static,1)
+          for (int i=k+1; i<rows; i++) {
+            a(i,k) /= a(k,k);
+
+            for (int j=k+1; j<cols; j++){ 
+              a(i,j) -= a(i,k)*a(k,j);
+            }
+          }
+        }
+\end{lstlisting}
+
+\end{exampleblock}
+\hyperlink{seq}{\beamergotobutton{Secuencial}}
+\end{frame}
+    \begin{frame}{Resultados}
+      \begin{exampleblock}{Descomposición LU, método de Doolittle}
+      \centering
+      \only<1>{\includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{solveMat} }
+      \only<2>{\includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{propSolveMat} }
+      \end{exampleblock}
+    \end{frame}
+
+
+    \againframe<2>[<alert@2>]{paralelismo}
+
+    \begin{frame}{La exponenciación modular paralela de la casa}
+      \begin{block}{División del exponente}
+        \centering
+        \includegraphics[width=0.75\textwidth,keepaspectratio]{expMiModExp} 
+      \end{block}
+
+    \pause  
+
+      \begin{block}{Extrayendo el paralelismo}
+        \begin{eqnarray*}
+          b^e & = & b^{s_0 + 2^k s_1 + 2^{2k} s_2 + \cdots + 2^{(k-1)k} s_{k-1} } =  \\
+              & = & b^{s_0} \times (b^{2^k})^{s_1} \times \ldots \times (b^{2^{(k-1)^k}})^{s_{k-1}} 
+        \end{eqnarray*}
+      \end{block}
+      \end{frame}
+
+
+      \begin{frame}{La exponenciación modular paralela de la casa}
+
+      \begin{exampleblock}{Ejemplo, para $b=5$, $e = 90 = (1011010)_2$ y $4$ hilos}
+      \[
+       s_3 = (1)_2; \qquad s_2 = (01)_2; \qquad s_1 = (10)_2; \qquad s_0 = (10)_2;
+      \]
+      \pause
+      \begin{eqnarray*}
+        5^{90} & = & 5^{(10)_2} \times 5^{4 \cdot (10)_2} \times 5^{16\cdot(01)_2} \times 5^{64\cdot(1)_2} = \\
+          \pause
+          \only<3>{ & = & 5^2        \times 5^{8}              \times 5^{16}             \times 5^{64} }
+          \pause
+          \only<4>{ & = & \alert{5^2}\times \alert{5^{8}}      \times \alert{5^{16}}     \times \alert{5^{64}} }
+      \end{eqnarray*}
+
+      \end{exampleblock}
+    \end{frame}
+
+
+
+\section{MPPLab}
+\subsection{Motivación}
+  \begin{frame}{El entorno MPPLab}
+    \begin{block}{Razón de ser}
+    Se busca proporcionar una manera de
+    interactuar con los métodos ofrecidos por la biblioteca sin necesidad de
+    recurrir a C++.
+    Se sigue principalmente el enfoque de paquetes como MatLab o Mathematica.
+    \end{block}
+    
+  \end{frame}
+
+  \begin{frame}{El entorno MPPLab}
+    \begin{block}{Arquitectura cliente-servidor}
+      \centering
+      \includegraphics[height=0.85\textheight]{ClientServerArch.pdf}
+    \end{block}
+  \end{frame}
+
+
+  \subsection{El servidor}
+  \begin{frame}{El servidor}
+  \begin{block}{Papel fundamental}
+    Ejerce de vínculo entre el cliente y sus peticiones en XML-RPC (en este caso vía Python) y la biblioteca (C++).
+  \end{block}
+
+  \medskip
+
+  \pause
+  Características:
+      \begin{itemize}[<+->]
+        \item Multihilo.
+        \item Gestión dinámica de datos de los clientes.
+        \item Mecanismos de recogida de basura.
+      \end{itemize}
+    \end{frame}
+
+  \subsection{El cliente}
+  \begin{frame}{El cliente}
+    \begin{block}{Más bien, \emph{un} cliente}
+      Dada la versatilidad del protocolo XML-RPC, servidor y
+    cliente están completamente desacoplados. Este cliente es 
+    uno de los muchos posibles.
+    \end{block}
+
+    \medskip
+
+    \pause
+    Características:
+      \begin{columns}
+      \begin{column}[l]{0.5\textwidth}
+      \begin{itemize}[<+->]
+        \item \textit{Bootstrapping}.
+        \item Configurable.
+        \item Multiplataforma.
+        \item Actualizaciones automáticas.
+        \item Multihilo.
+        \item Basado en Python.
+      \end{itemize}
+      \end{column}
+      \begin{column}[r]{0.5\textwidth}
+        \visible<2->{
+        \includegraphics[height=0.55\textheight,keepaspectratio]{munch} 
+        }
+      \end{column}
+      \end{columns}
+    \end{frame}
+    
+%    \begin{frame}{\textit{Bootstrapping}}
+%      \begin{enumerate}[<+->]
+%        \item Solicitar al servidor una lista de los métodos que exporta.
+%        \item Etc etc.
+%      \end{enumerate}
+%    \end{frame}
+
+
+\section{Conclusiones}
+  \subsection{Ampliaciones}
+\begin{frame}{Conclusiones}
+  \begin{block}{Posibles ampliaciones}
+    \begin{itemize}[<+->]
+      \item Implementación de clientes alternativos para el entorno MPPLab.
+      \item Mayor aprovechamiento de la CPU SIMD.
+      \item Estudio más pormenorizado de la paralelización (mediante otro equipo de pruebas).
+      \item Ampliación del abanico de métodos: factorización de polinomios, multiplicacion mediante FFT, optimización
+      de para cuerpo finitos con característica $2$, etc.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+  \subsection{Crítica}
+\begin{frame}{Conclusiones}
+  \begin{alertblock}{C'est fini}
+    \begin{itemize}[<+->]
+      \item Se ha tratado de desarrollar una biblioteca cómoda de utilizar, complemetando esta comodidad
+      \item Desarrollo guiado por el ánimo resumido en «Don't worry about anything... Go out and have a good time» (R. P. Feynman).
+      \item Biblioteca con su propia idiosincrasia: categorización algebraica, repositorio de funciones, 
+      programación orientada a aspectos, etc.
+      \item Exploración en cierta medida del dominio la computación distribuida y técnicas RPC con MPPLab. 
+    \end{itemize}
+  \end{alertblock}
+\end{frame}
+
+
+\part{Demo}
+\frame{\partpage}
+
+
 
 
 \end{document}

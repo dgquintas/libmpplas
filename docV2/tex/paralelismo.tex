@@ -19,23 +19,6 @@
 
 \bigskip
 
-
-%\begin{flushright}
-%  \begin{minipage}[t]{13cm}
-%    \begin{flushright}
-%      \begin{quote}
-%        \emph{
-%          Right now I'm having amnesia and déjà vu at the same time.
-%        }
-%        \begin{flushright}
-%          \textbf{\textemdash Stephen Wright (en paralelo).}
-%        \end{flushright}
-%      \end{quote}
-%    \end{flushright}
-%  \end{minipage}
-%\end{flushright}
-
-
 \begin{center}{\line(1,0){325}}\end{center}
 
 %--------------------------------------------------------%
@@ -45,8 +28,8 @@
   hay ningún hada del paralelismo que vaya a hacer que los --aún hoy mayoría-- 
   programas secuenciales mágicamente aprovechen las múltiples unidades de ejecución 
   de los ubicuos procesadores multinúcleo. Por contra, recae en la comunidad, tanto
-  académica como no, la revisión y en muchos casos reescritura de todos aquellos 
-  algoritmos susceptibles de ser paralelizados, con el fin de efectivamente 
+  académica como no, la revisión y, en muchos casos, reescritura de todos aquellos 
+  algoritmos susceptibles de ser paralelizados, con el fin de, efectivamente, 
   conseguir aprovechar las prestaciones que ofrecen esta nueva tendencia en
   el mundo de la computación. Esto es tanto más así en los algoritmos para
   el trabajo en Matemáticas
@@ -59,11 +42,11 @@
     \item[Por su propia naturaleza.] Como métodos \emph{básicos}, son utilizados con 
     mucha mayor frecuencia, y por un abanico mayor de clientes. Cualquier optimización
     --en este caso la paralelización-- tendrá un efecto beneficioso directamente proporcional 
-    dichos factores.
+    a dichos factores.
     \item[Facilidad.] La complejidad de los métodos suele ser mayor en métodos de más alto nivel.
     Por ejemplo, compárese la complejidad de los métodos de factorización de enteros con la implementación
     básica del producto de enteros. Es incluso probable que la adaptación paralela de los actuales 
-    métodos secuenciales no sea posible sin una reescritura completa del método. Nótese sin embargo como,
+    métodos secuenciales no sea posible sin una reescritura completa del método. Nótese sin embargo cómo,
     en base al punto anterior, incluso los complejos métodos no paralelizables sí se benefician de la paralelización
     de los básicos: siguiendo con el ejemplo de la factorización y el producto de enteros, el primer método sí se valdrá
     del segundo y será \emph{parcialmente} paralelo de forma indirecta.
@@ -71,8 +54,6 @@
     modularidad. Consigo arrastrará su condición de paralelo, haciendo extensiva esta característica incluso allí 
     donde no se ha hecho un esfuerzo explícito en este sentido. 
   \end{description}
-
-
 
 
   \subsubsection{Especificación del paralelismo}
@@ -87,8 +68,6 @@
     los ejemplos de código son autoexplicativos aun utilizando las directivas de OpenMP.
 
 
-
-
 \section{Producto de enteros}\label{par:karatsubaZ}
   La paralelización del método de Karatsuba para la multiplicación
   de enteros resulta sencilla: se muestra a 
@@ -100,10 +79,10 @@
    resultando $x_0$ y $x_1$ de la división en partes iguales --baja y alta resp.-- de $x$ (razonamiento
    análogo para $y$). 
 
-   Los sumandos de la expresión \eqref{eq:multiplicacionKaratsuba} anterior conforman tres tareas
+   Los sumandos de la expresión \eqref{eq:multiplicacionKaratsuba} conforman tres tareas
    totalmente independientes entre sí, siendo por tanto \emph{embarazosamente paralelizable}.
 
-   El muestra el método resultante en el algoritmo \ref{alg:karatsuba}, en el cual se distinguen las 
+   Se muestra el método resultante en el algoritmo \ref{alg:karatsuba}, en el cual se distinguen las 
    tres secciones correspondientes a los tres sumandos de la expresión \eqref{eq:multiplicacionKaratsuba}.
   \begin{itemize}
     \item Líneas \ref{algkar:1Ini}--\ref{algkar:1End} para el cálculo de $S_{11}$ y $S_{12}$.
@@ -137,7 +116,7 @@
       \State $S_{31} \gets P_3 \times B$
       \State $S_{32} \gets P_3$ \label{algkar:3End}
       \State
-      \State $resultado = (S_11 + S_12) + S_2 + (S_31 + S_32)$
+      \State $resultado = (S_{11} + S_{12}) + S_2 + (S_{31} + S_{32})$
     \Else
       \State Multiplicación clásica
     \EndIf
@@ -146,7 +125,7 @@
   \end{algorithm}
 
   \subsection{Comparativa}
-    En las figura \ref{fig:karatsuba} se compara la multiplicación de enteros
+    En la figura \ref{fig:karatsuba} se compara la multiplicación de enteros
     mediante los métodos secuencial y paralelo. 
   \begin{figure}[h]
     \centering
@@ -169,7 +148,6 @@
   ganancia de $1/0.7 \approx 1.43$ y una eficiencia de $1.43 / 2 \approx 0.715$. Debe tenerse en cuenta que el número
   de unidades de procesamiento del sistema en el que se han realizado las mediciones es de dos, mientras
   que el número de tareas es de tres: nos encontramos limitados por nuestro sistema físico.
-  %TODO
 
 
 
@@ -177,7 +155,7 @@
   El cálculo de $x = b^e \pmod{m}$ es básico en criptografía. Métodos tales como el RSA se apoyan en esta
   operación. Desafortunadamente, el enfoque secuencial está basado en la mayoría de los casos
   en variantes del método de exponenciación binaria. Tal es el caso de la anterior
-  versión de esta biblioteca: véase \cite{miproyecto}, sección 5.5.3, pág. 64. Es fácil observar cómo este
+  versión de esta biblioteca: véase \cite{miproyecto}\footnote{sección 5.5.3, pág. 64}. Es fácil observar cómo este
   método impone una cadena de dependencias que da al traste con la paralelización del algoritmo de forma
   más o menos directa. Se hace necesario por tanto basarse en algún otro principio.
 
@@ -200,7 +178,7 @@
   --sección \ref{sec:zm}--, en la clase \texttt{TwoThreadedModularExp}.
 
   \subsection{El método de la casa}
-  Debido a que el anterior método dejaba que desear, sobre todo en cuanto a escalabilidad, se hemos
+  Debido a que el anterior método dejaba que desear, sobre todo en cuanto a escalabilidad, hemos
    tratado de aportar nuestro granito de arena mediante una estrategia desarrollada de forma original.
 
     Considerando la exponenciación como $x = b^e \pmod{m}$, sea $l = bitLength(e)$ la longitud
@@ -235,7 +213,7 @@
  embargo es posible sacar ventaja basándose en la especial estructura de los exponentes para los diferentes $s_i$. 
 
  \subsubsection{Análisis de complejidad}
-  Sea $T(e)$ el tiempo requerido para un exponente $e$, $t = bitLength(e)$ y $wt = \textrm{número de unos en } e$. 
+  Sea $T(e)$ el tiempo requerido para un exponente $e$, $t = bitLength(e)$ y $wt =$ número de unos en $e$. 
   Utilizando un enfoque secuencial basado en el método de exponenciación binaria, \cite{handbook}\footnote{sección 14.6.1}
   analiza que es necesario el cálculo de $t$ cuadrados y $wt$ productos. Dado que ambas operaciones están en $O(n^2)$, 
   $T(e) = t O(n^2) + wt O(n^2) = (wt + t)O(n^2)$.
@@ -268,12 +246,91 @@
 
 \section{Vectores}
   \subsection{Producto escalar}
+    El producto escalar es embarazosamente paralelizable: las multiplicaciones de los 
+    elemementos con identico índice son totalmente independientes las unas de las otras.
 
-\section{Matrices}
-  \subsection{Producto}\label{par:matprod}
+    Los resultados de la paralelización se muestra en las figuras \ref{fig:resDot} y 
+    \ref{fig:propDot}. En la segunda se aprecia una tendencia hacia una ganancia de
+    aproximadamente $1/0.865 \approx 1.15$, eficiencia de $1.15 / 2 = 0.575$.
+    \begin{figure}[h]
+      \centering
+      \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{dot} 
+      \caption{Comparativa producto escalar}\label{fig:resDot}
+    \end{figure}
+    \begin{figure}[h]
+      \centering
+      \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{propDot} 
+      \caption{Comparativa producto escalar (proporción)}\label{fig:propDot}
+    \end{figure}
+    Estos resultados no son especialmente brillantes, debido en gran medida a que la segunda
+    parte del cálculo del producto escalar, el cálculo del sumatorio sobre los resultados
+    de las multiplicaciones, no se realiza en paralelo. 
+
+  \subsection{Instrucciones SIMD}
+    Si el cálculo del producto escalar se realiza sobre alguna de las instancias 
+    concretas que utilizan la CPU SIMD, descritas en la sección \ref{basico:cpusimd}, 
+    se estará aprovechando también otra clase de paralelismo.
+
+    Por ejemplo, considérense vectores del tipo \texttt{VectorFloat}, formados por instancias
+    del tipo básico \texttt{float} empaquetadas de cuatro en cuatro. La máxima ganancia teórica,
+    sería por tanto de $4$, ya que estos paquetes de cuatro elementos se procesan simultaneamente,
+    tal como corresponde al paradigma SIMD. En sendas figuras \ref{fig:resSIMD} y \ref{fig:propSIMD}
+    se presentan los resultados, y es posible apreciar como la ganancia tiende sin embargo a $\approx 2.4$.
+    Pese a ser una ganancia nada despreciable, es considerablemente inferior al teórico $4$: principalmente 
+    contenciones en el bus del sistema rebajan la ganancia al resultado práctico obtenido.
+    \begin{figure}[h]                                                 
+      \centering                                                      
+      \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{SIMD} 
+      \caption{Comparativa SIMD}\label{fig:resSIMD}                   
+    \end{figure}                                                      
+                                                                      
+    \begin{figure}[h]                                                 
+      \centering                                                      
+      \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{propSIMD} 
+      \caption{Comparativa SIMD (proporción)}\label{fig:propSIMD}
+    \end{figure}                                                      
+                                                                      
+                                                                      
+\section{Matrices}                                                    
+  \subsection{Producto}\label{par:matprod}                            
+    La paralelización del producto matricial ha sido objeto de un profundo estudio prácticamente
+    desde el nacimiento del concepto de computación paralela. Desde un punto de vista secuencial,
+    la implementación del producto de matrices en la biblioteca se reduce a la multiplicación de dos
+    matrices $2 \times 2$, fruto del uso del algoritmo de Strassen-Winograd (véase la sección
+    \ref{impl:producto}). Esto resulta en el patrón de accesos representado en la figura \ref{fig:patronProd}.
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.75\textwidth,keepaspectratio]{patronAccesosProducto} 
+      \caption{Comparativa producto matricial }\label{fig:patronProd}
+    \end{figure}
+
+    Es decir, es posible paralelizar el bucle más externo, tal como se muestra en el algoritmo
+    \ref{alg:prodMatPar}.
+    \begin{algorithm}
+      \caption{Producto de matrices de Strassen-Winograd}\label{alg:prodMatPar}
+      \begin{algorithmic}[1]
+        \Procedure{MatrixProd}{$A \in \mathcal{M}_{2}$, $B \in \mathcal{M}_{2}$}
+        \State \texttt{\#pragma omp parallel for} 
+        \For{$i \in \{0,1\}$}
+          \For{$j \in \{0,1\}$}
+            \For{$k \in \{0,1\}$}
+              \State $C_{i,j} \gets C_{i,j} + A_{i,l} \times B_{l,j}$
+            \EndFor
+          \EndFor
+        \EndFor
+        \State \textbf{Return } $C$
+        \EndProcedure
+      \end{algorithmic}
+    \end{algorithm}
+
+    No debe perderse de vista que los componentes de estas matrices $2 \times 2$ aparentemente simples
+    son a su vez matrices. La forma en la que son procesadas no es relevante desde el punto de vista
+    de la paralelización.  
 
   \subsubsection{Comparativa}
-
+    La figura \ref{fig:propProdMat} arroja una ganancia de aproximadamente $1/0.77 \approx 1.3$, 
+    que resulta a su vez en una eficiencia de $1.3 / 2 = 0.65$.
     \begin{figure}[h]
       \centering
       \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{productoMat} 
@@ -286,17 +343,25 @@
       \caption{Comparativa producto matricial (proporción)}\label{fig:propProdMat}
     \end{figure}
 
+    Este resultado no resulta brillante, pero tampoco podría calificarse como malo. El proceso
+    de paralelización en sí es dificilmente mejorable, ya que la división en tareas se realiza
+    en el bucle más externo, con lo que se minimiza la componente secuencial. Sin embargo, la 
+    imposibilidad de realizar un particionado acorde con el tamaño de las cachés, tal como ya 
+    se ha expuesto con anterioridad, repercute negativamente en el rendimiento. La 
+    figura \ref{fig:prodMat} muestra --tanto para la ejecución secuencial como paralela-- los
+    «dientes de sierra» propios de los métodos con particionado con «valores de frontera»
+    entre las partes.
+
 
 
   \subsection{Descomposición $LU$}\label{par:lu}
- 
      Se ha utilizado el método de Doolittle para la descomposición $LU$. Se presenta
      su versión en pseudocódigo en el listado \ref{alg:doolittle}. 
 
     \begin{algorithm}
       \caption{Algoritmo de Doolittle}\label{alg:doolittle}
       \begin{algorithmic}[1]
-        \Procedure{Doolittle}{Matriz $M \in \mathcal{M}_{n \times n}$}
+        \Procedure{Doolittle}{$M \in \mathcal{M}_{n}$}
         \State $sign \gets 1$
         \For{$i \in \{0, \ldots, n-1\}$}
           \State $p_i = i$ \Comment Inicializar el vector de permutaciones
@@ -337,6 +402,8 @@
     una cadena de dependencias. Por ejemplo, sobre los elementos de la diagonal. 
 
   \subsubsection{Comparativa}
+    Las figuras \ref{fig:solveMat} y \ref{fig:propSolveMat} arrojan unos resultados de
+    $1/0.65 \approx 1.54$ para la ganancia, $1.54 / 2 = 0.77$ para la eficiencia. 
     \begin{figure}[h]
       \centering
       \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{solveMat} 
@@ -348,20 +415,31 @@
       \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{propSolveMat} 
       \caption{Comparativa resolución de sistemas (proporción)}\label{fig:propSolveMat}
     \end{figure}
+
+
+
   \subsection{Inversión}
+    El proceso de inversión, descrito en la sección \ref{tipos:invMat}, se reduce a la resolución
+    de $n$ sistemas de ecuaciones para una matriz en $\mathcal{M}_{n}$. Estos sistemas, y así su
+    resolución, son totalmente independientes los unos de los otros, resultando en un problema
+    embarazosamente paralelizable.
 
-  \subsubsection{Comparativa}
-    \begin{figure}[h]
-      \centering
-      \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{inversionMat} 
-      \caption{Comparativa inversión matricial }\label{fig:invMat}
-    \end{figure}
+    \subsubsection{Comparativa}
+      En las pruebas se ha obtenido una ganancia de  $1 / 0.69 \approx 1.45$ 
+      y una eficiencia de $ 1.45 / 2 = 0.725$, tal como se representa en las figuras
+      \ref{fig:invMat} y \ref{fig:propInvMat}.
+      
+      \begin{figure}[h]
+        \centering
+        \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{inversionMat} 
+        \caption{Comparativa inversión matricial }\label{fig:invMat}
+      \end{figure}
 
-    \begin{figure}[h]
-      \centering
-      \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{propInvMat} 
-      \caption{Comparativa inversión matricial (proporción)}\label{fig:propInvMat}
-    \end{figure}
+      \begin{figure}[h]
+        \centering
+        \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{propInvMat} 
+        \caption{Comparativa inversión matricial (proporción)}\label{fig:propInvMat}
+      \end{figure}
 
 
 
@@ -379,7 +457,7 @@
        \caption{Patrón accesos Gauss-Bareiss}\label{fig:accBar}
       \end{figure}
 
-      De este patrón de acceso se deriva una paralelización organizada por el acceso a los datos y
+      De este patrón de acceso se deriva una paralelización organizada según el acceso a los datos y
       con una enumeración lineal. Por tanto el patrón estructural más indicado parece ser una descomposición
       geométrica sobre las filas, siguiendo el recorrido de $k$. A nivel de estructura de soporte, el patrón de 
       paralelismo de bucle se ajusta perfectamente: 
@@ -416,6 +494,12 @@
       \end{algorithm}
 
     \paragraph{Comparativa}
+        Se presenta en este método, de una forma mucho más acusada que en el resto, la circunstancia
+        de que el método paralelo sólo empiece a obtener mejores tiempos para matrices relativamente 
+        grandes. En la figura \ref{fig:propBarreis}, y con mayor detalle en la figura \ref{fig:propBarreisDetalle},
+        se aprecia como la gráfica corta a $y = 1$ para unas dimensiones de matriz de $50$. Para dimensiones
+        menores, el método secuencial se ejecuta en menos tiempo.
+
 
       \begin{figure}[h]
         \centering
@@ -423,23 +507,58 @@
         \caption{Comparativa Gauss-Bareiss}\label{fig:bareiss}
       \end{figure}
 
-      \begin{figure}[h]
+      \begin{figure}[h] 
         \centering
-        \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{propBarreis} 
-        \caption{Comparativa Gauss-Bareiss (proporción)}\label{fig:propBarreis}
+        \subfigure[General]{\label{fig:propBarreis}
+          \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{propBarreis} 
+        }
+        \hspace{15mm}
+        \subfigure[Detalle]{\label{fig:propBarreisDetalle}
+          \includegraphics[angle=270,width=0.85\textwidth,keepaspectratio]{propBarreisDetalle} 
+        }
+        \caption{Comparativa Gauss-Bareiss (proporción)}
       \end{figure}
 
+      Considerando la proporción «asintótica» derivada de esta figuras, se extrae una 
+      ganancia de $1/0.81 \approx 1.23$, y una eficiencia de $1.23 / 2 = 0.615$.
 
-%  \subsection{Operaciones de carácter vectorial}
-    % sumas, restas, prod por escalares
 
 \section{Cálculo de \textit{reducciones}}
+  En el contexto de la programación funcional, una función de \emph{reducción} se corresponde con el
+  procesamiento en un orden y de manera sistemática de una estructura de datos, resultándo 
+  en un único valor. Es decir, la estructura de datos original es \emph{reducida} a un único dato.
+  Estas funciones se componen fundamentalmente de dos elementos: una función de combinación (típicamente binaria) y 
+  la estructura de datos a procesar (típicamente una lista/vector). 
+  En el ámbito matemático, dos ejemplos habituales son el sumatorio y el productorio. Para estos dos ejemplos, 
+  las operaciones serían, respectivamente, la suma y el producto. 
+
+  El cálculo paralelo de reducciones está directamente soportado por OpenMP mediante la clausula \texttt{reduce} 
+  (\cite{openmpstandard}\footnote{sección 2.8.3.6}). Por desgracia, sólo soporta reducciones sobre tipos básicos
+  de C/C++.
   \subsection{Máximo común divisor de una colección de enteros}
+    El cálculo del máximo común divisor de una lista de enteros es una operación usual a la hora de trabajar con polinomios,
+    ya que determinados métodos requieren polinomios en su forma «primitiva», es decir, con coeficientes coprimos. Aunque
+    desafortunadamente comparten nombre, este concepto no debe confundirse con el de polinomio generador de un grupo
+    multiplicativo, definición \ref{def:polyprim} de la página \pageref{def:polyprim}.
+
+    Gracias a que el cálculo del máximo común divisor es asociativo y conmutativo, es posible aplicar
+   el método representado en la figura \ref{fig:gcdLists}.  
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.65\textwidth,keepaspectratio]{gcdLists} 
+      \caption{Cálculo del máximo común divisor de una lista}\label{fig:gcdLists}
+    \end{figure}
+    Se realiza una partición (equilibrada) de la lista de enteros, y cada hilo disponible procesa una parte.
+    Se reitera este proceso sobre la lista formada por los resultados, hasta llegar al cálculo de máximo 
+    común divisor de dos valores, que arroja el resultado global para el total de la lista. 
+
+    Nótese que es posible acelerar el cálculo en base a que $\textrm{mcd}(u_1, \ldots,u_k, 1) = 1$ para cualquier
+    valor de $u_1, \ldots, u_k$. Según \cite{knuth}\footnote{pág. 341}, esto es aplicable el $60 \%$ de las veces,
+    para una lista de valores aleatoria. De hecho, no se incluye para este caso gráfica comparativa debido a la 
+    dificultad de encontrar una lista de valores suficientemente grande en la que esto no ocurra.
 
 
 \section{Evaluación de polinomios}\label{parallel:evalPoly}
-%  \subsection{Operaciones de carácter vectorial}
-%    % sumas, restas, prod por escalares
   La evaluación de polinomios por medio de la regla de Horner, formulada en la sección \ref{tipos:evaluacionPoly}, 
   parece presentar una cadena de dependencias insalvables de cara a la paralelización del método. Sin embargo, ya 
   W. S. Dorn en $1962$ (\cite{dorn}) presenta una generalización de la regla de Horner que permite, en teoría, la 
@@ -452,14 +571,14 @@
   Recuérdese como se obtiene la regla de Horner clásica, dada en la página \pageref{horner}: sea $u(x) = u_n x^n + \cdots + u_1 x + u_0$.
   Dividiendo $u(x)$ entre $x-x_0$, $u(x) = (x-x_0)q(x)+r(x)$. Dado que el grado del polinomio resto $\mathrm{grado}(r(x)) < 1$,
   $r(x)$ será una constante. Asimismo, $u(x_0) = 0 \cdot q(x_0) + r = r$. Si se examina detenidamente, se observa
-  que este es el principio en el que se sostiene la regla de Horner. 
+  que éste es el principio en el que se sostiene la regla de Horner. 
   
   En general, si se divide $u(x)$ entre $f(x)$, 
   se obtiene $u(x) = f(x)q(x) + r(x)$, y si $f(x_0) = 0$, se cumple $u(x_0) = r(x_0)$. Si se toma $f(x) = x^2 - x^2_0$, 
   se obtiene la regla de Horner «de segundo grado»:
   \begin{eqnarray}
     u(x) & = & \nonumber \\
-         & = & \left( \ldots(u_{2 \lfloor n/2 \rfloor} x^2 + u_{2 \lfloor n/2 \rfloor - 2})x^2 + \cdots \right) u_0 +  \\ \label{eq:polyeval1}
+         & = & \left( \ldots(u_{2 \lfloor n/2 \rfloor} x^2 + u_{2 \lfloor n/2 \rfloor - 2})x^2 + \cdots \right) u_0 + \label{eq:polyeval1} \\
          & + & \left( (\ldots (u_{2\lceil n/2 \rceil-1} x^2 + u_{2\lceil n/2 \rceil -3})x^2 + \cdots )x^2 + u_1 \right) x \label{eq:polyeval2}
   \end{eqnarray}
   El número de multiplicaciones y sumas es el mismo que para la formulación original. Ahora bien, los sumandos
@@ -492,5 +611,30 @@
     \end{figure}
     Se aprecia una tendencia hacia $\approx 0.55$, lo que da una ganancia de $1/0.55 \approx 1.82$;
     y una eficiencia de $1.82 / 2 = 0.91$, lo cual es muy buen resultado.
+
+
+
+\section{Resumen}
+La tabla \ref{tab:resumenPar} resume los resultados de ganancia y eficiencia para los métodos con comparativa
+expuestos a lo largo del presente capítulo.
+\begin{table}[!h]
+  \centering 
+    \begin{tabular}{|c|c|c|c|} 
+    \hline
+     \textbf{Método} & \textbf{Ganancia} & \textbf{Eficiencia}  \\
+    \hline \hline
+    Producto enteros   &  $1.43 $  &  $0.715 $ \\
+    Producto escalar   &  $1.15 $  &  $0.575 $ \\
+    Uso de SIMD        &  $2.4 $  &  $0.6$ \\
+    Producto matrices  &  $1.3 $  &  $0.65 $ \\
+    Descomp. $LU$      &  $1.54 $  &  $0.77 $ \\
+    Inversión matrices &  $1.45 $  &  $0.725 $ \\
+    Det. Gauss-Bareiss &  $1.23 $  &  $0.615$ \\
+    Eval. polinomios   &  $1.82 $  &  $0.91$ \\
+    \hline 
+    \end{tabular}
+    \caption{Resumen de resultados} 
+  \label{tab:resumenPar} 
+\end{table}
 
 

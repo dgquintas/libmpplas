@@ -40,7 +40,7 @@
 %--------------------------------------------------------%
 
 \section{Introducción}
-En la figura \ref{fig:jerarquiaTipos} se muestran los distintos tipos y una
+En la figura \ref{fig:jerarquiaTipos} se muestran los distintos tipos soportados por la biblioteca y una
 visión general de sus interrelaciones. 
   \begin{figure}[h]
     \centering
@@ -51,7 +51,7 @@ Los tipos denominados compuestos, las matrices y los polinomios, reciben un tipo
 como argumento de plantilla: el tipo de sus elementos. Este concepto de tipo de
 plantilla es, claro está, propio de C++, no de la biblioteca. Sin embargo, como se
 expone en detalle en \ref{categorizacionAlgebraica}, se han incorporado mecanismos 
-para asegurar que la coherencia matemática se mantiene. También en dicha sección, 
+para asegurar que la coherencia matemática se mantenga. También en dicha sección, 
 concretamente en la figura \ref{fig:categoriasAlgebraicas}, se presenta el modo en el que
 para cada tipo se ha modelado su categoría algebraica. 
 
@@ -84,7 +84,7 @@ El siguiente código es por tanto válido para copiar un entero:
   // n == m
 \end{lstlisting}
   
-¿Para que hacer esto cuando se puede utilizar directamente el constructor de copia del dato? Desde luego
+¿Para qué hacer esto cuando se puede utilizar directamente el constructor de copia del dato? Desde luego
 en situaciones en las que se tenga acceso a la \emph{instancia} del dato a ser copiado, es absurdo hacerlo 
 de la forma anterior. Sin embargo, si nos encontramos con un escenario distribuido, no es trivial \textit{serializar}
 \footnote{es decir, transformar una instancia arbitraria en una representación únicamente basada en tipos básicos 
@@ -94,8 +94,7 @@ se habrá salvado este obstáculo.
 
 La segunda y última función virtual pura declarada en el tipo \texttt{MPPDataType} es \texttt{std::string toHRString()}, en la
 que «HR» corresponde a «\textit{Human Readable}»: la idea es devolver una representación textual susceptible de ser mostrada
-a un usuario \emph{humano}\footnote{«usuario humano» \emph{no} es una redundancia: bien podría ser otro programa el usuario 
-encargado de interpretar un resultado devuelto por la biblioteca}. En algunos casos la representación será la misma que la devuelta
+a un usuario humano. En algunos casos la representación será la misma que la devuelta
 por \texttt{toString()} --tal como en el caso de los enteros--, mientras que en otros será diferente --para las matrices, 
 por poner un caso--.
 
@@ -121,7 +120,7 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
   %TODO
 
   \subsection{Enteros módulo un primo}
-    Si en $\mathbb{Z}_n$ se restringe el módulo $n$ a números primos, es un resultando básico en Teoría de Números %TODO: cita
+    Si en $\mathbb{Z}_n$ se restringe el módulo $n$ a números primos, es un resultado básico en Teoría de Números %TODO: cita
     que la estructura algebraica resultante, usualmente denominada $\mathbb{Z}_p$, tiene carácter de \emph{cuerpo}. 
     Esto es, se garantiza la existencia de inversa para todo elemento no nulo. La relevancia de esta estructura
     en Teoría de Números es muy grande. %TODO: aplicaciones
@@ -143,11 +142,11 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
   Una conocida forma de exponenciación modular se basa en el método de
   multiplicación/reducción de Montgomery (\cite{montgomeryOrig}). 
   El método de reducción-multiplicación se encontraba ya incorporado en
-  la antigua versión de la biblioteca (véase \cite{miproyecto}, sección 5.5.3),
+  la antigua versión de la biblioteca (véase \cite{miproyecto}\footnote{sección 5.5.3}),
   utilizándose precisamente para la exponenciación modular. 
 
-  A lo largo de esta sección se utilizará la nomenclatura introducida en \cite{miproyecto},
-  sección 5.2, para los siguientes conceptos: $B$ representa la base con la que la máquina trabaja
+  A lo largo de esta sección se utilizará la nomenclatura introducida en \cite{miproyecto}\footnote{sección 5.2}, para 
+  los siguientes conceptos: $B$ representa la base con la que la máquina trabaja
   internamente de forma óptima, en la que se representan los tipos de datos básicos \texttt{Digit}.
   El número de bits de esta base se denominará $BED$: bits en \texttt{Digit}. La implementación actual
   soporta valores de $BED$ de $32$ y $64$.
@@ -186,9 +185,6 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
   y las que se corresponden con las operaciones habituales sobre $\mathbb{Z}$, 
   denominadas «habituales», presentadas de cara al usuario programador.
 
-  Los detalles de implementación pueden encontrarse en el capítulo dedicado
-  al efecto, en la sección \ref{implZM_n}.
-
   \paragraph{Específicas.}
   \begin{definicion}[Multiplicación de Montgomery]\label{def:multMont}
   Sea $R_n$ tal como se define en la expresión \eqref{eq:defRMont}, $x,y \in \mathbb{Z}$. 
@@ -214,7 +210,7 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
     \mathtt{NuevaInvMon}(a \cdot R,n) = a^{-1} \cdot R \pmod{n}
   \]
   \end{definicion}
-  Es decir,este último método obtiene la inversa de un número dado en el
+  Es decir, este último método obtiene la inversa de un número dado en el
   dominio de Montgomery, manteniéndose también el resultado en dicho dominio.
 
   \paragraph{Habituales.}\label{opsZM}
@@ -236,14 +232,15 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
  \subparagraph{Producto} 
   Utilizando la multiplicación de Montgomery (véase la definición \ref{def:multMont}),
   se obtiene el producto de dos elementos del dominio de Montgomery, resultando 
-  en su producto también en éste, de la siguiente manera:
+  su producto también en éste, de la siguiente manera:
   $\mathtt{MultMon}( xR, yR ) = xR \cdot yR \cdot R^{-1} = xyR^2 \cdot R^{-1} = xyR$
 
   \subparagraph{Cálculo de la inversa}
   Aplicar $\mathtt{NuevaInvMon}$ directamente (véase la definición \ref{nuevaMontInv}).
   \subparagraph{División}
     La división se realiza mediante las operaciones de inversión y producto: 
-    $ (aR / bR ) = \mathtt{MultMon}( aR, b^{-1}R ) = aR \cdot b^{-1}R \cdot R^{-1} = ab^{-1}R $
+    $ (aR / bR ) = \mathtt{MultMon}( aR, b^{-1}R )$. A su vez, 
+    $ \mathtt{MultMon}( aR, b^{-1}R ) = aR \cdot b^{-1}R \cdot R^{-1} = ab^{-1}R $
  
  \subparagraph{Conversión desde $\mathbb{Z}$ a $\mathbb{Z}M_n$}
   Si el entero a convertir verifica $a \geq n$, se realizar  previamente una reducción módulo $n$.
@@ -282,8 +279,11 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
 
 
 \section{Reales}
-  %TODO
-
+  Realizando una analogía quizás poco rigurosa pero ilustrativa, los reales son al Cálculo Numérico 
+  como los enteros a la Teoría de Números: conforman su tipo base fundamental. Respecto a su anterior
+  implementación en \cite{miproyecto}, se han optimizado internamente sus métodos y añadido nuevas operaciones, 
+  describiendose a continuación algunas de las más relevantes.
+  
   \subsection{Cálculo de la raíz cuadrada}\label{tipos:sqrt}
   La función $\sqrt{A}$, puede definirse como las raíces de la función $f(x) = x^2 - A$. Esto lleva a pensar
   inmediatamente en la utilización de un método iterativo para el cálculo de raíces. Por ejemplo, el conocido
@@ -306,9 +306,7 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
   \end{equation}
 
   Como se ha dicho, esta iteración converge a $1/\sqrt{A}$. Multiplicando este valor por $A$, se 
-  obtiene el deseado valor de $\sqrt{A}$, como es sencillo demostrar tras unas simples manipulaciones
-  algebraicas: $ (1 / \sqrt{x}) \equiv (\sqrt{x} / (\sqrt{x})^2) = \sqrt{x}/x$, por lo que
-  $(\sqrt{x}/x)x = \sqrt{x}$.
+  obtiene el deseado valor de $\sqrt{A}$.
 
   La iteración definida en \eqref{newton2} tiene convergencia cuadrática. Es posible ir mas allá. Por ejemplo,
   en \cite{sqrt} se aplica el método de Newton dos veces, lo cual resulta en una convergencia cuádruple:
@@ -325,7 +323,7 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
   \end{equation}
 
   Si se comparan las expresiones \eqref{newton3} y \eqref{newton4}, vemos como la segunda
-  resulta computacionalmente más sencilla de evaluar dado el menor order del polinomio
+  resulta computacionalmente más sencilla de evaluar dado el menor orden del polinomio
   que contiene, aún manteniendo su orden de convergencia. Reformulando:
 
   \begin{equation}
@@ -349,17 +347,17 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
       funciones trascendentes.
     \begin{description}
       \item[Exponencial.] Operación representada usualmente como $exp(x) = e^x$, siendo 
-       $e$ la base de los logaritmos neperianos. Esta funcion, antiguamente denominada como
+       $e$ la base de los logaritmos neperianos. Esta función, antiguamente denominada como
        «la e-función de Euler» (\cite{oxfordmath}\footnote{pág. 51}), tiene el siguiente valor:
        $exp(1) = e = 1 + 1 + \frac{1}{2!} + \frac{1}{3!} + \cdots \approx 2.7182\ldots$. 
        Esta constante $e$ encierra muchas otras sorpresas, siendo básica en el estudio 
-       de cuerpo de los número complejos. Se combina con otras dos célebres constantes en la
+       del cuerpo de los números complejos. Se combina con otras dos célebres constantes en la
        conocida y sorprendente, a primera vista, expresión $e^{i \pi} = -1$.
       \item[Logaritmo neperiano.] Operación inversa a la exponencial, para $y = \ln{(x)}$,
         se verifica $e^y = x$. Nótese que el cálculo del logaritmo en otra base $b$
           distinta de $e$ se reduce a: $\log_b{(x)} = \ln{(x)} / \ln{(b)}$.
       \item[Funciones trigonométricas.] Es decir, las funciones seno y coseno, así como las
-      derivadas de éstas, como la tangente. 
+      definidas a partir de éstas, como la tangente. 
     \end{description}
 
     \subsubsection{Cálculo de $\pi$}
@@ -397,7 +395,7 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
 
   \begin{observacion}[Caracter del sistema algebraico \texttt{S}]\label{obs:caracterS}
     Se asume que el sistema algebraico \texttt{S} es un \emph{anillo conmutativo con identidad}.
-    Esto es, \texttt{S} admite operaciones de suma, resta y multiplicación, con las propiedades
+    Esto es, \texttt{S} admite operaciones de suma y multiplicación, con las propiedades
     habituales. Nótese que \emph{no} se asume nada respecto a la división como operación
     inversa a la multiplicación. 
   \end{observacion}
@@ -407,9 +405,19 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
     En el caso del polinomio nulo $u(x) = 0$, se define su \emph{grado} como $-\infty$; y su coeficiente
     director como $0$.
   \end{observacion}
+ 
+ \subsection{Instancias concretas}
+    El tipo polinomio, modelado por la clase \texttt{Polynomial<S>}, es genérico en lo referente
+    al tipo de sus coeficientes, representado por el parámetro \texttt{S}. 
+    Sin embargo, por comodidad, se han implementado clases concretas representando las 
+    particularizaciones más habituales. Se insiste en que esto es tan solo un atajo: la implementación
+    de los diferentes métodos que operan sobre los polinomios son genéricos, compartidos por todas las 
+    instanciaciones del tipo de plantilla \texttt{S}. Las particularizaciones consideradas han sido:
+    polinomios sobre $\mathbb{Z}$, sobre  $\mathbb{R}$ y sobre $\mathbb{Z}_p$. Dichas particularizaciones
+    se corresponden respectivamente con las clases \texttt{Zx}, \texttt{Rx} y \texttt{Z\_px}.
 
   \subsection{Operaciones básicas sobre polinomios en \texttt{S}}
-  \subsubsection{Suma y resta} La suma (resp. resta) en polinomios sobre un sistema \texttt{S} se define como la suma (resp. resta) 
+  \subsubsection{Suma} La suma (resp. resta) en polinomios sobre un sistema \texttt{S} se define como la suma (resp. resta) 
     sobre \texttt{S} de coeficientes de potencias iguales de $x$ (asumiendo sin pérdida de generalidad que $n > m$): 
       \begin{eqnarray}
       (u_nx^n + \cdots + u_1x + u_0) + (v_mx^m + \cdots + v_1x+v_0)  ={}  \nonumber\\
@@ -431,11 +439,11 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
       (véase \cite{miproyecto}\footnote{pág. 50}) y su paralelización, son directamente 
       aplicables también a este caso.
 
-  \subsubsection{División}
+  \subsubsection{Algoritmo de la división}
   \cite{knuth} dedica toda una sección --la 4.6.1, pág. 420-- al análisis de la división de polinomios.
   En general, al igual que para el producto, dos polinomios se dividen esencialmente del mismo modo
   que dos elementos de $\mathbb{Z}$, siempre y cuando \texttt{S} sea un \emph{cuerpo}. Formalmente,
-  dados $u(x) = u_mx^m + \cdots + u_1x+ u_0$ y $v(x) = v_nx^n + \cdots + v_1x + v0$ con coeficientes 
+  dados $u(x) = u_mx^m + \cdots + u_1x+ u_0$ y $v(x) = v_nx^n + \cdots + v_1x + v_0$ con coeficientes 
   sobre un cuerpo y verificando $v_n \neq 0$ y $m \geq n \geq 0$, existe un polinomio cociente $q(x)$ 
   y un polinomio resto $r(x)$ tales que:
   \begin{equation}
@@ -445,48 +453,84 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
   $q(x)$ y $r(x)$ toman la siguiente forma:
   \begin{eqnarray}
   q(x) & = & q_{m-n}x^{m-n} + \cdots + q_0 \\
-  r(x) & = & r_{n-1}x^{n-1} + \cdots + r0 
+  r(x) & = & r_{n-1}x^{n-1} + \cdots + r_0 
   \end{eqnarray}
 
  \subsection{Máximo común divisor}\label{gcdPoly}
-  %TODO
+   El cálculo del máximo común divisor para polinomios es dependiente del
+   carácter del sistema algebraico \texttt{S} al cual pertenecen sus coeficientes.
+   El requisito fundamental es que \texttt{S} sea un \emph{dominio de
+   factorización única}:
+    \begin{definicion}[Dominio de factorización única]
+      Un sistema algebraico $S$ es un \emph{dominio de factorización única} si cumple:
+      \begin{itemize}
+        \item $S$ es un anillo conmutativo con identidad
+        \item $u,v \in S \textrm{ tal que } u, v \neq 0 \iff uv \neq 0$
+        \item $\forall u \in S \textrm{ tal que } u \neq 0$, $u$ es o bien una \emph{unidad}
+              \footnote{un elemento con inversa. Es decir, un elemento $u$ tal que $\exists v \in S$ tal que
+                        $uv = 1$}
+       o tiene una representación única como producto de \emph{primos}
+      \footnote{un elemento \emph{no} unitario $p$ tal que la expresión $p = qr$ se cumple sólo si o bien $q$ o $r$ es una unidad}.
+      \end{itemize}
+    \end{definicion}
+   Sin embargo, hasta ahora se ha estado haciendo referencia al sistema
+   algebraico de los coeficientes, no del sistema algebraico formado por
+   los polinomios en sí. El siguiente lema permite realizar este salto:
+   \begin{lema}[Polinomios sobre dominios de factorización única]
+    Los polinomios con coeficientes en un dominio de factorización única
+    forman a su vez un dominio de factorización única.
+   \end{lema}
+   Con lo que ahora sí tiene sentido hablar del concepto de máximo común
+   divisor para polinomios siempre que sus coeficientes pertenezcan a un
+   dominio de factorización única.
+
+   Ahora bien, es posible que un dominio de factorización posea varias
+   unidades, lo cual crea ambigüedad en la definición «clásica» del máximo
+   común divisor como \emph{el} mayor de los divisores comunes: si $d$ es
+   \emph{un} máximo común divisor de $a$ y $b$, también $u \cdot d$ lo será
+   para $u$ una unidad. No es posible hablar de un único máximo común divisor, 
+   sino de una colección de éstos, siendo múltiplos de una unidad de los
+   otros. En el familiar caso del anillo de los enteros $\mathbb{Z}$, sus
+   dos únicas unidades son $1$ y $-1$. Por convenio, se toma el máximo común
+   divisor para enteros como positivo, lo cual eliminaría la ambigüedad.
 
    \subsubsection{Con \texttt{S} un cuerpo}
-    %TODO
+    Si \texttt{S} es un cuerpo, el cálculo de \emph{un} máximo común divisor
+    de dos polinomios $a(x)$ y $b(x)$ se reduce a aplicar una adaptación directa del 
+    algoritmo de Euclides para los enteros, tal como se muestra en el
+    algoritmo \ref{alg:polyEuclid}.
 
+    \begin{algorithm}
+      \caption{Algoritmo de Euclides para polinomios}\label{alg:polyEuclid}
+      \begin{algorithmic}[1]
+        \Procedure{GCDPoly}{$a(x)$, $b(x)$}
+        \While{$b \neq 0$}
+            \State $r(x) \gets (a(x) \bmod b(x))$
+            \State $a(x) \gets b(x)$
+            \State $b(x) \gets r(x)$
+        \EndWhile
+        \State \Comment Aquí, $b = 0$.
+        \State \textbf{Return } $a$
+        \EndProcedure
+      \end{algorithmic}
+    \end{algorithm}
+
+    Ahora bien, todo elemento no nulo del cuerpo \texttt{S} es una unidad en
+    el dominio de los polinomios sobre dicho cuerpo \texttt{S}. Esto redunda
+    en lo anteriormente apuntado referente a la existencia de múltiples
+    máximos comunes divisores. Sin embargo, con el fin de poder hablar de 
+    \emph{el} máximo común divisor, siendo éste efectivamente \emph{único}, 
+    se convierte el polinomio resultante de la aplicación del anterior
+    algorimo en mónico, dividiendo todos sus coeficientes entre su coeficiente
+    director.
 
    \subsubsection{Con \texttt{S} un dominio de factorización única}
-      El caso más común en el que \texttt{S} cumple el requisito de ser un anillo conmutativo con identidad
-      es en el caso de polinomios sobre $\mathbb{Z}$. De hecho, el sistema de los números enteros 
-      verifica también el ser un \emph{dominio de factorización única}, esto es:
-      \begin{definicion}[Dominio de factorización única]
-        Un sistema algebraico $S$ es un \emph{dominio de factorización única} si cumple:
-        \begin{itemize}
-          \item $S$ es un anillo conmutativo con identidad
-          \item $u,v \in S \textrm{ tal que } u, v \neq 0 \iff uv \neq 0$
-          \item $\forall u \in S \textrm{ tal que } u \neq 0$, $u$ es o bien una \emph{unidad}
-                \footnote{un elemento con inversa. Es decir, un elemento $u$ tal que $\exists v \in S$ tal que
-                          $uv = 1$}
-         o tiene una representación única como producto de \emph{primos}
-        \footnote{un elemento \emph{no} unitario $p$ tal que la expresión $p = qr$ se cumple sólo si o bien $q$ o $r$ es una unidad}.
-        \end{itemize}
-      \end{definicion}
-
-      Un aspecto muy importante de los polinomios con coeficientes en $\mathbb{Z}$ es el siguiente:
-    \begin{lema}[Polinomios sobre dominios de factorización única]
-     Los polinomios con coeficientes en un dominio de factorización única
-     forman a su vez un dominio de factorización única.
-    \end{lema}
-
-      Esto conduce a justificar la existencia y sentido de la habitual operación
-      de cálculo del máximo común divisor sobre polinomios con coeficientes en un dominio de factorización
-      única. 
-      La especial operación de división de estos
-      polinomios necesaria para implementar este método se expone a continuación.
-
-    \paragraph{Pseudo-división de polinomios con \texttt{S} un dominio de factorización única}
-    %TODO
-
+      Si \texttt{S} cumple únicamente el requisito de ser un anillo conmutativo con identidad,
+      como es en el caso de polinomios sobre $\mathbb{Z}$, es posible
+      el cálculo de \emph{un} máximo común divisor. Una descripción en
+      profundidad, así como la definición de una necesaria operación de
+      «pseudo-división», pueden encontrarse en \cite{knuth}\footnote{pág. 424 y ss.}. 
+      Esta operación también está soportada por la biblioteca.
 
   \subsection{Evaluación}\label{tipos:evaluacionPoly}
     Evaluar el valor de un polinomio $f(x)$ para un valor de $x = x_0$ dado es conceptualmente trivial:
@@ -505,38 +549,35 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
     se muestra de que forma es posible paralelizarlo.
 
 
-  \subsection{Instancias concretas}
-      %  Sobre Z
-      %  Sobre R
-      %  Sobre Z\_p 
 
 
 \section{Matrices}\index{tipos!Matrices}\label{tipos:matrices}
-%TODO
+  Fundamentales en el ámbito del Álgebra Lineal, representan de forma unívoca una transformación lineal. Se asume
+  que el lector se encuentra suficientemente familiarizado con esta estructura.
+
+  La biblioteca incluye un completo conjunto de operaciones sobre matrices, que irán presentándose
+  a lo largo de esta sección.
   \subsection{Instancias concretas}
-    La clase modelando las matrices, \texttt{Matrix<T>}, comparte el carácter genérico
+    La clase que modela las matrices, \texttt{Matrix<T>}, comparte el carácter genérico
     de los polinomios, tanto en cuanto se toma a \texttt{T} como el tipo de sus elementos. 
-    Sin embargo, por comodidad, se han implementado clases concretas representando las 
-    particularizaciones más habituales. Se insiste en que esto es tan solo un atajo: la implementación
+    También para las matrices se han implementado clases concretas representando las 
+    particularizaciones más habituales. Del mismo modo, la implementación
     de los diferentes métodos que operan sobre las matrices son genéricos, compartidos por todas las 
-    instanciaciones del tipo de plantilla \texttt{T}. Las particularizaciones consideradas han sido:
-    matrices sobre $\mathbb{Z}$, matrices sobre $\mathbb{R}$, matrices sobre $\mathbb{Z}_n$ y matrices sobre $\GF$. 
+    instanciaciones.
+    Las particularizaciones consideradas han sido:
+    matrices sobre $\mathbb{Z}$, sobre $\mathbb{R}$, sobre $\mathbb{Z}_n$ y sobre $\GF$, correspondiendose respectivamente
+    con las clases \texttt{MatrixZ}, \texttt{MatrixR}, \texttt{MatrixZ\_n} y \texttt{MatrixGFx}.
     En los dos últimos casos, la instanciación de estas matrices requiere que se le sea proporcionado al constructor
-    en cuestión el valor de $n$ o el generador del cuerpo finito, respectivamente. 
+    en cuestión el valor de $n$ o el generador del cuerpo finito. 
     
   \subsection{Operaciones}
-    En este punto se describen operaciones propias del \emph{anillo} formado por $\mathcal{M}_{n,n}$; esto es, 
+    En este punto se describen operaciones propias del \emph{anillo} formado por $\mathcal{M}_{n}$; esto es, 
     las matrices cuadradas.
 
-    \subsubsection{Suma y resta}
+    \subsubsection{Suma}
     La suma (resp. resta) de matrices sobre un sistema \texttt{T} se define como la suma (resp. resta) 
     sobre \texttt{T} de los elementos situados en la misma fila y columna (para la suma): 
 \[
-\left( \begin{array}{cc}
-      a_{11}+b_{11} & a_{12} + b_{12} \\
-      a_{21}+b_{21} & a_{22} + b_{22}
-\end{array} \right)
-=
 \left( \begin{array}{cc}
       a_{11} & a_{12} \\
       a_{21} & a_{22}
@@ -546,12 +587,17 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
       b_{11} & b_{12} \\
       b_{21} & b_{22}
 \end{array} \right)
+=
+\left( \begin{array}{cc}
+      a_{11}+b_{11} & a_{12} + b_{12} \\
+      a_{21}+b_{21} & a_{22} + b_{22}
+\end{array} \right)
 \]
 
     Es fácil observar que para cada elemento, la operación de suma es totalmente independiente
     de las demás, conformando una división en tareas \emph{embarazosamente paralela}\index{paralelo!embarazosamente --}.
 
-    \subsubsection{Producto}
+    \subsubsection{Producto}\label{tipos:matprod}
       La operación «estrella», ha sido objeto de mucho estudio con el fin de reducir su complejidad
       de $O(n^3)$, la del algoritmo fruto de la implementación directa de su definición. Sea 
       $\mathbf{A} \in \mathcal{M}_{m,n}$ y $\mathbf{B} \in \mathcal{M}_{n,k}$. Su producto resulta en una
@@ -559,18 +605,28 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
       \begin{equation}
         (\mathbf{AB})_{ij} = \sum_{r=1}^n a_{ir}b_{rj} = a_{i1}b_{1j} + a_{i2}b_{2j} + \cdots + a_{in}b_{nj}. \label{eq:matprod}
       \end{equation}
-      para $1 \le i \le m$ y $1 \le j \le k$.
-
-      Una de las estratégias que reducen la cota de complejidad cúbica fue ideada por Volker Strassen en 
+      para $1 \le i \le m$ y $1 \le j \le k$. En detalle, se realizan $m^3$
+      multiplicaciones y $m^3 - m^2$ sumas. 
+      Una de las estratégias que reducen la cota de complejidad fue ideada por Volker Strassen en 
       $1969$ (\cite{strassenorig}), siendo conocida habitualmente como el método de Strassen. 
       La mejora puede parecer pequeña, $O(n^{\lg_2{(7)}}) \approx O(n^{2.8})$, pero para tamaños de matriz suficientemente grandes,
       resulta ventajoso. Obtiene esta ventaja de sustituir operaciones de multiplicación por sumas --el mismo
-      principio que utilizó Karatsuba para la multiplicación de enteros, \cite{miproyecto}\footnote{}--.
+      principio que utilizó Karatsuba para la multiplicación de enteros, \cite{miproyecto}\footnote{}--. A grandes
+      rasgos este método divide las matrices a multiplicar en cuatro bloques del mismo tamaño, o
+      bien en bloques tales que si se considera cada bloque como un
+      elemento, sea posible multiplicar estas matrices $2 \times 2$. Para
+      multiplicar dichas matrices formadas por bloques, utiliza $7$
+      multiplicaciones y $18$ sumas. El método tradicional requiere $2^3 = 8$
+      multiplicaciones y $2^3 - 2^2 = 4$ sumas. Por tanto, se ha reemplazado
+      una multiplicación por catorce sumas. Dado que la complejidad de la suma matricial está en $O(n^2)$, se justifica la anterior
+      afirmación de la ganancia para valores suficientemente grandes de $n$.
+
       Una variante
       de este método, presentada por Shmuel Winograd en $1980$ (\cite{strassenmult}), reduce el número de
-      sumas del método original de Strassen, a la vez que maniene el número de multiplicaciones. 
-      Esta es la versión que ha sido incorporadas a la biblioteca. 
-      Además de estos métodos, el producto de matrices también ha sido parelelizado. Véase la sección \ref{par:matprod}.
+      sumas del método original de Strassen a $15$, a la vez que mantiene el número de multiplicaciones. 
+      Ésta es la versión que ha sido incorporada a la biblioteca. 
+      Además de estos métodos, el producto de matrices también ha sido parelelizado. Véase la sección \ref{par:matprod},
+      página \pageref{par:matprod}.
 
       Una técnica habitual en la implementación del producto de matrices para bibliotecas matemáticas
       de alto rendimiento es la explotación de la jerarquía de memoria: la caché resulta mucho más rápida
@@ -586,12 +642,115 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
       De la forma habitual, la división se define como el producto por la inversa. Dado que
       no toda matriz posee invesa, la división arrastra las mismas restricciones que la inversión.
 
-    \subsubsection{Triangularización}
-      %TODO
-    \subsubsection{Resolución de sistemas de ecuaciones}
-      %TODO
-    \subsubsection{Inversión}
-      Dada la categorización de $\mathcal{M}_{n,n}$ como anillo, la existencia de inversa para el operador  producto
+    \subsubsection{Descomposición $LU$}
+      El punto de partida de gran parte de las operaciones sobre matrices: resolución, inversión, etc. se apoyan
+      en una descomposición $LU$.
+
+      \begin{equation}\label{eq:descLU}
+         \underbrace{
+         \left( 
+             \begin{array}{ccc}
+               a_{11} &  \ldots & a_{1n} \\
+               a_{21} &  \ldots & a_{2n} \\
+               \vdots &  \ddots & \vdots \\
+               a_{n1} &  \ldots & a_{nn} 
+             \end{array} 
+         \right)
+         }_{\mathbf{A}}
+         =
+         P 
+        \times
+        \underbrace{
+         \left( 
+             \begin{array}{cccc}
+               1      & 0      & \ldots & 0     \\
+               l_{21} & 1      & \ldots & 0     \\
+               \vdots & \vdots & \ddots & \vdots \\
+               l_{n1} & l_{n2} & \ldots & 1 
+             \end{array} 
+         \right)
+        }_{\mathbf{L}}
+         \times
+        \underbrace{
+         \left( 
+             \begin{array}{cccc}
+               u_{11} & u_{12} & \ldots & u_{1n} \\
+               0      & u_{22} & \ldots & u_{2n} \\
+               \vdots & \vdots & \ddots & \vdots \\
+               0      &   0    & \ldots & u_{nn} 
+             \end{array} 
+         \right)
+        }_{\mathbf{U}}
+      \end{equation}
+      siendo $P$ la matriz identidad con sus filas permutadas según el pivotaje realizado.
+
+    \subsubsection{Resolución de sistemas de ecuaciones}\label{tipos:resolucion}
+      El objetivo es resolver un sistema de ecuaciones, el cual se supone que posee solución única, dado de la siguiente manera:
+      \begin{equation}
+         \left( 
+             \begin{array}{ccc}
+               a_{11} &  \ldots & a_{1n} \\
+               a_{21} &  \ldots & a_{2n} \\
+               \vdots &  \ddots & \vdots \\
+               a_{n1} &  \ldots & a_{nn} 
+             \end{array} 
+         \right)
+         \left( 
+            \begin{array}{c}
+              x_{1} \\
+              x_{2} \\
+              \vdots \\
+              x_{n} 
+            \end{array} 
+        \right)
+         =
+         \left( 
+           \begin{array}{c}
+             b_{1} \\
+             b_{2} \\
+             \vdots \\
+             b_{n} 
+           \end{array} 
+        \right)
+      \end{equation}
+
+      Si se cuenta con las matrices $L$ y $U$, definidas en la expresión \eqref{eq:descLU}, 
+      el proceso de resolución para las $x_i$ se reduce a una sustición «hacia adelante» (de la primera
+      a la última fila) sobre $L$ seguida de una sustitución «hacia atrás» sobre $U$. En símbolos, 
+      la formulación del sistema de ecuaciones se traduce en:
+      \[
+        \mathbf{A} \cdot \mathbf{x} = (\mathbf{L} \cdot \mathbf{U}) \cdot \mathbf{x} = 
+        \mathbf{L} \cdot (\mathbf{U} \cdot \mathbf{x}) =  \mathbf{b}
+      \]
+      lo cual lleva a resolver inicialmente para un vector intermedio
+      $\mathbf{y}$:
+      \begin{equation}\label{eq:forward}
+        \mathbf{L} \cdot \mathbf{y} = \mathbf{b}
+      \end{equation}
+      La anterior expresión \eqref{eq:forward} se resuelve mediante la citada
+      sustitución «hacia adelante»:
+      \begin{equation}\label{eq:sustalante}
+      \begin{array}{rcl}
+        y_0 & = & b_0 / l_{00} \\
+        y_i & = & \frac{1}{l_{ii}} \left( b_i - \sum^{i-1}_{j=0} l_{ij}y_j \right) \qquad \textrm{para } i = 1,2,\ldots,n-1
+      \end{array}
+      \end{equation}
+
+      y finalmente para $\mathbf{x}$, utilizando el anterior resultado $\mathbf{y}$:
+      \begin{equation}
+        \mathbf{U} \cdot \mathbf{x} = \mathbf{y}
+      \end{equation}
+      se resuelve «hacia atrás»:
+      \begin{equation}\label{eq:sustatras}
+      \begin{array}{rcl}
+        x_{n-1} & = & y_{n-1} / u_{n-1,n-1} \\
+        x_i & = & \frac{1}{u_{ii}} \left( y_i - \sum^{n-1}_{j=i+1} u_{ij}x_j \right) \qquad \textrm{para } i = n-2,n-3,\ldots,0
+      \end{array}
+      \end{equation}
+
+
+    \subsubsection{Inversión}\label{tipos:invMat}
+      Dada la categorización de $\mathcal{M}_{n}$ como anillo, la existencia de inversa para el operador  producto
       \emph{no} se garantiza. Sin embargo, es un resultado básico en álgebra que si 
       el rango de la matriz es igual al número de filas/columnas de ésta, dicha matriz es invertible. 
       Lo que habitualmente no se tiene en cuenta es si la operación de inversión resulta
@@ -621,24 +780,32 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
       funcionalidad a la biblioteca\footnote{un estudio acerca de este tipo de matrices se
       realiza en \cite{intinv}}. 
       Esto se debe a que durante el proceso de inversión 
-      implementado (véase sección \ref{impl:inversaMatrices}), se requiere la inversión 
+      implementado, se requiere la inversión 
       de los elementos de la matriz. Nótese que siempre es posible la conversión temporal de una 
       matriz de enteros a una matriz de reales, realizar su inversa y truncar los elementos de esta
       de vuelta al dominio de los enteros. 
 
+      El cálculo de la inversa se reduce a la resolución de $n$ sistemas de ecuaciones, en los cuales
+      tan sólo varía el vector de terminos independientes. Dicho vector irá
+      tomando los valores de las columnas de la matriz identidad $\mathbb{I}_n$.
+      Es decir, la inversa se irá calculando por columnas 
+      sucesivas en base al anteriormente descrito mecanismo de resolución de sistemas de ecuaciones.  
+      Sin embargo, la particularidad de los valores que toma $\mathbf{b}$ hace posible determinar \textit{a priori} 
+      qué fila de $\mathbb{b}$ contendrá el único valor no nulo --que además es una unidad--, se simplifican las sustituciones
+      dadas en las expresiones \eqref{eq:sustalante} y \eqref{eq:sustatras}.
 
     \subsubsection{Determinante}
 
       Pueden presentarse los determinantes como objetos matemáticos útiles en el análisis
       y resolución de sistemas de ecuaciones lineales: según la conocida regla de Cramer, 
-      un sistema de ecuaciones lineales no homonogéneo posee solución única si y solo si 
-      el determinante de la matriz asociada al sistema no distinto de cero.
+      un sistema de ecuaciones lineales no homonogéneo posee solución única si y sólo si 
+      el determinante de la matriz asociada al sistema es distinto de cero.
 
-      \begin{teorema}
-        Sea $\mathcal{M}_{n,n}(\mathbb{K})$ el conjunto de todas las matrices sobre $\mathbb{K}$.
+      \begin{teorema}[Existencia y unicidad del determinante]\label{th:det}
+        Sea $\mathcal{M}_{n}(\mathbb{K})$ el conjunto de todas las matrices sobre $\mathbb{K}$.
         Existe una única función 
         \[
-         f: \mathcal{M}_{n,n}(\mathbb{K}) \longrightarrow \mathbb{K}
+         f: \mathcal{M}_{n}(\mathbb{K}) \longrightarrow \mathbb{K}
         \]
         tal que cumple las siguientes propiedades:
         \begin{itemize}
@@ -648,9 +815,9 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
         \end{itemize}
       \end{teorema}
 
-      No se demuestra aquí el teorema anterior, pero la llamada fórmula de Leibniz define tal función $f$:
+      No se demuestra aquí el anterior teorema \ref{th:det}, pero la llamada fórmula de Leibniz define tal función $f$:
       \begin{definicion}[Determinante (fórmula de Leibniz)]\label{def:determinante}
-        Sea $A = \mathcal{M}_{n,n}$ una matriz cuadrada. 
+        Sea $A = \mathcal{M}_{n}$ una matriz cuadrada. 
         Es posible definir su  determinante como (fórmula de Leibniz):
         \begin{equation}
           \det(A) = \sum_{\sigma \in S_n} \sgn(\sigma) \prod_{i=1}^n A_{i,\sigma(i)}. \label{eq:determinante}
@@ -665,11 +832,111 @@ desarrollado, el cual se describe en la sección \ref{par:runtimeData}.
       lo cual hace que no sea útil para el cálculo práctico del determinante. Detalles de los métodos
       utilizados en la biblioteca se muestran en la sección \ref{impl:determinante}
             
-\section{Vectores}
-%TODO
+  \subsection{Vectores}
+    Los vectores son matrices en las cuales una de sus dimensiones es uno. ¿Por qué considerarlos
+    como un tipo separado cuando no son más que una instancia particular de las matrices? Debido a que
+    las asunciones que es posible realizar permiten la optimización de las operaciones sobre esta 
+    particular familia de matrices. Por ejemplo, las operaciones sobre vectores se prestan mucho más a
+    optimizaciones utilizando instrucciones SIMD que las matrices, debido a su mayor simplicidad. 
+    De hecho, sobre estos tipos se han utilizado los servicios ofrecidos por la CPU SIMD de la biblioteca,
+    descrita en la sección \ref{basico:cpusimd}.
 
-\section{Cuerpos finitos, $\GF$}\label{cuerposFinitos}
+\section{Cuerpos finitos}\label{cuerposFinitos}
+  Modelados por la clase \texttt{GF}, son también conocidos como cuerpos de Galois, en honor al
+  matemático francés Évariste Galois --cuya biografía es intensísima, para alguien que murio a los $20$ años, 
+  en un duelo nada menos--. En general, un cuerpo finito no es más que un cuerpo con un número finito de elementos.
+  Poseen numerosas aplicaciones en Teoría de Numeros, criptografía y Teoría de Códigos. 
+
+  El concepto de cuerpo finito se sostiene en el siguiente teorema (\cite{handbook}\footnote{Fact 2.209, pág. 81}):
+  \begin{teorema}[Existencia y unicidad de los cuerpos finitos]\label{th:gf}
+    Existe un único, excepto isomorfismo, cuerpo finito de orden $p^n$ para cada primo $p$ y entero $n \geq 1$.
+  \end{teorema}
+
+  Se denomina \emph{orden} de un cuerpo finito al número de elementos en dicho cuerpo. En vista del anterior
+  teorema \ref{th:gf},
+  el orden de un cuerpo finito tendrá la forma $p^n$, denominándose $p$ la \emph{característica}
+  del cuerpo. Asimismo, dos cuerpos finitos con el mismo número de elementos --mismo orden--, serán 
+  siempre isomorfos. 
   
-  \subsection{Elementos de un cuerpos finitos}
+  En base a estos puntos, un cuerpo finito queda definido por su número de elementos. Sin embargo, por
+  comodidad, se utiliza la notación $\mathbb{F}_{p^n}$ o $\GF{(p^n)}$. En la biblioteca, se ha optado por utilizar la segunda notación.
+
+\bigskip
+
+  A la hora de trabajar con cuerpos finitos, se suele recurrir a polinomios de grado $ \leq n$ en $\mathbb{Z}_p$ para
+  representar sus elementos. En lo sucesivo, se toma $F$ como un cuerpo arbitrario. En la práctica, tal cuerpo suele corresponderse
+  con $\mathbb{Z}_p$. A lo largo de esta sección se justificará este hecho. Comenzando por una definición:
+
+  \begin{definicion}[Clases de equivalencia polinomiales]
+    Se define $F[x] / (f(x))$ como el conjunto de clases de equivalencia de polinomios sobre $F[x]$ de grado
+    $< n$, siendo $n = \mathrm{grado}(f(x))$. Las operaciones usuales se realizan módulo $f(x)$.
+  \end{definicion}
+  El \emph{polinomio reductor} $f(x)$ juega el papel de módulo del mismo modo que $n$ lo hace en $\mathbb{Z}_n$.
+  Y del mismo modo que $\mathbb{Z}_n$ conforma un cuerpo si $n$ es primo, se tiene que:
+  \begin{teorema}[Creación del cuerpo finito (\cite{handbook})] \label{teorema:gf}
+    Si $f(x)$ es irreducible sobre $F$, $F[x]/(f(x))$ es un cuerpo.
+  \end{teorema}
+  De forma análoga a los enteros, un polinomio irreducible se define como:
+  \begin{definicion}[Polinomio irreducible]\label{def:irredPoly}
+    Sea $f(x) \in F[x]$ un polinomio sobre $F$ de grado $\geq 1$. Se dice que 
+    $f(x)$ es \emph{irreducible sobre $F$} si no puede ser representado como el producto de dos polinomios de grado 
+    positivo --es decir, no constantes-- en $F[x]$.
+  \end{definicion}
+
+   Como reza el teorema \ref{teorema:gf}, el polinomio reductor únicamente debe cumplir
+   ser irreducible. Sin embargo, dentro de los polinomios irreducibles se encuentran también los 
+   primitivos:
+  \begin{definicion}[Polinomio primitivo]\label{def:polyprim}
+    Un polinomio irreducible $f(x) \in F[x]$ de grado $m$ se denominará \emph{polinomio primitivo} si $x$ es un 
+    generador de $\GF^*{(p^m)}$, es decir, del grupo multiplicativo de todos los elementos no nulos en $\GF{(p^m)} = \mathbb{Z}_p[x]/(f(x))$.
+  \end{definicion}
+  Véase el siguiente ejemplo, tomado de \cite{handbook}\footnote{pág. 85}:
+  \begin{ejemplo}[Polinomio primitivo para $\GF{(2^4}$]
+    Sea $f(x) = x^4 + x + 1$. Este polinomio es irreducible sobre $\mathbb{Z}_2$. El cuerpo finito 
+    $\mathbb{Z}_2/(f(x)) = \GF{(2^4)}$ que define contiene $2^4 = 16$ elementos, los cuales pueden representarse como las $16$
+    combinaciones de unos y ceros posibles con cuatro elementos. $f(x)$ será también primitivo
+    si verifica que el elemento $x = (0010)$ del cuerpo genera todos los elementos no nulos de $\GF{(2^4)}$ mediante
+      potenciaciones sucesivas. La tabla \ref{tabla:ejgf} demuestra como efectivamente $f(x)$ sí es primitivo para  $\mathbb{Z}_2$:
+
+      \begin{table}[h]\label{tabla:ejgf}
+       \centering
+       \begin{tabular}{|c|c|c|}
+        \hline 
+        $i$ & $x^i \pmod f(x)$ & Notación binaria \\
+        \hline  
+        $ 0$ &   $1$           &  $(0001)$ \\
+        $ 1$ &   $x$           &  $(0010)$ \\
+        $ 2$ &   $x^2$         &  $(0100)$ \\
+        $ 3$ &   $x^3$         &  $(1000)$ \\
+        $ 4$ &   $x+1$         &  $(0011)$ \\
+        $ 5$ &   $x^2 +x$      &  $(0110)$ \\
+        $ 6$ &   $x^3 + x^2$   &  $(1100)$ \\
+        $ 7$ &   $x^3 +x + 1$  &  $(1011)$ \\
+        $ 8$ &   $x^2 + 1$     &  $(1010)$ \\
+        $ 9$ &   $x^3 + x$     &  $(1010)$ \\
+        $10$ &   $x^2 +x +1$   &  $(0111)$ \\
+        $11$ &   $x^3+x^2+x$   &  $(1110)$ \\
+        $12$ &   $x^3+x^2+x+1$ &  $(1111)$ \\
+        $13$ &   $x^3 + x^2 +1$&  $(1101)$ \\
+        $14$ &   $x^3 + 1$     &  $(1001)$ \\
+        \hline  
+       \end{tabular}
+      \caption{Potencias de $x$ módulo $f(x) = x^4 + x + 1$}
+    \end{table}
+
+  \end{ejemplo}
+
+  Utilizar un polinomio no sólo irreducible sino también primitivo como polinomio reductor en un cuerpo 
+  finito resulta útil en determinados escenarios, como por ejemplo en la implementación de registros de 
+  desplazamiento con retroalimentación lineal (\textit{linear feedback shift registers}), 
+  utilizados en la implementación de generadores de números pseudoaleatorios y en sistemas de comunicación.
+
+  \bigskip 
+
+  Es posible establecer una biyección entre los elementos de un cuerpo finito y los enteros. En la práctica 
+  es conveniente hacerlo, sobre todo de cara al usuario humano: resulta más cómodo el trabajo y la interpretación sobre
+  los habituales enteros que sobre un polinomio en $\mathbb{Z}_p$. Además, para $\GF{(p^n)}$, tales enteros se corresponderían
+  con el conjunto $\{0, \ldots, p^n-1\}$, enumerando los elementos del cuerpo finito.
+
     
 

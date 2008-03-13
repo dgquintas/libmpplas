@@ -35,6 +35,8 @@ filesStr = """
     VectorFloat.cpp
     VectorDouble.cpp
     VectorInt.cpp
+    VectorR.cpp
+    VectorZ.cpp
     Z.cpp
     Z_n.cpp
     Z_p.cpp

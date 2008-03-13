@@ -190,13 +190,12 @@ namespace mpplas{
         }
         else{
 #undef min
-          const int real_cs = std::min( chunk_size, (int)listSize - i );
+          const int real_cs = std::min( chunk_size, listSize - i );
           for( int j = 0; (j < real_cs-2) && cont; j++){
             d = gcd(d, nums[i+2+j]);
             if( d == T::getMultIdentity() ){
 #pragma omp atomic
               cont--;
-
             }
           }
         }

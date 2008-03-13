@@ -25,7 +25,7 @@
     \begin{flushright}
       \begin{quote}
         \emph{
-          Cuídate de aquel que no se molesta en los detalles.
+          Cuídate de aquél que no se molesta en los detalles.
         }
         \begin{flushright}
           \textbf{\textemdash William Feather}
@@ -53,18 +53,93 @@
 
     \subsection{Configuración de la compilación}
       El fichero \texttt{CompilationConfig.h} es generado durante el proceso de compilación
-      mediante la función \texttt{dumpConfigToCpp} en Python contenida dentro del propio fichero \texttt{src/sources/SConstruct} 
-      procesador por SCons. Otra muestra más de la versatilidad que ofrece esta herramienta, descrita en la sección 
+      mediante la función \texttt{dumpConfigToCpp} en Python contenida dentro del propio fichero \texttt{SConstruct} 
+      procesado por SCons. Otra muestra más de la versatilidad que ofrece esta herramienta, descrita en la sección 
       \ref{tech:scons}.
 
 
   \subsection{Mecanismo de perfilado basado en AOP}\label{impl:aop}
-%    En la anterior versión de la biblioteca, LibNumth, ya se incorporaba soporte de perfilado
-%    por parte de la biblioteca para el conteo de las operaciones de la CPU Virtual (véase 
-%    \cite{miproyecto}, sección 5.2.1). Sin embargo, este mecanismo 
+    Siguiendo las directrices generales dadas en la sección \ref{tech:aop}, la utilización de AOP se reduce
+    a la definición de una serie de «puntos de corte» transversales a la lógica del programa. Se define para
+    tales puntos una porción de código a ejecutar, el llamado \textit{advice}. Tómese como ejemplo el listado \ref{lst:aop}:
+    para cada ejecución de una instrucción de la CPU básica, se incrementa su contador en la instancia singleton
+    de la clase de perfilado:
+    \begin{enumerate}
+      \item Para este ejemplo, se definen los puntos de corte mediante un patrón de la forma 
+        \texttt{\% mpplas:: BasicCPU:: Add(...)}: el método llamado \texttt{Add} dentro de los espacios de nombres \texttt{BasicCPU},
+      recibiendo cualquier número y tipo de parametros (\texttt{(...)}) y devolviendo cualquier valor (\texttt{\%}).
+      \item El \textit{advice} a ejecutar para el ejemplo anterior sería 
+      \texttt{\_profInstance[ omp\_get\_thread\_num() ][ mpplas::BasicCPU::ADD ]++;}. Nótese como la instancia de la
+      clase de perfilado se obtiene en el constructor del aspecto, en la línea \ref{algaop:0}.
+    \end{enumerate}
+    
+    No se define aquí la sintaxis íntegra del superconjunto de C++ utilizado por aspectc++ para incorporar AOP al lenguaje. 
+    Para una introducción al mismo, véase \cite{aspectc++intro}. La completa referencia del lenguaje se encuentra disponible
+    en \cite{aspectc++}.
+\lstset{escapeinside={(*@}{@*)}}
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Definición de aspectos y puntos de corte, label=lst:aop]
+aspect ProfilingTrace {
+  public:
+    ProfilingTrace() 
+      : _profInstance( mpplas::Profiling::getReference() )  (*@\label{algaop:0}@*)
+    {}
+    advice execution("% mpplas::BasicCPU::Add(...)") : after() {
+      _profInstance[ omp_get_thread_num() ][ mpplas::BasicCPU::ADD ]++;
+    }
+    advice execution("% mpplas::BasicCPU::Addx(...)") : after() {
+      _profInstance[ omp_get_thread_num() ][ mpplas::BasicCPU::ADDX ]++;
+    }
+
+    (...)   (*@\label{algaop:1}@*)
+
+    advice execution("% mpplas::BasicCPU::Mnob(...)") : after() {
+      _profInstance[ omp_get_thread_num() ][ mpplas::BasicCPU::MNOB ]++;
+    }
+
+    private:
+      mpplas::Profiling& _profInstance;
+};
+\end{lstlisting}
+Los puntos suspensivos en la línea \ref{algaop:1} comprenden la definición de \texttt{advice}s análogos para 
+las otras siete operaciones de la CPU básica. 
 
     \subsubsection{Preprocesando con Python}\label{impl:prepopython}
+      Debido a limitaciones de la herramienta utilizada para incorporar mecanismos de orientación a aspectos en C++, aspectc++, 
+      es necesario que todas las implementaciones del núcleo se encuentren en un único fichero. Es decir, aspectc++ aparentemente no procesa
+      adecuadamente las directivas \texttt{\#include}. La solución implementada pasa por realizar una inclusión manual, previa al proceso
+      de (pre)compilación. Este procesado manual se realiza mediante Python, siendo lanzado por la herramienta de compilación SCons. 
+      
+      Este mecanismo procesa los archivos de entrada en busca de una línea de la forma \texttt{\#pragma \_\_libmpplas\_manual\_include [cond]},
+      siendo \texttt{cond} una cadena de caracteres opcional conteniendo el nombre de una arquitectura o conjunto de instrucciones SIMD.
+      Si se está compilando una versión de la biblioteca que coincide con dicha condición, se procesa la siguiente línea, que habrá de
+      ser una directiva \texttt{\#include} habitual. Por ejemplo:
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Ejemplo de preprocesado con Python, label=lst:prepo]
+(...)
+#pragma __libmpplas_manual_include x86
+  #include "kernelx86.h"
+(...)
+\end{lstlisting}
+      Las dos líneas del listado \ref{lst:prepo} se interpretan como «incluir el contenido del fichero \texttt{kernelx86.h} en el lugar
+      de la directiva \texttt{\#include} si se está compilando la biblioteca para la arquitectura x86». 
+      Si la condición no se cumple, no se añade nada 
+      y se eliminan ambas líneas del fichero que las contenía. 
+      
+      Existen razones para el uso del poco común \texttt{\#pragma}, así como para conservar la sintaxis del \texttt{\#include}.
+      Cuando la biblioteca no está siendo compilada con soporte para perfilado, no se utiliza aspectc++, por lo que no resulta
+      necesario realizar este proceso de «inclusión manual». En tal caso, no se realiza sustitución alguna, y el compilador
+      se encontrará con las líneas del anterior listado \ref{lst:prepo} tal cual. Recuerdese la definición de la directiva
+      \texttt{\#pragma} según el estándar ANSI C (\cite{c}\footnote{sección A12.8, pág. 258}):
+        \begin{quote}
+          Un \texttt{pragma} no reconocido es ignorado.
+        \end{quote}
+      Por tanto, el compilador simplemente ignora la primera línea. La segunda línea, conteniendo el \texttt{\#include} sí es 
+      procesada, y hace precisamente lo que se espera de ella: incluir a nivel \emph{del preprocesador del compilador} el archivo
+      indicado. Esto resulta necesario ya que de una forma u otra --manualmente o mediante el compilador-- la implementación
+      concreta del núcleo debe estar incluida en \texttt{kernel.h}, con el fin de poder utilizar este archivo de forma genérica
+      donde fuera necesario. 
 
+      La labor de procesado y sustitución es llevada a cabo por la función \texttt{manually\_insert}, definida dentro del fichero
+      \texttt{src/sources/SConscript}.
 
   \subsection{El compilador como calculadora}\label{impl:templatemp}
     En esta sección se ilustra uno de los usos más oscuros, por llamarlo de 
@@ -76,7 +151,7 @@
     como para poder implementar métodos de forma genérica, se encuentra \texttt{MAX\_BASE10\_POWER\_DIGIT}. 
     Como su propio nombre indica, aunque no lo parezca, se corresponde con la máxima potencia de $10$ representable mediante
     el tipo de dato básico \texttt{Digit}. Por ejemplo, si \texttt{Digit} tiene una longitud de $32$ bits, 
-    se correspondá a $10^9$, ya que $\lfloor \lg_{10}( 2^{32} ) \rfloor = 9$. Este exponente de $10$ en cuestión 
+    se corresponderá a $10^9$, ya que $\lfloor \lg_{10}( 2^{32} ) \rfloor = 9$. Este exponente de $10$ en cuestión 
     se encuentra almacenado en otra constante, 
     \texttt{MAX\_EXP10\_CIFRA}. Bien, pues si se tienen todos los ingredientes --la base $10$ y el exponente
     $9$--, ¿qué impide asignar este valor a \texttt{MAX\_BASE10\_POWER\_DIGIT}? El hecho de que estas constantes
@@ -107,7 +182,7 @@
       };
     \end{lstlisting}
 
-    Sin entrar en demasiados detalles, ya que se insiste en que esta es una técnica un tanto esotérica apartada del uso
+    Sin entrar en demasiados detalles, ya que se insiste en que ésta es una técnica un tanto esotérica apartada del uso
     habitual de las plantillas de C++, el anterior código funciona en base a que en la línea \ref{algpow:1} se utiliza
     el dato \texttt{result} dentro de la instanciación de la plantilla \texttt{CTPow<B,N-1>}, el cual será multiplicado
     por el parámetro de plantilla \texttt{B}, que hace las veces de base de la exponenciación. Esto 
@@ -135,7 +210,7 @@
     \end{description}
 
     Estos dos identificadores se integran dentro de la macro, también de preprocesador, siguiente:
-\begin{lstlisting}[captionpos=b,basicstyle=\scriptsize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Generando información de origen, label=lst:gentrace]
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Generando información de origen, label=lst:gentrace]
 #define GEN_TRACE_INFO_OSS(oss) \
   oss << '(' << __FILE__ << ':' << __LINE__ << ')'
 \end{lstlisting}
@@ -144,7 +219,7 @@
   la información de «archivo:línea». Su utilización se ilustra a continuación, por ejemplo para el caso en el que
   la definición textual de una matriz es incorrecta:
 
-\begin{lstlisting}[captionpos=b,basicstyle=\scriptsize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Ejemplo de uso de GEN\_TRACE\_INFO\_OSS, label=lst:gentraceEj]
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Ejemplo de uso de GEN\_TRACE\_INFO\_OSS, label=lst:gentraceEj]
 (...)
 if( columnsRead > columnsIni ){
   std::ostringstream oss;
@@ -155,9 +230,61 @@ if( columnsRead > columnsIni ){
 (...)
 \end{lstlisting}
 
-\section{La clase \texttt{CpuInfo}}\label{impl:cpuinfo}
+\section{La clase \texttt{CPUInfo}}\label{impl:cpuinfo}
 % - uso de ensamblador y polimorfismo para las versiones de esta clase para 
 % las distintas cpu's soportadas. y version generic
+
+  La clase \texttt{CPUInfo} proporciona al usuario un interfaz genérico mediante el cual
+  examinar diversos aspectos de la CPU física subyacente, descritos en la sección \ref{desc:cpuinfo}.
+  
+  Cada una de las implementaciones de la clase abstracta \texttt{CPUInfo} contiene las instrucciones
+  particulares de cada CPU necesarias para la obtención de los datos. Por ejemplo, para las arquitecturas
+  x86 y x86-64, se utiliza la instrucción en lenguaje ensamblador \texttt{CPUID}. En el listado \ref{lst:ejcpuinfo}
+  se ejemplifica la implementación para x86-64 del uso de esta instrucción para obtener información acerca del 
+  conjunto de instrucciones SIMD soportadas.
+
+\begin{lstlisting}[captionpos=b,basicstyle=\scriptsize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Fragmento de implementación de CPUInfo para x86-64, label=lst:ejcpuinfo]
+(...)
+inline void CPUInfo_x86_64::_invokeCPUID(uint32_t eax){
+  asm volatile(
+      "cpuid \n\t"
+      : "=a"(*_regs), "=b"(_regs[1]), "=c"(_regs[2]), "=d"(_regs[3])
+      : "a"(eax)
+      : "cc");
+}
+(...)
+void CPUInfo_x86_64::_getSIMDInfo(){
+  _invokeCPUID(1);
+
+    if( _regs[EDX] & (1L << 23) ){ _simdCap.push_back("MMX") ; }
+    if( _regs[EDX] & (1L << 25) ){ _simdCap.push_back("SSE") ; }
+    if( _regs[EDX] & (1L << 26) ){ _simdCap.push_back("SSE2") ; }
+    if( _regs[ECX] & (1L) )      { _simdCap.push_back("SSE3") ; }
+    if( _regs[ECX] & (1L << 9) ) { _simdCap.push_back("SSSE3") ; }
+}
+\end{lstlisting}
+
+    Este enfoque aísla al usuario de los entresijos de las CPU físicas en cuestión, ya que éste nunca llega a trabajar
+    con otra cosa que no sea la clase \texttt{CPUInfo}, a través del interfaz \texttt{SystemInfo}. En esta última 
+    clase se instancia la implementación de CPUInfo adecuada gracias a la compilación condicional basada en la arquitectura:
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Fragmento de implementación de CPUInfo para x86-64, label=lst:ejcpuinfo2]
+const CPUInfo& SystemInfo::getCPUInfo() {
+  #ifdef ARCH_x86
+    return CPUInfo_x86::getReference();
+  #endif
+  #ifdef ARCH_x86_64
+    return CPUInfo_x86_64::getReference();
+  #endif
+  #ifdef ARCH_generic
+    return CPUInfo_generic::getReference();
+  #endif
+}; 
+\end{lstlisting}
+  \begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\textwidth,keepaspectratio]{cpuinfo} 
+    \caption{Jerarquía de \texttt{CPUInfo}}\label{fig:cpuinfo}
+  \end{figure}
 
 
 \section{Asegurando la coherencia algebraica}\label{categorizacionAlgebraica}
@@ -191,7 +318,7 @@ static bool ValidateRequirements() {
 \end{lstlisting}
 
   Se aprecia como dentro del método estático \texttt{ValidateRequirements} se verifica que el tipo \texttt{T} 
-  cumple con las propiedades requeridas para un grupo. Comprobaciones similares, descritas textualmente en
+  cumple las propiedades requeridas para un grupo. Comprobaciones similares, descritas textualmente en
   la figura \ref{fig:categoriasAlgebraicas}, se realizan para los anillos --\texttt{Ring.h}-- y los cuerpos
   --\texttt{Field.h}--.
 
@@ -243,7 +370,7 @@ derivan las particularidades de su implementación:
 
   Como consecuencia del primer punto, es posible ofrecer un interfaz como el que se muestra
   en el listado \ref{lst:methodsfactory}.
-\begin{lstlisting}[captionpos=b,basicstyle=\scriptsize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Interfaz público del repositorio, label=lst:methodsfactory]
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Interfaz público del repositorio, label=lst:methodsfactory]
 class MethodsFactory : public SingletonMixIn<MethodsFactory> {
   public:
     template<typename T> void setFunc(T* const m);
@@ -294,7 +421,7 @@ class MethodsFactory : public SingletonMixIn<MethodsFactory> {
         \item Definir el alias de tipo (vía \texttt{typedef}) \texttt{DFL} para la implementación por omisión
         del método.
       \end{enumerate}
-      Sin embargo, estas son restricciones semánticas impuestas por la idiosincrasia particular
+      Sin embargo, éstas son restricciones semánticas impuestas por la idiosincrasia particular
       de la biblioteca. Por tanto, también será responsabilidad de ésta el hacer que se cumplan.
       
       Garantizar el cumplimiento de la primera condición es posible 
@@ -334,7 +461,7 @@ class MethodsFactory : public SingletonMixIn<MethodsFactory> {
         del tipo que representa la clase de métodos para la cual se desea obtener la implementación, 
         ésta se recupera de una tabla de instancias interna que mantiene el repositorio. De nuevo,
         el poder utilizar la representación textual de un tipo tal como es devuelta por \texttt{typeid} se
-        debe a las garantías de que es única, y por tanto puede se utilizada como índice de una tabla. 
+        debe a las garantías de que es única, y por tanto puede ser utilizada como índice de una tabla. 
    \end{description}
 
     \subsubsection{El método \texttt{setFunc}}
@@ -374,7 +501,7 @@ _methods[name] = m;
     de los métodos \texttt{getFunc} y \texttt{setFunc} tal como han sido descritos hasta ahora conformarían 
     la sección crítica. El aspecto en código de estos métodos se muestra a continuación en el listado \ref{lst:getysetfuncs}.
 
-\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=,label=lst:getysetfuncs]
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Métodos \texttt{get} y \texttt{set},label=lst:getysetfuncs]
 template<typename T>
 void MethodsFactory::getFunc(T* &m) {
   Constraints::must_have_base<T,AbstractMethod>();
@@ -402,7 +529,7 @@ void MethodsFactory::setFunc(T* const m){
       de entrada y salida comunes.  
      \paragraph{Desde la concurrencia}
         Si el programa que utiliza la biblioteca es de naturaleza concurrente, tal como el servidor
-        de la aplicación MPPLab, se utiliza un candado de la biblioteca pthreads para asegurar la exclusión
+        de la aplicación MPPLab, se utiliza un candado de la biblioteca PThreads para asegurar la exclusión
         mutua. 
       \paragraph{Desde el paralelismo}
         Desde el punto de vista de OpenMP, la exclusión mutua se garantiza también gracias a estos candados:
@@ -514,11 +641,6 @@ Estas operaciones dependen de los métodos de la CPU SIMD, que implementa las sig
 
   
 
-%\section{Suplantación de identidad}
-%%TODO
-%- mock openmp
-
-
 \section{El mundo de los $64$ bits}\label{impl:64bits}
   Otra de las novedades respecto a LibNumth  es el soporte de sistemas de $64$ bits.
   A la hora de incorporar este soporte, se comprobó cómo las decisiones de diseño en cuanto a portabilidad
@@ -542,7 +664,7 @@ Estas operaciones dependen de los métodos de la CPU SIMD, que implementa las sig
     \item El bus de una arquitectura de $64$ bits es más ancho y rápido. Esto hace posible un flujo de datos más
     abundante entre las unidades de ejecución y las cachés.
    \item La memoria direccionable aumenta considerablemente. De la máxima cantidad de memoria direccionable en IA-32, 
-   $4$ gigabytes , se pasa a $512$ \emph{terabytes} por proceso, al menos para la versión 2.6 del kernel de Linux 
+   $4$ gigabytes, se pasa a $512$ \emph{terabytes} por proceso, al menos para la versión 2.6 del kernel de Linux 
    (\cite{procedgcc}). Esto no marca una diferencia a día de hoy, pero en algún momento han de darse esta clase de
    pasos que motivan las evoluciones posteriores.
   \end{itemize}
@@ -561,14 +683,9 @@ Estas operaciones dependen de los métodos de la CPU SIMD, que implementa las sig
 
 
 
-%\section{El maestro compilador}
-%- scons
-
 \section{Implementación de tipos}
-
-
   \subsection{Reales} \label{impl:reales}
-    La implementación del tipo \texttt{mpplas::R} representando números en $\mathbb{R}$ con una precisión
+    La implementación del tipo \texttt{R} representando números en $\mathbb{R}$ con una precisión
     arbitraria se describe en \cite{miproyecto}\footnote{sección 5.4, pág. 56}. Sobre esta base se ha 
     ampliado el abanico de operaciones disponibles.
     \subsubsection{Cálculo de la raíz cuadrada} \label{impl:sqrt}
@@ -636,13 +753,13 @@ return xn;
       En especial en el método de Newton y similares, este punto $x_0$ determina la convergencia del método. La pregunta
       es, ¿cómo obtener una buena aproximación inicial para un real arbitrario? Sería ideal poder utilizar las rutinas
       nativas del sistema --en este caso la función estándar \texttt{sqrt} de la librería de C-- sobre una versión 
-      truncada del real de la biblioteca en cuestión. El problema se traslada pues a cómo convertir el actual \texttt{mpplas::R} 
+      truncada del real de la biblioteca en cuestión. El problema se traslada pues a cómo convertir el actual \texttt{R} 
       al formato \texttt{double} nativo. Dado que se cuenta con una función para obtener una representación
       textual del real de la biblioteca, podría pensarse en utilizarla conjuntamente con la función estándar de C \texttt{atof}.
       Este enfoque resultaría muy poco eficiente, ya que dicha transformación textual a base $10$ es costosa y por 
       su propia construcción no es posible limitarla a solamente algunas de sus cifras más significativas. 
 
-      La solución adoptada requiere que cada instancia de \texttt{mpplas::R} mantenga un \texttt{double} asociado
+      La solución adoptada requiere que cada instancia de \texttt{R} mantenga un \texttt{double} asociado
       a sí misma, de tal forma que con cada operación sobre dicha instancia, se actualice también esta aproximación.
       Dado que las operaciones que modifican el dato no son numerosas, no supone ningún trastorno. Asimismo, el coste
       de estas operaciones sobre el tipo nativo es despreciable. El cálculo de $x_0$ dependerá ahora de la aplicación
@@ -674,24 +791,27 @@ return xn;
       \subsubsection{Funciones trascendentes} \label{impl:trascendentes}
         Debido a la naturaleza trascendente de estas funciones, no existen expresiones «cerradas» en términos de 
         números\footnote{se dice que un número es algebraico si es raíz de un polinomio no nulo con coeficientes en $\mathbb{Q}$} o 
-        funciones algebraicas. Por ello, es común recurrir a formulaciones basadas en series infinitas que van aproximandose
+        funciones algebraicas. Por ello, es común recurrir a formulaciones basadas en series infinitas que van aproximándose
         a la función en cuestión.
 
         \paragraph{Cálculo del logaritmo.}
+          La justificación del método utilizado para el cálculo del logaritmo se desprende
+          de la siguiente observación:
           \begin{observacion}\label{obsLog}
             Si $x \in \mathbb{R}$, existe un $n \in \mathbb{N}$ tal que
             $2^{n-1} < x \leq 2^n$. Entonces, si $y = x/2^n$, se verifica
             que $0 < y \leq 1$
           \end{observacion}
 
-          En base a la observación \ref{obsLog}, el cálculo de $x \in
+          En base a esto, el cálculo de $x \in
           \mathbb{R}$ se reduciría a (utilizando los símbolos de dicha
           observación):
           \[
             \ln{(x)} = \ln{(y \cdot 2^n)} = \ln{(y)} + n \cdot \ln{(2)}
           \]
-          Las ventajas que de esta forma de calcula el logaritmo se
-          desprenden son claras: por una parte, el cálculo de $\ln(2)$ (también denominada
+          Las ventajas que se desprenden de esta forma de calcular el 
+          logaritmo son claras:
+          por una parte, el cálculo de $\ln(2)$ (también denominada
           como «constante logarítmica», véase \cite{log2}) es un problema
           ampliamente tratado y existen métodos de gran eficiencia para su cálculo. 
           Por otra parte, al cumplirse $0 < y \leq 1$, el cálculo de
@@ -708,63 +828,201 @@ return xn;
         \]
         Esta formulación es conocida como fórmula de John Machin.
 
-  \subsection{Enteros $\mathbb{Z}M_n$}\label{implZM_n}
+       \paragraph{Otras funciones.} El resto de las funciones trascendentes se han implementado mediante
+          desarrollos en serie de Taylor, dados por la expresión general
+         \[
+           \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!} (x-a)^{n}
+         \]
+         donde $f$ es la función en cuestión. Por ejemplo, el desarrollo para la función coseno resulta ser
+         \[
+            \cos x = \sum_{n=0}^\infty \frac{(-1)^nx^{2n}}{(2n)!}
+         \]
+         En algunos casos es posible representar una función en términos de otra. Por ejemplo,
+         tomando las funciones coseno y seno, se define la segunda en función de la primera mediante la expresión
+          $\sin(x) = \cos\left(\frac{\pi}{2} - x \right)$.
+
 
   \subsection{Polinomios}\label{impl:polinomios}
-    \subsubsection{Carácter genérico}
-    %TODO
     \subsubsection{Verificando el carácter de \texttt{S}}
       El parámetro de plantilla \texttt{S} debe ser, por definición --véase la observación \ref{obs:caracterS}--,
       un anillo conmutativo con identidad. Esto se comprueba en tiempo de compilación gracias 
       a la técnica de comprobaciones estáticas expuesta en la sección \ref{tech:staticasserts}:
 \begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Comprobación estática de \texttt{S}, label=lst:checkS1]
-Constraints::must_have_base<S, Ring<S> > dummy1 __attribute__ ((__unused__));
+Constraints::must_have_base<S, Ring<S> > dummy1 ;
 STATIC_ASSERT( S::multCommutative );
 \end{lstlisting}
-La primera línea del anterior listado utiliza la técnica de comprobación de herencia para asegurarse de que \texttt{S} es efectivamente
-un anillo. Una vez se sabe que \texttt{S} es efectivamente un anillo, la segunda línea verifica que éste cumple la propiedad de ser
-conmutativo.
+      La primera línea del anterior listado utiliza la técnica de comprobación de herencia para asegurarse de que \texttt{S} es efectivamente
+      un anillo. Una vez se sabe que \texttt{S} es efectivamente un anillo, la segunda línea verifica que éste cumple la propiedad de ser
+      conmutativo.
 
-Asimismo, se requiere que \texttt{S} sea un tipo de la biblioteca; es decir, que herede de \texttt{MPPDataType}. La razón
-es la habitual necesidad de poder asumir la presencia de métodos los métodos generales exportados por los tipos de la
-biblioteca y analizados en la sección \ref{tipos:mppdatatype}:
+      Asimismo, se requiere que \texttt{S} sea un tipo de la biblioteca; es decir, que herede de \texttt{MPPDataType}. La razón
+      es la habitual necesidad de poder asumir la presencia de métodos los métodos generales exportados por los tipos de la
+      biblioteca y analizados en la sección \ref{tipos:mppdatatype}:
 \begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Comprobación estática de \texttt{S} (II), label=lst:checkS2]
-Constraints::must_have_base<S, MPPDataType > dummy2 __attribute__ ((__unused__));
+Constraints::must_have_base<S, MPPDataType > dummy2 ;
 \end{lstlisting}
       
-    \subsubsection{Aritmética sobre polinomios}
-      \paragraph{Suma y resta}
-      \paragraph{Producto}
-      \paragraph{División}
+  \subsubsection{Operaciones dependientes de \texttt{S}}\label{impl:opsDepDeS}
+    Los métodos utilizados para desempeñar algunas operaciones sobre los polinomios, tales como la división, varían 
+    en función del carácter algebraico de \texttt{S}. Para poder mantener el caracter genérico en la implementación de
+    los métodos, se realiza la comprobación del tipo de \texttt{S} el tiempo de ejecución.  Esto es posible gracias
+    a la modelización de la categorización algebraica incorporada a la biblioteca y descrita en la sección 
+    \ref{categorizacionAlgebraica}. 
 
-      \paragraph{Operaciones dependientes de \texttt{S}}
-        \subparagraph{División sobre un dominio de factorización única}
-        \subparagraph{Máximo común divisor sobre un dominio de factorización única}
+    En última instancia, esta funcionalidad se resume en la explotación del mecanismo de 
+    \texttt{dynamic\_cast} de C++, tal como aparece en el listado \ref{lst:dyncastpoly}.
 
-      \paragraph{Evaluación}
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Comprobación del carácter de \texttt{S}, label=lst:dyncastpoly]
+_isSaField = bool(dynamic_cast<mpplas::Field<S>*>(&(_data[0])));
+\end{lstlisting}
 
-    \subsubsection{Especializaciones}
-      \paragraph{\texttt{Zx}}
-      \paragraph{\texttt{Rx}}
-      \paragraph{\texttt{Z\_px}}
+    Dicho atributo privado \texttt{\_isSaField} es expuesto de forma pública por medio del método 
+    \texttt{Polynomial<S>::isCoeffsDomainAField()}, el cual es invocado en los puntos en los que
+    se presente una disyuntiva basada en el caracter de \texttt{S}.
+
 
   \subsection{Cuerpos finitos}\label{impl:cuerposFinitos}
-    \subsubsection{Elementos de un cuerpo finito}
+    En la implementación de los cuerpos finitos se distinguen dos conceptos: el de cuerpo finito en sí 
+    y el de elemento del mismo. Conceptualmente, el primero --clase \texttt{GF}-- se limita a
+    representar el polinomio reductor $f(x) \in \mathbb{Z}_p[X]$ de grado $n$ que en última instancia
+    define el cuerpo finito, mientras que el segundo --clase \texttt{GFx}-- se corresponde con 
+    cualquier polinomio en $\mathbb{Z}_p[X]$ de grado $\leq n$. Cada elemento de un cuerpo finito
+    guarda una referencia a una instancia de \texttt{GF}, su «generador». De esta forma es posible
+    verificar la coherencia de las operaciones: matemáticamente no tendría sentido sumar dos elementos
+    de cuerpos finitos diferentes, aunque en el fondo esto se redujese a la suma de dos polinomios.
+
+
+    \subsubsection{Generación del polinomio reductor}
+      La biblioteca incorpora mecanismos para la generación automática del polinomio reductor requerido en el 
+      momento de la creación de éste.  
+        
+      \paragraph{Polinomios irreducibles.} Presentados en la definición \ref{def:irredPoly} en la página \pageref{def:irredPoly},
+        son el pilar fundamental de los cuerpos finitos.  
+        \subparagraph{Verificación.} Es posible verificar el carácter irreducible de un polinomio de grado $m$
+        comprobando si éste posee factores irreducibles  de grado $\leq \lfloor \frac{m}{2} \rfloor$. Esto se traduce
+        en el algoritmo \ref{alg:testirred}. La complejidad del mismo está en $O( (\log{p})m^2 )$ para un polinomio en 
+        $\mathbb{Z}_p$.
+
+          \begin{algorithm}
+            \caption{Test de irreducibilidad para polinomios}\label{alg:testirred}
+            \begin{algorithmic}[1]
+              \Procedure{TestPolyIrred}{$f(x)$ mónico de grado $m$ en $\mathbb{Z}_p[x]$}
+              \State $u(x) \gets x$
+              \For{$i \in \{1, \ldots, \lfloor \frac{m}{2} \rfloor \}$}
+                \State $u(x) \gets u(x)^p \pmod{f(x)}$
+                \State $d(x) = \mathrm{gcd}(f(x), u(x) - x))$
+                \If{ $d(x) \neq 1$ }
+                  \State \textbf{Return "reducible"}
+                \EndIf
+              \EndFor
+              \State \textbf{Return "irreducible"}
+              \EndProcedure
+            \end{algorithmic}
+          \end{algorithm}
+
+        Este algoritmo se implementa en el método \texttt{PolynomialUtils::isIrreducible()}.
+
+        \subparagraph{Generación.} En \cite{handbook}\footnote{pág. 155} se apunta que el número
+        esperado de comprobaciones de irreducibilidad a realizar para un polinomio de grado $m$ antes de
+        encontrar un polinomio irreducible es aproximadamente $m$. Esto entra dentro de los límites de lo 
+        razonable, a la vista de la complejidad del algorimo de comprobación de irreducibilidad.
+
+        Este algoritmo se implementa en el método \texttt{PolynomialUtils::generateIrreducible()}.
+      
+      \paragraph{Polinomios primitivos.} Para los polinomios primitivos el asunto se complica. Dado 
+      un polinomio $f(x) \in \mathbb{Z}_p$ de grado $m$, es necesario conocer, o ser capaz de calcular en un
+      tiempo razonable, la factorización de $p^m -1$. De no ser así, no se conoce un método eficiente para la 
+      comprobación del carácter primitivo del polinomio.
+
+        \subparagraph{Verificación.} Para los casos en los que sí se cuente con la factorización de $p^m-1$, 
+        el método para la comprobación del carácter primitivo de un polinomio se da en el algorimo \ref{alg:testprim}.
+          \begin{algorithm}
+            \caption{Test del carácter primitivo para polinomios}\label{alg:testprim}
+            \begin{algorithmic}[1]
+              \Procedure{TestPolyPrim}{$f(x)$ irreducible de grado $m$ en $\mathbb{Z}_p[x]$, $\{r_1, \ldots, r_t \}$ factores de $p^m-1$}
+              \For{$i \in \{1, \ldots, t \}$}
+                \State $l(x) \gets x^{(p^m -1)/r_i)} \pmod{f(x)}$
+                \If{ $l(x) = 1$ }
+                  \State \textbf{Return "no primitivo"}
+                \EndIf
+              \EndFor
+              \State \textbf{Return "primitivo"}
+              \EndProcedure
+            \end{algorithmic}
+          \end{algorithm}
+
+          Este algoritmo se implementa en el método \texttt{PolynomialUtils::isPrimitive()}.
+
+        \subparagraph{Generación.} Al igual que para los polinomios irreducibles, la generación se traduce
+        en la creación de polinomios aleatorios y su posterior verificación. La probabilidad de que un 
+        polinomio irreducible de grado $m$ en $\mathbb{Z}_p[x]$ generado aleatoriamente sea primitivo 
+        es de aproximadamente $\frac{\phi(p^m-1)}{p^m}$, siendo $\phi$ la función phi de Euler\footnote{la cual
+        se recuerda que, para $n$, se define como el número de enteros positivos $\leq n$ coprimos con $n$}. 
+        Utilizando la acotación $\phi(n) \geq \frac{n}{6 \ln \ln n}$, esta probabilidad tiene su cota
+        inferior en $1/(6 \ln \ln p^m)$.
+
+        Este algoritmo se implementa en el método \texttt{PolynomialUtils::generatePrimitive()}.
+
+    \subsubsection{Representación en $\mathbb{Z}$}
+       La biyección que transforma la representación polinomial 
+      en un entero del conjunto $\{0, \ldots, p^n-1\}$ es un cambio de base, de la misma naturaleza que el realizado, por ejemplo,
+      para transformar los enteros de la clase \texttt{Z} desde la base de trabajo --habitualmente $2^{32}$ ó $2^{64}$--
+      a base $10$ a la hora de imprimir en pantalla. En este caso, al transformar desde $\mathbb{Z}_p[X]$ a $\mathbb{Z}$, la
+      base origen resulta ser $p$ y la base de destino, la base de trabajo en cuestión.
 
 
   \subsection{Matrices}\label{impl:matrices}
-    \subsubsection{Carácter genérico}
-      %TODO
     \subsubsection{Producto}\label{impl:producto}
-      %TODO
-      - strassen -> winegrad
+    Como se apuntó en la sección \ref{tipos:matprod}, se ha implementado el método de Strassen-Winograd para la
+    implementación del producto matricial. Los factores son divididos en cuatro bloques, no necesariamente iguales, 
+    de la forma expuesta en la expresión \eqref{eq:matprodimpl}. Nótese que este enfoque es inherentemente recursivo.
+    \begin{equation}\label{eq:matprodimpl}
+        \left( 
+             \begin{array}{cc}
+               A_{11} & A_{12} \\
+               A_{21} & A_{22} 
+             \end{array} 
+         \right)
+        \times
+        \left( 
+             \begin{array}{cc}
+               B_{11} & B_{12} \\
+               B_{21} & B_{22} 
+             \end{array} 
+         \right)
+        = 
+        \left( 
+             \begin{array}{cc}
+               C_{11} & C_{12} \\
+               C_{21} & C_{22} 
+             \end{array} 
+         \right)
+    \end{equation}
+    La unica restricción relativa a las dimensiones de los bloques $\mathbf{A}_{ij}$ y $\mathbf{B}_{ij}$
+    es que deben permitir la multiplicación de sus matrices contenedoras tal como si dichos bloques fueran 
+    elementos usuales. Es decir, los bloques fila de $\mathbf{A}$ han de tener el mismo número de columnas
+    que los bloques columna de $\mathbf{B}$.
+    A la hora de realizar esta división en bloques, se pueden aplicar dos estratégias:
+      \begin{itemize}
+        \item Acumular en $A_{11}$ y $B_{11}$ la máxima potencia de $2$ tal que ambos bloques sean
+        cuadrados. Esto permite aplicar el método de Strassen-Winograd recursivamente hasta  
+        el caso base: dos matrices $2x2$ habituales. Mediante esta aplicación recursiva, y sin «condiciones de frontera»,
+        se consigue el máximo aprovechamiento del método. Sin embargo, este particionado no resulta apropiado en un entorno paralelo,
+        ya que bloques de tamaño desigual implican una carga de trabajo desigual.
+        \item Dividir las matrices originales en bloques equilibrados. Si el número de filas o columnas de las matrices originales
+        es impar, la última fila o columna es procesada por separado. El desajuste que esto conlleva en tiempo de ejecución
+        es despreciable. El método se aplica de forma recursiva tan solo si tanto el número de filas y columas es par. Esta
+        división limita por tanto la profundidad de la recursión, pero su comportamiento en paralelo es más equilibrado.
+      \end{itemize}
+      En la biblioteca, por simplicidad, se utiliza por omisión la segunda estratégia.
+
     \subsubsection{Descomposición $LU$}\label{sec:lu}
       Para la implementación de la descomposición $LU$ se ha utilizado el algoritmo de Doolittle, el cual
       presenta propiedades muy ventajosas para su paralelización, la cual se analiza en la sección \ref{par:lu}.
 
       La descomposición se realiza sobre la propia matriz, resultando una matriz que «combina» las descomposiciones
       $L$ y $U$ de la siguiente forma:
-      \[
+      \begin{equation}\label{eq:lu}
         \mathbf{L} =
          \left( 
              \begin{array}{cccc}
@@ -793,16 +1051,13 @@ Constraints::must_have_base<S, MPPDataType > dummy2 __attribute__ ((__unused__))
                l_{n1} & l_{n2} & \ldots & u_{nn} 
              \end{array} 
          \right)
-      \]
+      \end{equation}
       
       La sobreescritura de la diagonal de $L$ no supone un problema, ya que ésta siempre está compuesta
       únicamente de unidades.
 
       La implementación en sí del método es sencilla, y resulta de una reescritura con los símbolos adecuados
       de C++ del algoritmo en pseudocódigo \ref{alg:doolittle} de la página \pageref{alg:doolittle}.
-
-    
-    \subsubsection{Inversión}\label{impl:inversaMatrices}
 
     \subsubsection{Cálculo del determinante}\label{impl:determinante}
       El cálculo del determinante resulta trivial una vez que se ha triangularizado 
@@ -832,29 +1087,48 @@ Constraints::must_have_base<S, MPPDataType > dummy2 __attribute__ ((__unused__))
       \ref{sec:lu}, es requisito la existencia de inversa para elementos arbitrarios de la estructura algebraica sobre la cual
       se encuentre definida la matriz. El caso que viene inmediatamente a la cabeza como ejemplo de \emph{no} 
       posibilidad de utilización es por tanto el de $\mathbb{Z}$, donde tan solo $1$ y $-1$ tienen inversa... algo
-      que ciertamente no parece suficiente\footnote{salvo que alguien pretenda el calculo de la inversa de la matriz
+      que ciertamente no parece suficiente\footnote{salvo que alguien pretenda calcular la inversa de la matriz
       identidad. En cuyo caso el problema realmente lo tendría dicho alguien.}. Sin embargo, a la vista de la definición
       \eqref{eq:determinante} en la página \pageref{def:determinante}, sí es posible calcular desde un punto
       de vista teórico el determinante de matrices sobre anillos, tal como $\mathbb{Z}$. Hace falta tan solo aplicar
       una estrategia que no conlleve divisiones --es decir, inversiones--.
 
       \paragraph{Cálculo de determinante sin divisiones: Gauss-Bareiss} \label{impl:bareiss}
-        %TODO
-        \cite{bareiss2}
-        \cite{bookbareiss}\footnote{sección 10.2}
-        \cite{cohen}\footnote{algoritmo 2.2.6, pág. 52}
-        
-        \ref{alg:bareiss} en la página \pageref{para:bareiss}
+        Descrito en \cite{bareiss2}, así como en \cite{bookbareiss}\footnote{sección 10.2} y
+        \cite{cohen}\footnote{algoritmo 2.2.6, pág. 52}, este método calcula el determinante 
+        con la particularidad de que todas las divisiones que realiza son \emph{exactas}. Esto lo convierte
+        en el candidato ideal para el cálculo de determinantes en matrices sobre anillos, ya que
+        en estos casos no se cuenta con la descomposición $LU$ de la matriz. Para más detalles,
+        véanse las anteriores referencias bibliográficas.
 
-        Éste es uno de los métodos paralelizados en la biblioteca. Para más detalles, véase la sección
-        \ref{para:bareiss}.
-
-    \subsubsection{Especializaciones}
-      \paragraph{\texttt{MatrixZ}}
-      \paragraph{\texttt{MatrixR}}
-      \paragraph{\texttt{MatrixGFx}}
+        Éste es uno de los métodos paralelizados en la biblioteca. Véase la sección
+        \ref{para:bareiss} para más información así como una versión en pseudocódigo del algoritmo.
 
 
   \subsection{Vectores}
-    \subsubsection{Un caso especial: vectores sobre SIMDDigits}
+    \subsubsection{Un caso especial: vectores sobre \texttt{SIMDDigit}s}
+      El tipo \texttt{Vector} de la biblioteca cuenta con la particularidad de tener tres instanciaciones 
+      que aprovechan los métodos ofrecidos por la CPU SIMD: \texttt{VectorFloat}, \texttt{VectorDouble} y \texttt{VectorInt}.
+      Estas clases se apoyan en el tipo de dato genérico \texttt{SIMDDigit}, descrito en la sección \ref{simddigit}. 
+      
+      La forma en la que este tipo tan especial se utiliza se aprecia ya en la declaración de los vectores. Por ejemplo, 
+      para \texttt{VectorFloat}:
+\begin{lstlisting}[captionpos=b,basicstyle=\footnotesize,frame=shadowbox,rulesepcolor=\color{black},language=C++,numbers=left,caption=Declaración de un vector sobre \texttt{SIMDDigit}s, label=lst:vecSIMD]
+class VectorFloat : public Vector< SIMDDigit< float4xSIMD_t >, 
+                            SSEAlloc< SIMDDigit< float4xSIMD_t >, 16 >  >
+{  (...)  };
+\end{lstlisting}
+      Es posible apreciar cómo es necesario proporcionar un tipo concreto de \texttt{allocator}, tal que los bloques de memoria
+     que se reserven para el vector comiencen únicamente en direcciones múltiplo de $16$. Dado que la memoria se reserva por bytes,
+     esto se traduce a su vez en múltiplos de $128$ bits, lo cual tiene sentido a la vista de que el tamaño de un \texttt{SIMDDigit}
+     es de $128$ bits: se pretende evitar que uno de estos tipos de datos quede «partido» en memoria, ya que esto generaría
+     un error derivado del hecho de haber utilizado instrucciones que asumen el correcto alineamiento de los datos por cuestiones de
+     rendimiento.
+
+     Gracias al polimorfismo y el carácter genérico exihibido por la implementación del tipo \texttt{SIMDDigit}, apenas es necesario
+     realizar cambios en las implementaciones genéricas de las operaciones: los operadores sobrecargados de \texttt{SIMDDigit} hacen 
+     posible su utilización en las implementaciones genéricas de los distintos métodos vectoriales.
+      
+
+      
 

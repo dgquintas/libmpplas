@@ -33,7 +33,7 @@ void RSATest::testRSA(){
 
   MethodsFactory* const funcs = MethodsFactory::getInstance();
   RandomFast* genRandom;
-  GenPrimos* genPrimos;
+  PrimeGen* genPrimos;
   funcs->getFunc(genRandom);
   funcs->getFunc(genPrimos);
 
@@ -41,7 +41,7 @@ void RSATest::testRSA(){
   //se declaran 4 numeros enteros. 
   Z p,q,n,phi; 
  
-  int tamPrimos = 1024;
+  int tamPrimos = 128;
   
 //  const clock_t t1 = clock();
   // cogemos los primos... del tamaño en bits que queramos

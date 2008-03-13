@@ -40,8 +40,8 @@ int main()
     
     uint64_t res = t1-t0-oh;
 
-    if( res < 1844069416541800 )
-      v[i] =  res;
+//    if( res < 1844069416541800 )
+//      v[i] =  res;
 
   }
 

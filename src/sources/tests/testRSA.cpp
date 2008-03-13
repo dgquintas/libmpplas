@@ -22,7 +22,7 @@ int main()
   RandomFast* genRandom; funcs->getFunc(genRandom);
   genRandom->ponerSemilla(Z("34"));
   //idem para el generador de primos
-  GenPrimos* genPrimos; funcs->getFunc(genPrimos);
+  PrimeGen* genPrimos; funcs->getFunc(genPrimos);
   genPrimos->setRandomSeed((Cifra)123);
 
   //se declaran 4 numeros enteros. 

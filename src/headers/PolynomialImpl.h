@@ -15,7 +15,7 @@ Polynomial<S>::Polynomial(const S& ini)
 
   template<typename S>
 Polynomial<S>::Polynomial(const Polynomial<S>& src )
-  : _data(src._data), _isSaField(src._isSaField), _ini(src._ini){}
+  : MPPDataType(), _data(src._data), _isSaField(src._isSaField), _ini(src._ini){}
 
   template<typename S>
   Polynomial<S>::Polynomial(const std::string& str, const S& ini):
@@ -141,7 +141,8 @@ inline void Polynomial<S>::makeZero() {
 template<typename S>
 inline void Polynomial<S>::makeOne() {
   this->_data.resize(1, this->_ini);
-  this->_data[0] = S::getMultIdentity();
+  //this->_data[0] = S::getMultIdentity();
+  this->_data[0] = (this->_ini).Z_p::getOne();
 }
 template<typename S>
 inline bool Polynomial<S>::isZero () const {
@@ -909,13 +910,17 @@ Polynomial<S> GCDExtPoly<S>::gcdext(Polynomial<S> g, Polynomial<S> h, Polynomial
     return g;
   }
   Polynomial<S> s1(g.getIni());
-  Polynomial<S> s2(g.getIni());
-  Polynomial<S> t1(g.getIni());
+  Polynomial<S> s2;
+  Polynomial<S> t1;
   Polynomial<S> t2(g.getIni());
+  //FIXME: this sucks. create a Group::getAOne (resp. Zero) to be able
+  //to retrive ones and zeros "based" on an already existing instance
   s2.makeOne();
-  s1.makeZero();
-  t2.makeZero();
-  t1.makeOne();
+  s2 += g.getIni();
+//  s1.makeZero();
+//  t2.makeZero();
+  t1.makeZero();
+  t1 += g.getIni();
 
   Polynomial<S> q(g.getIni()),r(g.getIni());
   while( !h.isZero() ){
@@ -932,6 +937,10 @@ Polynomial<S> GCDExtPoly<S>::gcdext(Polynomial<S> g, Polynomial<S> h, Polynomial
 
   (*s) = s2;
   (*t) = t2;
+
+  const S& gsLeadingCoeff(g.getLeadingCoefficient());
+  s->operator/=(gsLeadingCoeff);
+  t->operator/=(gsLeadingCoeff);
 
   g.makeMonic();
   return g;

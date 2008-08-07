@@ -28,7 +28,7 @@
 
   template<typename T, typename Alloc>
   Matrix<T, Alloc>::Matrix(const Matrix<T, Alloc>& rhs)
-:  _dims(rhs._dims), _data(rhs._data)
+:  MPPDataType(), _dims(rhs._dims), _data(rhs._data)
 {}
 
 template<typename T, typename Alloc>
@@ -40,7 +40,7 @@ Matrix<T, Alloc>::Matrix(const std::string& str){
 
   template<typename T, typename Alloc>
   Matrix<T, Alloc>::Matrix(const std::vector<T, Alloc>& rhs, const Dimensions& dims)
-: _data(rhs), _dims(dims) {
+:  _dims(dims),_data(rhs) {
   int const prod(_dims.getProduct());
   if( prod != _data.size() ){
     //fill with the element's default value or
@@ -901,7 +901,7 @@ template<typename T, typename Alloc>
   if( aRowsPerBlock & 0x1 ) aRowsPerBlock++;
   int aColsPerBlock = aCols/2 ; 
   if( aColsPerBlock & 0x1 ) aColsPerBlock++;
-  const int bRowsPerBlock = aColsPerBlock;
+//  const int bRowsPerBlock = aColsPerBlock;
   int bColsPerBlock = bCols/2 ;
   if( bColsPerBlock & 0x1 ) bColsPerBlock++;
 
@@ -1201,7 +1201,7 @@ namespace MatrixHelpers{
         int sign = 1;
         const T* p;
         T* m_jk;
-        const T* m_i1i1;
+        const T* m_i1i1 = NULL;
 
         for (int i = 0; i < n-1; i++) {
           p = &(m(i,i));
@@ -1265,7 +1265,7 @@ namespace MatrixHelpers{
           throw Errors::SquareMatrixRequired();
         }
         std::vector<int> p(a.getRows());
-        for(int i = 0 ; i < p.size(); i++) {
+        for(std::vector<int>::size_type i = 0 ; i < p.size(); i++) {
           p[i] = i;
         }
         const int rows = a.getRows();
@@ -1358,9 +1358,8 @@ namespace MatrixHelpers{
 
   template<typename T, typename Alloc>
     Matrix<T,Alloc> solve(Matrix<T, Alloc> m, Matrix<T, Alloc> b){
-      const int n = m.getRows();
       std::vector<int> p(MatrixHelpers::LUDoolittle::makeDoolittleCombinedMatrix(m));
-      for(int i = 0; i < p.size(); i++){
+      for(int i = 0; i < (int)p.size(); i++){
           if( i != p[i] ){
             std::swap(b[i], b[p[i]]);
 

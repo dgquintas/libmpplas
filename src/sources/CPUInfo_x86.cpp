@@ -49,7 +49,7 @@ namespace mpplas{
   }
 
   void CPUInfo_x86::_getModelName(){
-    static char* BRAND_TABLE[24] = {
+    static const char* const BRAND_TABLE[24] = {
       /* 00H */ "This processor does not support the brand identification feature",
       /* 01H */ "Intel(R) Celeron(R) processor",
       /* 02H */ "Intel(R) Pentium(R) III processor",

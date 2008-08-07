@@ -52,7 +52,7 @@ namespace mpplas {
   {}
 
   GFx::GFx(const GFx& src)
-    : Z_px(src), _gfGenerator(src._gfGenerator)
+    :  Z_px(src), Field< GFx >(), _gfGenerator(src._gfGenerator)
   {}
 
   GFx& GFx::operator=(const GFx& src){
@@ -102,6 +102,7 @@ namespace mpplas {
     }
 
     ((Z_px*)this)->operator*=(rhs);
+
     this->operator%=(_gfGenerator.getMod());
 
     return *this;
@@ -130,7 +131,7 @@ namespace mpplas {
 
   GFx& GFx::invert(){
     Z_px dummy(_gfGenerator.getCharacteristic());
-    Z_px::gcd(*this,_gfGenerator.getMod(), this, &dummy);
+    Z_px::gcd(*this, _gfGenerator.getMod(), this, &dummy);
     return *this;
   }
   GFx GFx::getInverse() const {

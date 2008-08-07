@@ -22,7 +22,7 @@ namespace mpplas{
     : Polynomial<Z>() {}
 
   Zx::Zx(const Zx& src)
-    : Polynomial<Z>(src) {}
+    : Polynomial<Z>(src), Ring< Zx >() {}
 
   Zx::Zx(const Polynomial<Z>& src)
     : Polynomial<Z>(src) {}

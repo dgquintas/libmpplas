@@ -42,7 +42,7 @@ namespace mpplas{
   {}
 
   Z::Z(const Z& otro)
-    : coefPoliB_(otro.coefPoliB_), signo_(otro.signo_)
+    : Ring<Z>(), MPPDataType(), coefPoliB_(otro.coefPoliB_), signo_(otro.signo_)
     {}
 
 //  Z Z::convertir(const Digit origen)
@@ -658,7 +658,7 @@ namespace mpplas{
       }
       // m is now odd
       
-      if( mTemp <= Constants::CIFRA_MAX/m ){
+      if( mTemp <= Constants::DIGIT_MAX/m ){
         //mTemp * m fits inside a basic word
         mTemp *= m;
         continue;
@@ -1218,7 +1218,7 @@ namespace mpplas{
     }
 
     if(signo_ > 0){
-      if(coefPoliB_[0] < Constants::CIFRA_MAX){
+      if(coefPoliB_[0] < Constants::DIGIT_MAX){
         coefPoliB_[0]++;
       }
       else{ //habria acarreo, hacerlo de forma "standard"
@@ -1245,7 +1245,7 @@ namespace mpplas{
 
 
     if(signo_ > 0){
-      if(coefPoliB_[0] < Constants::CIFRA_MAX){
+      if(coefPoliB_[0] < Constants::DIGIT_MAX){
         coefPoliB_[0]++;
       }
       else{ //habria acarreo, hacerlo de forma "standard"
@@ -1282,7 +1282,7 @@ namespace mpplas{
         coefPoliB_ = VectorialCPU::restaMP(coefPoliB_, (Digit)1);
     }
     else{ //signo_ < 0
-      if(coefPoliB_[0] < Constants::CIFRA_MAX)
+      if(coefPoliB_[0] < Constants::DIGIT_MAX)
         coefPoliB_[0]++;
       else //habria acarreo, hacerlo de forma "standard"
         coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, (Digit)1);
@@ -1306,7 +1306,7 @@ namespace mpplas{
         coefPoliB_ = VectorialCPU::restaMP(coefPoliB_, (Digit)1);
     }
     else{ //signo_ < 0
-      if(coefPoliB_[0] < Constants::CIFRA_MAX)
+      if(coefPoliB_[0] < Constants::DIGIT_MAX)
         coefPoliB_[0]++;
       else //habria acarreo, hacerlo de forma "standard"
         coefPoliB_ = VectorialCPU::sumaMP(coefPoliB_, (Digit)1);

@@ -19,7 +19,7 @@ namespace mpplas{
   const bool Rx::unitaryRing(true);
 
   Rx::Rx(const Rx& src)
-    : Polynomial<R>(src) {}
+    : Polynomial<R>(src), Field< Rx >() {}
 
   Rx::Rx(const Polynomial<R>& src)
     : Polynomial<R>(src) {}

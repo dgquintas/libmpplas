@@ -23,7 +23,7 @@ namespace mpplas{
   }
 
   ZM_n::ZM_n( const Z& num, const Z& mod ) 
-    : _mod(mod), Z(num) 
+    :  Z(num) , _mod(mod)
   {
     _r.potenciaBase( _mod.longitud() );
     _r %= _mod;
@@ -36,7 +36,7 @@ namespace mpplas{
   }
 
   ZM_n::ZM_n( const Z_n& num ) 
-    : _mod(num.getMod()), Z(num) 
+    : Z(num), _mod(num.getMod())
   {
     _r.potenciaBase( _mod.longitud() );
     _r %= _mod;
@@ -287,7 +287,7 @@ namespace mpplas{
     A._clone(lhs);
 
 
-   Digit u; 
+//   Digit u; 
 
     Z& aZ(A);
     const Z& lhsZ(lhs);

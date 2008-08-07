@@ -24,7 +24,7 @@ namespace mpplas{
     : Polynomial<Z_p>( Z_p(p) ) {}
 
   Z_px::Z_px(const Z_px& src)
-    : Polynomial<Z_p>(src)  {}
+    : Polynomial<Z_p>(src), Field< Z_px >()  {}
 
   Z_px::Z_px(const Polynomial<Z_p>& src)
     : Polynomial<Z_p>(src) {}

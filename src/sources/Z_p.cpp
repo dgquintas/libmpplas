@@ -46,7 +46,7 @@ namespace mpplas{
     }
 
   Z_p::Z_p( const Z_p& src )
-    : Z_n(src) {}
+    : Z_n(src), Field< Z_p >() {}
  
   Z_p::Z_p( const Z_n& src ) throw(Errors::PrimeRequired)
     : Z_n(src) {
@@ -61,9 +61,11 @@ namespace mpplas{
 
   Z_p& Z_p::operator=(const Z& integer) {
     Z_n::operator=(integer);
+    return *this;
   }
   Z_p& Z_p::operator=(const Z_n& integer) {
     Z_n::operator=(integer);
+    return *this;
   }
 
 

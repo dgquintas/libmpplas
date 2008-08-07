@@ -63,8 +63,9 @@ namespace mpplas {
 
 
   GF::GF(const GF& src)
-    : _p(src._p), _n(src._n), _fx(src._fx), _order( src._p ^ (Digit)src._n), _primitiveMod(src._primitiveMod)
-  {}
+    : MPPDataType(), _p(src._p), _n(src._n), _fx(src._fx), _order( src._p ^ (Digit)src._n), _primitiveMod(src._primitiveMod)
+  {
+  }
 
   GF& GF::operator=(const GF& src){
     _fx = src._fx;

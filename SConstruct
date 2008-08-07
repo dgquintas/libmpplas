@@ -15,6 +15,7 @@ opts.AddOptions(
     BoolOption('enableOpenmp', 'Use OpenMP (if available)', 1),
     BoolOption('enableRelease', 'Generate a RELEASE version (optimized)', 0),
     BoolOption('enableWarnings', 'Compile with -Wall and similar flags', 0),
+    BoolOption('abortOnWarnings', 'Compile with -Werror: a compilation warning aborts the build', 0),
     EnumOption('enableSIMD', 'Use the given SIMD kernel (if available)', 'auto',
                 allowed_values=('auto', 'nosimd', 'sse', 'sse2') )
     )   

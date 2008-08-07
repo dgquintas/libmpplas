@@ -128,7 +128,7 @@ namespace mpplas {
        * \exception 
        * Errores::DemasiadoGrande Si el entero que
        * representa el exponente exp es demasiado grande ( mayor que
-       * CIFRA_MAX )
+       * DIGIT_MAX )
        *
        * \note
        * Esta función invoca a la versión con argumento SignedDigit. En

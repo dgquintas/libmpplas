@@ -78,19 +78,19 @@ namespace mpplas{
 
 
     /** Maximo valor de una Digit */
-    static const Digit CIFRA_MAX = std::numeric_limits<Digit>::max();
+    static const Digit DIGIT_MAX = std::numeric_limits<Digit>::max();
 
     /** Maximum value for half a Digit */
-    static const Digit CIFRAHALF_MAX = (((Digit)1) << BITS_IN_HALFCIFRA) - 1;
+    static const Digit DIGITHALF_MAX = (((Digit)1) << BITS_IN_HALFCIFRA) - 1;
 
-    /** TODO */
-   static const Digit MASK_CIFRALOW = CIFRAHALF_MAX;
+    /** Binary mask for the lower half of a Digit */
+   static const Digit MASK_DIGITLOW = DIGITHALF_MAX;
 
-    /** TODO  */
-   static const Digit MASK_CIFRAHIGH = ~MASK_CIFRALOW;
+    /** Binary mask for the higher half of a Digit  */
+   static const Digit MASK_DIGITHIGH = ~MASK_DIGITLOW;
  
     /** Maximo valor de una SignedDigit */
-    static const SignedDigit CIFRASIGNO_MAX = std::numeric_limits<SignedDigit>::max();
+    static const SignedDigit SIGNEDDIGIT_MAX = std::numeric_limits<SignedDigit>::max();
 
     /** Maximo valor de un unsigned long */
     static const unsigned long SYSTEM_ULONG_MAX = std::numeric_limits<unsigned long>::max();
@@ -193,7 +193,7 @@ namespace mpplas{
       false, false, false, false, true, false, false, true};
 
       /** Primes up to 2000. */
-    static const Digit TABLA_PRIMOS_2000[] = {
+    static const int TABLA_PRIMOS_2000[] = {
       2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 
       73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151,
       157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233,

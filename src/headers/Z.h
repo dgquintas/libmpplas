@@ -305,7 +305,7 @@ namespace mpplas
        * \exception 
        * Errors::TooBig Si el entero que
        * representa el exponente exp es demasiado grande ( mayor que
-       * CIFRA_MAX )
+       * DIGIT_MAX )
        *
        * \note
        * Esta función invoca a la versión con argumento Digit. En
@@ -957,13 +957,13 @@ namespace mpplas
       /** Get the Z as a single precision signed type.
        *
        * If the conversion cannot be performed (the actual Z being
-       * larger than mpplas::Constants::CIFRASIGNO_MAX), only the first
+       * larger than mpplas::Constants::SIGNEDDIGIT_MAX), only the first
        * mpplas::Constructor::BITS_EN_CIFRASIGNO are considered.
        *
        * @return A SignedDigit representing (a possibly truncated) *this.
        */
       inline SignedDigit toSignedDigit(void) throw(){
-        Digit c = coefPoliB_[0] & (Constants::CIFRASIGNO_MAX-1);
+        Digit c = coefPoliB_[0] & (Constants::SIGNEDDIGIT_MAX-1);
         SignedDigit ret = (SignedDigit)c;
         if(signo_ < 0 ){
           return -ret;
@@ -976,7 +976,7 @@ namespace mpplas
       /** Get the Z as a single precision unsigned type.
        *
        * If the conversion cannot be performed (the actual Z being
-       * larger than mpplas::Constants::CIFRA_MAX), only the first
+       * larger than mpplas::Constants::DIGIT_MAX), only the first
        * mpplas::Constructor::BITS_EN_CIFRA are considered.
        *
        * @return A Digit representing (a possibly truncated) *this.

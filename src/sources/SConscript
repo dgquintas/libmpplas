@@ -193,7 +193,11 @@ if env['enableDebug']:
 
 
 if env['enableWarnings']:
-  env.Append(CCFLAGS = ' -Wall -W')
+  env.Append(CCFLAGS = ' -Wall -Wextra -Wno-unknown-pragmas ')
+
+if env['abortOnWarnings']:
+  env.Append(CCFLAGS = ' -Werror ')
+
 #options processing ends
 
 def CheckSIMD(context):
@@ -221,7 +225,7 @@ def CheckSIMD(context):
       std::cout << res ;
       return 0;
       }
-    """, '.cpp')
+    """  + '\n' , '.cpp')
   if ret[0]:
     context.env['SupportedSIMD'] = ret[1]
   context.Result(ret[1])
@@ -263,7 +267,8 @@ def CheckX86Arch(context):
 
         return 0;
       }
-    """, '.cpp')
+
+    """ + '\n', '.cpp')
   if ret[0]:
     context.env['arch'] = ret[1]
   context.Result(ret[1])
@@ -283,7 +288,7 @@ def CheckOpenMP(context):
           return 1;
         #endif
       }
-    """, '.cpp')
+    """  + '\n'  , '.cpp')
   context.Result(ret[0])
   return ret[0]
 
@@ -424,5 +429,5 @@ env.Clean('all', '#/src/sources/kernel/aop/kernel.h')
 env.Append(LIBPATH = [Dir(env['INSTALL_DIR_LIB'])])
 Export('env')
 
-#if 'tests' in map(str, BUILD_TARGETS):
-SConscript(dirs='tests')
+if 'tests' in map(str, BUILD_TARGETS):
+  SConscript(dirs='tests')

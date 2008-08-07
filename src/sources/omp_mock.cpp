@@ -16,7 +16,7 @@
 extern "C" {
 #endif
 
-  void omp_set_num_threads(int num_threads) {
+  void omp_set_num_threads(int num_threads __attribute__ ((__unused__))) {
   } 
   int omp_get_num_threads(void) {
     return 1;
@@ -30,7 +30,7 @@ extern "C" {
   int omp_get_num_procs(void) {
     return 1;
   }
-  void omp_set_dynamic(int dynamic_threads) {
+  void omp_set_dynamic(int dynamic_threads  __attribute__ ((__unused__)) ) {
   }
 
   int omp_get_dynamic(void) {
@@ -39,7 +39,7 @@ extern "C" {
   int omp_in_parallel(void) {
     return 0;
   }
-  void omp_set_nested(int nested) {
+  void omp_set_nested(int nested  __attribute__ ((__unused__)) ) {
   }
   int omp_get_nested(void) {
     return 0;

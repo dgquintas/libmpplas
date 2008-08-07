@@ -366,14 +366,14 @@ namespace mpplas{
     {
 #pragma omp section
       {
-        for( int i =1 ; i < diffsX.size(); i++){
+        for( unsigned int i =1 ; i < diffsX.size(); i++){
           tmpLeft ^= powOf2Exp.powerOfTwo(diffsX[i]);
           left *= tmpLeft;
         }
       }
 #pragma omp section
       {
-        for( int i =1 ; i < diffsY.size(); i++){
+        for( unsigned int i =1 ; i < diffsY.size(); i++){
           tmpRight ^= powOf2Exp.powerOfTwo(diffsY[i]);
           right *= tmpRight;
         }
@@ -414,11 +414,11 @@ namespace mpplas{
 
     assert( xys.size() > 0 );
     diffsX.push_back(xys[0].first + 1);
-    for( int i = 1; i < xys.size(); i++ ){
+    for( unsigned int i = 1; i < xys.size(); i++ ){
       diffsX.push_back(xys[i].first - xys[i-1].first);
     }
     diffsY.push_back(xys[0].second );
-    for( int i = 1; i < xys.size(); i++ ){
+    for( unsigned int i = 1; i < xys.size(); i++ ){
       diffsY.push_back(xys[i].second - xys[i-1].second);
     }
 
@@ -449,7 +449,6 @@ namespace mpplas{
       }
       else{
         sections[i] <<= ((i-1)*sectionSizes) ;
-        std::cout << "thread " << omp_get_thread_num() << " IN: " << sections[i].getBitLength() <<std::endl;
         potMod.barrettStep( &(partialResults[i]), sections[i], mod, mu);
       }
     }
@@ -497,7 +496,6 @@ namespace mpplas{
     Utils::BitChecker bc(k, true);
     if( bc.checkNext() ){
       (*base) = g;
-
     }
     while( bc.hasNext() ){
       g.square();

@@ -86,7 +86,7 @@ namespace mpplas
 
 float VectorFloat::dot( const VectorFloat& rhs) {
   //both vectors should have the same length
-  const size_t length = this->getSize();
+  const int length = this->getSize();
   if( length != rhs.getSize() ){
     std::ostringstream oss;
     oss << "for the dot product.";

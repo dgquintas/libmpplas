@@ -128,7 +128,7 @@ Vector<T, Alloc>& Vector<T, Alloc>::cross(const Vector<T, Alloc>& rhs){
 template<typename T, typename Alloc>
 T Vector<T, Alloc>::dot( const Vector<T, Alloc>& rhs) {
   //both vectors should have the same length
-  const size_t length = this->getSize();
+  const int length = this->getSize();
   if( length != rhs.getSize() ){
     std::ostringstream oss;
     oss << "for the dot product.";

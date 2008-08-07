@@ -323,7 +323,7 @@ namespace mpplas{
     //max(1,getBitLength(n)-1) bits de menos peso
     
     const int n = getBitLength(_Xi);
-    Digit longConsiderada = std::max(getBitLength((Digit)n)-1,1);
+    const int longConsiderada = std::max(getBitLength((Digit)n)-1,1);
     Digit mascara = (1UL << longConsiderada)-1;
     while(num > 0){
       _Xi.modularSquare(_n); 

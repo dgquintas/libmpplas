@@ -678,7 +678,7 @@ namespace mpplas{
         assert(((j+tamB-1) > 0) );
 
         if( a[j] == b[tamB] )
-          _q = Constants::CIFRA_MAX; // base-1
+          _q = Constants::DIGIT_MAX; // base-1
         else{
           Digit resto = a[j];
           _q = BasicCPU::Div(a[j-1],b[tamB], resto);

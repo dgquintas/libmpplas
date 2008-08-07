@@ -20,13 +20,13 @@ namespace mpplas {
   }
 
   ProfResults& ProfResults::operator+=(const ProfResults& rhs){
-    for( int i = 0; i < _perThreadResults.size(); i++){
+    for( std::vector<int>::size_type i = 0; i < _perThreadResults.size(); i++){
       (*this)[i] += rhs[i];
     }
     return *this;
   }
   ProfResults& ProfResults::operator-=(const ProfResults& rhs){
-    for( int i = 0; i < _perThreadResults.size(); i++){
+    for( std::vector<int>::size_type i = 0; i < _perThreadResults.size(); i++){
       (*this)[i] -= rhs[i];
     }
     return *this;
@@ -42,14 +42,14 @@ namespace mpplas {
 
   OpsCount ProfResults::getTotalOps() const{
     OpsCount total = 0;
-    for( int i = 0; i < _perThreadResults.size(); i++){
+    for( std::vector<int>::size_type i = 0; i < _perThreadResults.size(); i++){
       total += _perThreadResults[i].getTotalOps();
     }
     return total;
   }
 
   void ProfResults::reset(){
-    for( int i = 0; i < _perThreadResults.size(); i++){
+    for( std::vector<int>::size_type i = 0; i < _perThreadResults.size(); i++){
       _perThreadResults[i].reset();
     }
   }
@@ -71,7 +71,7 @@ namespace mpplas {
 
   /////////////////////////////////////////
   std::ostream& operator<<(std::ostream& out, const ProfResults& prof){
-    for(int i = 0; i < prof._perThreadResults.size(); i++){
+    for(std::vector<int>::size_type i = 0; i < prof._perThreadResults.size(); i++){
       out << "Thread " << i << ":\n";
       out << "---------\n";
       out << prof._perThreadResults[i] << std::endl;

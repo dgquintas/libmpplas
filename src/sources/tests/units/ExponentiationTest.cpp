@@ -92,7 +92,7 @@ void ExponentiationTest::testExpBarrett(){
   std::string pariStr(GENtostr( pariRes ));
   qassertEquals( base_n.toString(), pariStr );
 
-  Y = gmul(Y, gp_read_str("-1"));
+  Y = gmul(Y, gp_read_str((char* )"-1"));
   pariRes = Fp_pow(x,Y,m);
 
   base_n = _base;

@@ -14,7 +14,7 @@ int main()
   
   cin >> base >> exp >> mod;
 
-  cout << funcs.getPotModular()->inversa(mod, Z::convertir(CIFRA_MAX)+1) << endl;
+  cout << funcs.getPotModular()->inversa(mod, Z::convertir(DIGIT_MAX)+1) << endl;
 
   cout << pm.potModular(base, exp, mod) << endl;
   cout << barr.potModular(base, exp, mod) << endl;

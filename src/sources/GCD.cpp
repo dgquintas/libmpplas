@@ -116,7 +116,7 @@ namespace mpplas{
               //siempre < base, es imposible que sean  iguales 
             }
             else{
-              Z uZ = Z(Constants::CIFRA_MAX); uZ++;
+              Z uZ = Z(Constants::DIGIT_MAX); uZ++;
               q2 = (uZ/vPrimaSegunda)[0]; /* el resultado de esa div sera siempre < base
                                              ya que uZ == base y vPrimaSegunda > 1 */
             }

@@ -34,8 +34,8 @@ void KernelTest::setUp(){
   overflow = resto = 0;
 
   //Pre-defined constants:
-  // mpplas::Constants::CIFRA_MAX
-  // mpplas::Constants::CIFRASIGNO_MAX
+  // mpplas::Constants::DIGIT_MAX
+  // mpplas::Constants::SIGNEDDIGIT_MAX
 
 
 }
@@ -45,12 +45,12 @@ void KernelTest::tearDown(){
 
 void KernelTest::testAdd(){
   qassertTrue( three == BasicCPU::Add(one,two, overflow) );
-  qassertTrue( zro == BasicCPU::Add(Constants::CIFRA_MAX, one, overflow) );
+  qassertTrue( zro == BasicCPU::Add(Constants::DIGIT_MAX, one, overflow) );
   qassertTrue( one == overflow );
 }
 
 void KernelTest::testAddx(){
-  const Digit CM = Constants::CIFRA_MAX;
+  const Digit CM = Constants::DIGIT_MAX;
   qassertTrue( zro ==BasicCPU::Addx(CM, one, overflow) );
   qassertTrue( one == BasicCPU::Addx(zro,zro, overflow) );
   qassertTrue( CM-1 == BasicCPU::Addx(CM,CM, overflow) );
@@ -69,7 +69,7 @@ void KernelTest::testSub(){
   qassertTrue( zro == BasicCPU::Sub(three, three, overflow) );
   qassertTrue( zro == overflow );
 
-  qassertTrue( Constants::CIFRA_MAX == BasicCPU::Sub(zro, one, overflow) );
+  qassertTrue( Constants::DIGIT_MAX == BasicCPU::Sub(zro, one, overflow) );
   qassertTrue( one == overflow );
 }
 
@@ -80,36 +80,36 @@ void KernelTest::testSubx(){
   qassertTrue( zro == BasicCPU::Subx(three, three, overflow) );
   qassertTrue( zro ==  overflow );
   
-//  qassertTrue( (Digit)(Constants::CIFRASIGNO_MAX)+1 == BasicCPU::Sub(Constants::CIFRA_MAX, (Digit)Constants::CIFRASIGNO_MAX) );
+//  qassertTrue( (Digit)(Constants::SIGNEDDIGIT_MAX)+1 == BasicCPU::Sub(Constants::DIGIT_MAX, (Digit)Constants::SIGNEDDIGIT_MAX) );
 //  qassertTrue( zro ==  overflow );
 
-  qassertTrue( Constants::CIFRA_MAX == BasicCPU::Sub(zro, one, overflow) );
+  qassertTrue( Constants::DIGIT_MAX == BasicCPU::Sub(zro, one, overflow) );
   qassertTrue( one ==  overflow );
 
   qassertTrue( zro == BasicCPU::Subx(three, two, overflow) );
   qassertTrue( zro ==  overflow );
 
-  qassertTrue( Constants::CIFRA_MAX == BasicCPU::Sub(zro, one, overflow) );
+  qassertTrue( Constants::DIGIT_MAX == BasicCPU::Sub(zro, one, overflow) );
   qassertTrue( one ==  overflow );
 
-  qassertTrue( Constants::CIFRA_MAX == BasicCPU::Subx(two, two, overflow) );
+  qassertTrue( Constants::DIGIT_MAX == BasicCPU::Subx(two, two, overflow) );
   qassertTrue( one ==  overflow );
 }
 
 void KernelTest::testMul(){
   qassertTrue( zro == BasicCPU::Mul(one, zro, resto) );
 
-  qassertTrue( one == BasicCPU::Mul(Constants::CIFRA_MAX, Constants::CIFRA_MAX, resto) );
-  qassertTrue( Constants::CIFRA_MAX - 1 /* base -2 */ ==  resto );
+  qassertTrue( one == BasicCPU::Mul(Constants::DIGIT_MAX, Constants::DIGIT_MAX, resto) );
+  qassertTrue( Constants::DIGIT_MAX - 1 /* base -2 */ ==  resto );
 }
 void KernelTest::testAddmul(){
-  BasicCPU::Mul(Constants::CIFRA_MAX, Constants::CIFRA_MAX, resto);
+  BasicCPU::Mul(Constants::DIGIT_MAX, Constants::DIGIT_MAX, resto);
   //  resto  == BASE-2
-  qassertTrue( Constants::CIFRA_MAX-1 == BasicCPU::Addmul( zro, one, resto ) );
+  qassertTrue( Constants::DIGIT_MAX-1 == BasicCPU::Addmul( zro, one, resto ) );
 
   resto = 0;
 
-  qassertTrue( Constants::CIFRA_MAX << 1  == BasicCPU::Addmul( Constants::CIFRA_MAX, two , resto) );
+  qassertTrue( Constants::DIGIT_MAX << 1  == BasicCPU::Addmul( Constants::DIGIT_MAX, two , resto) );
   qassertTrue( three == BasicCPU::Addmul( one, two , resto) );
 }
 
@@ -121,7 +121,7 @@ void KernelTest::testDiv(){
   qassertTrue( zro == BasicCPU::Div(one, two, resto) ); 
   qassertTrue( one ==  resto ); 
   
-  qassertTrue( (Constants::CIFRA_MAX/2) +1 == BasicCPU::Div(zro, two, resto) ); 
+  qassertTrue( (Constants::DIGIT_MAX/2) +1 == BasicCPU::Div(zro, two, resto) ); 
   qassertTrue( zro ==  resto );
 }
 
@@ -153,7 +153,7 @@ void KernelTest::testMnob(){
   qassertTrue( (Digit)1 == BasicCPU::Mnob(zro));
   qassertTrue( (Digit)1 == BasicCPU::Mnob(zro));
   qassertTrue( (Digit)25== BasicCPU::Mnob((Digit)32490673));
-  qassertTrue( (Digit)Constants::BITS_EN_CIFRA == BasicCPU::Mnob(Constants::CIFRA_MAX));
+  qassertTrue( (Digit)Constants::BITS_EN_CIFRA == BasicCPU::Mnob(Constants::DIGIT_MAX));
 
   //undefined for 0. Could be considered to be the number of bits of
   //the basic type, but that's not guaranted

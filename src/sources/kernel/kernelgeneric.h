@@ -11,7 +11,7 @@ namespace mpplas{
 
 
     inline Digit HIGHHALF(Digit x) { return (x >> Constants::BITS_IN_HALFCIFRA); }
-    inline Digit LOWHALF(Digit x) { return (x & Constants::MASK_CIFRALOW); }
+    inline Digit LOWHALF(Digit x) { return (x & Constants::MASK_DIGITLOW); }
 
     /**********************************
      *   GENERIC IMPLEMENTATION
@@ -63,7 +63,7 @@ namespace mpplas{
 
       xylo += xymidlo;
       resto = xyhi + xymidhi + (xylo < xymidlo)
-        + ((((xhl + yhl) >> 1) - xymidhi) & Constants::MASK_CIFRAHIGH);
+        + ((((xhl + yhl) >> 1) - xymidhi) & Constants::MASK_DIGITHIGH);
 
       return xylo;
     }
@@ -87,7 +87,7 @@ namespace mpplas{
 
       xylo += xymidlo;
       resto = xyhi + xymidhi + (xylo < xymidlo)
-        + ((((xhl + yhl) >> 1) - xymidhi) & Constants::MASK_CIFRAHIGH);
+        + ((((xhl + yhl) >> 1) - xymidhi) & Constants::MASK_DIGITHIGH);
 
       return xylo;
     }

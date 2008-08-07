@@ -36,7 +36,7 @@ namespace mpplas{
   }
 
   R::R( const R& otro)
-    : exponente_(otro.exponente_), mantisa_(otro.mantisa_), _spApprox(otro._spApprox)
+    : Field<R>(), MPPDataType(), exponente_(otro.exponente_), mantisa_(otro.mantisa_), _spApprox(otro._spApprox)
   {}
 
   R::R(const SignedDigit otro)
@@ -359,7 +359,7 @@ namespace mpplas{
 
   R& R::operator>>=(const int n)
   {
-    if( n > Digit(Constants::CIFRASIGNO_MAX) ){
+    if( n > Constants::SIGNEDDIGIT_MAX) {
       throw Errors::RealsExpOverflow();
     }
 
@@ -397,11 +397,13 @@ namespace mpplas{
 
 
   R& R::operator<<=(const SignedDigit n) {
-    if( n > Digit(Constants::CIFRASIGNO_MAX) )
+    if( n > Constants::SIGNEDDIGIT_MAX) {
       throw Errors::RealsExpOverflow();
+    }
 
-    if( exponente_ + (SignedDigit)n < exponente_ )
+    if( exponente_ + (SignedDigit)n < exponente_ ){
       throw Errors::RealsExpOverflow();
+    }
 
     exponente_ += n;
 
@@ -542,11 +544,9 @@ namespace mpplas{
 
     //exponente_ < 0
     if( signo() >= 0 ){
-      if( mantisa_.getBitLength() <= (unsigned long)labs(exponente_) ){ //FIXME
+      if( mantisa_.getBitLength() <= (SignedDigit)labs(exponente_) ){ //FIXME
         //"no hay nada" por delante del . 
-        Z cero;
-        cero.makeZero();    
-        return cero;
+        return Z::ZERO;
       }
       else{
         Z temp(mantisa_);
@@ -555,7 +555,7 @@ namespace mpplas{
       }
     }
     //  signo() < 0 
-    if( mantisa_.getBitLength() <= (unsigned long)labs(exponente_)){ //FIXME
+    if( mantisa_.getBitLength() <= (SignedDigit)labs(exponente_)){ //FIXME
       //"no hay nada" por delante del . 
       Z menosUno;
       menosUno.makeOne();
@@ -584,27 +584,21 @@ namespace mpplas{
 
     //exponente_ < 0
     if( signo() >= 0 ){
-      if( mantisa_.getBitLength() <= (unsigned long)labs(exponente_) ){ //FIXME
+      if( mantisa_.getBitLength() <= (SignedDigit)labs(exponente_) ){ //FIXME
         //"no hay nada" por delante del . 
-        Z uno;
-        uno.makeOne();
-        return uno;
+        return Z::ONE;
       }
       else{ 
         Z temp(mantisa_);
         temp >>= labs(exponente_);
-        Z uno; 
-        uno.makeOne();
-        temp += uno;
+        temp += Z::ONE;
         return temp;
       }
     }
     //  signo() < 0 
-    if( mantisa_.getBitLength() <= (unsigned long)labs(exponente_)){
+    if( mantisa_.getBitLength() <= (SignedDigit)labs(exponente_)){
       //"no hay nada" por delante del . 
-      Z cero;
-      cero.makeZero();
-      return cero;
+      return Z::ZERO;
     }
     else{
       Z temp(mantisa_);

@@ -39,19 +39,19 @@ int main(){
   zero == BasicCPU::Subx(three, three, overflow) ;
   zero ==  overflow ;
   
-( (Digit)(Constants::CIFRASIGNO_MAX)+1 == BasicCPU::Sub(Constants::CIFRA_MAX, (Digit)Constants::CIFRASIGNO_MAX,overflow) );
+( (Digit)(Constants::SIGNEDDIGIT_MAX)+1 == BasicCPU::Sub(Constants::DIGIT_MAX, (Digit)Constants::SIGNEDDIGIT_MAX,overflow) );
 ( zero ==  overflow );
 
-  Constants::CIFRA_MAX == BasicCPU::Sub(zero, one, overflow) ;
+  Constants::DIGIT_MAX == BasicCPU::Sub(zero, one, overflow) ;
   one ==  overflow ;
 
   zero == BasicCPU::Subx(three, two, overflow) ;
   zero ==  overflow ;
 
-  Constants::CIFRA_MAX == BasicCPU::Sub(zero, one, overflow) ;
+  Constants::DIGIT_MAX == BasicCPU::Sub(zero, one, overflow) ;
   one ==  overflow ;
 
-  Constants::CIFRA_MAX == BasicCPU::Subx(two, two, overflow) ;
+  Constants::DIGIT_MAX == BasicCPU::Subx(two, two, overflow) ;
   one ==  overflow ;
 
   return 0;

@@ -46,12 +46,15 @@ namespace mpplas{
     Z factor;
     if( !test->isPrime(num) ){
       if( !trial.factorZ(&num,&factores) ){ // si el trial no ha factorizado por completo...
-          if( !rho.factorZ(&num,&factores) )
-           ; //pondriase aqui lo siguiente a probar si lo hubiera
-        }
+        rho.factorZ(&num,&factores);
+        //if( !rho.factorZ(&num,&factores) ){
+        //  ; //pondriase aqui lo siguiente a probar si lo hubiera
+        //}
+      }
     }
-    else // es primo
+    else{ // es primo
       factores.push_back(num);
+    }
 
     return factores;
   }  
@@ -120,7 +123,7 @@ namespace mpplas{
     }
 
     //pag. 364 Knuth
-    
+
     if( n->isOne() ){
       factores->push_back( Z((Digit)1) );
       return true;
@@ -157,8 +160,8 @@ namespace mpplas{
 
     return false;
 
-    }
-
-
-
   }
+
+
+
+}

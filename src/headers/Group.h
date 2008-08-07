@@ -16,11 +16,36 @@ namespace mpplas{
         static bool isGroupCommutative() { return T::addCommutative; }
         static bool isGroupCyclic() { return T::groupCyclic; }
 
+        /** Makes a group element zero.
+         *
+         * The group element on which the method is applied becomes zero, ie. 
+         * the identity element for the (addition) operation of the group.
+         *
+         * @par Complexity: \f$O(1)\f$
+         *
+         * @return a reference to *this. */
         virtual T& makeZero() = 0;
+
+        /** Returns the zero element for the group.
+         *
+         * Applied on a given datatype implementing Group<T>,
+         * returns a zero for such a group.
+         *
+         * @par Complexity: \f$O(1)\f$
+         *
+         * @return a zero for the group of *this. */
+        virtual const T& getZero() const { return T::getAddIdentity(); }
+
+
+        /** Check for zero.
+         *
+         * @par Complexity: \f$O(1)\f$
+         *
+         * @return true if *this is a zero for its group. */
         virtual bool isZero() const = 0;
         virtual T& invertSign() = 0;
 
-        ~Group() {
+        virtual ~Group() {
           STATIC_ASSERT( ValidateRequirements() );
         }
 

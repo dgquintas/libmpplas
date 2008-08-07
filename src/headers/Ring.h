@@ -21,10 +21,34 @@ namespace mpplas{
         static bool isUnitaryRing() { return T::unitaryRing; };
         static bool isDivisionRing() { return T::divisionRing; }
 
+        /** Makes a group element zero.
+         *
+         * The group element on which the method is applied becomes zero, ie. 
+         * the identity element for the (addition) operation of the group.
+         *
+         * @par Complexity: \f$O(1)\f$
+         *
+         * @return a reference to *this. */
         virtual T& makeOne() = 0;
+
+        /** Returns the one element for the group.
+         *
+         * Applied on a given datatype implementing Ring<T>,
+         * returns a one for such a ring.
+         *
+         * @par Complexity: \f$O(1)\f$
+         *
+         * @return a zero for the group of *this. */
+        virtual const T& getOne() const { return T::getMultIdentity(); }
+
+        /** Check for unity.
+         *
+         * @par Complexity: \f$O(1)\f$
+         *
+         * @return true if *this is a one for its ring. */
         virtual bool isOne() const = 0;
 
-        ~Ring() {
+        virtual ~Ring() {
           STATIC_ASSERT( ValidateRequirements() );
 
           // the group "component" of the ring must be commutative (abelian)

@@ -42,7 +42,6 @@ namespace com_uwyn_qtunit{
       void testInput();
     private:
       GF* gfIrred;
-      GF* gfPrim;
       Random *rnd;
       PrimeGen *primes;
 

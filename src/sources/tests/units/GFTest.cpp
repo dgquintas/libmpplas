@@ -38,27 +38,38 @@ GFTest::GFTest(){
 
 void GFTest::setUp(){
   const Z p(primes->getPrime(brand(1,5)));
-  const int n(brand(1,16));
+  const int n(brand(1,8));
 
   gfIrred = new GF(p,n,false);
-  gfPrim = new GF(p,n,true);
 
 }
 void GFTest::tearDown(){
   delete gfIrred;
-  delete gfPrim;
 }
 
 
 void GFTest::testGeneratorFromPrimitivePoly(){
+  const Z p(primes->getPrime(brand(1,4)));
+  const int n(brand(1,4));
+ 
+  std::cout << p << " " << n << std::endl;
+
+  GF gfPrim(p,n,true);
+
+  std::cout << gfPrim.toHRString() << std::endl;
 
   std::set<GFx> elems;
-  const GFx x( gfPrim->getElement("[(1,1)]") );
-  for( int i = 0; i < gfPrim->getOrder(); i++){
-    elems.insert(x ^ i);
+  const GFx x( gfPrim.getElement("[(1,1)]") );
+  for( int i = 0; i < gfPrim.getOrder(); i++){
+    GFx xi(x);
+    xi ^= i;
+    elems.insert(xi);
   }
 
-  qassertTrue((gfPrim->getOrder()-1) == elems.size());
+  std::cout << elems.size() << std::endl;
+
+  qassertTrue((gfPrim.getOrder()-1) == elems.size());
+
 }
 void GFTest::testGetElement(){}
 
@@ -69,17 +80,42 @@ void GFTest::testAddition(){
 
   for(Z i = 0 ; i < charact-1 ; i++){
     accum += one;
-    std::cout << accum << std::endl;
   }
 
   qassertTrue( accum.getIntegerValue() == Z::ZERO );
 }
 void GFTest::testSubstraction(){}
-void GFTest::testMultiplication(){}
+void GFTest::testMultiplication(){
+  const GFx lhs(gfIrred->getElement( Z(rnd->getDigit()) ));
+  const GFx rhs(gfIrred->getElement( Z(rnd->getDigit()) ));
+  GFx accum = GFx(rhs);
+
+  const GFx expected( lhs*rhs );
+
+  const Digit times( lhs.getIntegerValue()[0] );
+  std::cout << times << std::endl;
+  for(Digit i = 1; i < times ; i++){
+    accum += rhs;
+    if( (i % 10000) == 0 ){
+      std::cout << i << std::endl;
+    }
+  }
+
+  std::cout << accum << "\n" << expected << std::endl;
+
+  qassertTrue( accum == expected );
+
+}
 void GFTest::testSquare(){}
 void GFTest::testDivision(){}
 
 void GFTest::testInversion(){
+  const GFx e(gfIrred->getElement( Z(rnd->getDigit()) ));
+  const GFx eInv( e.getInverse() );
+
+  const GFx shouldBeOne ( e*eInv );
+
+  qassertTrue( shouldBeOne == gfIrred->getElement( Z::ONE ) );
 
 }
 void GFTest::testExponentiation(){}

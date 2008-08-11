@@ -16,7 +16,13 @@ namespace mpplas{
   
   /** Constants used throughout the library */
   namespace Constants{
-    
+
+    static const Digit DIGIT_ZERO = 0;
+    static const Digit DIGIT_ONE = 1;
+    static const Digit DIGIT_TWO = 2;
+
+    static const SignedDigit SIGNEDDIGIT_MINUSONE = -1;
+
 #ifdef ARCH_x86
     static const char* const ARCH_STRING = "x86";
   #define ARCH_DEFINED

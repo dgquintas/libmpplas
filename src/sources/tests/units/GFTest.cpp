@@ -52,11 +52,7 @@ void GFTest::testGeneratorFromPrimitivePoly(){
   const Z p(primes->getPrime(brand(1,4)));
   const int n(brand(1,4));
  
-  std::cout << p << " " << n << std::endl;
-
   GF gfPrim(p,n,true);
-
-  std::cout << gfPrim.toHRString() << std::endl;
 
   std::set<GFx> elems;
   const GFx x( gfPrim.getElement("[(1,1)]") );
@@ -65,8 +61,6 @@ void GFTest::testGeneratorFromPrimitivePoly(){
     xi ^= i;
     elems.insert(xi);
   }
-
-  std::cout << elems.size() << std::endl;
 
   qassertTrue((gfPrim.getOrder()-1) == elems.size());
 

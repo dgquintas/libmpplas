@@ -17,17 +17,17 @@
 
 namespace mpplas{
 
-  namespace PolynomialUtils{
-
-    template<typename T>
-      bool isIrreducible(const T& fx);
-    template<typename T>
-      T generateIrreducible(const int degree, const Z& p);
-    template<typename T>
-      bool isPrimitive(const T& fx, const MiVec<Z>& factors);
-    template<typename T>
-      T generatePrimitive(const int degree, const MiVec<Z>& factors, const Z& p);
-  }; /* namespace PolynomialUtils */
+//  namespace PolynomialUtils{
+//
+//    template<typename T>
+//      bool isIrreducible(const T& fx);
+//    template<typename T>
+//      T generateIrreducible(const int degree, const Z& p);
+//    template<typename T>
+//      bool isPrimitive(const T& fx, const MiVec<Z>& factors);
+//    template<typename T>
+//      T generatePrimitive(const int degree, const MiVec<Z>& factors, const Z& p);
+//  }; /* namespace PolynomialUtils */
 
 
   ////////////////////////////
@@ -44,7 +44,7 @@ namespace mpplas{
 
         const Z& p( fx.getCharacteristic() );
         const int m = fx.getDegree();
-        const T x((Digit)1, (Digit)1, p);
+        const T x(Constants::DIGIT_ONE, Constants::DIGIT_ONE, p);
         GF gfGen(p, fx, false, false);
         GFx u(gfGen.getElement(x));
         Exponentiation< GFx > *potMod; 
@@ -101,12 +101,12 @@ namespace mpplas{
         MethodsFactory::getReference().getFunc(potMod);
         MethodsFactory::getReference().getFunc(factorize);
 
-        const MiVec<Z>& factors( factorize->factoriza( ( p ^ (Digit)fx.getDegree() )-(Digit)1 ) );
+        const MiVec<Z>& factors( factorize->factoriza( ( p ^ (Digit)fx.getDegree() ) - Constants::DIGIT_ONE ) );
         const int m( fx.getDegree() );
-        GF gfGen(p,fx,false, false);
-        GFx lx( gfGen.getElement(T((Digit)1,(Digit)1, p)) );
+        const GF gfGen(p,fx,false, false);
+        GFx lx( gfGen.getElement(T(Constants::DIGIT_ONE, Constants::DIGIT_ONE, p)) );
         GFx ltmp(lx);
-        const Z pM_1( ((p ^ (Digit)m) - (Digit)1) );
+        const Z pM_1( ((p ^ (Digit)m) - Constants::DIGIT_ONE) );
         for(int i = 0 ; i < factors.size(); i++){
           potMod->exponentiation(&ltmp, pM_1 / factors.at(i)); //FIXME: factors[i] no chuta con icc
           if( ltmp.isOne() ){

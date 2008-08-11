@@ -125,7 +125,7 @@ namespace mpplas{
     //pag. 364 Knuth
 
     if( n->isOne() ){
-      factores->push_back( Z((Digit)1) );
+      //empty factores vector
       return true;
     }
 
@@ -138,6 +138,10 @@ namespace mpplas{
       factores->insert(factores->end(), doses, Z((Digit)2));
     }
 
+    if( n->isOne() ){
+      return true;
+    }
+
     Z q,r;
     int i = 1; //empezar en el 3, no en el 2 (ya se han quitado)
     while( i < Constants::COTA_FACTORIZACION_TRIAL ){
@@ -145,7 +149,9 @@ namespace mpplas{
       if( r.isZero() ){
         factores->push_back(Z(Constants::TABLA_PRIMOS_2000[i]));
         (*n) = q;
-        if( n->isOne() ) return true;
+        if( n->isOne() ){
+          return true;
+        }
       }
       else{ // r != 0
         if( q <= Constants::TABLA_PRIMOS_2000[i] ){

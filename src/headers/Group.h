@@ -34,7 +34,7 @@ namespace mpplas{
          * @par Complexity: \f$O(1)\f$
          *
          * @return a zero for the group of *this. */
-        virtual const T& getZero() const { return T::getAddIdentity(); }
+        virtual const T& getZero() const  = 0;//{ return T::getAddIdentity(); }
 
 
         /** Check for zero.

@@ -11,11 +11,14 @@
 Polynomial<S>::Polynomial(const S& ini)
   : _data(1,ini), _ini(ini) {
     _isSaField = bool(dynamic_cast<mpplas::Field<S>*>(&(_data[0])));
+    _initConstsForS();
   }
 
   template<typename S>
 Polynomial<S>::Polynomial(const Polynomial<S>& src )
-  : MPPDataType(), _data(src._data), _isSaField(src._isSaField), _ini(src._ini){}
+  : MPPDataType(), _data(src._data), _isSaField(src._isSaField), _ini(src._ini), _ZERO_FOR_S( new S(_ini) ),_ONE_FOR_S( new S(_ini) ) {
+    _initConstsForS();
+  }
 
   template<typename S>
   Polynomial<S>::Polynomial(const std::string& str, const S& ini):
@@ -29,6 +32,8 @@ Polynomial<S>::Polynomial(const Polynomial<S>& src )
       }
 
       _isSaField = bool(dynamic_cast<mpplas::Field<S>*>(&(_data[0])));
+
+      _initConstsForS();
       return;
 
     }
@@ -43,6 +48,8 @@ Polynomial<S>::Polynomial(const std::vector<S>& coeffs, const S& ini)
 
     _isSaField = bool(dynamic_cast<mpplas::Field<S>*>(&(_data[0])));
     _eraseLeadingZeros();
+
+    _initConstsForS();
   }
 
   template<typename S>
@@ -58,6 +65,8 @@ Polynomial<S>::Polynomial(const S& coeff, const int exp, const S& ini)
     _data.back() = coeff;
 
     _isSaField = bool(dynamic_cast<mpplas::Field<S>*>(&(_data[0])));
+
+    _initConstsForS();
   }
 
 
@@ -136,13 +145,12 @@ bool Polynomial<S>::isCoeffsDomainAField() const {
 template<typename S>
 inline void Polynomial<S>::makeZero() {
   this->_data.resize(1, this->_ini);
-  this->_data[0] = S::getAddIdentity();
+  this->_data[0].makeZero();
 }
 template<typename S>
 inline void Polynomial<S>::makeOne() {
   this->_data.resize(1, this->_ini);
-  //this->_data[0] = S::getMultIdentity();
-  this->_data[0] = (this->_ini).Z_p::getOne();
+  this->_data[0].makeOne();
 }
 template<typename S>
 inline bool Polynomial<S>::isZero () const {
@@ -315,6 +323,13 @@ void Polynomial<S>::_divide(const Polynomial<S>& rhs){
   else{
     tmp._ufdDivide(rhs, this, false);
   }
+}
+
+template<typename S>
+void Polynomial<S>::_initConstsForS(){
+  _ONE_FOR_S->makeOne();
+
+  _ZERO_FOR_S->makeZero();
 }
 
 template<typename S>
@@ -575,7 +590,7 @@ void Polynomial<S>::_horner2ndOrder(T* const result, const T& x0) const {
   //described in [knuth] 4.6.4, page 487
   //and [dorn] 
   const int n = this->getDegree();
-  const T x0Sqr( x0 ^ (Digit)2 ); 
+  const T x0Sqr( x0 ^ Constants::DIGIT_TWO ); 
 
   T res1(_ini), res2(_ini);
 

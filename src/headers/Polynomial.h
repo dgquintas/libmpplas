@@ -142,6 +142,14 @@ namespace mpplas{
         /** Vector storing the coefficients from S */
         MiVec<S> _data;
 
+        /* Utility constants. Useful on "multidata" types such as Z_n, where 
+         * just using the algebraic Mult/Sum identity does not completely characterize a number/instance */
+        /** A zero (additive identity) for the template parameter S */
+        S* const _ZERO_FOR_S;
+        
+        /** A zero (additive identity) for the template parameter S */
+        S* const _ONE_FOR_S;
+
         bool _isSaField;
 
         /** Value in S used as initialization value 
@@ -163,6 +171,7 @@ namespace mpplas{
         void _fieldDivide(const Polynomial<S>& rhs, Polynomial<S>* const q, const bool reduce ) ;
         void _reduce(const Polynomial<S>& rhs);
         void _divide(const Polynomial<S>& rhs);
+        void _initConstsForS();
         
   
   }; /* class polynomial */

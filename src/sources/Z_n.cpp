@@ -139,7 +139,7 @@ namespace mpplas{
     else {
       if( n_ != der.n_ ){
         std::ostringstream oss;
-        oss << "Z_n::operator+=; ";
+        oss << "Z_n::operator-=; ";
         GEN_TRACE_INFO_OSS(oss);
         throw Errors::InconsistentModulus(oss.str());
       }
@@ -166,7 +166,7 @@ namespace mpplas{
     else{
       if( n_ != der.n_ ){
         std::ostringstream oss;
-        oss << "Z_n::operator+=; ";
+        oss << "Z_n::operator*=; ";
         GEN_TRACE_INFO_OSS(oss);
         throw Errors::InconsistentModulus(oss.str());
       }
@@ -194,7 +194,7 @@ namespace mpplas{
     else{
       if( n_ != der.n_ ){
         std::ostringstream oss;
-        oss << "Z_n::operator+=; ";
+        oss << "Z_n::operator/=; ";
         GEN_TRACE_INFO_OSS(oss);
         throw Errors::InconsistentModulus(oss.str());
       }

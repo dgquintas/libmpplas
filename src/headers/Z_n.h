@@ -140,6 +140,8 @@ namespace mpplas{
         return n_;
       }
 
+      virtual std::string toString() const;
+      virtual std::string toHRString() const;
 
       virtual ~Z_n(){};
 

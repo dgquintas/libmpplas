@@ -72,14 +72,14 @@ void Z_nTest::testAdditionWithZ(){
 
   string tmp;
   tmp += '(';
-  tmp += modularInteger->toString();
+  tmp += modularInteger->toHRString();
   tmp += " + ";
-  tmp += integer.toString();
+  tmp += integer.toHRString();
   tmp += ") % ";
-  tmp += modulus.toString();
+  tmp += modulus.toHRString();
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
-  string thisStr = res.toString();
+  string thisStr = res.toHRString();
 
   qassertTrue( pariStr == thisStr );
 }
@@ -92,14 +92,14 @@ void Z_nTest::testAdditionWithDigit(){
 
   string tmp;
   tmp += '(';
-  tmp += modularInteger->toString();
+  tmp += modularInteger->toHRString();
   tmp += " + ";
   tmp += cifraStr;
   tmp += ") % ";
-  tmp += modulus.toString();
+  tmp += modulus.toHRString();
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
-  string thisStr = res.toString();
+  string thisStr = res.toHRString();
 
   qassertTrue( pariStr == thisStr );
 }
@@ -112,14 +112,14 @@ void Z_nTest::testAdditionWithSignedDigit(){
 
   string tmp;
   tmp += '(';
-  tmp += modularInteger->toString();
+  tmp += modularInteger->toHRString();
   tmp += " + ";
   tmp += cifraStr;
   tmp += ") % ";
-  tmp += modulus.toString();
+  tmp += modulus.toHRString();
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
-  string thisStr = res.toString();
+  string thisStr = res.toHRString();
 
   qassertTrue(pariStr == thisStr );
 
@@ -134,14 +134,14 @@ void Z_nTest::testSubstractionWithZ(){
 
   string tmp;
   tmp += '(';
-  tmp += modularInteger->toString();
+  tmp += modularInteger->toHRString();
   tmp += " - ";
-  tmp += integer.toString();
+  tmp += integer.toHRString();
   tmp += ") % ";
-  tmp += modulus.toString();
+  tmp += modulus.toHRString();
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
-  string thisStr = res.toString();
+  string thisStr = res.toHRString();
 
   qassertTrue(pariStr == thisStr );
 }
@@ -154,14 +154,14 @@ void Z_nTest::testSubstractionWithDigit(){
 
   string tmp;
   tmp += '(';
-  tmp += modularInteger->toString();
+  tmp += modularInteger->toHRString();
   tmp += " - ";
   tmp += cifraStr;
   tmp += ") % ";
-  tmp += modulus.toString();
+  tmp += modulus.toHRString();
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
-  string thisStr = res.toString();
+  string thisStr = res.toHRString();
 
   qassertTrue(pariStr == thisStr );
 }
@@ -174,14 +174,14 @@ void Z_nTest::testSubstractionWithSignedDigit(){
 
   string tmp;
   tmp += '(';
-  tmp += modularInteger->toString();
+  tmp += modularInteger->toHRString();
   tmp += " - ";
   tmp += cifraStr;
   tmp += ") % ";
-  tmp += modulus.toString();
+  tmp += modulus.toHRString();
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
-  string thisStr = res.toString();
+  string thisStr = res.toHRString();
 
   qassertTrue(pariStr == thisStr );
 
@@ -195,14 +195,14 @@ void Z_nTest::testProductWithZ(){
 
   string tmp;
   tmp += '(';
-  tmp += modularInteger->toString();
+  tmp += modularInteger->toHRString();
   tmp += " * ";
-  tmp += integer.toString();
+  tmp += integer.toHRString();
   tmp += ") % ";
-  tmp += modulus.toString();
+  tmp += modulus.toHRString();
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
-  string thisStr = res.toString();
+  string thisStr = res.toHRString();
   
   qassertTrue(pariStr == thisStr );
 }
@@ -215,14 +215,14 @@ void Z_nTest::testProductWithDigit(){
 
   string tmp;
   tmp += '(';
-  tmp += modularInteger->toString();
+  tmp += modularInteger->toHRString();
   tmp += " * ";
   tmp += cifraStr;
   tmp += ") % ";
-  tmp += modulus.toString();
+  tmp += modulus.toHRString();
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
-  string thisStr = res.toString();
+  string thisStr = res.toHRString();
 
   qassertTrue(pariStr == thisStr );
 }
@@ -235,14 +235,14 @@ void Z_nTest::testProductWithSignedDigit(){
 
   string tmp;
   tmp += '(';
-  tmp += modularInteger->toString();
+  tmp += modularInteger->toHRString();
   tmp += " * ";
   tmp += cifraStr;
   tmp += ") % ";
-  tmp += modulus.toString();
+  tmp += modulus.toHRString();
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
-  string thisStr = res.toString();
+  string thisStr = res.toHRString();
 
   qassertTrue(pariStr == thisStr );
 }
@@ -263,14 +263,14 @@ void Z_nTest::testDivisionWithZ(){
 
   string tmp;
   tmp += '(';
-  tmp += modularInteger->toString();
+  tmp += modularInteger->toHRString();
   tmp += " / ";
-  tmp += integer.toString();
+  tmp += integer.toHRString();
   tmp += ") % ";
-  tmp += modulus.toString();
+  tmp += modulus.toHRString();
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
-  string thisStr = res.toString();
+  string thisStr = res.toHRString();
 
   qassertTrue(pariStr == thisStr );
 }
@@ -309,14 +309,14 @@ void Z_nTest::testDivisionWithDigit(){
 
   string tmp;
   tmp += '(';
-  tmp += modularInteger->toString();
+  tmp += modularInteger->toHRString();
   tmp += " / ";
   tmp += cifraStr;
   tmp += ") % ";
-  tmp += modulus.toString();
+  tmp += modulus.toHRString();
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
-  string thisStr = res.toString();
+  string thisStr = res.toHRString();
 
   qassertTrue(pariStr == thisStr );
 
@@ -353,14 +353,14 @@ void Z_nTest::testDivisionWithSignedDigit(){
 
   string tmp;
   tmp += '(';
-  tmp += modularInteger->toString();
+  tmp += modularInteger->toHRString();
   tmp += " / ";
   tmp += cifraStr;
   tmp += ") % ";
-  tmp += modulus.toString();
+  tmp += modulus.toHRString();
 
   string pariStr(GENtostr( gp_read_str((char*)tmp.c_str()) ));
-  string thisStr = res.toString();
+  string thisStr = res.toHRString();
 
   qassertTrue(pariStr == thisStr );
 }
@@ -394,14 +394,14 @@ void Z_nTest::testExponentiationWithZ(){
 
   GEN x,y,m;
 
-  x = gp_read_str(const_cast<char*>(modularInteger->toString().c_str()));
-  y = gp_read_str(const_cast<char*>(integer.toString().c_str()) );
-  m = gp_read_str(const_cast<char*>(modulus.toString().c_str()));
+  x = gp_read_str(const_cast<char*>(modularInteger->toHRString().c_str()));
+  y = gp_read_str(const_cast<char*>(integer.toHRString().c_str()) );
+  m = gp_read_str(const_cast<char*>(modulus.toHRString().c_str()));
 
   GEN pariRes = Fp_pow(x,y,m);
 
   string pariStr(GENtostr( pariRes ));
-  string thisStr = res.toString();
+  string thisStr = res.toHRString();
 
   qassertTrue(pariStr == thisStr );
 }
@@ -421,14 +421,14 @@ void Z_nTest::testExponentiationWithDigit(){
 
   GEN x,y,m;
 
-  x = gp_read_str(const_cast<char*>(modularInteger->toString().c_str()));
+  x = gp_read_str(const_cast<char*>(modularInteger->toHRString().c_str()));
   y = gp_read_str(const_cast<char*>(cifraStr.c_str()));
-  m = gp_read_str(const_cast<char*>(modulus.toString().c_str()));
+  m = gp_read_str(const_cast<char*>(modulus.toHRString().c_str()));
 
   GEN pariRes = Fp_pow(x,y,m);
 
   string pariStr(GENtostr( pariRes ));
-  string thisStr = res.toString();
+  string thisStr = res.toHRString();
 
   qassertTrue(pariStr == thisStr );
 }
@@ -449,14 +449,14 @@ void Z_nTest::testExponentiationWithSignedDigit(){
 
   GEN x,y,m;
 
-  x = gp_read_str(const_cast<char*>(modularInteger->toString().c_str()));
+  x = gp_read_str(const_cast<char*>(modularInteger->toHRString().c_str()));
   y = gp_read_str(const_cast<char*>(cifraStr.c_str()));
-  m = gp_read_str(const_cast<char*>(modulus.toString().c_str()));
+  m = gp_read_str(const_cast<char*>(modulus.toHRString().c_str()));
 
   GEN pariRes = Fp_pow(x,y,m);
 
   string pariStr(GENtostr( pariRes ));
-  string thisStr = res.toString();
+  string thisStr = res.toHRString();
 
   qassertEquals(thisStr, pariStr);
 }

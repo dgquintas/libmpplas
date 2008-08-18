@@ -629,14 +629,16 @@ namespace mpplas{
 
 
 
-//  std::string Z_n::toString(void) const {
-//    // presents the polynomial as [(coeff_n, exp_n)...(coeff_0, 0)]
-//    std::ostringstream oss;
-//    oss << "(" << (*this) << ", " << n_<< ")";
-//    return oss.str();
-//  }
+  std::string Z_n::toString(void) const {
+    std::ostringstream oss;
+    oss << "(" << (*this) << ", " << n_<< ")";
+    return oss.str();
+  }
 
 
+  std::string Z_n::toHRString(void) const {
+    return Z::toHRString();
+  }
 
 
 

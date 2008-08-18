@@ -205,6 +205,15 @@ namespace mpplas{
         }
     };
 
+    /** Inconsistent operators */ 
+    class InconsistentOperands : public InvalidArgument {
+      public:
+        InconsistentOperands(const std::string details = "")
+        : InvalidArgument("Inconsistent operands; ") {
+          _msg += details;
+        }
+    };
+
 
     /** Irreducible polynomial expected */
     class IrreduciblePolyExpected: public InvalidArgument {

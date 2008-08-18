@@ -9,20 +9,20 @@
 
   template<typename S>
 Polynomial<S>::Polynomial(const S& ini)
-  : _data(1,ini), _ini(ini) {
+  : _data(1,ini), _ini(ini), _one(ini), _zero(ini) {
     _isSaField = bool(dynamic_cast<mpplas::Field<S>*>(&(_data[0])));
     _initConstsForS();
   }
 
   template<typename S>
 Polynomial<S>::Polynomial(const Polynomial<S>& src )
-  : MPPDataType(), _data(src._data), _isSaField(src._isSaField), _ini(src._ini), _ZERO_FOR_S( new S(_ini) ),_ONE_FOR_S( new S(_ini) ) {
+  : MPPDataType(), _data(src._data), _isSaField(src._isSaField), _ini(src._ini), _one(src._ini), _zero(src._ini)  {
     _initConstsForS();
   }
 
   template<typename S>
   Polynomial<S>::Polynomial(const std::string& str, const S& ini):
-    _ini(ini) {
+    _ini(ini), _one(ini), _zero(ini) {
 
       std::istringstream inStream(str);
       operator>>(inStream,*this);
@@ -41,20 +41,20 @@ Polynomial<S>::Polynomial(const Polynomial<S>& src )
 
   template<typename S>
 Polynomial<S>::Polynomial(const std::vector<S>& coeffs, const S& ini)
-  : _data(coeffs), _ini(ini) { 
+  : _data(coeffs), _ini(ini), _one(ini), _zero(ini) { 
     if( this->_data.empty() ){
       this->_data.push_back(ini);
     }
 
     _isSaField = bool(dynamic_cast<mpplas::Field<S>*>(&(_data[0])));
     _eraseLeadingZeros();
-
     _initConstsForS();
+
   }
 
   template<typename S>
 Polynomial<S>::Polynomial(const S& coeff, const int exp, const S& ini) 
-  : _ini(ini) {
+  : _ini(ini), _one(ini), _zero(ini) {
     if( exp < 0 ){
       std::ostringstream oss;
       oss << "\"exp\" at Polynomial<S> constructor.";
@@ -65,8 +65,8 @@ Polynomial<S>::Polynomial(const S& coeff, const int exp, const S& ini)
     _data.back() = coeff;
 
     _isSaField = bool(dynamic_cast<mpplas::Field<S>*>(&(_data[0])));
-
     _initConstsForS();
+
   }
 
 
@@ -78,6 +78,8 @@ Polynomial<S>& Polynomial<S>::operator=(const Polynomial<S>& src){
   this->_data = src._data;
   this->_isSaField = src._isSaField;
   this->_ini = src._ini;
+  this->_one = src._one;
+  this->_zero = src._zero;
 
   return *this;
 }
@@ -110,7 +112,7 @@ inline const S& Polynomial<S>::getLeadingCoefficient() const{
 
 template<typename S>
 inline bool Polynomial<S>::isMonic() const {
-  return this->_data.back() == S::getMultIdentity();
+  return this->_data.back() == this->getOne();
 }
 
 template<typename S>
@@ -144,7 +146,7 @@ bool Polynomial<S>::isCoeffsDomainAField() const {
 
 template<typename S>
 inline void Polynomial<S>::makeZero() {
-  this->_data.resize(1, this->_ini);
+  this->_data.resize(1, _ini);
   this->_data[0].makeZero();
 }
 template<typename S>
@@ -155,7 +157,7 @@ inline void Polynomial<S>::makeOne() {
 template<typename S>
 inline bool Polynomial<S>::isZero () const {
   if( this->_data.empty() || 
-      ((this->_data.size() == 1) && ( this->_data[0] == S::getAddIdentity() ) ) ){
+      ((this->_data.size() == 1) && ( this->_data[0] == this->getZero() ) ) ){
     return true;
   }
   else{
@@ -164,7 +166,7 @@ inline bool Polynomial<S>::isZero () const {
 }
 template<typename S>
 inline bool Polynomial<S>::isOne() const {
-  if( (this->_data.size() == 1) && ( this->_data[0] == S::getMultIdentity() ) ){
+  if( (this->_data.size() == 1) && ( this->_data[0] == this->getOne() ) ){
     return true;
   }
   else{
@@ -172,7 +174,19 @@ inline bool Polynomial<S>::isOne() const {
   }
 }
 
+template<typename S>
+inline const S& Polynomial<S>::getOne() const {
+  return this->_one;
+}
 
+template<typename S>
+inline const S& Polynomial<S>::getZero() const {
+  return this->_zero;
+}
+
+
+
+ 
 template<typename S>
 void Polynomial<S>::changeSign() {
   for(int i = 0; i < this->_data.size(); i++){
@@ -327,10 +341,10 @@ void Polynomial<S>::_divide(const Polynomial<S>& rhs){
 
 template<typename S>
 void Polynomial<S>::_initConstsForS(){
-  _ONE_FOR_S->makeOne();
-
-  _ZERO_FOR_S->makeZero();
+  _one.makeOne();
+  _zero.makeZero();
 }
+
 
 template<typename S>
 Polynomial<S>& Polynomial<S>::square(){
@@ -555,7 +569,7 @@ std::string Polynomial<S>::toString() const {
   std::ostringstream oss;
   oss << "[";
   for(int i = this->_data.size()-1; i >= 0; i--){
-    if( this->_data[i] != S::getAddIdentity() ){
+    if( this->_data[i] != this->getZero() ){
       oss << "(" << this->_data[i] << "," << i << ")";
     }
   }
@@ -630,7 +644,7 @@ void Polynomial<S>::_horner2ndOrder(T* const result, const T& x0) const {
 template<typename S>
 void Polynomial<S>::_eraseLeadingZeros(){
   typename mpplas::MiVec<S>::iterator it = this->_data.end()-1;
-  for( ; ((*it) == S::getAddIdentity() ) && (it != this->_data.begin()); 
+  for( ; ((*it) == this->getZero() ) && (it != this->_data.begin()); 
       it--) ;
   it++;
   this->_data.erase(it, this->_data.end());
@@ -644,7 +658,7 @@ template<typename S>
 std::ostream& operator<<(std::ostream& out, const Polynomial<S>& p){
   std::ostringstream oss;
   for(int i = p.getDegree(); i > 0; i--){
-    if( p[i] != S::getAddIdentity() /* zero */ ){
+    if( p[i] != p.getZero() /* zero */ ){
       oss.setf(std::ios::showpos);
       oss << " " << p[i] << "*x^";
       oss.unsetf(std::ios::showpos);
@@ -652,7 +666,7 @@ std::ostream& operator<<(std::ostream& out, const Polynomial<S>& p){
     }
   }
   //the independent coeff
-  if( p[0] != S::getAddIdentity() || p.getDegree() == 0 ){
+  if( p[0] != p.getZero() || p.getDegree() == 0 ){
     //if the polynomial only has the constant coeff, it is displayed,
     //even if it's zero
     oss.setf(std::ios::showpos);
@@ -855,6 +869,12 @@ Polynomial<S> GCDPolyKnuth<S>::gcd(Polynomial<S> u, Polynomial<S> v){
 
 template<typename S>
 Polynomial<S> GCDPolyCollins<S>::gcd(Polynomial<S> u, Polynomial<S> v){
+  if( u.getZero() != v.getZero() ){
+    std::ostringstream oss;
+    oss << "GCDPolyCollins<S>::gcd: Polynomial operands defined over incompatible types; ";
+    GEN_TRACE_INFO_OSS(oss);
+    throw Errors::InconsistentOperands(oss.str());
+  }
   GCD<Z>* gcd;
   MethodsFactory::getReference().getFunc(gcd);
 
@@ -866,8 +886,8 @@ Polynomial<S> GCDPolyCollins<S>::gcd(Polynomial<S> u, Polynomial<S> v){
   u.makePrimitive();
   v.makePrimitive();
 
-  S g(S::getMultIdentity());
-  S h(S::getMultIdentity());
+  S g(u.getOne()); //could have been v.getOne(). Both operands share the character of S
+  S h(u.getOne());
 
   while (true) { // C2
     int const delta( u.getDegree() - v.getDegree() );
@@ -924,18 +944,10 @@ Polynomial<S> GCDExtPoly<S>::gcdext(Polynomial<S> g, Polynomial<S> h, Polynomial
     t->makeZero();
     return g;
   }
-  Polynomial<S> s1(g.getIni());
-  Polynomial<S> s2;
-  Polynomial<S> t1;
-  Polynomial<S> t2(g.getIni());
-  //FIXME: this sucks. create a Group::getAOne (resp. Zero) to be able
-  //to retrive ones and zeros "based" on an already existing instance
-  s2.makeOne();
-  s2 += g.getIni();
-//  s1.makeZero();
-//  t2.makeZero();
-  t1.makeZero();
-  t1 += g.getIni();
+  Polynomial<S> s1(g.getZero());
+  Polynomial<S> s2(g.getOne());
+  Polynomial<S> t1(g.getZero());
+  Polynomial<S> t2(g.getZero());
 
   Polynomial<S> q(g.getIni()),r(g.getIni());
   while( !h.isZero() ){

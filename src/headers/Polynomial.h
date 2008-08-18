@@ -87,6 +87,9 @@ namespace mpplas{
         inline bool isZero() const;
         inline bool isOne() const;
 
+        inline const S& getOne() const;
+        inline const S& getZero() const;
+
         void changeSign();
 
         template<typename T>
@@ -142,13 +145,6 @@ namespace mpplas{
         /** Vector storing the coefficients from S */
         MiVec<S> _data;
 
-        /* Utility constants. Useful on "multidata" types such as Z_n, where 
-         * just using the algebraic Mult/Sum identity does not completely characterize a number/instance */
-        /** A zero (additive identity) for the template parameter S */
-        S* const _ZERO_FOR_S;
-        
-        /** A zero (additive identity) for the template parameter S */
-        S* const _ONE_FOR_S;
 
         bool _isSaField;
 
@@ -173,6 +169,8 @@ namespace mpplas{
         void _divide(const Polynomial<S>& rhs);
         void _initConstsForS();
         
+        S _one;
+        S _zero;
   
   }; /* class polynomial */
 

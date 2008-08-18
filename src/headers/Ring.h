@@ -39,7 +39,7 @@ namespace mpplas{
          * @par Complexity: \f$O(1)\f$
          *
          * @return a zero for the group of *this. */
-        virtual const T& getOne() const = 0; //{ return T::getMultIdentity(); }
+//        virtual const T& getOne() const = 0; //{ return T::getMultIdentity(); }
 
         /** Check for unity.
          *

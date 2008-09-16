@@ -637,7 +637,7 @@ namespace mpplas{
 
 
   std::string Z_n::toHRString(void) const {
-    return Z::toHRString();
+    return Z::toString();
   }
 
 

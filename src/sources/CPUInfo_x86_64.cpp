@@ -10,8 +10,8 @@ namespace mpplas{
   template<>
     std::auto_ptr< CPUInfo_x86_64 > 
     SingletonMixIn< CPUInfo_x86_64 >::_singletonInstance( new CPUInfo_x86_64 () );
-  template<>
-    pthread_mutex_t SingletonMixIn< CPUInfo_x86_64 >::mutex = PTHREAD_MUTEX_INITIALIZER;
+//  template<>
+//    pthread_mutex_t SingletonMixIn< CPUInfo_x86_64 >::mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
   CPUInfo_x86_64::CPUInfo_x86_64()

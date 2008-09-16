@@ -71,7 +71,7 @@ namespace mpplas{
         }
 
         static std::auto_ptr< T > _singletonInstance;
-        static pthread_mutex_t mutex;
+//        static pthread_mutex_t mutex;
 
         
 

@@ -14,6 +14,7 @@
 #include "Constraints.h"
 #include "SingletonMixIn.h"
 #include "Errors.h"
+#include "omp_mock.h"
 
 namespace mpplas{
 
@@ -46,7 +47,8 @@ namespace mpplas{
 
     private:
       MethodsFactory();
-      pthread_mutex_t _mutex;
+      pthread_mutex_t _pthreadMutex;
+      omp_nest_lock_t _ompLock;
       /** Thread-safe setting of a method's instance */
       template<typename T> void _set(T* const m);
 
@@ -67,23 +69,25 @@ namespace mpplas{
   template<typename T>
     void MethodsFactory::getFunc(T* &m) {
       Constraints::must_have_base<T,AbstractMethod>();
-#pragma omp critical 
-      {
-        pthread_mutex_lock( &_mutex);
+// omp critical musn't be nested. But in this case, the workflow might nest.
+// Therefore, manual omp nest locks have to be used
+        omp_set_nest_lock(&_ompLock);
+        pthread_mutex_lock( &_pthreadMutex);
         _get(m);
-        pthread_mutex_unlock( &_mutex);
-      }
+        pthread_mutex_unlock( &_pthreadMutex);
+        omp_unset_nest_lock(&_ompLock);
       return;
     }
   template<typename T>
     void MethodsFactory::setFunc(T* const m){
       Constraints::must_have_base<T,AbstractMethod>();
-#pragma omp critical 
-      {
-        pthread_mutex_lock( &_mutex);
-        _set(m);
-        pthread_mutex_unlock( &_mutex);
-      }
+// omp critical musn't be nested. But in this case, the workflow might nest.
+// Therefore, manual omp nest locks have to be used
+      omp_set_nest_lock(&_ompLock);
+      pthread_mutex_lock( &_pthreadMutex);
+      _set(m);
+      pthread_mutex_unlock( &_pthreadMutex);
+      omp_unset_nest_lock(&_ompLock);
       return;
     }
 

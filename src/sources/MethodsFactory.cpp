@@ -12,8 +12,8 @@ namespace mpplas{
     std::auto_ptr< MethodsFactory > 
      SingletonMixIn< MethodsFactory >::_singletonInstance( new MethodsFactory() );
 
-  template<>
-    pthread_mutex_t SingletonMixIn< MethodsFactory >::mutex = PTHREAD_MUTEX_INITIALIZER;
+//  template<>
+//    pthread_mutex_t SingletonMixIn< MethodsFactory >::mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
   MethodsFactory::MethodsFactory()
@@ -21,7 +21,10 @@ namespace mpplas{
       pthread_mutexattr_t mutattr;
       pthread_mutexattr_init(&mutattr);
       pthread_mutexattr_settype(&mutattr, PTHREAD_MUTEX_RECURSIVE);
-      pthread_mutex_init(&_mutex, &mutattr);
+      pthread_mutex_init(&_pthreadMutex, &mutattr);
+      pthread_mutexattr_destroy(&mutattr);
+
+      omp_init_nest_lock(&_ompLock);
 
     }
   
@@ -30,9 +33,9 @@ namespace mpplas{
   void MethodsFactory::reset(){
 #pragma omp critical
     {
-      pthread_mutex_lock( &_mutex);
+      pthread_mutex_lock( &_pthreadMutex);
       _methods.clear();
-      pthread_mutex_unlock( &_mutex);
+      pthread_mutex_unlock( &_pthreadMutex);
     }
     return;
   }
@@ -48,6 +51,9 @@ namespace mpplas{
       delete (*it).second;
       (*it).second = 0;
     }
+
+    omp_destroy_nest_lock(&_ompLock);
+    pthread_mutex_destroy(&_pthreadMutex);
   }
 
 }

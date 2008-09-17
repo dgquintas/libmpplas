@@ -75,14 +75,17 @@ namespace mpplas{
 
       /** In place inversion. 
        *
+       * @throw Errors::NonInvertibleElement element not invertible
        * @return a reference to *this
        * */
-      GFx& invert();
+      GFx& invert() ;
 
       /** Inverse.
        *
+       * @throw Errors::NonInvertibleElement element not invertible
+       * 
        * @return the inverse of the current finite field element. */
-      GFx getInverse() const;
+      GFx getInverse() const ;
 
 
       /** Cumulative exponentiation.

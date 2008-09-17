@@ -130,8 +130,16 @@ namespace mpplas {
   }
 
   GFx& GFx::invert(){
-    Z_px dummy(_gfGenerator.getCharacteristic());
-    Z_px::gcd(*this, _gfGenerator.getMod(), this, &dummy);
+    if( this->isZero() ){
+      std::ostringstream oss;
+      oss << "Zero element cannot be inverted; ";
+      GEN_TRACE_INFO_OSS(oss);
+      throw Errors::NonInvertibleElement(oss.str());
+    }
+    else{
+      Z_px dummy(_gfGenerator.getCharacteristic());
+      Z_px::gcd(*this, _gfGenerator.getMod(), this, &dummy);
+    }
     return *this;
   }
   GFx GFx::getInverse() const {

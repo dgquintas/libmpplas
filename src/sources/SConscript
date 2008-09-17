@@ -32,9 +32,6 @@ filesStr = """
     SystemInfo.cpp
     Trascendentes.cpp
     Utils.cpp
-    VectorFloat.cpp
-    VectorDouble.cpp
-    VectorInt.cpp
     VectorR.cpp
     VectorZ.cpp
     Z.cpp
@@ -54,7 +51,6 @@ def getNativelySupportedArchs():
   natArchs = ['generic']
   x86ArchMachines = ['i386', 'i486', 'i586', 'i686', 'x86_64']
   currentPlatformMachine = platform.machine()
-
   
   if currentPlatformMachine in x86ArchMachines:
     natArchs.append('x86')
@@ -147,8 +143,13 @@ namespace mpplas{
   out.close();  
 
 
-def setBitLengthDependentParams(env, bits = 32):
-  assert( bits in (32,64) )
+def setBitLengthDependentParams(env):
+  if env['arch'][:6] == 'x86_64':
+    bits = 64
+  elif env['arch'][:3] == 'x86':
+    #includes misc archs such as ppc, etc...
+    bits = 32
+
   bitsStr = str(bits)
   env.Append(CPPDEFINES = [('ARCHBITS', bitsStr)])
   env.Append(CPPDEFINES = 'ARCH_' + env['arch'] )
@@ -340,32 +341,22 @@ else:
     #TODO: check for other archs
     conf.CheckX86Arch()
 
-    if env['arch'][:6] == 'x86_64':
-      setBitLengthDependentParams(env, bits = 64)
+  setBitLengthDependentParams(env) 
 
-    elif env['arch'][:3] == 'x86':
-      setBitLengthDependentParams(env, bits = 32)
-    else: # ppc, etc...
-      setBitLengthDependentParams(env, bits = 32)
+  try:
+    import platform
 
+    if env['arch'] not in getNativelySupportedArchs():
+      print "\nWARNING: the selected architecture (" + env['arch'] + ") is not natively supported by this system"
+      for i in xrange(3):
+        time.sleep(1)
+        print '.',
+        sys.stdout.flush()
+      else:
+        print ''
 
-  else: # env['arch'] is not 'auto'. ie, it has been manually defined
-    setBitLengthDependentParams(env) #assumes 32 bits
-
-    try:
-      import platform
-
-      if env['arch'] not in getNativelySupportedArchs():
-        print "\nWARNING: the selected architecture (" + env['arch'] + ") is not natively supported by this system"
-        for i in xrange(3):
-          time.sleep(1)
-          print '.',
-          sys.stdout.flush()
-        else:
-          print ''
-
-    except ImportError:
-      print "Platform support checking not supported by the Python installed: " + sys.version
+  except ImportError:
+    print "Platform support checking not supported by the Python installed: " + sys.version
 
 
   env = conf.Finish()
@@ -415,6 +406,8 @@ def print_cmd_line(s, target, source, env):
     (' and '.join([str(x) for x in source]),
     ' and '.join([str(x) for x in target])))
 #env['PRINT_CMD_LINE_FUNC'] = print_cmd_line
+
+env.Append( LIBS = [ 'pthread'] )
 
 lib = env.SharedLibrary('mpplas', files)
 env.Default(lib)

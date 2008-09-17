@@ -53,7 +53,7 @@ void ExponentiationTest::testSlidingWindowExp(){
   potFunc.exponentiation(&_base,_exp);
 
   std::string pariStr(GENtostr( pariRes ));
-  qassertTrue( _base.toString() == pariStr );
+  qassertTrue( _base.toHRString() == pariStr );
 
 }
 void ExponentiationTest::testSlidingWindowExpR(){}
@@ -64,7 +64,7 @@ void ExponentiationTest::testExpLeftRight(){
 
   std::string pariStr(GENtostr( pariRes ));
 
-  qassertTrue ( _base.toString() == pariStr );
+  qassertTrue ( _base.toHRString() == pariStr );
 
 }
 void ExponentiationTest::testExpMontgomery(){
@@ -72,25 +72,25 @@ void ExponentiationTest::testExpMontgomery(){
   if( _mod.isEven() ){
     _mod++;
   }
-  GEN m = gp_read_str(const_cast<char*>(_mod.toString().c_str()));
+  GEN m = gp_read_str(const_cast<char*>(_mod.toHRString().c_str()));
   GEN pariRes = Fp_pow(x,Y,m);
   PotMontgomery potFunc;
   Z_n base_n(_base, _mod);
   potFunc.exponentiation(&base_n,_expZ);
 
   std::string pariStr(GENtostr( pariRes ));
-  qassertEquals( base_n.toString(), pariStr );
+  qassertEquals( base_n.toHRString(), pariStr );
 }
 void ExponentiationTest::testExpBarrett(){
   Z _mod(primes->getPrime( brand(100,200) ));
-  GEN m = gp_read_str(const_cast<char*>(_mod.toString().c_str()));
+  GEN m = gp_read_str(const_cast<char*>(_mod.toHRString().c_str()));
   GEN pariRes = Fp_pow(x,Y,m);
   ClasicoConBarrett potFunc;
   Z_n base_n(_base,_mod);
   potFunc.exponentiation(&base_n,_expZ);
 
   std::string pariStr(GENtostr( pariRes ));
-  qassertEquals( base_n.toString(), pariStr );
+  qassertEquals( base_n.toHRString(), pariStr );
 
   Y = gmul(Y, gp_read_str((char* )"-1"));
   pariRes = Fp_pow(x,Y,m);
@@ -99,7 +99,7 @@ void ExponentiationTest::testExpBarrett(){
   _expZ.invertSign();
   potFunc.exponentiation(&base_n,_expZ);
   pariStr = GENtostr( pariRes );
-  qassertEquals( base_n.toString() ,pariStr );
+  qassertEquals( base_n.toHRString() ,pariStr );
 
 
 }
@@ -111,7 +111,7 @@ void ExponentiationTest::testTwoThreadedModularExp(){
   while( _mod.isEven() || !gcd.gcd(_base, _mod).isOne() ){
     _mod = rnd->getInteger( brand(1000,2000) ); 
   }
-  GEN m = gp_read_str(const_cast<char*>(_mod.toString().c_str()));
+  GEN m = gp_read_str(const_cast<char*>(_mod.toHRString().c_str()));
   GEN pariRes = Fp_pow(x,Y,m);
 
   TwoThreadedModularExp potFunc;
@@ -120,14 +120,14 @@ void ExponentiationTest::testTwoThreadedModularExp(){
 
   std::string pariStr(GENtostr( pariRes ));
 
-  qassertEquals( base_n.toString(), pariStr );
+  qassertEquals( base_n.toHRString(), pariStr );
 }
 
 void ExponentiationTest::testMultiThreadedModularExp(){
 
   MultiThreadedModularExp potFunc;
   Z _mod(rnd->getInteger( brand(1000,2000) )); 
-  GEN m = gp_read_str(const_cast<char*>(_mod.toString().c_str()));
+  GEN m = gp_read_str(const_cast<char*>(_mod.toHRString().c_str()));
   GEN pariRes = Fp_pow(x,Y,m);
 
   Z_n base_n(_base,_mod);
@@ -135,7 +135,7 @@ void ExponentiationTest::testMultiThreadedModularExp(){
 
   std::string pariStr(GENtostr( pariRes ));
 
-  qassertEquals( base_n.toString() ,pariStr );
+  qassertEquals( base_n.toHRString() ,pariStr );
 
   return;
 }

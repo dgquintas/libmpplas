@@ -147,7 +147,8 @@ def setBitLengthDependentParams(env):
   if env['arch'][:6] == 'x86_64':
     bits = 64
   elif env['arch'][:3] == 'x86':
-    #includes misc archs such as ppc, etc...
+    bits = 32
+  else: # misc archs such as ppc, etc...
     bits = 32
 
   bitsStr = str(bits)

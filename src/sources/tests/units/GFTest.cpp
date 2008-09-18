@@ -28,6 +28,8 @@ GFTest::GFTest(){
   addTest( GFTest, testDivision);
 
   addTest( GFTest, testInversion);
+  addTest( GFTest, testInversionThrows);
+
   addTest( GFTest, testExponentiation);
 
   addTest( GFTest, testConversions);
@@ -38,7 +40,7 @@ GFTest::GFTest(){
 
 void GFTest::setUp(){
   const Z p(primes->getPrime(brand(1,5)));
-  const int n(brand(1,8));
+  const int n(brand(1,6));
 
   gfIrred = new GF(p,n,false);
 
@@ -49,8 +51,8 @@ void GFTest::tearDown(){
 
 
 void GFTest::testGeneratorFromPrimitivePoly(){
-  const Z p(primes->getPrime(brand(1,4)));
-  const int n(brand(1,6));
+  const Z p(primes->getPrime(brand(1,3)));
+  const int n(brand(1,4));
 
   GF gfPrim(p,n,true);
 
@@ -105,7 +107,11 @@ void GFTest::testDivision(){}
 
 void GFTest::testInversion(){
   const Z srcInt( rnd->getDigit() );
-  const GFx e(gfIrred->getElement( srcInt ));
+  GFx e;
+  do{ 
+    e = gfIrred->getElement( srcInt );
+  } while( e.isZero() );
+
   const GFx eInv( e.getInverse() );
 
   const GFx shouldBeOne ( e*eInv );
@@ -118,6 +124,21 @@ void GFTest::testInversion(){
   }
   qassertTrue( res );
 
+}
+
+
+void GFTest::testInversionThrows(){
+  const GFx e( gfIrred->getElement() ); //zero
+  try {
+    e.getInverse();
+  }
+  catch( Errors::NonInvertibleElement ){
+    return;
+  }
+
+  //this point shouldn't be reached 
+  qassertTrue(false);
+    
 }
 void GFTest::testExponentiation(){}
 

@@ -35,6 +35,8 @@ namespace com_uwyn_qtunit{
       void testDivision();
 
       void testInversion();
+      void testInversionThrows();
+
       void testExponentiation();
 
       void testConversions();

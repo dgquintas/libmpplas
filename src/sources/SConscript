@@ -50,7 +50,9 @@ filesStr = """
 def getNativelySupportedArchs():
   natArchs = ['generic']
   x86ArchMachines = ['i386', 'i486', 'i586', 'i686', 'x86_64']
-  currentPlatformMachine = platform.machine()
+  #platform.machine is unrealiable. The whole platform module is
+  #going for an ad hoc solution instead
+  currentPlatformMachine = deduceUnderlyingArchitecture()
   
   if currentPlatformMachine in x86ArchMachines:
     natArchs.append('x86')
@@ -61,6 +63,10 @@ def getNativelySupportedArchs():
 
   return tuple(natArchs)
 
+def deduceUnderlyingArchitecture():
+  import ctypes
+  size_tSize = ctypes.sizeof(ctypes.c_size_t)
+  return {4: "i386", 8: "x86_64"}[size_tSize]
 
 def manually_insert(inputPath,outputPath,conditions):
   import re
@@ -345,8 +351,6 @@ else:
   setBitLengthDependentParams(env) 
 
   try:
-    import platform
-
     if env['arch'] not in getNativelySupportedArchs():
       print "\nWARNING: the selected architecture (" + env['arch'] + ") is not natively supported by this system"
       for i in xrange(3):
